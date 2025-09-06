@@ -44,7 +44,7 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed })
                 showBulkButtons={true}
             />
             <div className="table-container">
-                <table>
+                <table className="ownership-table">
                     <thead>
                         <tr>
                             <th>所持</th><th>名前</th><th>凸</th><th>Lv</th><th>奥義Lv</th><th>専用霊宝</th><th>絆霊宝</th>

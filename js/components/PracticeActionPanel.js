@@ -208,11 +208,7 @@ const PracticeActionPanel = ({
             </div>
             {isFormationDisabled && <p style={{color: 'var(--danger-color)', fontSize: '12px', marginTop: '12px'}}>この編成には絶不調または気絶状態のメギドが含まれているため、使用できません。</p>}
             {!isResolvable && !isLocked && <p style={{color: 'var(--warning-color)', fontSize: '12px', marginTop: '12px'}}>このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
-            <div style={{marginTop: '16px', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px'}}>
-                <button onClick={() => onResolve('win', formation, square)} disabled={!selectedFormationId || isFormationDisabled || !isResolvable} className="btn btn-ghost-win">勝利</button>
-                <button onClick={() => onResolve('lose', formation, square)} disabled={!selectedFormationId || isFormationDisabled || !isResolvable} className="btn btn-ghost-lose">敗北</button>
-                <button onClick={() => onResolve('retreat', formation, square)} disabled={!selectedFormationId || !isResolvable} className="btn btn-ghost-retire">リタイア</button>
-            </div>
+            
             <FilterableSelectionModal 
                 title="編成を選択" 
                 isOpen={isFormationModalOpen} 
@@ -233,6 +229,11 @@ const PracticeActionPanel = ({
                 }}
                 showFilters={true}
             />
+            <div style={{marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px'}}>
+                <button onClick={() => onResolve('win', formation, square)} disabled={!selectedFormationId || isFormationDisabled || !isResolvable} className="btn btn-ghost-win">勝利</button>
+                <button onClick={() => onResolve('lose', formation, square)} disabled={!selectedFormationId || isFormationDisabled || !isResolvable} className="btn btn-ghost-lose">敗北</button>
+                <button onClick={() => onResolve('retreat', formation, square)} disabled={!selectedFormationId || !isResolvable} className="btn btn-ghost-retire">リタイア</button>
+            </div>
         </div>
     );
 };

@@ -1127,21 +1127,26 @@
 }
 
 /* === Achievement Toast === */
-.toast {
+.toast-container {
   position: fixed;
-  bottom: 30px;
-  left: 30px;
+  bottom: 20px;
+  left: 20px;
+  z-index: 2000;
+  animation: slideInAndFadeIn 0.5s ease, fadeOut 0.5s ease 4s forwards;
+}
+
+.toast-content {
   display: flex;
   align-items: center;
-  background-color: #333;
+  background-color: var(--bg-panel-raised, #333);
   padding: 12px 20px;
-  border-radius: 40px;
-  color: #fff;
-  font-family: "Segoe UI", sans-serif;
+  border-radius: 8px;
+  color: var(--text-main);
+  font-family: var(--font-main);
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  animation: slideIn 0.5s ease, fadeOut 0.5s ease 4s forwards;
-  min-width: 320px;
-  z-index: 2000; /* Ensure it's on top */
+  min-width: 300px;
+  max-width: calc(100vw - 40px);
+  border: 1px solid var(--border-color);
 }
 
 .toast-icon {
@@ -1168,14 +1173,14 @@
   opacity: 0.9;
 }
 
-@keyframes slideIn {
+@keyframes slideInAndFadeIn {
   from {
-    transform: translateX(-120%);
     opacity: 0;
+    transform: translateX(-100%);
   }
   to {
-    transform: translateX(0);
     opacity: 1;
+    transform: translateX(0);
   }
 }
 

@@ -71,8 +71,9 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
     const [previousScreen, setPreviousScreen] = useState('map');
     const [targetFloor, setTargetFloor] = useState(35);
     const [displayedEnemy, setDisplayedEnemy] = useState(null);
-    const [birthdayMegido, setBirthdayMegido] = useState(null);
+    const [eventToast, setEventToast] = useState(null);
     const [isBirthdayButtonHovered, setIsBirthdayButtonHovered] = useState(false);
+    const [dontShowAgain, setDontShowAgain] = useState(false);
     const [guidance, setGuidance] = useState({ recommended: null, candidates: {} });
     const [partyConditionRisk, setPartyConditionRisk] = useState(0);
     const [isRecoveryRecommended, setIsRecoveryRecommended] = useState(false);
@@ -555,17 +556,58 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
     }, []);
 
     useEffect(() => {
-        if (isLoading) return;
+        if (isLoading || typeof MEGIDO_BIRTHDAY_DATA === 'undefined') return;
 
         const today = new Date();
-        const month = today.getMonth() + 1;
-        const day = today.getDate();
-        const todayString = `${month}月${day}日`;
+        today.setHours(0, 0, 0, 0);
+        const currentYear = today.getFullYear();
 
-        const foundMegido = MEGIDO_BIRTHDAY_DATA.find(m => m.date === todayString);
-        
-        if (foundMegido) {
-            setBirthdayMegido({ ...foundMegido, displayDate: todayString });
+        for (const event of MEGIDO_BIRTHDAY_DATA) {
+            const [month, day] = event.date.replace('月', '-').replace('日', '').split('-').map(Number);
+            const eventDate = new Date(currentYear, month - 1, day);
+            let eventToShow = null;
+
+            // Check for countdown first
+            if (event.countdown) {
+                const countdownDate = new Date(eventDate);
+                countdownDate.setDate(eventDate.getDate() - event.countdown);
+                if (countdownDate.getTime() === today.getTime()) {
+                    const storageKey = `seen_event_${currentYear}_${event.name}_countdown`;
+                    if (!localStorage.getItem(storageKey)) {
+                        let text = event.countdown_text;
+                        let anniversaryString = '';
+                        if (event.type === 'anniversary') {
+                            const year = currentYear + (today.getMonth() > month - 1 || (today.getMonth() === month - 1 && today.getDate() >= day) ? 1 : 0);
+                            let anniversaryYear = year - event.start_year;
+                            anniversaryString = anniversaryYear === 9 ? '７＋２周年' : `${anniversaryYear}周年`;
+                            text = event.countdown_text_template.replace('X周年', anniversaryString);
+                        }
+                        eventToShow = { ...event, isCountdown: true, text: text, storageKey, anniversaryString };
+                    }
+                }
+            }
+
+            // If no countdown, check for day-of event
+            if (!eventToShow && eventDate.getTime() === today.getTime()) {
+                const storageKey = `seen_event_${currentYear}_${event.name || event.base_name}`;
+                if (!localStorage.getItem(storageKey)) {
+                    let text = event.day_of_text;
+                    let anniversaryString = '';
+                    if (event.type === 'anniversary') {
+                        let anniversaryYear = currentYear - event.start_year;
+                        anniversaryString = anniversaryYear === 9 ? '７＋２周年' : `${anniversaryYear}周年`;
+                        text = event.day_of_text_template.replace('X周年', anniversaryString);
+                    } else if (event.type === 'birthday') {
+                        text = `${event.date}は${event.base_name}${event.unit_name ? `（${event.unit_name}）` : ''}の${event.born_type}日です！`;
+                    }
+                    eventToShow = { ...event, isCountdown: false, text: text, storageKey, anniversaryString };
+                }
+            }
+
+            if (eventToShow) {
+                setEventToast(eventToShow);
+                break; // Show only one toast per page load
+            }
         }
     }, [isLoading]);
 
@@ -654,19 +696,27 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
     };
 
     useEffect(() => {
-        const devtoolsDetector = {
-            get isOpen() {
-                showAchievementToastById('DEBUG');
-                return false;
+        const threshold = 160; // The threshold for detecting devtools
+        let devtoolsOpen = false; // Flag to prevent continuous firing
+
+        const checkDevTools = () => {
+            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
+            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
+
+            if (widthThreshold || heightThreshold) {
+                if (!devtoolsOpen) {
+                    devtoolsOpen = true;
+                    showAchievementToastById('DEBUG');
+                }
+            } else {
+                devtoolsOpen = false;
             }
         };
 
-        const intervalId = setInterval(() => {
-            console.log(devtoolsDetector);
-        }, 2000);
+        const intervalId = setInterval(checkDevTools, 1000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, []); // Run only once on mount
 
     const handleCreateFormationFromEnemy = (enemyName, floor) => {
         setInitialTagTarget({ enemy: enemyName, floor: floor });
@@ -1428,25 +1478,32 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         }
     };
 
-    const generateBirthdayTweetUrl = (megido) => {
-        const text = `今日は${megido.base_name}${megido.unit_name ? `（${megido.unit_name}）` : ''}の${megido.born_type}日です！おメギド！！ #メギド72`;
+    const generateEventTweetUrl = (event) => {
+        let text = '';
+        if (event.type === 'birthday') {
+            text = `今日は${event.base_name}${event.unit_name ? `（${event.unit_name}）` : ''}の${event.born_type}日です！おメギド！！ #メギド72`;
+        } else if (event.type === 'anniversary') {
+            text = event.tweet_text_template.replace('X周年', event.anniversaryString);
+        } else {
+            text = event.tweet_text;
+        }
         return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     };
 
-    const birthdayModalOverlayStyle = {
+    const eventModalOverlayStyle = {
         position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', 
         backgroundColor: 'rgba(0,0,0,0.7)', 
         display: 'flex', alignItems: 'center', justifyContent: 'center', 
         zIndex: 1000
     };
 
-    const birthdayModalContentStyle = {
+    const eventModalContentStyle = {
         background: 'var(--bg-panel)', padding: '2rem', borderRadius: '8px', 
         textAlign: 'center', border: '1px solid var(--primary-accent)', 
         boxShadow: '0 5px 25px rgba(0,0,0,0.5)'
     };
 
-    const birthdayButtonStyle = {
+    const eventButtonStyle = {
         normal: {
             display: 'inline-block',
             marginTop: '1.5rem',
@@ -1626,26 +1683,34 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
     return (
         <div className="app-container">
-            {birthdayMegido && (
-                <div style={birthdayModalOverlayStyle} onClick={() => setBirthdayMegido(null)}>
-                    <div style={birthdayModalContentStyle} onClick={(e) => e.stopPropagation()}>
-                        <h3 style={{marginTop: 0, color: 'var(--primary-accent)', fontSize: '24px'}}>おメギド！！！</h3>
-                        <p>
-                            {birthdayMegido.displayDate}は <strong>{birthdayMegido.base_name}</strong>
-                            {birthdayMegido.unit_name && `（${birthdayMegido.unit_name}）`}
-                            の{birthdayMegido.born_type}日です！
-                        </p>
-                        <p>今日は{birthdayMegido.base_name}を星間の塔で使ってみませんか？</p>
+            {eventToast && (
+                <div style={eventModalOverlayStyle} onClick={() => {
+                    if (dontShowAgain) {
+                        localStorage.setItem(eventToast.storageKey, 'true');
+                    }
+                    setEventToast(null);
+                    setDontShowAgain(false); // Reset for next time
+                }}>
+                    <div style={eventModalContentStyle} onClick={(e) => e.stopPropagation()}>
+                        <h3 style={{marginTop: 0, color: 'var(--primary-accent)', fontSize: '24px'}}>おメギド！</h3>
+                        <p style={{fontSize: '1.1rem', lineHeight: '1.6'}}>{eventToast.text}</p>
+                        {eventToast.type === 'birthday' && (
+                             <p>今日は{eventToast.base_name}を星間の塔で使ってみませんか？</p>
+                        )}
                         <a 
-                            href={generateBirthdayTweetUrl(birthdayMegido)} 
+                            href={generateEventTweetUrl(eventToast)} 
                             target="_blank" 
                             rel="noopener noreferrer" 
-                            style={isBirthdayButtonHovered ? birthdayButtonStyle.hover : birthdayButtonStyle.normal}
+                            style={isBirthdayButtonHovered ? eventButtonStyle.hover : eventButtonStyle.normal}
                             onMouseEnter={() => setIsBirthdayButtonHovered(true)}
                             onMouseLeave={() => setIsBirthdayButtonHovered(false)}
                         >
-                            ツイートしてお祝いする
+                            ツイートでお祝いする
                         </a>
+                        <div style={{marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'}}>
+                            <input type="checkbox" id="dont-show-again" checked={dontShowAgain} onChange={(e) => setDontShowAgain(e.target.checked)} style={{width: '16px', height: '16px'}} />
+                            <label htmlFor="dont-show-again" style={{color: 'var(--text-subtle)', cursor: 'pointer'}}>今日は再表示しない</label>
+                        </div>
                     </div>
                 </div>
             )}
@@ -1663,27 +1728,14 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 onResetRun={handleResetRun}
                 onOpenSettings={handleOpenSettings}
                 isMobileView={isMobileView}
+                runState={runState}
             />
             <div className="main-content" style={{ display: 'flex', gap: '1rem', padding: '1rem' }}>
                 {isMobileView ? (
                     <div className="mobile-view-container">
+                        {/* Mobile view tabs content */}
                         {activeTab === 'details' && (
                             <div className="left-panel" style={{ width: '100%' }}>
-                                {mode === 'plan' ? 
-                                    <PlanModeDashboard planConditions={planConditions} planState={planState} /> :
-                                    <ResourceDashboard 
-                                        runState={runState}
-                                        megidoConditions={megidoConditions}
-                                        ownedMegidoIds={ownedMegidoIds}
-                                        planState={planState}
-                                        formations={formations}
-                                        mode={mode}
-                                        megidoDetails={megidoDetails}
-                                        manualRecovery={manualRecovery}
-                                        onManualRecover={handleManualRecovery}
-                                        isMobileView={isMobileView}
-                                    />
-                                }
                                 {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
                                     <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
                                         <FloorGrid
@@ -1707,7 +1759,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                             </div>
                         )}
                         {activeTab === 'ownership' && <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} />}
-                                                {activeTab === 'formation' && (
+                        {activeTab === 'formation' && (
                             editingFormation ? (
                                 <FormationEditor
                                     formation={editingFormation}
@@ -1809,13 +1861,15 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
             />
             {showToast && <div className="toast-simple">{toastMessage}</div>}
             {achievementToast && (
-                <div className="toast">
-                    <div className="toast-icon">
-                        <img src="asset/achievement.png" alt="Achievement Icon" />
-                    </div>
-                    <div className="toast-text">
-                        <div className="toast-title">実績を解除しました！</div>
-                        <div className="toast-subtitle">{achievementToast.name}</div>
+                <div className="toast-container">
+                    <div className="toast-content">
+                        <div className="toast-icon">
+                            <img src="asset/achievement.png" alt="Achievement Icon" />
+                        </div>
+                        <div className="toast-text">
+                            <div className="toast-title">実績を解除しました！</div>
+                            <div className="toast-subtitle">{achievementToast.name}</div>
+                        </div>
                     </div>
                 </div>
             )}
@@ -1831,12 +1885,28 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 viewMode={viewMode}
                 onViewModeChange={handleViewModeChange}
             />
-            {selectedSquare && (
-                <div className="mobile-modal-overlay" onClick={() => setSelectedSquare(null)}>
-                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()}>
+            {isMobileView && selectedSquare && (
+                <div className="mobile-panel-overlay" onClick={() => setSelectedSquare(null)}>
+                    <div className="mobile-panel-content" onClick={(e) => e.stopPropagation()}>
                         <button className="btn-close-modal" onClick={() => setSelectedSquare(null)}>&times;</button>
                         <RightPanelContent />
                     </div>
+                </div>
+            )}
+            {isMobileView && (
+                <div className="resource-dashboard-footer">
+                    <ResourceDashboard 
+                        runState={runState}
+                        megidoConditions={megidoConditions}
+                        ownedMegidoIds={ownedMegidoIds}
+                        planState={planState}
+                        formations={formations}
+                        mode={mode}
+                        megidoDetails={megidoDetails}
+                        manualRecovery={manualRecovery}
+                        onManualRecover={handleManualRecovery}
+                        isMobileView={isMobileView}
+                    />
                 </div>
             )}
         </div>

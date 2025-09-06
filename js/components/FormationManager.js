@@ -24,6 +24,7 @@ const FormationManager = ({
     const [showShareModal, setShowShareModal] = useState(false);
     const [generatedImageData, setGeneratedImageData] = useState(null);
     const [tweetUrl, setTweetUrl] = useState('');
+    const [expandedCardId, setExpandedCardId] = useState(null);
 
     const drawOutlinedText = (ctx, text, x, y, options = {}) => {
         const {
@@ -426,7 +427,7 @@ const FormationManager = ({
             <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center'}}>
                 <input 
                     type="text" 
-                    placeholder="タグで検索..."
+                    placeholder="名前またはタグで検索..."
                     value={tagSearch.text}
                     onChange={e => setTagSearch({ text: e.target.value, exactMatch: tagSearch.exactMatch })}
                     className="input-field" 
@@ -441,7 +442,6 @@ const FormationManager = ({
                         onChange={e => setTagSearch({ text: tagSearch.text, exactMatch: e.target.checked })}
                     />
                 </div>
-                <button onClick={handleNewFormation} className="btn btn-ghost">新規作成</button>
                 <button onClick={onImport} className="btn btn-ghost" disabled={!isHtml5QrLoaded}>インポート</button>
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
@@ -449,18 +449,34 @@ const FormationManager = ({
                     const isInvalid = isFormationInvalid(form, megidoDetails, ownedMegidoIds);
                     const cardStyle = isInvalid ? { backgroundColor: 'rgba(217, 83, 79, 0.3)' } : {};
                     const nameStyle = isInvalid ? { color: 'var(--danger-color)' } : {};
+                    const isExpanded = expandedCardId === form.id;
+
                     return (
                         <div key={form.id} className="card" style={cardStyle}>
-                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                <h3 style={{...nameStyle, fontWeight: 700, margin: 0}}>{form.name}</h3>
-                                <div style={{display: 'flex', gap: '8px'}}>
-                                    <button onClick={() => handleGenerateShareImage(form)} className="btn btn-secondary" style={{fontSize: '12px', padding: '4px 8px'}}>共有画像</button>
-                                    <button onClick={() => onCopy(form)} className="btn btn-secondary" style={{fontSize: '12px', padding: '4px 8px'}}>コピー</button>
-                                    <button onClick={() => handleExportClick(form)} className="btn btn-secondary" style={{fontSize: '12px', padding: '4px 8px'}}>エクスポート</button>
-                                    <button onClick={() => { setPreviousScreen('formation'); onEditingFormationChange(form); }} className="btn btn-secondary" style={{fontSize: '12px', padding: '4px 8px'}}>編集</button>
-                                    <button onClick={() => onDelete(form.id)} className="btn btn-danger" style={{fontSize: '12px', padding: '4px 8px'}}>削除</button>
-                                </div>
+                            <div className="formation-card-header">
+                                <h3 style={{...nameStyle, fontWeight: 700, margin: 0, flexGrow: 1}}>{form.name}</h3>
+                                <button 
+                                    className="formation-card-menu-btn"
+                                    onClick={() => setExpandedCardId(isExpanded ? null : form.id)}
+                                >
+                                    ︙
+                                </button>
                             </div>
+
+                            {isExpanded && (
+                                <div className="formation-card-actions">
+                                    <button onClick={() => handleGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
+                                    <button onClick={() => onCopy(form)} className="btn btn-secondary">コピー</button>
+                                    <button onClick={() => handleExportClick(form)} className="btn btn-secondary">エクスポート</button>
+                                    <button onClick={() => { setPreviousScreen('formation'); onEditingFormationChange(form); }} className="btn btn-secondary">編集</button>
+                                    <button onClick={() => {
+                                        if (window.confirm(`「${form.name}」を削除してもよろしいですか？`)) {
+                                            onDelete(form.id);
+                                        }
+                                    }} className="btn btn-danger">削除</button>
+                                </div>
+                            )}
+
                             <p style={{color: 'var(--text-subtle)', margin: '8px 0', whiteSpace: 'pre-wrap'}}>{form.notes || ''}</p>
                             <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px'}}>{(form.tags || []).map((tag, i) => (
                                 <button key={`${tag}-${i}`} className="tag-button-item" onClick={() => setTagSearch({ text: tag, exactMatch: true }) }>
@@ -476,6 +492,10 @@ const FormationManager = ({
                         </div>
                     );
                 })}
+            </div>
+            <div className="fab-container">
+                <button onClick={handleNewFormation} className="fab-add-formation">+</button>
+                <span className="fab-text">新規作成</span>
             </div>
         </div>
     );
