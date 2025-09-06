@@ -1,0 +1,131 @@
+const FloorGrid = ({ floorData, handleSquareClick, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance }) => {
+    const containerRef = useRef(null);
+    const [lines, setLines] = useState([]);
+
+    const getSquareIcon = (square) => {
+        const basePath = 'asset/';
+        let iconName = square.type;
+
+        if (square.type === 'explore') {
+            iconName = square.sub_type;
+        }
+        
+        return `${basePath}${iconName}.png`;
+    };
+
+    useEffect(() => {
+        if (!containerRef.current) return;
+
+        const newLines = [];
+        const squareElements = containerRef.current.querySelectorAll('[data-square-id]');
+        const elementsMap = new Map();
+        squareElements.forEach(el => elementsMap.set(el.dataset.squareId, el));
+        const floorSquareIds = new Set(Object.keys(floorData.squares));
+        const clearedSquaresOnFloor = runState.cleared[floorData.floor] || [];
+
+        for (const startId in connections) {
+            if (floorSquareIds.has(startId)) {
+                const startElement = elementsMap.get(startId);
+                if (startElement) {
+                    connections[startId].forEach(endId => {
+                        if (floorSquareIds.has(endId)) {
+                            const endElement = elementsMap.get(endId);
+                            if (endElement) {
+                                const containerRect = containerRef.current.getBoundingClientRect();
+                                const startRect = startElement.getBoundingClientRect();
+                                const endRect = endElement.getBoundingClientRect();
+                                
+                                const isStartCleared = clearedSquaresOnFloor.includes(startId);
+                                const isEndCleared = clearedSquaresOnFloor.includes(endId);
+                                
+                                let lineClass = 'map-line';
+                                if (mode === 'practice') {
+                                    if (isStartCleared && isEndCleared) {
+                                        lineClass = 'line-traversed';
+                                    } else if (isStartCleared && !isEndCleared) {
+                                        if (guidance.recommended === endId) {
+                                            lineClass = 'line-recommended';
+                                        } else if (guidance.candidates.hasOwnProperty(endId)) {
+                                            lineClass = 'line-candidate';
+                                        }
+                                    }
+                                } else if (mode === 'plan') {
+                                    lineClass = 'line-plan';
+                                }
+
+                                newLines.push({
+                                    x1: startRect.left + startRect.width / 2 - containerRect.left,
+                                    y1: startRect.top + startRect.height / 2 - containerRect.top,
+                                    x2: endRect.left + endRect.width / 2 - containerRect.left,
+                                    y2: endRect.top + endRect.height / 2 - containerRect.top,
+                                    className: lineClass
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        }
+        setLines(newLines);
+    }, [floorData, runState.cleared, mode, targetFloor]);
+
+    const isGreyedOut = floorData.floor > targetFloor;
+    const isPastFloor = runState.currentPosition?.floor > floorData.floor;
+
+    return (
+        <div className={`floor-grid ${activeFloor === floorData.floor ? 'floor-highlight' : ''} ${isGreyedOut ? 'opacity-40' : ''} ${isPastFloor ? 'past-floor' : ''}`}>
+            <h3 className="floor-header">{floorData.floor}階 <span>(テーマ: {floorData.theme})</span></h3>
+            <div ref={containerRef} style={{ position: 'relative' }}>
+                <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
+                    {lines.map((line, i) => <line key={i} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} className={line.className} />)}
+                </svg>
+                <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: `repeat(${floorData.layoutGrid[0].length}, 1fr)`, gap: '16px', alignItems: 'center' }}>
+                    {floorData.layoutGrid.flat().map((squareId, index) => {
+                        if (!squareId) return <div key={index} style={{ height: '48px' }}></div>;
+                        const square = floorData.squares[squareId];
+                        if (!square) return <div key={index} style={{ height: '48px', border: '1px solid red' }}>?</div>;
+                        
+                        const memo = memos[`${floorData.floor}-${squareId}`];
+                        const isCurrentPos = mode === 'practice' && runState.currentPosition?.floor === floorData.floor && runState.currentPosition?.squareId === squareId;
+                        let nodeClasses = getSquareStyle(square, floorData, squareId);
+                        if (isCurrentPos) {
+                            nodeClasses += ' current-position';
+                        }
+
+                        return (
+                            <div key={index} className="map-node-container" data-square-id={squareId}>
+                                <div 
+                                    onClick={() => handleSquareClick(floorData, square, squareId, index)} 
+                                    className={`map-node ${nodeClasses}`}
+                                >
+                                    <div 
+                                        className={`map-node-icon ${getSquareColorClass(square)}`}
+                                        style={{ 
+                                            backgroundImage: `url(${getSquareIcon(square)})`,
+                                            '--animation-color-rgb': getSquareColorRgbVarName(square)
+                                        }}
+                                    ></div>
+                                </div>
+                                {memo && <div className="memo-tooltip">{memo}</div>}
+                                {mode === 'practice' && (square.type === 'battle' || square.type === 'boss') && (
+                                    <div className="enemy-tooltip">
+                                        <h4 style={{margin: 0, paddingBottom: '4px', borderBottom: '1px solid var(--border-color-light)', fontSize:'14px', fontWeight: 700}}>出現エネミー</h4>
+                                        <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px'}}>
+                                            {(square.enemies && square.enemies.length > 0) ? (
+                                                square.enemies.map(enemyName => (
+                                                    <li key={enemyName} style={{fontSize: '12px'}}>{enemyName}</li>
+                                                ))
+                                            ) : (
+                                                <li style={{fontSize: '12px', color: 'var(--text-subtle)'}}>情報なし</li>
+                                            )}
+                                        </ul>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+};

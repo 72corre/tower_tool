@@ -1,0 +1,105 @@
+/* for Mobile Layout */
+
+/* The mobile-view class is added to the body via JS */
+body.mobile-view .main-content {
+    /* PCでは横並びのレイアウトを、スマホでは縦積みに変更 */
+    flex-direction: column !important;
+    /* スマホでは不要な余白を削除 */
+    padding: 0 !important;
+    gap: 0 !important;
+}
+
+body.mobile-view .left-panel {
+    /* 親要素いっぱいに広がるように設定 */
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    /* 高さはコンテンツに応じて自動調整 */
+    height: auto !important;
+    /* パネル内のスクロールではなく、ページ全体のスクロールを有効にする */
+    overflow-y: visible !important;
+}
+
+body.mobile-view .right-panel {
+    /* 右側の詳細パネルは非表示にする */
+    display: none;
+}
+
+/* --- Resource Dashboard (Mobile) --- */
+body.mobile-view .resource-dashboard {
+    border-bottom: 1px solid var(--border-color, #ccc);
+    background-color: var(--bg-panel, #fff);
+}
+
+body.mobile-view .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+body.mobile-view .dashboard-summary-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+body.mobile-view .fatigue-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+body.mobile-view .summary-style-r { color: var(--rush-color, #d9534f); font-weight: 500; }
+body.mobile-view .summary-style-c { color: var(--counter-color, #5bc0de); font-weight: 500; }
+body.mobile-view .summary-style-b { color: var(--burst-color, #f0ad4e); font-weight: 500; }
+
+body.mobile-view .dashboard-toggle {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+body.mobile-view .dashboard-content {
+    padding: 0.5rem 1rem 1rem 1rem;
+    border-top: 1px solid var(--border-color-light, #eee);
+}
+
+
+/* Modal for mobile view */
+body.mobile-view .mobile-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+body.mobile-view .mobile-modal-content {
+    position: relative; /* For close button positioning */
+    background: var(--bg-panel, #fff);
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color, #ccc);
+}
+
+body.mobile-view .mobile-modal-content .btn-close-modal {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: var(--text-main);
+    padding: 5px;
+}

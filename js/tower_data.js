@@ -1,0 +1,1000 @@
+const TOWER_MAP_DATA = [
+    // 1F～5F
+    {
+        floor: 1,
+        theme: 'なし',
+        boss: 'Ωアバドン',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null, 'f1-s', null,null,null],
+            [null, null,null,'f1-e1', null,null,null],
+            [null,null,null, 'f1-b1', null,null,null],
+            [null,null,'f1-e2', 'f1-b2', 'f1-e3',null,null],
+            [null,null,null, 'f1-o', null,null,null]
+        ],
+        squares: {
+            'f1-s': { type: 'start' },
+            'f1-e1': { type: 'explore', sub_type: 'attack_buff', style: 'R' },
+            'f1-b1': { type: 'battle', enemies: ['死をあやす者'], rules: ['全能力+20%（幻獣）'] },
+            'f1-b2': { type: 'battle', enemies: ['ベインチェイサー'], rules: ['全能力+20%（幻獣）'] },
+            'f1-e2': { type: 'explore', sub_type: 'recovery', style: 'RANDOM' },
+            'f1-e3': { type: 'explore', sub_type: 'tower_power' },
+            'f1-o': { type: 'boss', enemies: ['Ωアバドン'], rules: ['なし'] }
+        }
+    },
+    {
+        floor: 2,
+        theme: 'なし',
+        boss: 'バラム',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null, 'f2-e1', null],
+            [null, 'f2-s', null],
+            [null, 'f2-b1', null],
+            [null, 'f2-b2', null],
+            [null, 'f2-o', null]
+        ],
+        squares: {
+            'f2-e1': { type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f2-s': { type: 'start' },
+            'f2-b1': { type: 'battle', enemies: ['赤月の残党兵長', 'ドラゴニュート', 'アシュトレト'], rules: ['防+50%（幻獣）'] },
+            'f2-b2': { type: 'battle', enemies: ['ネイロード', 'デクリオンオーク', 'ゴウケツ'], rules: ['防+50%（幻獣）'] },
+            'f2-o': { type: 'boss', enemies: ['バラム'], rules: ['全能力+20%'] }
+        }
+    },
+    {
+        floor: 3,
+        theme: 'なし',
+        boss: 'アスモデウス',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,'f3-e1', null],
+            [null,'f3-s', null],
+            [null,'f3-b1', null],
+            [null,'f3-b2', null],
+            [null,'f3-o', null]
+        ],
+        squares: {
+            'f3-e1': { type: 'explore', sub_type: 'tower_power' },
+            'f3-s': { type: 'start' },
+            'f3-b1': { type: 'battle', enemies: ['タイラントワイズ', 'トリニティブル', 'クイックシルバー'], rules: ['早+50%（幻獣）'] },
+            'f3-b2': { type: 'battle', enemies: ['赤月の残党兵長', 'ドラゴニュート', 'アシュトレト'], rules: ['早+50%（幻獣）'] },
+            'f3-o': { type: 'boss', enemies: ['アスモデウス'], rules: ['全能力+20%'] }
+        }
+    },
+    {
+        floor: 4,
+        theme: 'なし',
+        boss: 'ガガゼゼガ',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,'f4-e1', null],
+            [null,'f4-s', null],
+            [null,'f4-b1', null],
+            [null,'f4-b2', null],
+            [null,'f4-o', null]
+        ],
+        squares: {
+            'f4-e1': { type: 'explore', sub_type: 'status_buff', style: 'C' },
+            'f4-s': { type: 'start' },
+            'f4-b1': { type: 'battle', enemies: ['ネイロード', 'デクリオンオーク', 'ゴウケツ'], rules: ['攻+50%（幻獣）'] },
+            'f4-b2': { type: 'battle', enemies: ['タイラントワイズ', 'トリニティブル', 'クイックシルバー'], rules: ['攻+50%（幻獣）'] },
+            'f4-o': { type: 'boss', enemies: ['ガガゼゼガ'], rules: ['攻+50%（幻獣）'] }
+        }
+    },
+    {
+        floor: 5,
+        theme: 'なし',
+        boss: 'ディジィースプー',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f5-e1', null, 'f5-e2',null,null],
+            [null,null,null,'f5-s',null,null,null],
+            [null,null,null, 'f5-b1', null,null,null],
+            [null,null,null, 'f5-b2', null,null,null],
+            [null,null,null, 'f5-o', null,null,null]
+        ],
+        squares: {
+            'f5-e1': { type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f5-e2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f5-s': { type: 'start' },
+            'f5-b1': { type: 'battle', enemies: ['赤月の残党兵長', 'ドラゴニュート', 'アシュトレト'], rules: ['全能力+50%（幻獣）'] },
+            'f5-b2': { type: 'battle', enemies: ['ネイロード', 'デクリオンオーク', 'ゴウケツ'], rules: ['全能力+50%（幻獣）'] },
+            'f5-o': { type: 'boss', enemies: ['ディジィースプー'], rules: ['なし'] }
+        }
+    },
+    // 6F～10F
+    {
+        floor: 6,
+        theme: 'なし',
+        boss: 'ミツクビ',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f6-e1', null, 'f6-e2',null,null],
+            [null,null,null,'f6-b1',null,null,null],
+            [null,null,null, 'f6-s', null,null,null],
+            [null,null,null, 'f6-b2', null,null,null],
+            [null,null,null, 'f6-b3', null,null,null],
+            [null,null,null, 'f6-o', null,null,null]
+        ],
+        squares: {
+            'f6-e1': { type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f6-e2': { type: 'explore', sub_type: 'status_buff', style: 'C' },
+            'f6-s': { type: 'start' },
+            'f6-b1': { type: 'battle', enemies: ['スカルワイバーン', '追放執行人', 'オロチ'], rules: ['スキル強化'] },
+            'f6-b2': { type: 'battle', enemies: ['ケツアルコアトル', 'プロトアバドン', 'ドゥーム'], rules: ['スキル強化'] },
+            'f6-b3': { type: 'battle', enemies: ['スカルワイバーン', 'プロトアバドン', '黒い犬'], rules: ['スキル強化'] },
+            'f6-o': { type: 'boss', enemies: ['ミツクビ'], rules: ['攻+50%'] }
+        }
+    },
+    {
+        floor: 7,
+        theme: 'なし',
+        boss: '次元獣アナーケン',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,'f7-e1', null],
+            [null,'f7-b1', null],
+            [null,'f7-s', null],
+            [null,'f7-b2', null],
+            [null,'f7-b3', null],
+            [null,'f7-o', null]
+        ],
+        squares: {
+            'f7-e1': { type: 'explore', sub_type: 'recovery', style: 'RANDOM' },
+            'f7-b1': { type: 'battle', enemies: ['スカルワイバーン', '追放執行人', 'オロチ'], rules: ['アタック強化'] },
+            'f7-s': { type: 'start' },
+            'f7-b2': { type: 'battle', enemies: ['ケツアルコアトル', 'プロトアバドン', 'ドゥーム'], rules: ['アタック強化'] },
+            'f7-b3': { type: 'battle', enemies: ['スカルワイバーン', 'プロトアバドン', '黒い犬'], rules: ['アタック強化'] },
+            'f7-o': { type: 'boss', enemies: ['次元獣アナーケン'], rules: ['攻+50%'] }
+        }
+    },
+    {
+        floor: 8,
+        theme: 'なし',
+        boss: '大王吾妻',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,'f8-e1',null,null,null],
+            [null,null,null,'f8-s',null,null,null],
+            [null,null,'f8-b1',null,'f8-b2',null,null],
+            [null,null,null,'f8-b3',null,null,null],
+            [null,null,null,'f8-o',null,null,null]
+        ],
+        squares: {
+            'f8-e1': { type: 'explore', sub_type: 'tower_power' },
+            'f8-s': { type: 'start' },
+            'f8-b1': { type: 'battle', enemies: ['スカルワイバーン', '追放執行人', 'オロチ'], rules: ['戦闘開始時、覚醒ゲージ+99'] },
+            'f8-b2': { type: 'battle', enemies: ['ケツアルコアトル', 'プロトアバドン', 'ドゥーム'], rules: ['戦闘開始時、覚醒ゲージ+99'] },
+            'f8-b3': { type: 'battle', enemies: ['スカルワイバーン', 'プロトアバドン', '黒い犬'], rules: ['戦闘開始時、覚醒ゲージ+99'] },
+            'f8-o': { type: 'boss', enemies: ['大王吾妻'], rules: ['HP+80%'] }
+        }
+    },
+    {
+        floor: 9,
+        theme: 'なし',
+        boss: 'カイル',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f9-e1',null,'f9-e2',null,null],
+            [null,null,null,'f9-b1',null,null,null],
+            [null,null,null,'f9-s',null,null,null],
+            [null,null,null,'f9-b2',null,null,null],
+            [null,null,null,'f9-b3',null,null,null],
+            [null,null,null,'f9-o',null,null,null]
+        ],
+        squares: {
+            'f9-e1':{ type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f9-e2': { type: 'explore', sub_type: 'attack_buff', style: 'R' },
+            'f9-s': { type: 'start' },
+            'f9-b1': { type: 'battle', enemies: ['スカルワイバーン', '追放執行人', 'オロチ'], rules: ['チャージ強化'] },
+            'f9-b2': { type: 'battle', enemies: ['ケツアルコアトル', 'プロトアバドン', 'ドゥーム'], rules: ['チャージ強化'] },
+            'f9-b3': { type: 'battle', enemies: ['スカルワイバーン', 'プロトアバドン', '黒い犬'], rules: ['チャージ強化'] },
+            'f9-o': { type: 'boss', enemies: ['カイル'], rules: ['早+50%'] }
+        }
+    },
+    {
+        floor: 10,
+        theme: 'なし',
+        boss: 'ソウルクリエイト',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,'f10-e1',null,null,null],
+            [null,null,null,'f10-b1',null,null,null],
+            [null,null,null,'f10-s',null,null,null],
+            [null,null,null,'f10-b2',null,null,null],
+            [null,null,'f10-e2','f10-b3','f10-e3',null,null],
+            [null,null,null,'f10-o',null,null,null]
+        ],
+        squares: {
+            'f10-e1':{ type: 'explore', sub_type: 'attack_buff', style: 'R' },
+            'f10-e2': { type: 'explore', sub_type: 'recovery', style: 'RANDOM' },
+            'f10-e3':{ type: 'explore', sub_type: 'tower_power' },
+            'f10-s': { type: 'start' },
+            'f10-b1': { type: 'battle', enemies: ['スカルワイバーン', '追放執行人', 'オロチ'], rules: ['全フォトン強化'] },
+            'f10-b2': { type: 'battle', enemies: ['ケツアルコアトル', 'プロトアバドン', 'ドゥーム'], rules: ['全フォトン強化'] },
+            'f10-b3': { type: 'battle', enemies: ['スカルワイバーン', 'プロトアバドン', '黒い犬'], rules: ['全フォトン強化'] },
+            'f10-o': { type: 'boss', enemies: ['ソウルクリエイト'], rules: ['なし'] }
+        }
+    },
+    // 11F-15F
+    {
+        floor: 11,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'サルガタナス',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f11-s',null,null],
+            [null,'f11-bl1',null,'f11-br1',null],
+            [null,'f11-bl2',null,'f11-br2',null],
+            ['f11-el1',null,'f11-bs1',null,'f11-er1'],
+            [null,null,'f11-o',null,null]
+        ],
+        squares:  {
+            'f11-s': { type: 'start' },
+            'f11-bl1': { type: 'battle', enemies: ['アテルラナ', 'ヤクトフレッサー', 'スムドゥス'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f11-bl2': { type: 'battle', enemies: ['アテルラナ', '魔業蟲', 'アイニャ'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f11-br1': { type: 'battle', enemies: ['魔業蟲', 'アイニャ'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f11-br2': { type: 'battle', enemies: ['アテルラナ', 'ヤクトフレッサー', 'スムドゥス'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f11-bs1': { type: 'battle', enemies: ['アテルラナ', 'ソウルマローダー', 'マグニファイ'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f11-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f11-er1':{ type: 'explore', sub_type: 'hp_buff', style: 'B' },
+            'f11-o': { type: 'boss', enemies: ['サルガタナス'], rules: ['劣化フォトン発生'] }
+        }  
+    },
+    {
+        floor: 12,
+        theme: 'なし',
+        boss: 'ウェパル',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f12-s',null,null],
+            [null,'f12-bl1',null,'f12-br1',null],
+            [null,'f12-bl2',null,'f12-br2',null],
+            ['f12-el1',null,'f12-bs1',null,'f12-er1'],
+            [null,null,'f12-o',null,null]
+        ],
+        squares:  {
+            'f12-s': { type: 'start' },
+            'f12-bl1': { type: 'battle', enemies: ['アテルラナ', 'ソウルマローダー', 'マグニファイ'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f12-bl2': { type: 'battle', enemies: ['アテルラナ', 'ヤクトフレッサー', 'スムドゥス'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f12-br1': { type: 'battle', enemies: ['アテルラナ', 'ヤクトフレッサー', 'スムドゥス'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f12-br2': { type: 'battle', enemies:  ['アテルラナ', 'ソウルマローダー', 'マグニファイ'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f12-bs1': { type: 'battle', enemies: ['魔業蟲', 'アドラメレク', 'アイニャ'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f12-el1': { type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f12-er1':{ type: 'explore', sub_type: 'status_buff', style: 'C' },
+            'f12-o': { type: 'boss', enemies: ['ウェパル'], rules: ['チャージ無し'] }
+        }
+    },
+    {
+        floor: 13,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'ベルフェゴール',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f13-se1',null,null],
+            [null,null,'f13-s',null,null],
+            [null,'f13-bl1',null,'f13-br1',null],
+            [null,'f13-bl2',null,'f13-br2',null],
+            ['f13-el1',null,'f13-bs1',null,'f13-er1'],
+            [null,null,'f13-o',null,null]
+        ],
+        squares:  {
+            'f13-se1':{ type: 'explore', sub_type: 'tower_power' },
+            'f13-s': { type: 'start' },
+            'f13-bl1': { type: 'battle', enemies: ['魔業蟲', 'アドラメレク', 'アイニャ'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f13-bl2': { type: 'battle', enemies: ['アテルラナ', 'ソウルマローダー', 'マグニファイ'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f13-br1': { type: 'battle', enemies: ['アテルラナ', 'ソウルマローダー', 'マグニファイ'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f13-br2': { type: 'battle', enemies: ['魔業蟲', 'アドラメレク', 'アイニャ'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f13-bs1': { type: 'battle', enemies: ['アテルラナ','アドラメレク','ヤクトフレッサー','スムドゥス'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f13-el1': { type: 'explore', sub_type: 'attack_buff', style: 'B' },
+            'f13-er1':{ type: 'explore', sub_type: 'recovery', style: 'RANDOM' },
+            'f13-o': { type: 'boss', enemies: ['ベルフェゴール'], rules: ['ペインフォトン発生'] }
+        }
+    },
+    {
+        floor: 14,
+        theme: 'なし',
+        boss: 'リヴァイアサン',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f14-se1',null,null],
+            [null,null,'f14-s',null,null],
+            [null,'f14-bl1',null,'f14-br1',null],
+            [null,'f14-bl2',null,'f14-br2',null],
+            ['f14-el1',null,'f14-bs1',null,'f14-er1'],
+            [null,null,'f14-o',null,null]
+        ],
+        squares:  {
+            'f14-se1':{ type: 'explore', sub_type: 'tower_power' },
+            'f14-s': { type: 'start' },
+            'f14-bl1': { type: 'battle', enemies: ['アテルラナ', 'ヤクトフレッサー', 'スムドゥス'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f14-bl2': { type: 'battle', enemies: ['魔業蟲', 'アドラメレク', 'アイニャ'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f14-br1': { type: 'battle', enemies: ['魔業蟲', 'アドラメレク', 'アイニャ'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f14-br2': { type: 'battle', enemies: ['アテルラナ', 'アドラメレク', 'スムドゥス'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f14-bs1': { type: 'battle', enemies: ['アテルラナ','ソウルマローダー','マグニファイ'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f14-el1': { type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f14-er1':{ type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f14-o': { type: 'boss', enemies: ['リヴァイアサン'], rules: ['特殊フォトン発生'] }
+        }
+    },
+    {
+        floor: 15,
+        theme: 'なし',
+        boss: 'デメタス',
+        layout_type: 'grid',
+        common_enemies: ['アテルラナ', '魔業蟲', 'ソウルマローダー', 'マグニファイ', 'アドラメレク', 'ヤクトフレッサー', 'アイニャ', 'スムドゥス'],
+        layoutGrid: [
+            [null,null,'f15-es1',null,null],
+            [null,null,'f15-s',null,null],
+            [null,'f15-bl1',null,'f15-br1',null],
+            ['f15-el1',null,'f15-bs1',null,'f15-er1'],
+            [null,null,'f15-bs2',null,null],
+            [null,null,'f15-o',null,null]
+        ],
+        squares: {
+            'f15-es1':{ type: 'explore', sub_type: 'tower_power' },
+            'f15-s': { type: 'start' },
+            'f15-bl1': { type: 'battle', enemies: ['アテルラナ', 'ソウルマローダー', 'マグニファイ'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f15-br1': { type: 'battle', enemies: ['アテルラナ', 'ヤクトフレッサー', 'スムドゥス'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f15-bs1': { type: 'battle', enemies: ['魔業蟲'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f15-bs2': { type: 'battle', enemies: ['アテルラナ','ソウルマローダー','マグニファイ'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f15-el1': {  type: 'explore', sub_type: 'recovery', style: 'RANDOM'  },
+            'f15-er1': { type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f15-o': { type: 'boss', enemies: ['デメタス'], rules: ['なし'] }
+        }
+    },
+    // 16F-20F
+    {
+        floor: 16,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'アッキピテル',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f16-s',null,null],
+            [null,'f16-bl1',null,'f16-br1',null],
+            [null,null,'f16-bs1',null,null],
+            [null,'f16-bl2','f16-es1','f16-br2',null],
+            [null,null,'f16-bs2',null,null],
+            [null,'f16-bl3','f16-es2','f16-br3',null],
+            ['f16-el1',null,'f16-o',null,'f16-er1']
+        ],
+        squares: {
+            'f16-s':  { type: 'start' },
+            'f16-bl1': { type: 'battle', enemies: ['オーク哨戒部隊長', 'アビスハンター', 'ユグドラシル'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f16-br1': { type: 'battle', enemies: ['オーク哨戒部隊長', 'アビスハンター', 'ユグドラシル'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f16-bs1': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f16-es1': {  type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f16-bl2': { type: 'battle', enemies: ['オーク哨戒部隊長', 'ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f16-br2': { type: 'battle', enemies: ['オーク哨戒部隊長', 'ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f16-bs2': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f16-es2': { type: 'explore', sub_type: 'recovery', style: 'B' },
+            'f16-bl3': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f16-br3': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f16-el1': {  type: 'explore', sub_type: 'status_buff', style: 'C' },
+            'f16-er1': {  type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f16-o':  { type: 'boss', enemies: ['アッキピテル'], rules: ['ペインフォトン発生'] }
+        }
+    },
+    {
+        floor: 17,
+        theme: 'なし',
+        boss: 'セーバーグランド',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f17-s',null,null],
+            [null,'f17-bl1',null,'f17-br1',null],
+            [null,null,'f17-bs1',null,null],
+            [null,'f17-bl2','f17-es1','f17-br2',null],
+            [null,null,'f17-bs2',null,null],
+            [null,'f17-bl3',null,'f17-br3',null],
+            ['f17-el1',null,'f17-o',null,'f17-er1']
+        ],
+        squares: {
+            'f17-s':  { type: 'start' },
+            'f17-bl1': { type: 'battle', enemies: ['オーク哨戒部隊長', 'アビスハンター', 'ユグドラシル'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f17-br1': { type: 'battle', enemies: ['オーク哨戒部隊長', 'アビスハンター', 'ユグドラシル'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f17-bs1': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f17-es1': {  type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f17-bl2': { type: 'battle', enemies: ['オーク哨戒部隊長', 'ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f17-br2': { type: 'battle', enemies: ['オーク哨戒部隊長', 'ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f17-bs2': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f17-bl3': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f17-br3': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、覚醒+1（幻獣）'] },
+            'f17-er1': {  type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f17-el1': {  type: 'explore', sub_type: 'status_buff', style: 'C' },
+            'f17-o':  { type: 'boss', enemies: ['セーバーグランド'], rules: ['HP不可視'] }
+        }
+    },
+    {
+        floor: 18,
+        theme: 'HP引き継ぎ禁止',
+        boss: '成り損ない',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f18-es1',null,null],
+            [null,null,'f18-s',null,null],
+            [null,'f18-bl1',null,'f18-br1',null],
+            [null,null,'f18-bs1',null,null],
+            [null,'f18-bl2','f18-es2','f18-br2',null],
+            [null,null,'f18-bs2',null,null],
+            [null,'f18-bl3','f18-es3','f18-br3',null],
+            ['f18-el1',null,'f18-o',null,'f18-er1']
+        ],
+        squares: {
+            'f18-es1': {  type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f18-s':  { type: 'start' },
+            'f18-bl1': { type: 'battle', enemies: ['オーク哨戒部隊長', 'アビスハンター', 'ユグドラシル'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f18-br1': { type: 'battle', enemies: ['オーク哨戒部隊長', 'アビスハンター', 'ユグドラシル'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f18-bs1': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f18-es2': {  type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f18-bl2': { type: 'battle', enemies: ['オーク哨戒部隊長', 'ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f18-br2': { type: 'battle', enemies: ['オーク哨戒部隊長', 'ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f18-bs2': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f18-es3': {  type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f18-bl3': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f18-br3': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、1回バリア（幻獣）'] },
+            'f18-el1': {  type: 'explore', sub_type: 'status_buff', style: 'C' },
+            'f18-er1': {  type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f18-o':  { type: 'boss', enemies: ['成り損ない'], rules: ['毎ターン終了時、1回バリア（幻獣）'] }
+        }
+    },
+    {
+        floor: 19,
+        theme: 'なし',
+        boss: 'ゴウギ',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,'f19-s',null,null],
+            [null,'f19-bl1',null,'f19-br1',null],
+            ['f19-el1',null,'f19-bs1',null,'f19-er1'],
+            [null,'f19-bl2',null,'f19-br2',null],
+            [null,null,'f19-bs2',null,null],
+            [null,'f19-bl3',null,'f19-br3',null],
+            ['f19-el2',null,'f19-o',null,'f19-er2']
+        ],
+        squares: {
+            'f19-s':  { type: 'start' },
+            'f19-bl1': { type: 'battle', enemies: ['オーク哨戒部隊長', 'アビスハンター', 'ユグドラシル'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f19-br1': { type: 'battle', enemies: ['オーク哨戒部隊長', 'アビスハンター', 'ユグドラシル'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f19-bs1': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f19-el1': {  type: 'explore', sub_type: 'status_buff', style: 'C' },
+            'f19-er1': {  type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f19-bl2': { type: 'battle', enemies: ['オーク哨戒部隊長', 'ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f19-br2': { type: 'battle', enemies: ['オーク哨戒部隊長', 'ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f19-bs2': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f19-bl3': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f19-br3': { type: 'battle', enemies: ['ウゴロモチ', 'クロッキュ', '死霊葬操人','レイガンベレット'], rules: ['毎ターン終了時、覚醒+10'] },
+            'f19-el2': {  type: 'explore', sub_type: 'status_buff', style: 'C' },
+            'f19-er2': {  type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f19-o':  { type: 'boss', enemies: ['ゴウギ'], rules: ['劣化フォトン発生'] }
+        }
+    },
+    {
+        floor: 20,
+        theme: 'HP引き継ぎ禁止',
+        boss: '魔喰機・無限',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,'f20-el1',null,'f20-er1',null,null,null],
+            [null,null,null,null,'f20-s',null,null,null,null],
+            [null,'f20-bl1',null,null,'f20-bs1',null,null,'f20-br1',null],
+            [null,null,null,null,'f20-es1',null,null,null,null],
+            ['f20-el2',null,null,'f20-bl2',null,'f20-br2',null,null,'f20-er2'],
+            [null,'f20-bl3',null,null,null,null,null,'f20-br3',null],
+            [null,null,'f20-bl4',null,'f20-bs2',null,'f20-br4',null,null],
+            [null,null,null,null,'f20-o',null,null,null,null]
+        ],
+        squares: {
+            'f20-el1':{ type: 'explore', sub_type: 'tower_power' },
+            'f20-er1' : {  type: 'explore', sub_type: 'recovery', style: 'RANDOM'  }, 
+            'f20-s': { type: 'start' },
+            'f20-bl1': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-bs1': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-br1': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-es1': { type: 'explore', sub_type: 'attack_buff', style: 'C' },
+            'f20-el2': { type: 'explore', sub_type: 'hp_buff', style: 'C' },
+            'f20-bl2': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-br2': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-er2': { type: 'explore', sub_type: 'defense_buff', style: 'C' },
+            'f20-bl3': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-br3': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] }, 
+            'f20-bl4': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-bs2': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-br4': { type: 'battle', enemies: [], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f20-o': { type: 'boss', enemies: ['魔喰機・無限'], rules: ['なし'] }
+        }
+    },
+    // 21F-25F
+    {
+        floor: 21,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'タイガンニール',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null, null, null, 'f21-s', null, null, null],
+            [null, null, 'f21-bl1', null, 'f21-br1', null, null],
+            [null, 'f21-bl2', null, null, null,'f21-br2', null],
+            [null, null, 'f21-bl3', null, 'f21-br3', null, null],
+            [null, 'f21-bl4', null, null, null, 'f21-br4', null],
+            ['f21-el1', null, 'f21-bl5', null, 'f21-br5', null, 'f21-er1'],
+            [null, null, null, 'f21-o', null, null, null]
+        ],
+        squares: {
+            'f21-s':  { type: 'start' },
+            'f21-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f21-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f21-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f21-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f21-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f21-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f21-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f21-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f21-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f21-bl5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f21-br5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f21-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f21-o': { type: 'boss', enemies: ['タイガンニール'], rules: [] }
+        }
+    },
+    {
+        floor: 22,
+        theme: 'HP引き継ぎ禁止',
+        boss: '禁獄獣ネメアー',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null, null, null,'f22-es1' , null, null, null],
+            [null, null, null, 'f22-s', null, null, null],
+            [null, null, 'f22-bl1', null, 'f22-br1', null, null],
+            [null, 'f22-bl2', null, null, null,'f22-br2', null],
+            [null, null, 'f22-bl3', null, 'f22-br3', null, null],
+            [null, 'f22-bl4', null, null, null, 'f22-br4', null],
+            ['f22-el1', null, 'f22-bl5', null, 'f22-br5', null, 'f22-er1'],
+            [null, null, null, 'f22-o', null, null, null]
+        ],
+        squares: {
+            'f22-s':  { type: 'start' },
+            'f22-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f22-es1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f22-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f22-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f22-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f22-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f22-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f22-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f22-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f22-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f22-bl5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f22-br5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f22-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f22-o': { type: 'boss', enemies: ['禁獄獣ネメアー'], rules: [] }
+        }
+    },
+    {
+        floor: 23,
+        theme: 'なし',
+        boss: 'ベイグラント',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null, null, null, 'f23-es1', null, null, null],
+            [null, null, null, 'f23-s', null, null, null],
+            ['f23-el1', null, 'f23-bl1', null, 'f23-br1', null, 'f23-er1'],
+            [null, 'f23-bl2', null, null, null,'f23-br2', null],
+            [null, null, 'f23-bl3', null, 'f23-br3', null, null],
+            [null, 'f23-bl4', null, null, null, 'f23-br4', null],
+            ['f23-el2', null, 'f23-bl5', null, 'f23-br5', null, 'f23-er2'],
+            [null, null, null, 'f23-o', null, null, null]
+        ],
+        squares: {
+            'f23-es1': { type: 'explore', sub_type: 'tower_power' },
+            'f23-s': { type: 'start' },
+            'f23-el1': { type: 'explore', sub_type: 'hp_buff', style: 'C' },
+            'f23-bl1': { type: 'battle', enemies: ['ブタゴラス', 'イコア', 'リリィ'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-br1': { type: 'battle', enemies: ['ドカグイ', '朧の闇', 'ケラヴノス'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-er1': { type: 'explore', sub_type: 'defense_buff', style: 'C' },
+            'f23-bl2': { type: 'battle', enemies: ['ウィチセ', 'ホルン', 'イカロエン'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-br2': { type: 'battle', enemies: ['ウィチセ', 'イカロエン'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-el2': { type: 'explore', sub_type: 'status_buff', style: 'R' },
+            'f23-bl3': { type: 'battle', enemies: ['ブタゴラス', 'イコア', 'リリィ'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-br3': { type: 'battle', enemies: ['ドカグイ', 'メイドゥーム', 'ケラヴノス'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-er2': { type: 'explore', sub_type: 'status_buff', style: 'B' },
+            'f23-bl4': { type: 'battle', enemies: ['ウィチセ', 'ホルン', 'イカロエン'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-br4': { type: 'battle', enemies: ['ウィチセ', 'ホルン', 'イカロエン'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-bl5': { type: 'battle', enemies: ['ブタゴラス', 'イコア', 'リリィ'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-br5': { type: 'battle', enemies: ['ドカグイ', 'メイドゥーム', 'ケラヴノス'], rules: ['毎ターン終了時、HP30%回復（幻獣）'] },
+            'f23-o': { type: 'boss', enemies: ['ベイグラント'], rules: ['HP+80%/幻獣'] }
+        }
+    },
+    {
+        floor: 24,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'ドン・ザブンブン',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null, null, null, 'f24-es1', null, null, null],
+            [null, null, null, 'f24-s', null, null, null],
+            [null, null, 'f24-bl1', null, 'f24-br1', null, null],
+            [null, 'f24-bl2', null, null, null,'f24-br2', null],
+            [null, null, 'f24-bl3', null, 'f24-br3', null, null],
+            [null, 'f24-bl4', null, null, null, 'f24-br4', null],
+            ['f24-el1', null, 'f24-bl5', null, 'f24-br5', null, 'f24-er1'],
+            [null, null, null, 'f24-o', null, null, null]
+        ],
+        squares: {
+            'f24-s':  { type: 'start' },
+            'f24-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f24-es1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f24-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f24-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f24-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f24-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f24-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f24-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f24-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f24-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f24-bl5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f24-br5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f24-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f24-o': { type: 'boss', enemies: ['ドン・ザブンブン'], rules: [] }
+        }
+    },
+    {
+        floor: 25,
+        theme: 'なし',
+        boss: 'グリードベア',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,null,'f25-es1',null,null,null,null],
+            [null,null,null,null,'f25-s',null,null,null,null],
+            [null,null,null,'f25-bl1',null,'f25-br1',null,null,null],
+            [null,'f25-bl2',null,null,'f25-bs1',null,null,'f25-br2',null],
+            ['f25-el1',null,null,null,null,null,null,null,'f25-er1'],
+            [null,'f25-bl3',null,null,'f25-bs2',null,null,'f25-br3',null],
+            [null,null,'f25-bl4',null,null,,null,'f25-br4',null,null],
+            [null,null,'f25-el2',null,'f25-o',null,'f25-er2',null,null]
+        ],
+        squares: {
+            'f25-s':  { type: 'start' },
+            'f25-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-es1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-bs1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-bs2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f25-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f25-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f25-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f25-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f25-el2': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f25-er2': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f25-o': { type: 'boss', enemies: ['グリードベア'], rules: [] }
+        }
+    },
+    // 26F-30F
+    {
+        floor: 26,
+        theme: 'なし',
+        boss: '恐幻蜘蛛',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,null,'f26-es1',null,null,null,null],
+            [null,null,null,null,'f26-s',null,null,null,null],
+            [null,'f26-bl1',null,'f26-bl2',null,'f26-br2',null,'f26-br1',null],
+            [null,null,null,null,'f26-bs1',null,null,null,null],
+            [null,null,'f26-bl3',null,null,null,'f26-br3',null,null],
+            ['f26-bl4',null,null,null,'f26-o',null,null,null,'f26-br4'],
+            ['f26-el1',null,null,null,null,null,null,null,'f26-er1']
+        ],
+        squares: {
+            'f26-es1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f26-s':  { type: 'start' },
+            'f26-bs1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f26-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f26-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f26-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f26-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f26-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f26-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f26-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f26-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f26-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f26-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f26-o': { type: 'boss', enemies: ['恐幻蜘蛛'], rules: [] }
+        }
+    },
+    {
+        floor: 27,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'ネイザーウィッチ',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,null,'f27-es1',null,null,null,null],
+            [null,null,null,null,'f27-s',null,null,null,null],
+            [null,'f27-bl1',null,'f27-bl2',null,'f27-br2',null,'f27-br1',null],
+            [null,null,null,null,'f27-bs1',null,null,null,null],
+            [null,null,'f27-bl3',null,null,null,'f27-br3',null,null],
+            ['f27-bl4',null,null,null,'f27-o',null,null,null,'f27-br4'],
+            ['f27-el1',null,null,null,null,null,null,null,'f27-er1']
+        ],
+        squares: {
+            'f27-es1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f27-s':  { type: 'start' },
+            'f27-bs1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f27-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f27-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f27-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f27-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f27-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f27-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f27-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f27-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f27-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f27-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f27-o': { type: 'boss', enemies: ['ネイザーウィッチ'], rules: [] }
+        }
+    },
+    {
+        floor: 28,
+        theme: 'HP引き継ぎ禁止',
+        boss: '執行者ラミアン',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,null,'f28-es1',null,null,null,null],
+            [null,null,null,null,'f28-s',null,null,null,null],
+            [null,'f28-bl1',null,'f28-bl2',null,'f28-br2',null,'f28-br1',null],
+            [null,null,null,null,'f28-bs1',null,null,null,null],
+            [null,null,'f28-bl3',null,null,null,'f28-br3',null,null],
+            ['f28-bl4',null,null,null,'f28-o',null,null,null,'f28-br4'],
+            ['f28-el1','f28-el2',null,null,null,null,null,null,'f28-er1']
+        ],
+        squares: {
+            'f28-es1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f28-s':  { type: 'start' },
+            'f28-bs1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f28-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f28-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f28-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f28-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f28-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f28-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f28-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f28-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f28-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f28-el2': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f28-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f28-o': { type: 'boss', enemies: ['執行者ラミアン'], rules: [] }
+        }
+    },
+    {
+        floor: 29,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'グランアビス',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,null,'f29-es1',null,null,null,null],
+            [null,null,null,null,'f29-s',null,null,null,null],
+            [null,'f29-bl1',null,'f29-bl2',null,'f29-br2',null,'f29-br1',null],
+            [null,null,null,null,'f29-bs1',null,null,null,null],
+            [null,null,'f29-bl3',null,null,null,'f29-br3',null,null],
+            ['f29-bl4',null,null,null,'f29-o',null,null,null,'f29-br4'],
+            ['f29-el1',null,null,null,null,null,null,null,'f29-er1']
+        ],
+        squares: {
+            'f29-es1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f29-s':  { type: 'start' },
+            'f29-bs1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f29-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f29-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f29-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f29-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f29-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f29-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f29-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f29-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f29-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f29-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f29-o': { type: 'boss', enemies: ['グランアビス'], rules: [] }
+        }
+    },
+    {
+        floor: 30,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'グジグランズ',
+        layout_type: 'grid',
+        layoutGrid: [[null,'f30-s',null], [null,'f30-bs1',null],[null,'f30-bs2',null],[null,'f30-bs3',null],[null,'f30-bs4',null],[null,'f30-bs5',null],[null,'f30-o',null]],
+        squares: {
+            'f30-s':  { type: 'start' },
+            'f30-bs1': { type: 'battle', enemies: ['Ωアバドン'], rules: ['全能力+20%（幻獣）'] },
+            'f30-bs2': { type: 'battle', enemies: ['ガガゼゼガ'], rules: ['全能力+20%（幻獣）'] },
+            'f30-bs3': { type: 'battle', enemies: ['セーバーグランド'], rules: ['全能力+20%（幻獣）'] },
+            'f30-bs4': { type: 'battle', enemies: ['ドン・ザブンブン'], rules: ['全能力+20%（幻獣）'] },
+            'f30-bs5': { type: 'battle', enemies: ['恐幻蜘蛛'], rules: ['全能力+20%（幻獣）'] },
+            'f30-o': { type: 'boss', enemies: ['グジグランズ'], rules: [] }
+        }
+    },
+    // 31F-35F
+    {
+        floor: 31,
+        theme: 'なし',
+        boss: 'マモン',
+        layout_type: 'grid',
+        layoutGrid: [
+            ['f31-el1',null,null,'f31-s',null,null,'f31-er1'],
+            ['f31-bl1',null,null,null,null,null,'f31-br1'],
+            [null,'f31-bl2',null,null,null,'f31-br2',null],
+            [null,'f31-bl3','f31-bl4',null,'f31-br4','f31-br3',null],
+            [null,null,'f31-bl5',null,'f31-br5',null,null],
+            ['f31-bl6',null,null,'f31-bs1',null,null,'f31-br6'],
+            [null,'f31-bl7',null,null,null,'f31-br7',null],
+	        [null,null,null,'f31-o',null,null,null]
+        ],
+        squares: {
+            'f31-s':  { type: 'start' },
+            'f31-bs1': { type: 'battle', enemies: [], rules: ['進化度・レベル制限：⭐︎2.5/Lv23']  },
+            'f31-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f31-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f31-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f31-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f31-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f31-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f31-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-bl5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-br5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-bl6': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-br6': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-bl7': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-br7': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f31-o': { type: 'boss', enemies: ['マモン'], rules: ['全能力+50%/敵'] }
+        }
+    },
+    {
+        floor: 32,
+        theme: 'なし',
+        boss: '魂なき黒き半身',
+        layout_type: 'grid',
+        layoutGrid: [
+            ['f32-el1',null,null,'f32-s',null,null,'f32-er1'],
+            ['f32-bl1',null,null,null,null,null,'f32-br1'],
+            [null,'f32-bl2',null,null,null,'f32-br2',null],
+            [null,'f32-bl3','f32-bl4',null,'f32-br4','f32-br3',null],
+            [null,null,'f32-bl5',null,'f32-br5',null,null],
+            ['f32-bl6',null,null,'f32-bs1',null,null,'f32-br6'],
+            [null,'f32-bl7',null,null,null,'f32-br7',null],
+	        [null,null,null,'f32-o',null,null,null]
+        ],
+        squares: {
+            'f32-s':  { type: 'start' },
+            'f32-bs1': { type: 'battle', enemies: [], rules: ['']  },
+            'f32-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f32-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f32-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f32-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f32-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f32-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f32-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-bl5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-br5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-bl6': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-br6': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-bl7': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-br7': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f32-o': { type: 'boss', enemies: ['魂なき黒き半身'], rules: ['特殊フォトン発生'] }
+        }
+    },
+    {
+        floor: 33,
+        theme: 'HP引き継ぎ禁止',
+        boss: 'アムドゥスキアス',
+        layout_type: 'grid',
+        layoutGrid: [
+            ['f33-el1',null,null,'f33-s',null,null,'f33-er1'],
+            ['f33-bl1',null,null,null,null,null,'f33-br1'],
+            [null,'f33-bl2',null,null,null,'f33-br2',null],
+            [null,'f33-bl3','f33-bl4',null,'f33-br4','f33-br3',null],
+            [null,null,'f33-bl5',null,'f33-br5',null,null],
+            ['f33-bl6',null,null,'f33-bs1',null,null,'f33-br6'],
+            [null,'f33-bl7',null,null,null,'f33-br7',null],
+	        [null,null,null,'f33-o',null,null,null]
+        ],
+        squares: {
+            'f33-s':  { type: 'start' },
+            'f33-bs1': { type: 'battle', enemies: [], rules: ['']  },
+            'f33-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f33-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f33-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f33-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f33-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f33-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f33-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-bl5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-br5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-bl6': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-br6': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-bl7': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-br7': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f33-o': { type: 'boss', enemies: ['アムドゥスキアス'], rules: ['劣化フォトン発生'] }
+        }
+    },
+    {
+        floor: 34,
+        theme: 'なし',
+        boss: 'ロクス',
+        layout_type: 'grid',
+        layoutGrid: [
+            ['f34-el1',null,null,'f34-s',null,null,'f34-er1'],
+            ['f34-bl1',null,null,null,null,null,'f34-br1'],
+            [null,'f34-bl2',null,null,null,'f34-br2',null],
+            [null,'f34-bl3','f34-bl4',null,'f34-br4','f34-br3',null],
+            [null,null,'f34-bl5',null,'f34-br5',null,null],
+            ['f34-bl6',null,null,'f34-bs1',null,null,'f34-br6'],
+            [null,'f34-bl7',null,null,null,'f34-br7',null],
+	        [null,null,null,'f34-o',null,null,null]
+        ],
+        squares: {
+            'f34-s':  { type: 'start' },
+            'f34-bs1': { type: 'battle', enemies: [], rules: ['']  },
+            'f34-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f34-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f34-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f34-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f34-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f34-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f34-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-bl5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-br5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-bl6': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-br6': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-bl7': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-br7': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f34-o': { type: 'boss', enemies: ['ロクス'], rules: [] }
+        }
+    },
+    {
+        floor: 35,
+        theme: 'なし',
+        boss: '契りのドゥーエ',
+        layout_type: 'grid',
+        layoutGrid: [
+            [null,null,null,'f35-s',null,null,null],
+            ['f35-bl1',null,'f35-bl2',null,'f35-br2',null,'f35-br1'],
+            [null,'f35-bl3',null,'f35-bs1',null,'f35-br3',null],
+            ['f35-el1',null,null,null,null,null,'f35-er1'],
+            [null,'f35-bl4',null,'f35-bs2',null,'f35-br4',null],
+            [null,null,'f35-bl5',null,'f35-br5',null,null],
+            [null,null,null,'f35-o',null,null,null]
+        ],
+        squares: {
+            'f35-s':  { type: 'start' },
+            'f35-bs1': { type: 'battle', enemies: [], rules: ['']  },
+            'f35-bl1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f35-br1': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f35-bl2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f35-br2': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f35-bl3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f35-br3': { type: 'explore', sub_type: 'recovery', style: 'R' },
+            'f35-bl4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f35-br4': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f35-bs2': { type: 'battle', enemies: [], rules: ['']  },
+            'f35-bl5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f35-br5': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f35-el1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f35-er1': { type: 'explore', sub_type: 'recovery', style: 'C' },
+            'f35-o': { type: 'boss', enemies: ['契りのドゥーエ'], rules: [] }
+        }
+    }
+];
