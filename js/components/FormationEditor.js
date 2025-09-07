@@ -213,7 +213,7 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
                 </div>
                 <div>
                     <h4 className="label">メギド構成</h4>
-                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', marginTop: '8px'}}>
+                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '8px', marginTop: '8px'}}>
                         {[0, 1, 2, 3, 4].map(index => (
                             <MegidoSlotEditor 
                                 key={index}
