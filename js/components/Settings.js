@@ -10,7 +10,8 @@ const Settings = ({
     viewMode,
     onViewModeChange,
     isMobileView,
-    isTabletView
+    isTabletView,
+    onUnlockAchievement
 }) => {
     const { useState } = React;
     const [activeSettingsTab, setActiveSettingsTab] = useState('achievements');
@@ -112,6 +113,13 @@ const Settings = ({
                             onClick={() => setActiveSettingsTab('about')}
                         >
                             このアプリについて
+                        </button>
+                        <button
+                            style={tabButtonStyle}
+                            className={`settings-tab-button ${activeSettingsTab === 'beta_form' ? 'active' : ''}`}
+                            onClick={() => setActiveSettingsTab('beta_form')}
+                        >
+                            ベータテスト用報告フォーム
                         </button>
                         <button
                             style={tabButtonStyle}
@@ -230,6 +238,15 @@ const Settings = ({
                                         <li>Tailwind CSS</li>
                                     </ul>
                                 </div>
+                            </div>
+                        )}
+                        {activeSettingsTab === 'beta_form' && (
+                            <div>
+                                <h3>ベータテスト用報告フォーム</h3>
+                                <p>不具合報告、ご意見、ご感想はこちらのフォームからお寄せください。</p>
+                                <a href="https://forms.gle/ttchq4he6u8nmMs57" target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{marginTop: '1rem', display: 'inline-block'}} onClick={() => onUnlockAchievement('SUPPORT_ITACHI')}>
+                                    報告フォームを開く
+                                </a>
                             </div>
                         )}
                         {activeSettingsTab === 'specialThanks' && (

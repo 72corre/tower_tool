@@ -184,6 +184,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
     const [isMobileView, setIsMobileView] = useState(false);
     const [isTabletView, setIsTabletView] = useState(false);
     const [editingFormation, setEditingFormation] = useState(null);
+    const [showBetaModal, setShowBetaModal] = useState(false);
     
     const floorRefs = useRef({});
 
@@ -688,13 +689,13 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const currentYear = today.getFullYear();
+        let eventWasShown = false;
 
         for (const event of MEGIDO_BIRTHDAY_DATA) {
             const [month, day] = event.date.replace('月', '-').replace('日', '').split('-').map(Number);
             const eventDate = new Date(currentYear, month - 1, day);
             let eventToShow = null;
 
-            // Check for countdown first
             if (event.countdown) {
                 const countdownDate = new Date(eventDate);
                 countdownDate.setDate(eventDate.getDate() - event.countdown);
@@ -714,7 +715,6 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 }
             }
 
-            // If no countdown, check for day-of event
             if (!eventToShow && eventDate.getTime() === today.getTime()) {
                 const storageKey = `seen_event_${currentYear}_${event.name || event.base_name}`;
                 if (!localStorage.getItem(storageKey)) {
@@ -733,7 +733,24 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
             if (eventToShow) {
                 setEventToast(eventToShow);
-                break; // Show only one toast per page load
+                eventWasShown = true;
+                break; 
+            }
+        }
+
+        // Check for beta modal
+        const betaModalShown = localStorage.getItem('betaModalShown');
+        if (!betaModalShown) {
+            const betaStartDate = new Date('2025-09-09');
+            const betaEndDate = new Date('2025-09-17');
+            betaStartDate.setHours(0, 0, 0, 0);
+            betaEndDate.setHours(0, 0, 0, 0);
+
+            if (today >= betaStartDate && today < betaEndDate) {
+                if (!eventWasShown) {
+                    unlockAchievement('BETA_TESTER');
+                    setShowBetaModal(true);
+                }
             }
         }
     }, [isLoading]);
@@ -1828,6 +1845,19 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                     }
                     setEventToast(null);
                     setDontShowAgain(false); // Reset for next time
+
+                    // Show beta modal after closing event toast
+                    const betaModalShown = localStorage.getItem('betaModalShown');
+                    if (!betaModalShown) {
+                        const today = new Date();
+                        const betaStartDate = new Date('2025-09-09');
+                        const betaEndDate = new Date('2025-09-17');
+                        today.setHours(0, 0, 0, 0);
+                        if (today >= betaStartDate && today < betaEndDate) {
+                            unlockAchievement('BETA_TESTER');
+                            setShowBetaModal(true);
+                        }
+                    }
                 }}>
                     <div style={eventModalContentStyle} onClick={(e) => e.stopPropagation()}>
                         <h3 style={{marginTop: 0, color: 'var(--primary-accent)', fontSize: '24px'}}>おメギド！</h3>
@@ -1851,6 +1881,34 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                         </div>
                     </div>
                 </div>
+            )}
+
+            {showBetaModal && (
+                <InfoModal 
+                    isOpen={true} 
+                    onClose={() => {
+                        setShowBetaModal(false);
+                        localStorage.setItem('betaModalShown', 'true');
+                    }}
+                    title="オープンβテストへようこそ！"
+                >
+                    {`この度は「星間の塔攻略支援ツール」オープンβにご参加いただき、本当にありがとうございます！！
+
+今回お試しいただいているのは、まだ全然完成していない“プロトタイプ版”です。
+「とりあえず動いてるな～」くらいの段階なので、荒削りな部分や足りない機能が多い点はご容赦ください。
+
+そのうえで、実際に触っていただく中で、
+「不具合を見つけた」「ここが使いにくい」「もっとこうしてほしい」
+といったご意見がありましたら、ぜひ気軽にお知らせください。
+
+報告はGoogleフォーム（設定 → ベータテスト用報告フォーム）から、何度でもご記入いただけます。
+小さな感想や気づきでも大歓迎です！
+
+皆さまからの声が、このツールをより良く育てていく力になります。
+どうぞよろしくお願いいたします！
+
+それでは、良き戦争を！！！`}
+                </InfoModal>
             )}
 
             <Header 
@@ -2035,6 +2093,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 onViewModeChange={handleViewModeChange}
                 isMobileView={isMobileView}
                 isTabletView={isTabletView}
+                onUnlockAchievement={unlockAchievement}
             />
             {isMobileView && selectedSquare && (
                 <div className="mobile-panel-overlay" onClick={() => onCancel()}>

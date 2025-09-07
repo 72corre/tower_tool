@@ -1,6 +1,37 @@
 const MegidoSlotEditor = ({ megido, onSlotClick, onOrbClick, onReishouClick, onRemoveMegido, onRemoveReishou, onRemoveOrb, isLeader, ownedMegidoIds, megidoDetails, onStatChange }) => {
-    if (!megido) return <div onClick={onSlotClick} className="card megido-slot-empty" style={{height: '100%', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer'}}>空きスロット</div>;
     
+    // --- スタイル定義 ---
+    const slotBaseStyle = {
+        minHeight: '320px', // 高さ固定
+        padding: '12px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between', // 中身を上下に分配
+        boxSizing: 'border-box',
+    };
+
+    const reishouChipStyle = {
+        display: 'inline-flex', // to align items inside
+        alignItems: 'center',
+        padding: '2px 6px',
+        margin: '2px',
+        borderRadius: '4px',
+        backgroundColor: 'var(--bg-main)',
+        fontSize: '10px',
+        border: '1px solid var(--border-color)',
+        whiteSpace: 'nowrap',
+    };
+
+    // --- 空きスロットのレンダリング ---
+    if (!megido) {
+        return (
+            <div onClick={onSlotClick} className="card megido-slot-empty" style={{...slotBaseStyle, alignItems:'center', justifyContent:'center', cursor:'pointer'}}>
+                <span style={{fontSize: '16px', color: 'var(--text-subtle)'}}>空きスロット</span>
+            </div>
+        );
+    }
+    
+    // --- データ準備 ---
     const isOwned = ownedMegidoIds.has(String(megido.id));
     const ownedDetails = megidoDetails[megido.id] || {};
 
@@ -13,92 +44,82 @@ const MegidoSlotEditor = ({ megido, onSlotClick, onOrbClick, onReishouClick, onR
         return false;
     };
 
-    const leaderStyle = isLeader ? {boxShadow: '0 0 8px var(--primary-accent)', border: '1px solid var(--primary-accent)'} : {};
-    const slotStyle = {
-        ...leaderStyle,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '8px',
-        padding: '12px'
+    const formatBondReishou = (tier) => {
+        switch (tier) {
+            case 1: return '<真>';
+            case 2: return '<剛>';
+            case 3: return '<絆>';
+            default: return 'なし';
+        }
     };
 
+    // --- スロットの動的スタイル ---
+    const leaderStyle = isLeader ? { boxShadow: '0 0 8px var(--primary-accent)', border: '1px solid var(--primary-accent)' } : {};
+    const finalSlotStyle = { ...slotBaseStyle, ...leaderStyle };
     if (isSlotInvalid()) {
-        slotStyle.backgroundColor = 'rgba(217, 83, 79, 0.3)';
+        finalSlotStyle.backgroundColor = 'rgba(217, 83, 79, 0.3)';
     }
 
-    const DetailDisplay = ({ label, formationValue, ownedValue, isHigherBetter = true }) => {
-        const isDifferent = isHigherBetter ? formationValue > ownedValue : formationValue !== ownedValue;
-        return (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>{label}:</span>
-                <span style={{ fontWeight: 'bold' }}>
-                    {formationValue}
-                    {isOwned && isDifferent && <span style={{ color: 'var(--warning-color)', marginLeft: '8px' }}>({ownedValue})</span>}
-                </span>
-            </div>
-        );
-    };
-    
-    const BoolDetailDisplay = ({ label, formationValue, ownedValue }) => {
-        const isDifferent = formationValue && !ownedValue;
-        const formatBool = (val) => val ? '✓' : '✗';
-        return (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>{label}:</span>
-                <span style={{ fontWeight: 'bold' }}>
-                    {formatBool(formationValue)}
-                    {isOwned && isDifferent && <span style={{ color: 'var(--warning-color)', marginLeft: '8px' }}>({formatBool(ownedValue)})</span>}
-                </span>
-            </div>
-        );
-    };
-
-
+    // --- レンダリング ---
     return (
-        <div className="card" style={slotStyle}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <p onClick={onSlotClick} className={`font-bold cursor-pointer hover:text-blue-400 ${getStyleClass(megido.スタイル)}`} style={{fontWeight: 700, cursor: 'pointer', fontSize: '16px'}}>{megido.名前} {isLeader && <span style={{color: 'var(--primary-accent)'}}>(L)</span>}</p>
-                <button onClick={onRemoveMegido} style={{color: 'var(--danger-color)', background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer'}}>×</button>
-            </div>
-
-            {/* Details Display */}
-            <div style={{fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '4px'}}>
-                <DetailDisplay label="Lv" formationValue={megido.level || 70} ownedValue={ownedDetails.level || 70} />
-                <p>奥義Lv: {megido.ougiLevel || 1}</p>
-                {megido.専用霊宝 && <BoolDetailDisplay label="専用霊宝" formationValue={megido.special_reishou || false} ownedValue={ownedDetails.special_reishou || false} />}
-                {megido.絆霊宝 && <DetailDisplay label="絆霊宝" formationValue={`T${megido.bond_reishou || 0}`} ownedValue={`T${ownedDetails.bond_reishou || 0}`} />}
-                {megido.Singularity && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span>凸:</span>
-                        <select
-                            value={megido.singularity_level || 0}
-                            onChange={e => onStatChange('singularity_level', parseInt(e.target.value))}
-                            onClick={e => e.stopPropagation()}
-                            className="select-field"
-                            style={{ padding: '2px 4px', fontSize: '12px' }}
-                        >
-                            {[0, 1, 2, 3, 4].map(level => (
-                                <option key={level} value={level}>{level}</option>
-                            ))}
-                        </select>
-                    </div>
-                )}
-            </div>
-
-            {/* Orb and Reishou List */}
-            <div style={{fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px'}}>
-                <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '4px'}}>
-                    <button onClick={onOrbClick} className="btn btn-secondary" style={{width: '100%', textAlign: 'left', padding: '4px 8px'}}>オーブ: {megido.orb?.name || '選択'}</button>
-                    {megido.orb && <button onClick={onRemoveOrb} style={{color: 'var(--danger-color)', background: 'none', border: 'none', cursor: 'pointer'}}>x</button>}
+        <div className="card" style={finalSlotStyle}>
+            {/* --- 上段: メギド情報 --- */}
+            <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                    <p onClick={onSlotClick} className={`font-bold cursor-pointer hover:text-blue-400 ${getStyleClass(megido.スタイル)}`} style={{ fontWeight: 700, cursor: 'pointer', fontSize: '16px', margin: 0, lineHeight: 1.2 }}>
+                        {megido.名前} {isLeader && <span style={{ color: 'var(--primary-accent)' }}>(L)</span>}
+                    </p>
+                    <button onClick={onRemoveMegido} style={{ color: 'var(--danger-color)', background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', padding: 0, lineHeight: 0.8 }}>×</button>
                 </div>
-                <div className="card" style={{padding: '8px', backgroundColor: 'var(--bg-main)'}}>
-                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                        <p style={{fontWeight: 500, margin: 0}}>霊宝:</p>
-                        {(megido.reishou?.length || 0) < 4 && <button onClick={onReishouClick} style={{color: 'var(--primary-accent)', background: 'none', border: 'none', cursor: 'pointer'}}>+ 追加</button>}
-                    </div>
-                    {(megido.reishou && megido.reishou.length > 0) ? megido.reishou.map((r, i) => 
-                        <div key={i} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}><span>- {r.name}</span><button onClick={(e) => {e.stopPropagation(); onRemoveReishou(i);}} style={{color: 'var(--danger-color)', background: 'none', border: 'none', cursor: 'pointer'}}>x</button></div>
-                    ) : <p style={{color: 'var(--text-subtle)', margin: '4px 0'}}>なし</p>}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 8px', fontSize: '12px' }}>
+                    <span>Lv: {megido.level || 70}</span>
+                    <span>奥義: {megido.ougiLevel || 1}</span>
+                    {megido.専用霊宝 && <span>専用霊宝: {megido.special_reishou ? '✓' : '✗'}</span>}
+                    {megido.絆霊宝 && <span>絆霊宝: {formatBondReishou(megido.bond_reishou)}</span>}
+                    {megido.Singularity && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <span>凸:</span>
+                            <select
+                                value={megido.singularity_level || 0}
+                                onChange={e => onStatChange('singularity_level', parseInt(e.target.value))}
+                                onClick={e => e.stopPropagation()}
+                                className="select-field"
+                                style={{ padding: '0 2px', fontSize: '11px', width: '100%' }}
+                            >
+                                {[0, 1, 2, 3, 4].map(level => <option key={level} value={level}>{level}</option>)}
+                            </select>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            {/* --- 中段: オーブ情報 --- */}
+            <div style={{ marginTop: 'auto' }}> {/* これで中段と下段が下に来る */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '4px' }}>
+                    <button onClick={onOrbClick} className="btn btn-secondary" style={{ width: '100%', textAlign: 'left', padding: '6px 8px', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        <span style={{opacity: 0.7, marginRight: '4px'}}>オ:</span>{megido.orb?.name || '選択...'}
+                    </button>
+                    {megido.orb && <button onClick={onRemoveOrb} style={{ color: 'var(--danger-color)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }}>×</button>}
+                </div>
+            </div>
+
+            {/* --- 下段: 霊宝情報 --- */}
+            <div style={{ marginTop: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <p style={{ fontWeight: 500, margin: 0, fontSize: '12px' }}>霊宝:</p>
+                    {(megido.reishou?.length || 0) < 4 && <button onClick={onReishouClick} style={{ color: 'var(--primary-accent)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', padding: '0 4px' }}>+</button>}
+                </div>
+                <div className="card" style={{ padding: '4px', backgroundColor: 'var(--bg-main)', minHeight: '58px' }}>
+                    {(megido.reishou && megido.reishou.length > 0) ? (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0px 4px', alignItems: 'center' }}>
+                            {megido.reishou.map((r, i) => 
+                                <div key={i} className="reishou-chip" style={reishouChipStyle} title={r.name}>
+                                    <span onClick={(e) => {e.stopPropagation(); onRemoveReishou(i);}} style={{cursor: 'pointer', color: 'var(--danger-color)', marginRight: '4px', fontWeight: 'bold'}}>×</span>
+                                    {r.name.substring(0, 3)}
+                                </div>
+                            )}
+                        </div>
+                    ) : <p style={{ color: 'var(--text-subtle)', margin: 0, fontSize: '12px', textAlign: 'center' }}>なし</p>}
                 </div>
             </div>
         </div>

@@ -97,5 +97,17 @@ const ACHIEVEMENTS = {
         name: 'デバッグ',
         description: '開発者コンソールを開く。',
         type: 'private'
+    },
+    'BETA_TESTER': {
+        id: 'BETA_TESTER',
+        name: 'ベータテスター',
+        description: 'オープンβテストに参加する。',
+        type: 'private'
+    },
+    'SUPPORT_ITACHI': {
+        id: 'SUPPORT_ITACHI',
+        name: 'いたち応援！',
+        description: 'ベータテスト用報告フォームから開発者を応援する。',
+        type: 'private'
     }
 };

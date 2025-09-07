@@ -394,31 +394,38 @@ body.mobile-view .ownership-table .input-field {
     border-color: var(--primary-accent);
 }
 
-/* --- Formation Editor Mobile Font Size Adjustment --- */
-body.mobile-view div[style*="gridTemplateColumns"] .card .megido-slot-empty {
-    font-size: 14px !important; /* 空きスロット */
+/* --- Formation Editor Mobile Layout Fix (2025-09-07) --- */
+body.mobile-view div[style*="gridTemplateColumns"] > div > .card {
+    min-height: 290px !important; /* モバイル用に高さを調整 */
+    padding: 8px !important;
+    gap: 4px !important;
+}
+
+body.mobile-view div[style*="gridTemplateColumns"] .megido-slot-empty {
+    min-height: 290px !important;
 }
 
 body.mobile-view div[style*="gridTemplateColumns"] .card p[style*="font-size: 16px"] {
     font-size: 14px !important; /* メギド名 */
-    line-height: 1.2;
 }
 
 body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] {
-    font-size: 10px !important; /* 詳細、オーブ、霊宝のコンテナ */
-}
-
-body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] p,
-body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] span,
-body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] div {
-    font-size: 10px !important; /* 詳細、オーブ、霊宝のテキスト */
+    font-size: 11px !important; /* 詳細情報 */
+    gap: 1px 4px !important;
 }
 
 body.mobile-view div[style*="gridTemplateColumns"] .card button.btn-secondary {
-    font-size: 10px !important; /* オーブ選択ボタン */
-    padding: 2px 6px; /* パディング調整 */
+    font-size: 11px !important; /* オーブ選択ボタン */
+    padding: 4px 6px !important;
 }
 
-body.mobile-view div[style*="gridTemplateColumns"] .card select.select-field {
-    font-size: 10px !important; /* 凸数セレクト */
+body.mobile-view div[style*="gridTemplateColumns"] .card .reishou-chip {
+    padding: 1px 4px !important;
+    margin: 1px !important;
+    font-size: 9px !important;
+}
+
+body.mobile-view div[style*="gridTemplateColumns"] .card .card { /* 霊宝コンテナ */
+    min-height: 52px !important;
+    padding: 2px !important;
 }

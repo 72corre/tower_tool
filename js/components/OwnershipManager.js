@@ -35,6 +35,14 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed })
         onDetailChange(newDetails);
     };
 
+    const getBondReishouTierName = (tier) => {
+        if (tier === 0) return 'なし';
+        if (tier === 1) return '<真>';
+        if (tier === 2) return '<剛>';
+        if (tier === 3) return '<絆>';
+        return `T${tier}`;
+    };
+
     return (
         <div style={{display: 'flex', flexDirection: 'column', height: '100%', gap: '16px'}}>
             <FilterControls 
@@ -78,7 +86,7 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed })
                                 <td>
                                     {megido.絆霊宝 && 
                                         <select value={details.bond_reishou} onChange={e => onDetailChange(megido.id, 'bond_reishou', parseInt(e.target.value, 10))} className="select-field">
-                                            {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>T{tier}</option>)}
+                                            {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>{getBondReishouTierName(tier)}</option>)}
                                         </select>
                                     }
                                 </td>

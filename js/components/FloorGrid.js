@@ -107,7 +107,7 @@ const FloorGrid = ({ floorData, handleSquareClick, getSquareStyle, getSquareColo
                                     ></div>
                                 </div>
                                 {memo && <div className="memo-tooltip">{memo}</div>}
-                                {mode === 'practice' && (square.type === 'battle' || square.type === 'boss') && (
+                                {(mode === 'practice' || mode === 'plan' || mode === 'log') && (square.type === 'battle' || square.type === 'boss') && (
                                     <div className="enemy-tooltip">
                                         <h4 style={{margin: 0, paddingBottom: '4px', borderBottom: '1px solid var(--border-color-light)', fontSize:'14px', fontWeight: 700}}>出現エネミー</h4>
                                         <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px'}}>
@@ -121,7 +121,7 @@ const FloorGrid = ({ floorData, handleSquareClick, getSquareStyle, getSquareColo
                                         </ul>
                                     </div>
                                 )}
-                                {mode === 'practice' && square.type === 'explore' && (
+                                {(mode === 'practice' || mode === 'plan' || mode === 'log') && square.type === 'explore' && (
                                     <div className="enemy-tooltip">
                                         <h4 style={{margin: 0, paddingBottom: '4px', borderBottom: '1px solid var(--border-color-light)', fontSize:'14px', fontWeight: 700}}>探索マス情報</h4>
                                         <div style={{marginTop: '8px', fontSize: '12px'}}>

@@ -1,3 +1,13 @@
+const getSquareTypeName = (type) => {
+    const map = {
+        'battle': '戦闘',
+        'boss': 'ボス',
+        'explore': '探索',
+        'start': 'スタート'
+    };
+    return map[type] || type;
+};
+
 const PracticeActionPanel = ({
     square, // This is selectedSquare = { floor, square, id }
     formations,
@@ -110,7 +120,7 @@ const PracticeActionPanel = ({
 
         return (
             <div style={{ position: 'relative' }}>
-                <h3 className="card-header">{floorData.floor}F - {squareData.type} (計画)</h3>
+                <h3 className="card-header">{floorData.floor}F {getSquareTypeName(squareData.type)}</h3>
                 <div className="form-section">
                     {squareData.enemies && squareData.enemies.length > 0 ? (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -184,7 +194,7 @@ const PracticeActionPanel = ({
     return (
         <div style={{ position: 'relative' }}>
             {isLocked && <LockedPanelOverlay text={lockText} />}
-            <h3 className="card-header">{floorData.floor}F - {squareData.type}</h3>
+            <h3 className="card-header">{floorData.floor}F {getSquareTypeName(squareData.type)}</h3>
             <div className="form-section">
                 {squareData.enemies && squareData.enemies.map(enemy => {
                     const isTargeted = targetEnemy === enemy;
