@@ -394,38 +394,39 @@ body.mobile-view .ownership-table .input-field {
     border-color: var(--primary-accent);
 }
 
-/* --- Formation Editor Mobile Layout Fix (2025-09-07) --- */
-body.mobile-view div[style*="gridTemplateColumns"] > div > .card {
-    min-height: 290px !important; /* モバイル用に高さを調整 */
-    padding: 8px !important;
-    gap: 4px !important;
+/* --- Formation Editor Mobile Layout Fix (2025-09-08) --- */
+body.mobile-view div[style*="gridTemplateColumns"] .card {
+    min-height: 0 !important; /* 高さはコンテンツに追従させる */
 }
 
 body.mobile-view div[style*="gridTemplateColumns"] .megido-slot-empty {
-    min-height: 290px !important;
+    min-height: 150px !important; /* 空きスロットの高さは固定 */
 }
 
-body.mobile-view div[style*="gridTemplateColumns"] .card p[style*="font-size: 16px"] {
+body.mobile-view .megido-section,
+body.mobile-view .orb-section,
+body.mobile-view .reishou-section {
+    padding: 6px 8px !important;
+}
+
+body.mobile-view .megido-section p {
     font-size: 14px !important; /* メギド名 */
 }
 
-body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] {
+body.mobile-view .megido-section div[style*="grid"] {
     font-size: 11px !important; /* 詳細情報 */
-    gap: 1px 4px !important;
 }
 
-body.mobile-view div[style*="gridTemplateColumns"] .card button.btn-secondary {
-    font-size: 11px !important; /* オーブ選択ボタン */
+body.mobile-view .orb-section button {
+    font-size: 11px !important;
     padding: 4px 6px !important;
 }
 
-body.mobile-view div[style*="gridTemplateColumns"] .card .reishou-chip {
-    padding: 1px 4px !important;
-    margin: 1px !important;
-    font-size: 9px !important;
+body.mobile-view .reishou-section p {
+    font-size: 11px !important;
 }
 
-body.mobile-view div[style*="gridTemplateColumns"] .card .card { /* 霊宝コンテナ */
-    min-height: 52px !important;
-    padding: 2px !important;
+body.mobile-view .reishou-section .reishou-chip {
+    font-size: 10px !important;
+    padding: 1px 5px !important;
 }
