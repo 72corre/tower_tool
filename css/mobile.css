@@ -393,3 +393,32 @@ body.mobile-view .ownership-table .input-field {
     background-color: var(--primary-accent-dark);
     border-color: var(--primary-accent);
 }
+
+/* --- Formation Editor Mobile Font Size Adjustment --- */
+body.mobile-view div[style*="gridTemplateColumns"] .card .megido-slot-empty {
+    font-size: 14px !important; /* 空きスロット */
+}
+
+body.mobile-view div[style*="gridTemplateColumns"] .card p[style*="font-size: 16px"] {
+    font-size: 14px !important; /* メギド名 */
+    line-height: 1.2;
+}
+
+body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] {
+    font-size: 10px !important; /* 詳細、オーブ、霊宝のコンテナ */
+}
+
+body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] p,
+body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] span,
+body.mobile-view div[style*="gridTemplateColumns"] .card div[style*="font-size: 12px"] div {
+    font-size: 10px !important; /* 詳細、オーブ、霊宝のテキスト */
+}
+
+body.mobile-view div[style*="gridTemplateColumns"] .card button.btn-secondary {
+    font-size: 10px !important; /* オーブ選択ボタン */
+    padding: 2px 6px; /* パディング調整 */
+}
+
+body.mobile-view div[style*="gridTemplateColumns"] .card select.select-field {
+    font-size: 10px !important; /* 凸数セレクト */
+}
