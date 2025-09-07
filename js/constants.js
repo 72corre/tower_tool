@@ -1,3 +1,19 @@
+const STYLE_ABBREVIATION_MAP = {
+    'R': 'ラッシュ',
+    'C': 'カウンター',
+    'B': 'バースト',
+    'RANDOM': 'ランダム'
+};
+
+const EXPLORE_SUB_TYPE_MAP = {
+    'recovery': 'コンディション回復',
+    'tower_power': '塔破力回復',
+    'attack_buff': '攻撃力上昇',
+    'defense_buff': '防御力上昇',
+    'hp_buff': 'HP上昇',
+    'status_buff': 'いずれかのステータス上昇'
+};
+
 const LEVEL_BONUSES = {
     75: { hp: 210, atk: 25, def: 25, spd: 0 },
     77: { hp: 380, atk: 43, def: 43, spd: 0 },

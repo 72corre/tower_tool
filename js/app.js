@@ -1,5 +1,100 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
+    const LogSummary = ({ selectedLog }) => {
+        if (!selectedLog) {
+            return <div className="placeholder">ログを選択してください</div>;
+        }
+
+        const { runState, megidoConditions, planState } = selectedLog;
+
+        const totalBattles = runState.history.filter(h => h.type === 'battle').length;
+        const wins = runState.history.filter(h => h.type === 'battle' && h.result === 'win').length;
+        const losses = runState.history.filter(h => h.type === 'battle' && h.result === 'lose').length;
+        const retreats = runState.history.filter(h => h.type === 'battle' && h.result === 'retreat').length;
+        const explorations = runState.history.filter(h => h.type === 'explore').length;
+
+        const SummaryCard = ({ title, children }) => (
+            <div className="card" style={{ marginBottom: '1rem' }}>
+                <h4 className="card-header">{title}</h4>
+                <div style={{ padding: '1rem' }}>{children}</div>
+            </div>
+        );
+
+        const StatItem = ({ label, value }) => (
+            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0' }}>
+                <span>{label}</span>
+                <span style={{ fontWeight: 'bold' }}>{value}</span>
+            </div>
+        );
+
+        return (
+            <div style={{ padding: '1rem' }}>
+                <SummaryCard title="総合結果">
+                    <StatItem label="到達階層" value={`${runState.highestFloorReached}F`} />
+                    <StatItem label="最終塔破力" value={runState.towerPower} />
+                    <StatItem label="総回復塔破力" value={runState.totalPowerRecovered || 0} />
+                </SummaryCard>
+                <SummaryCard title="戦闘記録">
+                    <StatItem label="総戦闘回数" value={totalBattles} />
+                    <StatItem label="勝利" value={wins} />
+                    <StatItem label="敗北" value={losses} />
+                    <StatItem label="リタイア" value={retreats} />
+                </SummaryCard>
+                <SummaryCard title="探索記録">
+                    <StatItem label="総探索回数" value={explorations} />
+                </SummaryCard>
+            </div>
+        );
+    };
+
+    const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) => {
+        if (!isOpen || !selectedLog || !squareKey) return null;
+
+        const history = selectedLog.runState.history.filter(h => h.squareId === squareKey);
+        const [floorNum, ...idParts] = squareKey.split('-');
+        const squareId = idParts.join('-');
+        const floorData = towerData.find(f => String(f.floor) === floorNum);
+        const squareData = floorData?.squares[squareId];
+
+        const getActionText = (action) => {
+            switch (action.type) {
+                case 'battle':
+                    return `戦闘: ${action.result === 'win' ? '勝利' : action.result === 'lose' ? '敗北' : 'リタイア'}`;
+                case 'explore':
+                    return `探索`;
+                default:
+                    return '不明なアクション';
+            }
+        };
+
+        return (
+            <div className="mobile-modal-overlay" onClick={onClose}>
+                <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
+                    <div style={{ flexShrink: 0, padding: '1rem' }}>
+                        <h3 style={{marginTop: 0, textAlign: 'center'}}>{floorNum}F - {squareData?.type}マス</h3>
+                    </div>
+                    <div style={{ flexGrow: 1, overflowY: 'auto', padding: '0 1rem' }}>
+                        {history.length > 0 ? (
+                            history.map((action, index) => (
+                                <div key={index} className="card" style={{marginBottom: '0.5rem', padding: '0.75rem'}}>
+                                    <p style={{margin: 0, fontWeight: 'bold'}}>{getActionText(action)}</p>
+                                    <p style={{margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--text-subtle)'}}>
+                                        {new Date(action.timestamp).toLocaleString()}
+                                    </p>
+                                </div>
+                            ))
+                        ) : (
+                            <p style={{textAlign: 'center', color: 'var(--text-subtle)'}}>このマスでのアクション履歴はありません。</p>
+                        )}
+                    </div>
+                    <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
+                        <button className="btn-close-modal" onClick={onClose}>閉じる</button>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
     const TowerTool = () => {
         const [showSettings, setShowSettings] = useState(false);
         const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
@@ -23,9 +118,9 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
             return saved ? parseInt(saved, 10) : 0;
         });
         const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState("ownership");
+    const [activeTab, setActiveTab] = useState(() => localStorage.getItem('ui_activeTab') || 'details');
     const [selectedSquare, setSelectedSquare] = useState(null);
-    const [mode, setMode] = useState('practice');
+    const [mode, setMode] = useState(() => localStorage.getItem('ui_mode') || 'practice');
     
     const [megidoDetails, setMegidoDetails] = useState(() => {
         const saved = localStorage.getItem('megidoDetails');
@@ -54,6 +149,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
     const [selectedLog, setSelectedLog] = useState(null);
     const [selectedLogSquare, setSelectedLogSquare] = useState(null);
+    const [logActionModal, setLogActionModal] = useState({ isOpen: false, squareKey: null });
 
     const [megidoConditions, setMegidoConditions] = useState({});
     const [runState, setRunState] = useState({ cleared: {}, highestFloorReached: 1, history: [], towerPower: 30, recommendations: {}, explorationFatigue: [] });
@@ -86,9 +182,14 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         return localStorage.getItem('viewMode') || 'auto';
     });
     const [isMobileView, setIsMobileView] = useState(false);
+    const [isTabletView, setIsTabletView] = useState(false);
     const [editingFormation, setEditingFormation] = useState(null);
     
     const floorRefs = useRef({});
+
+    // --- UI State Persistence ---
+    useEffect(() => { localStorage.setItem('ui_mode', mode); }, [mode]);
+    useEffect(() => { localStorage.setItem('ui_activeTab', activeTab); }, [activeTab]);
 
     const CONDITION_LEVELS = ['絶好調', '好調', '普通', '不調', '絶不調', '気絶'];
 
@@ -336,15 +437,21 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
     useEffect(() => {
         const handleResize = () => {
-            const isMobile = window.innerWidth <= 768;
+            const width = window.innerWidth;
+            const isMobile = width <= 768;
+            const isTablet = width > 768 && width <= 1180;
+
             const shouldBeMobile = viewMode === 'mobile' || (viewMode === 'auto' && isMobile);
+            const shouldBeTablet = viewMode === 'tablet' || (viewMode === 'auto' && isTablet);
+
+            setIsMobileView(shouldBeMobile);
+            setIsTabletView(shouldBeTablet);
             
+            document.body.classList.remove('mobile-view', 'tablet-view');
             if (shouldBeMobile) {
                 document.body.classList.add('mobile-view');
-                setIsMobileView(true);
-            } else {
-                document.body.classList.remove('mobile-view');
-                setIsMobileView(false);
+            } else if (shouldBeTablet) {
+                document.body.classList.add('tablet-view');
             }
         };
 
@@ -553,7 +660,27 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         } else {
             handleResetRun(true);
         }
-    }, []);
+
+        // Restore selected square & log on initial load
+        const savedSquareKey = localStorage.getItem('ui_selectedSquareKey');
+        if (savedSquareKey && typeof TOWER_MAP_DATA !== 'undefined') {
+            const [floorNumStr, ...idParts] = savedSquareKey.split('-');
+            const floorNum = parseInt(floorNumStr.replace('f',''));
+            const squareId = idParts.join('-');
+            const floorData = TOWER_MAP_DATA.find(f => f.floor === floorNum);
+            if (floorData && floorData.squares[squareId]) {
+                setSelectedSquare({ floor: floorData, square: floorData.squares[squareId], id: squareId });
+            }
+        }
+
+        const savedLogName = localStorage.getItem('ui_selectedLogName');
+        if (savedLogName) {
+            const logToSelect = seasonLogs.find(l => l.name === savedLogName);
+            if (logToSelect) {
+                setSelectedLog(logToSelect);
+            }
+        }
+    }, [isLoading]); // Depend on isLoading to ensure data is available
 
     useEffect(() => {
         if (isLoading || typeof MEGIDO_BIRTHDAY_DATA === 'undefined') return;
@@ -670,8 +797,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
             setSeasonLogs(newLogs);
             localStorage.setItem('seasonLogs', JSON.stringify(newLogs));
             if (selectedLog && selectedLog.name === logNameToDelete) {
-                setSelectedLog(null);
-                setSelectedLogSquare(null);
+                handleSelectLog(null);
             }
             showToastMessage("ログを削除しました。");
         }
@@ -733,9 +859,11 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         setMode(newMode);
         setDisplayedEnemy(null);
         if (mode === 'log' && newMode !== 'log') {
-            setSelectedLog(null);
+            handleSelectLog(null);
             setSelectedLogSquare(null);
         }
+        setSelectedSquare(null);
+        localStorage.removeItem('ui_selectedSquareKey');
     };
 
     const handleTabClick = (tabName) => {
@@ -790,6 +918,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
             setMegidoConditions(initialConditions);
             localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録_conditions`, JSON.stringify(initialConditions));
             setSelectedSquare(null);
+            localStorage.removeItem('ui_selectedSquareKey');
             if (!isInitialBoot) {
                 setActiveTab('ownership');
                 showToastMessage('挑戦状況をリセットしました。');
@@ -829,6 +958,19 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         if (mode === 'plan') setActiveTab(targetScreen || 'formation');
         else setPracticeView('action');
         showToastMessage('編成を保存しました。');
+    };
+
+    const handleSaveFormationMemo = (formationId, newNotes) => {
+        if (!formationId) return;
+        const newFormations = formations.map(f => {
+            if (f.id === formationId) {
+                return { ...f, notes: newNotes };
+            }
+            return f;
+        });
+        setFormations(newFormations);
+        localStorage.setItem('formations', JSON.stringify(newFormations));
+        showToastMessage('編成メモを更新しました。');
     };
 
     const handleDeleteFormation = (formationId) => {
@@ -958,32 +1100,29 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
     const handleSquareClick = (floorData, square, squareId, index) => {
         const squareInfo = { floor: floorData, square: square, id: squareId };
-
-        if (mode === 'practice') {
-            const clearedSquaresOnFloor = runState.cleared[floorData.floor] || [];
-            const isCleared = clearedSquaresOnFloor.includes(squareId);
-
-            if (isCleared) {
-                setSelectedSquare(squareInfo);
-                setActiveTab('details');
-                return;
-            }
-
-            // The accessibility check is now based on being on the same floor as the player, not adjacency.
-            const isonCurrentFloor = runState.currentPosition?.floor === floorData.floor;
-
-            if (!isonCurrentFloor) {
-                showToastMessage("現在の階のマスではありません");
-                return;
-            }
-        }
+        const squareKey = `${floorData.floor}-${squareId}`;
+        localStorage.setItem('ui_selectedSquareKey', squareKey);
 
         if (mode === 'log') {
-            setSelectedLogSquare(squareInfo);
+            setLogActionModal({ isOpen: true, squareKey: squareKey });
         } else {
             setSelectedSquare(squareInfo);
             setActiveTab('details');
         }
+    };
+
+    const handleSelectLog = (log) => {
+        setSelectedLog(log);
+        if (log) {
+            localStorage.setItem('ui_selectedLogName', log.name);
+        } else {
+            localStorage.removeItem('ui_selectedLogName');
+        }
+    };
+
+    const onCancel = () => {
+        setSelectedSquare(null);
+        localStorage.removeItem('ui_selectedSquareKey');
     };
 
     const getSquareStyle = (square, floorData, squareId) => {
@@ -1063,10 +1202,6 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
     const onTargetSelect = (target, screen) => {
         console.log('Target selected:', target, screen);
-    };
-
-    const onCancel = () => {
-        setSelectedSquare(null);
     };
 
     const handleTargetFloorChange = (floor) => {
@@ -1368,6 +1503,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         setRunState(newRunState);
         localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(newRunState));
         setSelectedSquare(null);
+        localStorage.removeItem('ui_selectedSquareKey');
         updateGuidance();
 
         if (result === 'explore') {
@@ -1540,7 +1676,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 <LogViewer 
                     logs={seasonLogs}
                     selectedLog={selectedLog}
-                    onSelectLog={setSelectedLog}
+                    onSelectLog={handleSelectLog}
                     onDeleteLog={handleDeleteLog}
                     selectedLogSquare={selectedLogSquare}
                     onSelectLogSquare={setSelectedLogSquare}
@@ -1562,11 +1698,11 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                         
                         let isResolvable = false;
                         if (mode === 'practice' && !isCleared) {
-                            const neighbors = Object.keys(connections).reduce((acc, key) => {
+                            const neighbors = typeof connections !== 'undefined' ? Object.keys(connections).reduce((acc, key) => {
                                 if (connections[key].includes(selectedSquare.id)) acc.push(key);
                                 if (key === selectedSquare.id) acc.push(...connections[key]);
                                 return acc;
-                            }, []);
+                            }, []) : [];
                             isResolvable = neighbors.some(neighborId => clearedSquaresOnFloor.includes(neighborId));
                         }
 
@@ -1605,6 +1741,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                                 runState={runState}
                                 formations={formations}
                                 seasonLogs={seasonLogs}
+                                isResolvable={isResolvable}
                             />;
                         } else {
                             return <PracticeActionPanel 
@@ -1625,6 +1762,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                                 targetEnemy={targetEnemies[selectedSquare.id]}
                                 onTargetEnemyChange={(enemyName) => handleTargetEnemyChange(selectedSquare.id, enemyName)}
                                 isResolvable={isResolvable}
+                                onSaveFormationMemo={handleSaveFormationMemo}
                             />;
                         }
                     })()}
@@ -1640,7 +1778,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                             <FormationEditor
                                 formation={editingFormation}
                                 onSave={handleSaveFormation}
-                                onCancel={() => onEditingFormationChange(null)}
+                                onCancel={() => setEditingFormation(null)}
                                 ownedMegidoIds={ownedMegidoIds}
                                 megidoDetails={megidoDetails}
                                 initialTagTarget={initialTagTarget}
@@ -1650,11 +1788,11 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                             />
                         ) : (
                             <FormationManager
-                                ownedMegidoIds={ownedMegidoIds}
-                                formations={formations}
-                                onSave={handleSaveFormation}
-                                onDelete={handleDeleteFormation}
-                                onCopy={handleCopyFormation}
+                                formations={formations} 
+                                onSave={handleSaveFormation} 
+                                onDelete={handleDeleteFormation} 
+                                onCopy={handleCopyFormation} 
+                                ownedMegidoIds={ownedMegidoIds} 
                                 megidoDetails={megidoDetails}
                                 initialTagTarget={initialTagTarget}
                                 setInitialTagTarget={setInitialTagTarget}
@@ -1729,12 +1867,16 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 onOpenSettings={handleOpenSettings}
                 isMobileView={isMobileView}
                 runState={runState}
+                seasonLogs={seasonLogs}
+                selectedLog={selectedLog}
+                onSelectLog={handleSelectLog}
             />
             <div className="main-content" style={{ display: 'flex', gap: '1rem', padding: '1rem' }}>
                 {isMobileView ? (
                     <div className="mobile-view-container">
-                        {/* Mobile view tabs content */}
-                        {activeTab === 'details' && (
+                        {mode === 'log' && activeTab === 'summary' ? (
+                            <LogSummary selectedLog={selectedLog} />
+                        ) : activeTab === 'details' ? (
                             <div className="left-panel" style={{ width: '100%' }}>
                                 {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
                                     <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
@@ -1757,9 +1899,9 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                                     </div>
                                 ))}
                             </div>
-                        )}
-                        {activeTab === 'ownership' && <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} />}
-                        {activeTab === 'formation' && (
+                        ) : activeTab === 'ownership' ? (
+                            <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} />
+                        ) : activeTab === 'formation' ? (
                             editingFormation ? (
                                 <FormationEditor
                                     formation={editingFormation}
@@ -1779,23 +1921,23 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                                     onDelete={handleDeleteFormation} 
                                     onCopy={handleCopyFormation} 
                                     ownedMegidoIds={ownedMegidoIds} 
-                                    megidoDetails={megidoDetails} 
-                                    initialTagTarget={initialTagTarget} 
-                                    setInitialTagTarget={setInitialTagTarget} 
-                                    showToastMessage={showToastMessage} 
-                                    setPreviousScreen={setPreviousScreen} 
-                                    previousScreen={previousScreen} 
-                                    onTargetSelect={onTargetSelect} 
-                                    onCancel={onCancel} 
-                                    isQriousLoaded={isQriousLoaded} 
-                                    isHtml5QrLoaded={isHtml5QrLoaded} 
-                                    onImport={handleImportFormation} 
-                                    idMaps={idMaps} 
-                                    editingFormation={editingFormation} 
+                                    megidoDetails={megidoDetails}
+                                    initialTagTarget={initialTagTarget}
+                                    setInitialTagTarget={setInitialTagTarget}
+                                    showToastMessage={showToastMessage}
+                                    setPreviousScreen={setPreviousScreen}
+                                    previousScreen={previousScreen}
+                                    onTargetSelect={onTargetSelect}
+                                    onCancel={onCancel}
+                                    isQriousLoaded={isQriousLoaded}
+                                    isHtml5QrLoaded={isHtml5QrLoaded}
+                                    onImport={handleImportFormation}
+                                    idMaps={idMaps}
+                                    editingFormation={editingFormation}
                                     onEditingFormationChange={setEditingFormation}
                                 />
                             )
-                        )}
+                        ) : null}
                     </div>
                 ) : (
                     <>
@@ -1859,6 +2001,13 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 title={recoveryModalState.title}
                 message={recoveryModalState.message}
             />
+            <LogActionModal 
+                isOpen={logActionModal.isOpen}
+                onClose={() => setLogActionModal({ isOpen: false, squareKey: null })}
+                squareKey={logActionModal.squareKey}
+                selectedLog={selectedLog}
+                towerData={TOWER_MAP_DATA}
+            />
             {showToast && <div className="toast-simple">{toastMessage}</div>}
             {achievementToast && (
                 <div className="toast-container">
@@ -1884,11 +2033,13 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 onToggleTheme={handleToggleTheme}
                 viewMode={viewMode}
                 onViewModeChange={handleViewModeChange}
+                isMobileView={isMobileView}
+                isTabletView={isTabletView}
             />
             {isMobileView && selectedSquare && (
-                <div className="mobile-panel-overlay" onClick={() => setSelectedSquare(null)}>
+                <div className="mobile-panel-overlay" onClick={() => onCancel()}>
                     <div className="mobile-panel-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="btn-close-modal" onClick={() => setSelectedSquare(null)}>&times;</button>
+                        <button className="btn-close-modal" onClick={() => onCancel()}>&times;</button>
                         <RightPanelContent />
                     </div>
                 </div>

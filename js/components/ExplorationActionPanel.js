@@ -1,4 +1,4 @@
-const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, isPlanMode = false, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs }) => {
+const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, isPlanMode = false, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [modalState, setModalState] = useState({ isOpen: false, slotIndex: null, recType: null });
     const [memo, setMemo] = useState('');
@@ -140,7 +140,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
         return (
             <div style={{ position: 'relative' }}>
                 {isLocked && <LockedPanelOverlay text={lockText} />}
-                <h3 className="card-header">{getTitle(square)}</h3>
+                <h3 className="card-header">{getTitle(square.square)}</h3>
                 <FilterableSelectionModal 
                     title="探索メギド選択"
                     isOpen={modalState.isOpen}
@@ -224,7 +224,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
     return (
         <div style={{ position: 'relative' }}>
             {isLocked && <LockedPanelOverlay text={lockText} />}
-            <h3 className="card-header">{getTitle(square)}</h3>
+            <h3 className="card-header">{getTitle(square.square)}</h3>
             <FilterableSelectionModal 
                 title="探索メギド選択"
                 isOpen={modalState.isOpen}
@@ -359,8 +359,9 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                     <p>ステ強化: {result.stat || '-'} / コンディション回復: {result.condition} / 塔破力回復: {result.power}</p>
                 </div>
             </div>
+            {!isResolvable && !isLocked && <p style={{color: 'var(--warning-color)', fontSize: '12px', marginTop: '12px'}}>このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
             <div style={{marginTop: '16px'}}>
-                <button onClick={() => onResolve('explore', { party: practiceParty.filter(m => m), totalPower, requiredPower, expectationLevel }, square)} disabled={!practiceParty.some(m => m !== null)} className="btn btn-primary" style={{width: '100%'}}>探索実行</button>
+                <button onClick={() => onResolve('explore', { party: practiceParty.filter(m => m), totalPower, requiredPower, expectationLevel }, square)} disabled={!practiceParty.some(m => m !== null) || !isResolvable} className="btn btn-primary" style={{width: '100%'}}>探索実行</button>
             </div>
         </div>
     );

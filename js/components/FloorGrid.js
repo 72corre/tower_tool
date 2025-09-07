@@ -121,6 +121,23 @@ const FloorGrid = ({ floorData, handleSquareClick, getSquareStyle, getSquareColo
                                         </ul>
                                     </div>
                                 )}
+                                {mode === 'practice' && square.type === 'explore' && (
+                                    <div className="enemy-tooltip">
+                                        <h4 style={{margin: 0, paddingBottom: '4px', borderBottom: '1px solid var(--border-color-light)', fontSize:'14px', fontWeight: 700}}>探索マス情報</h4>
+                                        <div style={{marginTop: '8px', fontSize: '12px'}}>
+                                            {
+                                                (() => {
+                                                    const subTypeJp = EXPLORE_SUB_TYPE_MAP[square.sub_type] || '不明';
+                                                    if (square.sub_type === 'tower_power') {
+                                                        return subTypeJp;
+                                                    }
+                                                    const styleJp = STYLE_ABBREVIATION_MAP[square.style] || '不明';
+                                                    return `${styleJp}の${subTypeJp}`;
+                                                })()
+                                            }
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         );
                     })}

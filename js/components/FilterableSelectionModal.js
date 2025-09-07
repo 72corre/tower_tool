@@ -1,4 +1,5 @@
 const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onClose, isOpen, renderItem, showFilters, initialSearch, ...props }) => {
+    const { useMemo, useState, useEffect, useRef } = React;
     const dialogRef = useRef(null);
     const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
 
@@ -70,17 +71,55 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onCl
         });
     }, [secondaryItems, filters, showFilters]);
 
+    const dialogStyle = isOpen ? {
+        display: 'flex',
+        flexDirection: 'column',
+        height: '80vh',
+        width: 'clamp(300px, 80vw, 600px)',
+        padding: '0',
+        border: '1px solid var(--border-color)',
+        borderRadius: '8px',
+        backgroundColor: 'var(--bg-panel)',
+        color: 'var(--text-main)'
+    } : {};
+
+    const headerStyle = {
+        flexShrink: 0,
+        padding: '1rem 1rem 0 1rem'
+    };
+    
+    const contentStyle = {
+        flexGrow: 1,
+        overflowY: 'auto',
+        padding: '0 1rem'
+    };
+
+    const footerStyle = {
+        flexShrink: 0,
+        padding: '1rem',
+        textAlign: 'center',
+        borderTop: '1px solid var(--border-color-light)'
+    };
+
     return (
-        <dialog ref={dialogRef} onClose={onClose}>
-            <h3 className="card-header">{title}</h3>
-            {showFilters && <FilterControls filters={filters} onFilterChange={(type, value) => setFilters(f => ({ ...f, [type]: value }))} />}
-            <div className="modal-grid">
-                {filteredItems.map(item => renderItem(item, onSelect, props))}
-                {secondaryItems && filteredItems.length > 0 && <div className="modal-divider"></div>}
-                {secondaryItems && <h4 className="modal-subheader">その他の編成</h4>}
-                {filteredSecondaryItems && filteredSecondaryItems.map(item => renderItem(item, onSelect, props))}
+        <dialog ref={dialogRef} onClose={onClose} style={dialogStyle}>
+            <div style={headerStyle}>
+                <h3 className="card-header" style={{padding: '0 0 1rem 0', margin: 0}}>{title}</h3>
+                {showFilters && <FilterControls filters={filters} onFilterChange={(type, value) => setFilters(f => ({ ...f, [type]: value }))} />}
             </div>
-            <button onClick={onClose} className="btn modal-close-btn">閉じる</button>
+            
+            <div style={contentStyle}>
+                <div className="modal-grid">
+                    {filteredItems.map(item => renderItem(item, onSelect, props))}
+                    {secondaryItems && filteredItems.length > 0 && <div className="modal-divider"></div>}
+                    {secondaryItems && <h4 className="modal-subheader">その他の編成</h4>}
+                    {filteredSecondaryItems && filteredSecondaryItems.map(item => renderItem(item, onSelect, props))}
+                </div>
+            </div>
+
+            <div style={footerStyle}>
+                <button onClick={onClose} className="btn modal-close-btn">閉じる</button>
+            </div>
         </dialog>
     );
 };

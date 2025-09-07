@@ -15,9 +15,11 @@ const PracticeActionPanel = ({
     onPlanCombatParty,
     targetEnemy,
     onTargetEnemyChange,
-    isResolvable
+    isResolvable,
+    onSaveFormationMemo
 }) => {
     const { useState, useEffect } = React;
+    const [memoText, setMemoText] = useState('');
 
     useEffect(() => {
         if (!isPlanMode && !isLocked && !targetEnemy && square.square.enemies && square.square.enemies.length === 1) {
@@ -91,6 +93,14 @@ const PracticeActionPanel = ({
     // --- Common Render Logic ---
     const formation = formations.find(f => f.id === selectedFormationId);
     const isFormationDisabled = formation && formation.megido.some(m => m && (megidoConditions[String(m.id)] === '気絶' || megidoConditions[String(m.id)] === '絶不調'));
+
+    useEffect(() => {
+        if (formation) {
+            setMemoText(formation.notes || '');
+        } else {
+            setMemoText('');
+        }
+    }, [formation]);
 
     // --- RENDER FOR PLAN MODE ---
     if (isPlanMode) {
@@ -206,6 +216,26 @@ const PracticeActionPanel = ({
                     {formation ? formation.name : <span style={{color: 'var(--text-subtle)'}}>編成を選択...</span>}
                 </button>
             </div>
+            {selectedFormationId && formation && (
+                <div className="form-section">
+                    <label className="label" style={{marginBottom: '8px'}}>編成メモ:</label>
+                    <textarea
+                        value={memoText}
+                        onChange={(e) => setMemoText(e.target.value)}
+                        className="textarea-field"
+                        rows="4"
+                        placeholder="この編成に関するメモ..."
+                        style={{width: '100%', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: 'var(--bg-main)', color: 'var(--text-main)'}}
+                    ></textarea>
+                    <button 
+                        onClick={() => onSaveFormationMemo(selectedFormationId, memoText)} 
+                        className="btn btn-primary" 
+                        style={{marginTop: '8px'}}
+                    >
+                        メモを保存
+                    </button>
+                </div>
+            )}
             {isFormationDisabled && <p style={{color: 'var(--danger-color)', fontSize: '12px', marginTop: '12px'}}>この編成には絶不調または気絶状態のメギドが含まれているため、使用できません。</p>}
             {!isResolvable && !isLocked && <p style={{color: 'var(--warning-color)', fontSize: '12px', marginTop: '12px'}}>このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
             

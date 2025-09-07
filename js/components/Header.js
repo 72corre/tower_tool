@@ -12,15 +12,15 @@ const floorMenuItems = [
     { key: 35, title: '35F', icon: 'asset/35F.png', description: 'これであなたも星間の塔マスター！契りのドゥーエを倒しに行きます' },
 ];
 
+const modeMenuItems = [
+    { key: 'plan', title: '計画', description: 'どの様に登るのかを計画するモードです', icon: 'asset/plan.png' },
+    { key: 'practice', title: '実践', description: '実際に登りながら利用するモードです', icon: 'asset/practice.png' },
+    { key: 'log', title: 'ログ', description: '過去の記録を閲覧するモードです', icon: 'asset/log.png' }
+];
+
 const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, activeTab, onTabClick, selectedSquare, onSaveLog, onResetRun, onOpenSettings, isMobileView }) => {
     const [isModeMenuOpen, setIsModeMenuOpen] = React.useState(false);
     const [isFloorMenuOpen, setIsFloorMenuOpen] = React.useState(false);
-
-    const modeMenuItems = [
-        { key: 'plan', title: '計画', description: 'どの様に登るのかを計画するモードです', icon: 'asset/plan.png' },
-        { key: 'practice', title: '実践', description: '実際に登りながら利用するモードです', icon: 'asset/practice.png' },
-        { key: 'log', title: 'ログ', description: '過去の記録を閲覧するモードです', icon: 'asset/log.png' }
-    ];
 
     const currentModeInfo = modeMenuItems.find(item => item.key === mode) || modeMenuItems[0];
     const currentFloorInfo = floorMenuItems.find(item => item.key === targetFloor) || { key: targetFloor, title: `${targetFloor}F` };
@@ -74,11 +74,18 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
     );
 };
 
-const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onOpenSettings, runState }) => {
+const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog }) => {
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
+    const [isModeMenuOpen, setIsModeMenuOpen] = useState(false);
+    const [isLogSelectionOpen, setIsLogSelectionOpen] = useState(false);
+
+    const currentModeInfo = modeMenuItems.find(item => item.key === mode) || modeMenuItems[0];
 
     const getTitle = () => {
+        if (mode === 'log') {
+            return selectedLog ? selectedLog.name : 'ログを選択';
+        }
         switch (activeTab) {
             case 'details':
                 const currentFloor = runState?.currentPosition?.floor || '-';
@@ -102,44 +109,118 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
     return (
         <div className="mobile-header-container">
             <div className="mobile-header-top-bar">
-                <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                    <img src="asset/settings.png" alt="設定" style={{width: '24px', height: '24px'}} />
-                </button>
-                <h1 className="mobile-header-title">{getTitle()}</h1>
-                <div className="mobile-header-actions">
-                    {activeTab === 'details' && mode === 'practice' && (
-                        <>
-                            <button onClick={() => setIsActionsMenuOpen(true)} className="btn-icon">︙</button>
-                            {isActionsMenuOpen && (
-                                <div className="mobile-actions-menu-overlay" onClick={() => setIsActionsMenuOpen(false)}></div>
-                            )}
-                            {isActionsMenuOpen && (
-                                <div className="mobile-actions-menu">
-                                    <button onClick={() => { onSaveLog(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">挑戦ログを保存</button>
-                                    <button onClick={() => { onResetRun(false); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item danger">挑戦をリタイア</button>
-                                </div>
-                            )}
-                        </>
-                    )}
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '8px' }}>
+                    <button onClick={onOpenSettings} className="btn-icon" title="設定">
+                        <img src="asset/settings.png" alt="設定" style={{width: '24px', height: '24px'}} />
+                    </button>
+                    <div className="mode-selector-wrapper">
+                        <div className={`mode-selector`} onClick={() => setIsModeMenuOpen(true)} style={{padding: '4px 8px'}}>
+                            <img src={currentModeInfo.icon} alt="" className="mode-selector-icon" style={{width: '18px', height: '18px'}} />
+                            <span className="mode-selector-name" style={{fontSize: '13px'}}>{currentModeInfo.title}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ flex: '0 1 auto', textAlign: 'center' }}>
+                    <h1 className="mobile-header-title">{getTitle()}</h1>
+                </div>
+
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                    <div className="mobile-header-actions">
+                        {mode === 'log' && (
+                             <button onClick={() => setIsLogSelectionOpen(true)} className="btn btn-secondary btn-small">ログ選択</button>
+                        )}
+                        {activeTab === 'details' && mode === 'practice' && (
+                            <>
+                                <button onClick={() => setIsActionsMenuOpen(true)} className="btn-icon">︙</button>
+                                {isActionsMenuOpen && (
+                                    <div className="mobile-actions-menu-overlay" onClick={() => setIsActionsMenuOpen(false)}></div>
+                                )}
+                                {isActionsMenuOpen && (
+                                    <div className="mobile-actions-menu">
+                                        <button onClick={() => { onSaveLog(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">挑戦ログを保存</button>
+                                        <button onClick={() => { onResetRun(false); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item danger">挑戦をリタイア</button>
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
                 </div>
             </div>
             <div className="mobile-header-tabs">
-                <button onClick={() => onTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
-                    <span>マップ</span>
-                </button>
-                <button onClick={() => onTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
-                    <span>所持メギド</span>
-                </button>
-                <button onClick={() => onTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
-                    <span>編成</span>
-                </button>
+                 {mode !== 'log' ? (
+                    <>
+                        <button onClick={() => onTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
+                            <span>マップ</span>
+                        </button>
+                        <button onClick={() => onTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
+                            <span>所持メギド</span>
+                        </button>
+                        <button onClick={() => onTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
+                            <span>編成</span>
+                        </button>
+                    </>
+                 ) : (
+                    <>
+                        <button onClick={() => onTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
+                            <span>マップ</span>
+                        </button>
+                        <button onClick={() => onTabClick('summary')} className={`mobile-tab-button ${activeTab === 'summary' ? 'active' : ''}`}>
+                            <span>通算サマリー</span>
+                        </button>
+                    </>
+                 )}
             </div>
+
+            {isModeMenuOpen && (
+                <div className="mega-menu-container mobile-mega-menu">
+                    <div className="mega-menu-overlay" onClick={() => setIsModeMenuOpen(false)}></div>
+                    <MegaMenu 
+                        onClose={() => setIsModeMenuOpen(false)} 
+                        onSelect={(key) => { onModeChange(key); setIsModeMenuOpen(false); }} 
+                        currentKey={mode} 
+                        menuItems={modeMenuItems} 
+                    />
+                </div>
+            )}
+
+            {isLogSelectionOpen && (
+                 <div className="mobile-modal-overlay" onClick={() => setIsLogSelectionOpen(false)}>
+                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
+                        <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
+                            <h3 style={{marginTop: 0, textAlign: 'center'}}>ログを選択</h3>
+                        </div>
+                        <div style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                                {seasonLogs.map(log => (
+                                    <button
+                                        key={log.name}
+                                        className={`modal-item-btn ${selectedLog?.name === log.name ? 'selected' : ''}`}
+                                        onClick={() => {
+                                            onSelectLog(log);
+                                            setIsLogSelectionOpen(false);
+                                        }}
+                                        style={{ flex: '1 1 auto' }}
+                                    >
+                                        {log.name}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
+                            <button className="btn-close-modal" onClick={() => setIsLogSelectionOpen(false)}>閉じる</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {isFloorModalOpen && (
                 <div className="mobile-modal-overlay" onClick={() => setIsFloorModalOpen(false)}>
-                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()}>
-                        <h3 style={{marginTop: 0, textAlign: 'center'}}>目標階層を選択</h3>
-                        <div className="floor-selection-list">
+                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
+                        <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
+                            <h3 style={{marginTop: 0, textAlign: 'center'}}>目標階層を選択</h3>
+                        </div>
+                        <div className="floor-selection-list" style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
                             {floorMenuItems.map(item => (
                                 <button
                                     key={item.key}
@@ -154,7 +235,9 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                                 </button>
                             ))}
                         </div>
-                        <button className="btn-close-modal" onClick={() => setIsFloorModalOpen(false)}>閉じる</button>
+                        <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
+                            <button className="btn-close-modal" onClick={() => setIsFloorModalOpen(false)}>閉じる</button>
+                        </div>
                     </div>
                 </div>
             )}
