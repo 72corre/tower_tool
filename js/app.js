@@ -144,6 +144,8 @@ const TowerTool = () => {
     const [targetFloor, setTargetFloor] = useState(35);
     const [displayedEnemy, setDisplayedEnemy] = useState(null);
     const [eventToast, setEventToast] = useState(null);
+    const [eventQueue, setEventQueue] = useState([]);
+    const [shouldShowBetaModal, setShouldShowBetaModal] = useState(false);
     const [isBirthdayButtonHovered, setIsBirthdayButtonHovered] = useState(false);
     const [dontShowAgain, setDontShowAgain] = useState(false);
     const [guidance, setGuidance] = useState({ recommended: null, candidates: {} });
@@ -160,6 +162,24 @@ const TowerTool = () => {
     const [isMobileView, setIsMobileView] = useState(false);
     const [isTabletView, setIsTabletView] = useState(false);
     const [showBetaModal, setShowBetaModal] = useState(false);
+
+    const mobileTabs = useMemo(() => (mode === 'log' ? ['summary', 'details'] : ['details', 'ownership', 'formation']), [mode]);
+
+    const handleSwipe = (direction) => {
+        const currentIndex = mobileTabs.indexOf(activeTab);
+        if (currentIndex === -1) return;
+
+        const nextIndex = direction === 'left' 
+            ? (currentIndex + 1) % mobileTabs.length 
+            : (currentIndex - 1 + mobileTabs.length) % mobileTabs.length;
+        
+        setActiveTab(mobileTabs[nextIndex]);
+    };
+
+    const swipeRef = useSwipeNavigation({ 
+        onSwipeLeft: () => handleSwipe('left'), 
+        onSwipeRight: () => handleSwipe('right') 
+    });
     
     const floorRefs = useRef({});
 
@@ -590,7 +610,7 @@ const TowerTool = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const currentYear = today.getFullYear();
-        let eventWasShown = false;
+        const todaysEvents = [];
 
         for (const event of MEGIDO_BIRTHDAY_DATA) {
             const [month, day] = event.date.replace('月', '-').replace('日', '').split('-').map(Number);
@@ -633,11 +653,11 @@ const TowerTool = () => {
             }
 
             if (eventToShow) {
-                setEventToast(eventToShow);
-                eventWasShown = true;
-                break; 
+                todaysEvents.push(eventToShow);
             }
         }
+
+        setEventQueue(todaysEvents);
 
         // Check for beta modal
         const betaModalShown = localStorage.getItem('betaModalShown');
@@ -648,13 +668,28 @@ const TowerTool = () => {
             betaEndDate.setHours(0, 0, 0, 0);
 
             if (today >= betaStartDate && today < betaEndDate) {
-                if (!eventWasShown) {
-                    unlockAchievement('BETA_TESTER');
-                    setShowBetaModal(true);
-                }
+                setShouldShowBetaModal(true);
             }
         }
     }, [isLoading]);
+
+    useEffect(() => {
+        if (eventQueue.length > 0) {
+            setEventToast(eventQueue[0]);
+        } else if (shouldShowBetaModal) {
+            unlockAchievement('BETA_TESTER');
+            setShowBetaModal(true);
+            setShouldShowBetaModal(false); // Prevent re-showing
+        }
+    }, [eventQueue, shouldShowBetaModal]);
+
+    const handleCloseEventToast = () => {
+        if (dontShowAgain && eventToast) {
+            localStorage.setItem(eventToast.storageKey, 'true');
+        }
+        setDontShowAgain(false);
+        setEventQueue(queue => queue.slice(1));
+    };
 
     const updateGuidance = () => {
         if (typeof TOWER_MAP_DATA === 'undefined' || !runState.currentPosition) return;
@@ -937,6 +972,60 @@ const TowerTool = () => {
         showToastMessage('メモを保存しました。');
     };
 
+    const generateEventTweetUrl = (event) => {
+        let text = '';
+        if (event.type === 'birthday') {
+            text = `今日は${event.base_name}${event.unit_name ? `（${event.unit_name}）` : ''}の${event.born_type}日です！おメギド！！ #メギド72`;
+        } else if (event.type === 'anniversary') {
+            text = event.tweet_text_template.replace('X周年', event.anniversaryString);
+        } else {
+            text = event.tweet_text;
+        }
+        return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+    };
+
+    const eventModalOverlayStyle = {
+        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', 
+        backgroundColor: 'rgba(0,0,0,0.7)', 
+        display: 'flex', alignItems: 'center', justifyContent: 'center', 
+        zIndex: 1000
+    };
+
+    const eventModalContentStyle = {
+        background: 'var(--bg-panel)', padding: '2rem', borderRadius: '8px', 
+        textAlign: 'center', border: '1px solid var(--primary-accent)', 
+        boxShadow: '0 5px 25px rgba(0,0,0,0.5)'
+    };
+
+    const eventButtonStyle = {
+        normal: {
+            display: 'inline-block',
+            marginTop: '1.5rem',
+            padding: '10px 16px',
+            border: '1px solid var(--primary-accent)',
+            color: 'var(--primary-accent)',
+            backgroundColor: 'transparent',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            transition: 'all 0.2s ease',
+            cursor: 'pointer'
+        },
+        hover: {
+            display: 'inline-block',
+            marginTop: '1.5rem',
+            padding: '10px 16px',
+            border: '1px solid var(--primary-accent)',
+            color: 'var(--bg-main)',
+            backgroundColor: 'var(--primary-accent)',
+            borderRadius: '6px',
+            textDecoration: 'none',
+            transition: 'all 0.2s ease',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+            cursor: 'pointer'
+        }
+    };
+
     const RightPanelContent = () => {
         // NOTE: The 'connections' variable used in the original code was not defined.
         // The logic using it has been temporarily commented out to prevent errors.
@@ -1092,26 +1181,7 @@ const TowerTool = () => {
     return (
         <div className="app-container">
             {eventToast && (
-                <div style={eventModalOverlayStyle} onClick={() => {
-                    if (dontShowAgain) {
-                        localStorage.setItem(eventToast.storageKey, 'true');
-                    }
-                    setEventToast(null);
-                    setDontShowAgain(false); // Reset for next time
-
-                    // Show beta modal after closing event toast
-                    const betaModalShown = localStorage.getItem('betaModalShown');
-                    if (!betaModalShown) {
-                        const today = new Date();
-                        const betaStartDate = new Date('2025-09-09');
-                        const betaEndDate = new Date('2025-09-17');
-                        today.setHours(0, 0, 0, 0);
-                        if (today >= betaStartDate && today < betaEndDate) {
-                            unlockAchievement('BETA_TESTER');
-                            setShowBetaModal(true);
-                        }
-                    }
-                }}>
+                <div style={eventModalOverlayStyle} onClick={handleCloseEventToast}>
                     <div style={eventModalContentStyle} onClick={(e) => e.stopPropagation()}>
                         <h3 style={{marginTop: 0, color: 'var(--primary-accent)', fontSize: '24px'}}>おメギド！</h3>
                         <p style={{fontSize: '1.1rem', lineHeight: '1.6'}}>{eventToast.text}</p>
@@ -1184,7 +1254,7 @@ const TowerTool = () => {
             />
             <div className="main-content" style={{ display: 'flex', gap: '1rem', padding: '1rem' }}>
                 {isMobileView ? (
-                    <div className="mobile-view-container">
+                    <div className="mobile-view-container" ref={swipeRef}>
                         {mode === 'log' && activeTab === 'summary' ? (
                             <LogSummary selectedLog={selectedLog} />
                         ) : activeTab === 'details' ? (

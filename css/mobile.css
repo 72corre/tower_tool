@@ -394,4 +394,17 @@ body.mobile-view .ownership-table .input-field {
     border-color: var(--primary-accent);
 }
 
-/* No mobile-specific overrides for formation editor needed for now. */
+/* --- Mobile Map Adjustments --- */
+body.mobile-view .map-node-container {
+    height: 40px;
+}
+
+body.mobile-view .map-node {
+    width: 40px;
+    height: 40px;
+}
+
+body.mobile-view .floor-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+}

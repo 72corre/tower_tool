@@ -109,13 +109,7 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
             }
         }
         
-        const manualTags = (finalFormation.tags || []).filter(t => 
-            !(typeof COMPLETE_MEGIDO_LIST !== 'undefined' && COMPLETE_MEGIDO_LIST.some(m => m.名前 === t)) &&
-            !t.match(/^\d+F$/) && 
-            !t.startsWith('ルール:') &&
-            !(typeof ENEMY_ALL_DATA !== 'undefined' && ENEMY_ALL_DATA[t])
-        );
-        const newTags = new Set(manualTags);
+        const newTags = new Set(finalFormation.tags || []);
         (finalFormation.megido || []).forEach(m => { if(m) newTags.add(m.名前) });
 
         if (selectedEnemy && selectedFloor) {
@@ -156,7 +150,7 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
     };
 
     return (
-        <div>
+        <div className="formation-editor-form">
             <FilterableSelectionModal {...getModalConfig()} onSelect={handleSelect} onClose={() => setModalState({ isOpen: false, type: null, slotIndex: null })} isOpen={modalState.isOpen && modalState.type !== null} />
             <FilterableSelectionModal 
                 title="エネミーを選択" 
@@ -211,24 +205,42 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
                     <label className="label">メモ</label>
                     <textarea value={formation.notes || ''} onChange={e => setFormation(f => ({...f, notes: e.target.value}))} className="input-field" rows="3"></textarea>
                 </div>
+                <div className="form-section">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            checked={formation.reishou_reminder || false}
+                            onChange={e => {
+                                const isChecked = e.target.checked;
+                                if (isChecked && Notification.permission === 'default') {
+                                    Notification.requestPermission();
+                                }
+                                setFormation(f => ({...f, reishou_reminder: isChecked}))
+                            }}
+                            className="w-5 h-5"
+                        />
+                        <span className="label" style={{marginBottom: 0}}>霊宝忘れ防止の通知を受け取る</span>
+                    </label>
+                </div>
                 <div>
                     <h4 className="label">メギド構成</h4>
                     <div style={{display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '8px', marginTop: '8px'}}>
                         {[0, 1, 2, 3, 4].map(index => (
-                            <MegidoSlotEditor 
-                                key={index}
-                                megido={formation.megido ? formation.megido[index] : null} 
-                                isLeader={index === 2}
-                                ownedMegidoIds={ownedMegidoIds}
-                                megidoDetails={megidoDetails}
-                                onSlotClick={() => setModalState({ type: 'megido', isOpen: true, slotIndex: index })}
-                                onOrbClick={(e) => { e.stopPropagation(); if(formation.megido?.[index]) setModalState({ type: 'orb', isOpen: true, slotIndex: index }); }}
-                                onReishouClick={(e) => { e.stopPropagation(); if(formation.megido?.[index]) setModalState({ type: 'reishou', isOpen: true, slotIndex: index }); }}
-                                onRemoveMegido={(e) => { e.stopPropagation(); const newList = [...formation.megido]; newList[index] = null; setFormation(f => ({...f, megido: newList})); }}
-                                onRemoveOrb={(e) => { e.stopPropagation(); const newList = [...formation.megido]; if(newList[index]) newList[index].orb = null; setFormation(f => ({...f, megido: newList})); }}
-                                onRemoveReishou={(reishouIndex) => { const newList = [...formation.megido]; if(newList[index]) newList[index].reishou.splice(reishouIndex, 1); setFormation(f => ({...f, megido: newList})); }}
-                                onStatChange={(field, value) => handleMegidoStatChange(index, field, value)}
-                            />
+                            <div key={index} className="megido-slot-editor-desktop">
+                                <MegidoSlotEditor 
+                                    megido={formation.megido ? formation.megido[index] : null} 
+                                    isLeader={index === 2}
+                                    ownedMegidoIds={ownedMegidoIds}
+                                    megidoDetails={megidoDetails}
+                                    onSlotClick={() => setModalState({ type: 'megido', isOpen: true, slotIndex: index })}
+                                    onOrbClick={(e) => { e.stopPropagation(); if(formation.megido?.[index]) setModalState({ type: 'orb', isOpen: true, slotIndex: index }); }}
+                                    onReishouClick={(e) => { e.stopPropagation(); if(formation.megido?.[index]) setModalState({ type: 'reishou', isOpen: true, slotIndex: index }); }}
+                                    onRemoveMegido={(e) => { e.stopPropagation(); const newList = [...formation.megido]; newList[index] = null; setFormation(f => ({...f, megido: newList})); }}
+                                    onRemoveOrb={(e) => { e.stopPropagation(); const newList = [...formation.megido]; if(newList[index]) newList[index].orb = null; setFormation(f => ({...f, megido: newList})); }}
+                                    onRemoveReishou={(reishouIndex) => { const newList = [...formation.megido]; if(newList[index]) newList[index].reishou.splice(reishouIndex, 1); setFormation(f => ({...f, megido: newList})); }}
+                                    onStatChange={(field, value) => handleMegidoStatChange(index, field, value)}
+                                />
+                            </div>
                         ))}
                     </div>
                 </div>

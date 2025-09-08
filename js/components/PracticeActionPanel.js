@@ -178,7 +178,7 @@ const PracticeActionPanel = ({
                             <p style={{fontWeight: 'bold'}}>{item.name}</p>
                         </button>
                     )}
-                    showFilters={true}
+                    isFormationSearch={true}
                 />
             </div>
         );
@@ -267,7 +267,7 @@ const PracticeActionPanel = ({
                         </button>
                     )
                 }}
-                showFilters={true}
+                isFormationSearch={true}
             />
             <div style={{marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px'}}>
                 <button onClick={() => onResolve('win', formation, square)} disabled={!selectedFormationId || isFormationDisabled || !isResolvable} className="btn btn-ghost-win">勝利</button>

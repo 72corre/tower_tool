@@ -15,8 +15,11 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         setFormations(newFormations);
         localStorage.setItem('formations', JSON.stringify(newFormations));
         setDisplayedEnemy(null);
-        if (mode === 'plan') setActiveTab(targetScreen || 'formation');
-        else setPracticeView('action');
+        if (mode === 'plan') {
+            setActiveTab('formation');
+        } else {
+            setPracticeView('formation');
+        }
         showToastMessage('編成を保存しました。');
     }, [formations, mode, setActiveTab, setDisplayedEnemy, setPracticeView, showToastMessage]);
 

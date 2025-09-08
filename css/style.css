@@ -1197,3 +1197,43 @@
     transform: translateY(20px);
   }
 }
+
+/* --- Formation Editor: Megido Slot (Base) --- */
+.megido-slot-name { font-size: 10px; font-weight: 700; cursor: pointer; margin: 0; line-height: 1.2; margin-bottom: 4px; }
+.megido-slot-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 4px; font-size: 6px; }
+.megido-slot-stat-select { padding: 0; font-size: 6px; width: 100%; }
+.megido-slot-orb-btn { width: 100%; text-align: left; padding: 4px 6px; font-size: 8px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.megido-slot-reishou-label { font-weight: 500; margin: 0; font-size: 8px; }
+.reishou-chip { display: inline-block; padding: 1px 4px; margin: 1px; border-radius: 8px; background-color: var(--bg-main); font-size: 6px; border: 1px solid var(--border-color); white-space: nowrap; cursor: pointer; }
+.megido-slot-reishou-none { color: var(--text-subtle); margin: 0; font-size: 8px; text-align: center; }
+
+/* --- Formation Editor: Megido Slot (Desktop) --- */
+@media (min-width: 769px) {
+    .megido-slot-editor-desktop .card {
+        min-height: 260px;
+    }
+    .megido-slot-editor-desktop .megido-slot-name {
+        font-size: 16px;
+        line-height: 1.2;
+    }
+    .megido-slot-editor-desktop .megido-slot-stats {
+        font-size: 12px;
+    }
+    .megido-slot-editor-desktop .megido-slot-stat-select {
+        font-size: 12px;
+    }
+    .megido-slot-editor-desktop .megido-slot-orb-btn {
+        font-size: 14px;
+        padding: 6px 8px;
+    }
+    .megido-slot-editor-desktop .megido-slot-reishou-label {
+        font-size: 14px;
+    }
+    .megido-slot-editor-desktop .reishou-chip {
+        font-size: 12px;
+        padding: 2px 6px;
+    }
+    .megido-slot-editor-desktop .megido-slot-reishou-none {
+        font-size: 14px;
+    }
+}

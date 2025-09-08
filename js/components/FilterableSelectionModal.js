@@ -1,4 +1,4 @@
-const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onClose, isOpen, renderItem, showFilters, initialSearch, ...props }) => {
+const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onClose, isOpen, renderItem, showFilters, initialSearch, isFormationSearch = false, ...props }) => {
     const { useMemo, useState, useEffect, useRef } = React;
     const dialogRef = useRef(null);
     const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
@@ -16,20 +16,29 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onCl
     }, [isOpen, initialSearch]);
 
     const filteredItems = useMemo(() => {
-        if (!showFilters) return items;
-        return items.filter(item => {
+        let sourceItems = items || [];
+        if (!showFilters && !isFormationSearch) return sourceItems;
+
+        return sourceItems.filter(item => {
             const searchText = filters.text.toLowerCase();
             
             let searchMatch = filters.text === '';
             if (!searchMatch) {
                 const name = (item.名前 || item.name || '').toLowerCase();
-                if (filters.exactMatch) {
-                    searchMatch = name === searchText;
+                if (isFormationSearch) {
+                    const tags = (item.tags || []).map(t => t.toLowerCase());
+                    searchMatch = name.includes(searchText) || tags.some(t => t.includes(searchText));
                 } else {
-                    const trait = (item.汎用特性 || item.trait || item.effects || '').toLowerCase();
-                    searchMatch = name.includes(searchText) || trait.includes(searchText);
+                    if (filters.exactMatch) {
+                        searchMatch = name === searchText;
+                    } else {
+                        const trait = (item.汎用特性 || item.trait || item.effects || '').toLowerCase();
+                        searchMatch = name.includes(searchText) || trait.includes(searchText);
+                    }
                 }
             }
+
+            if (isFormationSearch) return searchMatch; // For formations, only apply text search
 
             const styleMatch = filters.style === 'All' || !item.スタイル || item.スタイル === filters.style;
             const clockMatch = filters.clock === 'All' || !item.時計 || (item.時計 || '').startsWith(filters.clock);
@@ -41,35 +50,45 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onCl
 
             return searchMatch && styleMatch && clockMatch && classMatch;
         });
-    }, [items, filters, showFilters]);
+    }, [items, filters, showFilters, isFormationSearch]);
 
     const filteredSecondaryItems = useMemo(() => {
-        if (!showFilters || !secondaryItems) return secondaryItems;
-        return secondaryItems.filter(item => {
+        let sourceItems = secondaryItems || [];
+        if (!showFilters && !isFormationSearch) return sourceItems;
+        if (!sourceItems) return [];
+
+        return sourceItems.filter(item => {
             const searchText = filters.text.toLowerCase();
             
             let searchMatch = filters.text === '';
             if (!searchMatch) {
                 const name = (item.名前 || item.name || '').toLowerCase();
-                if (filters.exactMatch) {
-                    searchMatch = name === searchText;
+                if (isFormationSearch) {
+                    const tags = (item.tags || []).map(t => t.toLowerCase());
+                    searchMatch = name.includes(searchText) || tags.some(t => t.includes(searchText));
                 } else {
-                    const trait = (item.汎用特性 || item.trait || item.effects || '').toLowerCase();
-                    searchMatch = name.includes(searchText) || trait.includes(searchText);
+                    if (filters.exactMatch) {
+                        searchMatch = name === searchText;
+                    } else {
+                        const trait = (item.汎用特性 || item.trait || item.effects || '').toLowerCase();
+                        searchMatch = name.includes(searchText) || trait.includes(searchText);
+                    }
                 }
             }
+
+            if (isFormationSearch) return searchMatch;
 
             const styleMatch = filters.style === 'All' || !item.スタイル || item.スタイル === filters.style;
             const clockMatch = filters.clock === 'All' || !item.時計 || (item.時計 || '').startsWith(filters.clock);
             const classMatch = filters.class === 'All' || !item.クラス || item.クラス === filters.class;
 
-            if (!item.スタイル) { // オーブや霊宝の場合
+            if (!item.スタイル) {
                 return searchMatch;
             }
 
             return searchMatch && styleMatch && clockMatch && classMatch;
         });
-    }, [secondaryItems, filters, showFilters]);
+    }, [secondaryItems, filters, showFilters, isFormationSearch]);
 
     const dialogStyle = isOpen ? {
         display: 'flex',
@@ -105,6 +124,19 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onCl
         <dialog ref={dialogRef} onClose={onClose} style={dialogStyle}>
             <div style={headerStyle}>
                 <h3 className="card-header" style={{padding: '0 0 1rem 0', margin: 0}}>{title}</h3>
+                {isFormationSearch && (
+                    <div style={{ margin: '1rem 0' }}>
+                        <input
+                            type="text"
+                            placeholder="編成名またはタグで検索..."
+                            value={filters.text}
+                            onChange={e => setFilters(f => ({ ...f, text: e.target.value }))}
+                            className="input-field"
+                            style={{ width: '100%' }}
+                            autoFocus
+                        />
+                    </div>
+                )}
                 {showFilters && <FilterControls filters={filters} onFilterChange={(type, value) => setFilters(f => ({ ...f, [type]: value }))} />}
             </div>
             
