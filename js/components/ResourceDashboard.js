@@ -1,6 +1,6 @@
 const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, simulatedPlanData, isMobileView }) => {
     const { useState, useMemo } = React;
-    const [isCollapsed, setIsCollapsed] = useState(isMobileView);
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     const toggleCollapse = () => setIsCollapsed(!isCollapsed);
 

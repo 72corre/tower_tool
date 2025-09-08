@@ -1183,11 +1183,11 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         if (square.type === 'battle') return 'node-color-battle';
         
         if (square.type === 'explore') {
-            if (square.sub_type === 'recovery') {
-                if (square.style === 'RANDOM') {
-                    return 'node-color-recovery-RANDOM';
-                }
+            if (square.style && square.style !== 'RANDOM') {
                 return `node-color-recovery-${square.style.slice(0, 1)}`;
+            }
+            if (square.style === 'RANDOM') {
+                return 'node-color-recovery-RANDOM';
             }
             if (square.sub_type === 'tower_power') {
                 return 'node-color-tower-power';
@@ -1204,9 +1204,11 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         if (square.type === 'battle') return '--node-color-battle-rgb';
         
         if (square.type === 'explore') {
-            if (square.sub_type === 'recovery') {
-                if (square.style === 'RANDOM') return '--node-color-random-rgb'; // Fallback for random
+            if (square.style && square.style !== 'RANDOM') {
                 return `--node-color-recovery-${square.style.slice(0, 1).toLowerCase()}-rgb`;
+            }
+            if (square.style === 'RANDOM') {
+                return '--node-color-random-rgb';
             }
             if (square.sub_type === 'tower_power') {
                 return '--node-color-tower-power-rgb';
@@ -1824,6 +1826,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                                 idMaps={idMaps}
                                 editingFormation={editingFormation}
                                 onEditingFormationChange={setEditingFormation}
+                                isMobileView={isMobileView}
                             />
                         )
                     )}

@@ -1,6 +1,6 @@
-const FloorGrid = ({ floorData, handleSquareClick, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance }) => {
-    const containerRef = useRef(null);
-    const [lines, setLines] = useState([]);
+const FloorGrid = React.memo(({ floorData, handleSquareClick, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance }) => {
+    const containerRef = React.useRef(null);
+    const [lines, setLines] = React.useState([]);
 
     const getSquareIcon = (square) => {
         const basePath = 'asset/';
@@ -13,7 +13,7 @@ const FloorGrid = ({ floorData, handleSquareClick, getSquareStyle, getSquareColo
         return `${basePath}${iconName}.png`;
     };
 
-    useEffect(() => {
+    React.useEffect(() => {
         if (!containerRef.current) return;
 
         const newLines = [];
@@ -145,4 +145,4 @@ const FloorGrid = ({ floorData, handleSquareClick, getSquareStyle, getSquareColo
             </div>
         </div>
     );
-};
+});

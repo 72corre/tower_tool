@@ -30,12 +30,12 @@
             --node-color-random-rgb: 79, 171, 160;
             --node-color-tower-power: #7eaed4;
             --node-color-tower-power-rgb: 126, 174, 212;
-            --node-color-recovery-r: #D9534F;
-            --node-color-recovery-r-rgb: 217, 83, 79;
-            --node-color-recovery-c: #5BC0DE;
-            --node-color-recovery-c-rgb: 91, 192, 222;
-            --node-color-recovery-b: #B3B3B5;
-            --node-color-recovery-b-rgb: 179, 179, 181;
+            --node-color-recovery-r: #B3B3B5;
+            --node-color-recovery-r-rgb: 179, 179, 181;
+            --node-color-recovery-c: #D9534F;
+            --node-color-recovery-c-rgb: 217, 83, 79;
+            --node-color-recovery-b: #5BC0DE;
+            --node-color-recovery-b-rgb: 91, 192, 222;
         }
         *, *::before, *::after { box-sizing: border-box; }
         html { color-scheme: dark; }
@@ -551,6 +551,13 @@
             white-space: pre-wrap; /* Add this */
             text-align: center; /* Maybe add this for better multi-line display */
         }
+        /* --- Formation Manager --- */
+        .formation-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         /* Misc */
         .placeholder {
             display: flex;

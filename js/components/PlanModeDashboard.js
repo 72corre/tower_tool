@@ -1,6 +1,6 @@
 const PlanModeDashboard = ({ planConditions, planState }) => {
     const { useState, useMemo } = React;
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(true);
 
     const styleNameMap = {
         rush: 'ラッシュ',

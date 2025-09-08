@@ -17,7 +17,8 @@ const FormationManager = ({
     isQriousLoaded,
     idMaps,
     editingFormation,
-    onEditingFormationChange
+    onEditingFormationChange,
+    isMobileView
 }) => {
     const [tagSearch, setTagSearch] = useState({ text: '', exactMatch: false });
     const [qrCodeData, setQrCodeData] = useState(null);
@@ -442,6 +443,9 @@ const FormationManager = ({
                         onChange={e => setTagSearch({ text: tagSearch.text, exactMatch: e.target.checked })}
                     />
                 </div>
+                {!isMobileView && (
+                    <button onClick={handleNewFormation} className="btn btn-ghost">新規作成</button>
+                )}
                 <button onClick={onImport} className="btn btn-ghost" disabled={!isHtml5QrLoaded}>インポート</button>
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
@@ -493,10 +497,12 @@ const FormationManager = ({
                     );
                 })}
             </div>
-            <div className="fab-container">
-                <button onClick={handleNewFormation} className="fab-add-formation">+</button>
-                <span className="fab-text">新規作成</span>
-            </div>
+            {isMobileView && (
+                <div className="fab-container">
+                    <button onClick={handleNewFormation} className="fab-add-formation">+</button>
+                    <span className="fab-text">新規作成</span>
+                </div>
+            )}
         </div>
     );
 };
