@@ -1,123 +1,123 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
-    const LogSummary = ({ selectedLog }) => {
-        if (!selectedLog) {
-            return <div className="placeholder">ログを選択してください</div>;
+const LogSummary = ({ selectedLog }) => {
+    if (!selectedLog) {
+        return <div className="placeholder">ログを選択してください</div>;
+    }
+
+    const { runState, megidoConditions, planState } = selectedLog;
+
+    const totalBattles = runState.history.filter(h => h.type === 'battle').length;
+    const wins = runState.history.filter(h => h.type === 'battle' && h.result === 'win').length;
+    const losses = runState.history.filter(h => h.type === 'battle' && h.result === 'lose').length;
+    const retreats = runState.history.filter(h => h.type === 'battle' && h.result === 'retreat').length;
+    const explorations = runState.history.filter(h => h.type === 'explore').length;
+
+    const SummaryCard = ({ title, children }) => (
+        <div className="card" style={{ marginBottom: '1rem' }}>
+            <h4 className="card-header">{title}</h4>
+            <div style={{ padding: '1rem' }}>{children}</div>
+        </div>
+    );
+
+    const StatItem = ({ label, value }) => (
+        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0' }}>
+            <span>{label}</span>
+            <span style={{ fontWeight: 'bold' }}>{value}</span>
+        </div>
+    );
+
+    return (
+        <div style={{ padding: '1rem' }}>
+            <SummaryCard title="総合結果">
+                <StatItem label="到達階層" value={`${runState.highestFloorReached}F`} />
+                <StatItem label="最終塔破力" value={runState.towerPower} />
+                <StatItem label="総回復塔破力" value={runState.totalPowerRecovered || 0} />
+            </SummaryCard>
+            <SummaryCard title="戦闘記録">
+                <StatItem label="総戦闘回数" value={totalBattles} />
+                <StatItem label="勝利" value={wins} />
+                <StatItem label="敗北" value={losses} />
+                <StatItem label="リタイア" value={retreats} />
+            </SummaryCard>
+            <SummaryCard title="探索記録">
+                <StatItem label="総探索回数" value={explorations} />
+            </SummaryCard>
+        </div>
+    );
+};
+
+const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) => {
+    if (!isOpen || !selectedLog || !squareKey) return null;
+
+    const history = selectedLog.runState.history.filter(h => h.squareId === squareKey);
+    const [floorNum, ...idParts] = squareKey.split('-');
+    const squareId = idParts.join('-');
+    const floorData = towerData.find(f => String(f.floor) === floorNum);
+    const squareData = floorData?.squares[squareId];
+
+    const getActionText = (action) => {
+        switch (action.type) {
+            case 'battle':
+                return `戦闘: ${action.result === 'win' ? '勝利' : action.result === 'lose' ? '敗北' : 'リタイア'}`;
+            case 'explore':
+                return `探索`;
+            default:
+                return '不明なアクション';
         }
-
-        const { runState, megidoConditions, planState } = selectedLog;
-
-        const totalBattles = runState.history.filter(h => h.type === 'battle').length;
-        const wins = runState.history.filter(h => h.type === 'battle' && h.result === 'win').length;
-        const losses = runState.history.filter(h => h.type === 'battle' && h.result === 'lose').length;
-        const retreats = runState.history.filter(h => h.type === 'battle' && h.result === 'retreat').length;
-        const explorations = runState.history.filter(h => h.type === 'explore').length;
-
-        const SummaryCard = ({ title, children }) => (
-            <div className="card" style={{ marginBottom: '1rem' }}>
-                <h4 className="card-header">{title}</h4>
-                <div style={{ padding: '1rem' }}>{children}</div>
-            </div>
-        );
-
-        const StatItem = ({ label, value }) => (
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '0.25rem 0' }}>
-                <span>{label}</span>
-                <span style={{ fontWeight: 'bold' }}>{value}</span>
-            </div>
-        );
-
-        return (
-            <div style={{ padding: '1rem' }}>
-                <SummaryCard title="総合結果">
-                    <StatItem label="到達階層" value={`${runState.highestFloorReached}F`} />
-                    <StatItem label="最終塔破力" value={runState.towerPower} />
-                    <StatItem label="総回復塔破力" value={runState.totalPowerRecovered || 0} />
-                </SummaryCard>
-                <SummaryCard title="戦闘記録">
-                    <StatItem label="総戦闘回数" value={totalBattles} />
-                    <StatItem label="勝利" value={wins} />
-                    <StatItem label="敗北" value={losses} />
-                    <StatItem label="リタイア" value={retreats} />
-                </SummaryCard>
-                <SummaryCard title="探索記録">
-                    <StatItem label="総探索回数" value={explorations} />
-                </SummaryCard>
-            </div>
-        );
     };
 
-    const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) => {
-        if (!isOpen || !selectedLog || !squareKey) return null;
-
-        const history = selectedLog.runState.history.filter(h => h.squareId === squareKey);
-        const [floorNum, ...idParts] = squareKey.split('-');
-        const squareId = idParts.join('-');
-        const floorData = towerData.find(f => String(f.floor) === floorNum);
-        const squareData = floorData?.squares[squareId];
-
-        const getActionText = (action) => {
-            switch (action.type) {
-                case 'battle':
-                    return `戦闘: ${action.result === 'win' ? '勝利' : action.result === 'lose' ? '敗北' : 'リタイア'}`;
-                case 'explore':
-                    return `探索`;
-                default:
-                    return '不明なアクション';
-            }
-        };
-
-        return (
-            <div className="mobile-modal-overlay" onClick={onClose}>
-                <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
-                    <div style={{ flexShrink: 0, padding: '1rem' }}>
-                        <h3 style={{marginTop: 0, textAlign: 'center'}}>{floorNum}F - {squareData?.type}マス</h3>
-                    </div>
-                    <div style={{ flexGrow: 1, overflowY: 'auto', padding: '0 1rem' }}>
-                        {history.length > 0 ? (
-                            history.map((action, index) => (
-                                <div key={index} className="card" style={{marginBottom: '0.5rem', padding: '0.75rem'}}>
-                                    <p style={{margin: 0, fontWeight: 'bold'}}>{getActionText(action)}</p>
-                                    <p style={{margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--text-subtle)'}}>
-                                        {new Date(action.timestamp).toLocaleString()}
-                                    </p>
-                                </div>
-                            ))
-                        ) : (
-                            <p style={{textAlign: 'center', color: 'var(--text-subtle)'}}>このマスでのアクション履歴はありません。</p>
-                        )}
-                    </div>
-                    <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
-                        <button className="btn-close-modal" onClick={onClose}>閉じる</button>
-                    </div>
+    return (
+        <div className="mobile-modal-overlay" onClick={onClose}>
+            <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
+                <div style={{ flexShrink: 0, padding: '1rem' }}>
+                    <h3 style={{marginTop: 0, textAlign: 'center'}}>{floorNum}F - {squareData?.type}マス</h3>
+                </div>
+                <div style={{ flexGrow: 1, overflowY: 'auto', padding: '0 1rem' }}>
+                    {history.length > 0 ? (
+                        history.map((action, index) => (
+                            <div key={index} className="card" style={{marginBottom: '0.5rem', padding: '0.75rem'}}>
+                                <p style={{margin: 0, fontWeight: 'bold'}}>{getActionText(action)}</p>
+                                <p style={{margin: '0.25rem 0 0', fontSize: '0.8rem', color: 'var(--text-subtle)'}}>
+                                    {new Date(action.timestamp).toLocaleString()}
+                                </p>
+                            </div>
+                        ))
+                    ) : (
+                        <p style={{textAlign: 'center', color: 'var(--text-subtle)'}}>このマスでのアクション履歴はありません。</p>
+                    )}
+                </div>
+                <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
+                    <button className="btn-close-modal" onClick={onClose}>閉じる</button>
                 </div>
             </div>
-        );
-    };
+        </div>
+    );
+};
 
-    const TowerTool = () => {
-        const [showSettings, setShowSettings] = useState(false);
-        const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
-            const saved = localStorage.getItem('unlockedAchievements');
-            return saved ? new Set(JSON.parse(saved)) : new Set();
-        });
-        const [winStreak, setWinStreak] = useState(() => {
-            const saved = localStorage.getItem('winStreak');
-            return saved ? parseInt(saved, 10) : 0;
-        });
-        const [floorClearCounts, setFloorClearCounts] = useState(() => {
-            const saved = localStorage.getItem('floorClearCounts');
-            return saved ? JSON.parse(saved) : {};
-        });
-        const [themeToggleCount, setThemeToggleCount] = useState(() => {
-            const saved = localStorage.getItem('themeToggleCount');
-            return saved ? parseInt(saved, 10) : 0;
-        });
-        const [dataManagementCount, setDataManagementCount] = useState(() => {
-            const saved = localStorage.getItem('dataManagementCount');
-            return saved ? parseInt(saved, 10) : 0;
-        });
-        const [isLoading, setIsLoading] = useState(true);
+const TowerTool = () => {
+    const [showSettings, setShowSettings] = useState(false);
+    const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
+        const saved = localStorage.getItem('unlockedAchievements');
+        return saved ? new Set(JSON.parse(saved)) : new Set();
+    });
+    const [winStreak, setWinStreak] = useState(() => {
+        const saved = localStorage.getItem('winStreak');
+        return saved ? parseInt(saved, 10) : 0;
+    });
+    const [floorClearCounts, setFloorClearCounts] = useState(() => {
+        const saved = localStorage.getItem('floorClearCounts');
+        return saved ? JSON.parse(saved) : {};
+    });
+    const [themeToggleCount, setThemeToggleCount] = useState(() => {
+        const saved = localStorage.getItem('themeToggleCount');
+        return saved ? parseInt(saved, 10) : 0;
+    });
+    const [dataManagementCount, setDataManagementCount] = useState(() => {
+        const saved = localStorage.getItem('dataManagementCount');
+        return saved ? parseInt(saved, 10) : 0;
+    });
+    const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(() => localStorage.getItem('ui_activeTab') || 'details');
     const [selectedSquare, setSelectedSquare] = useState(null);
     const [mode, setMode] = useState(() => localStorage.getItem('ui_mode') || 'practice');
@@ -151,15 +151,11 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
     const [selectedLogSquare, setSelectedLogSquare] = useState(null);
     const [logActionModal, setLogActionModal] = useState({ isOpen: false, squareKey: null });
 
-    const [megidoConditions, setMegidoConditions] = useState({});
-    const [runState, setRunState] = useState({ cleared: {}, highestFloorReached: 1, history: [], towerPower: 30, recommendations: {}, explorationFatigue: [] });
-
     const [planConditions, setPlanConditions] = useState({ fatigueByGroup: {}, megidoConditionsBySection: {} });
 
     const [practiceView, setPracticeView] = useState('action');
     const [modalState, setModalState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
     const [recoveryModalState, setRecoveryModalState] = useState({ isOpen: false });
-    const [manualRecovery, setManualRecovery] = useState(null);
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [achievementToast, setAchievementToast] = useState(null);
@@ -188,45 +184,58 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
     
     const floorRefs = useRef({});
 
+    const showToastMessage = (message) => {
+        setToastMessage(message); setShowToast(true);
+        setTimeout(() => setShowToast(false), 3000);
+    };
+
+    const unlockAchievement = (achievementId) => {
+        if (typeof ACHIEVEMENTS === 'undefined') return;
+        if (!unlockedAchievements.has(achievementId)) {
+            const newUnlocked = new Set(unlockedAchievements);
+            newUnlocked.add(achievementId);
+            setUnlockedAchievements(newUnlocked);
+            const achievement = ACHIEVEMENTS[achievementId];
+            showAchievementToast(achievement);
+        }
+    };
+
+    const logAction = (action, details) => {
+        // Placeholder for analytics or logging
+        console.log("Action:", action, details);
+    };
+
+    const { 
+        runState, 
+        megidoConditions, 
+        manualRecovery, 
+        setManualRecovery, 
+        handleResolveSquare, 
+        handleResetRun, 
+        handleManualRecovery, 
+        handleConditionRecovery 
+    } = usePracticeState({
+        megidoDetails,
+        ownedMegidoIds,
+        showToastMessage,
+        unlockAchievement,
+        logAction,
+        floorRefs,
+        setSelectedSquare,
+        setModalState,
+        setRecoveryModalState,
+        updateGuidance,
+        floorClearCounts,
+        setFloorClearCounts,
+        winStreak,
+        setWinStreak,
+        setActiveTab,
+        isLoading
+    });
+
     // --- UI State Persistence ---
     useEffect(() => { localStorage.setItem('ui_mode', mode); }, [mode]);
     useEffect(() => { localStorage.setItem('ui_activeTab', activeTab); }, [activeTab]);
-
-    const CONDITION_LEVELS = ['絶好調', '好調', '普通', '不調', '絶不調', '気絶'];
-
-    const updateMegidoConditions = (megidoIds, change) => {
-        setMegidoConditions(prevConditions => {
-            const newConditions = { ...prevConditions };
-            const messages = [];
-            megidoIds.forEach(id => {
-                if (!id) return;
-                const megidoData = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(id));
-                if (!megidoData) return;
-
-                const oldCondition = newConditions[id] || '絶好調';
-                const oldIndex = CONDITION_LEVELS.indexOf(oldCondition);
-                const newIndex = Math.max(0, Math.min(CONDITION_LEVELS.length - 1, oldIndex + change));
-                const newCondition = CONDITION_LEVELS[newIndex];
-
-                if (oldCondition !== newCondition) {
-                    newConditions[id] = newCondition;
-                    const changeAmount = Math.abs(oldIndex - newIndex);
-                    const changeText = change > 0 ? `${changeAmount}段階低下` : `${changeAmount}段階回復`;
-                    messages.push(`${megidoData.名前}: ${oldCondition}→${newCondition} (${changeText})`);
-                }
-            });
-
-            if (messages.length > 0) {
-                showToastMessage(messages.join('\n'));
-            }
-
-            if (messages.length > 0) {
-                return newConditions;
-            } else {
-                return prevConditions;
-            }
-        });
-    };
 
     const [isQriousLoaded, setIsQriousLoaded] = useState(false);
     const [isHtml5QrLoaded, setIsHtml5QrLoaded] = useState(false);
@@ -279,17 +288,6 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
             setUnlockedAchievements(newUnlocked);
         }
     }, [formations, ownedMegidoIds, unlockedAchievements, winStreak, floorClearCounts, themeToggleCount, dataManagementCount, planState]);
-
-    const unlockAchievement = (achievementId) => {
-        if (typeof ACHIEVEMENTS === 'undefined') return;
-        if (!unlockedAchievements.has(achievementId)) {
-            const newUnlocked = new Set(unlockedAchievements);
-            newUnlocked.add(achievementId);
-            setUnlockedAchievements(newUnlocked);
-            const achievement = ACHIEVEMENTS[achievementId];
-            showAchievementToast(achievement);
-        }
-    };
 
     useEffect(() => {
         checkAllAchievements();
@@ -633,34 +631,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
     }, []);
 
     useEffect(() => {
-        const date = new Date();
-        const conditionsSeasonKey = `${date.getFullYear()}年${date.getMonth() + 1}月シーズンの記録_conditions`;
-        const savedConditions = localStorage.getItem(conditionsSeasonKey);
-        if (savedConditions) {
-            setMegidoConditions(JSON.parse(savedConditions));
-        } else {
-            const initialConditions = {};
-            Object.keys(megidoDetails).forEach(id => {
-                if(megidoDetails[id]?.owned) initialConditions[id] = '絶好調';
-            });
-            setMegidoConditions(initialConditions);
-        }
-        
-        const seasonKey = `${date.getFullYear()}年${date.getMonth() + 1}月シーズンの記録`;
-        const savedRun = localStorage.getItem(seasonKey);
-        if (savedRun) {
-            const parsedRun = JSON.parse(savedRun);
-            if (!parsedRun.towerPower) parsedRun.towerPower = 30;
-            if (!parsedRun.recommendations) parsedRun.recommendations = {};
-            if (!parsedRun.currentPosition) parsedRun.currentPosition = { floor: 1, squareId: 'f1-s' };
-            if (!parsedRun.explorationFatigue) parsedRun.explorationFatigue = [];
-            if (!parsedRun.floorEntryPower) parsedRun.floorEntryPower = { '1': 30 };
-            if (!parsedRun.powerRecoveredOnFloor) parsedRun.powerRecoveredOnFloor = {};
-            if (!parsedRun.totalPowerRecovered) parsedRun.totalPowerRecovered = 0;
-            setRunState(parsedRun);
-        } else {
-            handleResetRun(true);
-        }
+        if (isLoading) return;
 
         // Restore selected square & log on initial load
         const savedSquareKey = localStorage.getItem('ui_selectedSquareKey');
@@ -681,7 +652,7 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
                 setSelectedLog(logToSelect);
             }
         }
-    }, [isLoading]); // Depend on isLoading to ensure data is available
+    }, [isLoading, seasonLogs]);
 
     useEffect(() => {
         if (isLoading || typeof MEGIDO_BIRTHDAY_DATA === 'undefined') return;
@@ -755,11 +726,64 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         }
     }, [isLoading]);
 
+    const updateGuidance = () => {
+        if (typeof TOWER_MAP_DATA === 'undefined' || !runState.currentPosition) return;
+
+        const profile = calculateMetrics(getProfile());
+        const accessibleSquares = {};
+        
+        const currentFloorData = TOWER_MAP_DATA.find(f => f.floor === runState.currentPosition.floor);
+        if (!currentFloorData) return;
+
+        const clearedOnThisFloor = runState.cleared[currentFloorData.floor] || [];
+
+        Object.keys(currentFloorData.squares).forEach(squareId => {
+            if (!clearedOnThisFloor.includes(squareId)) {
+                accessibleSquares[squareId] = { ...currentFloorData.squares[squareId], id: squareId };
+            }
+        });
+
+        const candidates = {};
+        let bestSquareId = null;
+        let secondBestDesirability = -Infinity;
+        let maxDesirability = -Infinity;
+
+        for (const squareId in accessibleSquares) {
+            const square = accessibleSquares[squareId];
+            const desirability = calculateDesirability(square, profile, runState, megidoConditions, targetEnemies);
+            candidates[squareId] = desirability;
+            if (desirability > maxDesirability) {
+                secondBestDesirability = maxDesirability;
+                maxDesirability = desirability;
+                bestSquareId = squareId;
+            } else if (desirability > secondBestDesirability) {
+                secondBestDesirability = desirability;
+            }
+        }
+
+        if (bestSquareId && accessibleSquares[bestSquareId]?.sub_type === 'recovery') {
+            setIsRecoveryRecommended(true);
+        } else {
+            setIsRecoveryRecommended(false);
+        }
+
+        const desirabilityGap = maxDesirability - secondBestDesirability;
+        if (isFinite(desirabilityGap) && secondBestDesirability !== -Infinity && (maxDesirability / secondBestDesirability) > 1.5) {
+            setIsRouteObvious(true);
+        } else {
+            setIsRouteObvious(false);
+        }
+
+        setGuidance({ recommended: bestSquareId, candidates });
+    };
+
     useEffect(() => {
         if (!isLoading) {
             updateGuidance();
         }
-    }, [runState, isLoading]);
+    }, [runState, isLoading, megidoConditions, targetEnemies]);
+
+    const CONDITION_LEVELS = ['絶好調', '好調', '普通', '不調', '絶不調', '気絶'];
 
     useEffect(() => {
         if (!ownedMegidoIds || ownedMegidoIds.size === 0) {
@@ -787,14 +811,6 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
     }, [megidoConditions, ownedMegidoIds]);
 
-    useEffect(() => {
-        if (Object.keys(megidoConditions).length > 0) {
-            const date = new Date();
-            const seasonKey = `${date.getFullYear()}年${date.getMonth() + 1}月シーズンの記録_conditions`;
-            localStorage.setItem(seasonKey, JSON.stringify(megidoConditions));
-        }
-    }, [megidoConditions]);
-
     const handleSaveLog = () => {
         const date = new Date();
         const defaultLogName = `${date.getFullYear()}_${String(date.getMonth() + 1).padStart(2, '0')}_シーズンの記録`;
@@ -818,11 +834,6 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
             }
             showToastMessage("ログを削除しました。");
         }
-    };
-
-    const showToastMessage = (message) => {
-        setToastMessage(message); setShowToast(true);
-        setTimeout(() => setShowToast(false), 3000);
     };
 
     const showAchievementToast = (achievement) => {
@@ -909,40 +920,6 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         }
     };
     
-    const handleResetRun = (isInitialBoot = false) => {
-        const confirmReset = isInitialBoot ? true : window.confirm('本当に今回の挑戦をリセットしますか？\nコンディション、実践モードの進捗が初期化されます。');
-        if (confirmReset) {
-            unlockAchievement('RESET_RUN');
-            const newRecommendations = {};
-            if (typeof TOWER_MAP_DATA !== 'undefined') {
-                TOWER_MAP_DATA.forEach(floor => {
-                    Object.entries(floor.squares).forEach(([squareId, square]) => {
-                        if (square.type === 'explore') {
-                            newRecommendations[squareId] = RECOMMENDATION_TYPES[Math.floor(Math.random() * RECOMMENDATION_TYPES.length)];
-                        }
-                    });
-                });
-            }
-            const initialRunState = { cleared: { '1': ['f1-s'] }, highestFloorReached: 1, history: [], towerPower: 30, recommendations: newRecommendations, currentPosition: { floor: 1, squareId: 'f1-s' }, explorationFatigue: [], floorEntryPower: { '1': 30 }, powerRecoveredOnFloor: {}, totalPowerRecovered: 0 };
-            setRunState(initialRunState);
-            localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(initialRunState));
-            const initialConditions = {};
-            if (typeof COMPLETE_MEGIDO_LIST !== 'undefined') {
-                Object.keys(megidoDetails).forEach(id => {
-                    if(megidoDetails[id]?.owned) initialConditions[id] = '絶好調';
-                });
-            }
-            setMegidoConditions(initialConditions);
-            localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録_conditions`, JSON.stringify(initialConditions));
-            setSelectedSquare(null);
-            localStorage.removeItem('ui_selectedSquareKey');
-            if (!isInitialBoot) {
-                setActiveTab('ownership');
-                showToastMessage('挑戦状況をリセットしました。');
-            }
-        }
-    };
-
     const handleCheckDistributedMegido = () => {
         if (typeof COMPLETE_MEGIDO_LIST === 'undefined') {
             alert('メギドデータが読み込まれていません。');
@@ -1296,395 +1273,6 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
         setMemos(newMemos);
         localStorage.setItem('memos', JSON.stringify(newMemos));
         showToastMessage('メモを保存しました。');
-    };
-
-    const handleManualRecovery = (megidoId) => {
-        if (!manualRecovery) return;
-
-        const megido = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(megidoId));
-        if (!megido) return;
-
-        const megidoStyle = megido.style ?? megido.スタイル;
-        if (!megidoStyle) return;
-        
-        const megidoStyleKey = megidoStyle.includes('ラッシュ') ? 'R' : megidoStyle.includes('カウンター') ? 'C' : 'B';
-
-        if (megidoStyleKey === manualRecovery.style) {
-            updateMegidoConditions([megidoId], manualRecovery.recoveryAmount);
-            const newPoints = manualRecovery.points - 1;
-            if (newPoints > 0) {
-                setManualRecovery({ ...manualRecovery, points: newPoints });
-            } else {
-                setManualRecovery(null);
-                showToastMessage('手動回復を完了しました。');
-            }
-        }
-    };
-
-    const updateGuidance = () => {
-        if (typeof TOWER_MAP_DATA === 'undefined' || !runState.currentPosition) return;
-
-        const profile = calculateMetrics(getProfile());
-        const accessibleSquares = {};
-        
-        const currentFloorData = TOWER_MAP_DATA.find(f => f.floor === runState.currentPosition.floor);
-        if (!currentFloorData) return;
-
-        const clearedOnThisFloor = runState.cleared[currentFloorData.floor] || [];
-
-        Object.keys(currentFloorData.squares).forEach(squareId => {
-            if (!clearedOnThisFloor.includes(squareId)) {
-                accessibleSquares[squareId] = { ...currentFloorData.squares[squareId], id: squareId };
-            }
-        });
-
-        const candidates = {};
-        let bestSquareId = null;
-        let secondBestDesirability = -Infinity;
-        let maxDesirability = -Infinity;
-
-        for (const squareId in accessibleSquares) {
-            const square = accessibleSquares[squareId];
-            const desirability = calculateDesirability(square, profile, runState, megidoConditions, targetEnemies);
-            candidates[squareId] = desirability;
-            if (desirability > maxDesirability) {
-                secondBestDesirability = maxDesirability;
-                maxDesirability = desirability;
-                bestSquareId = squareId;
-            } else if (desirability > secondBestDesirability) {
-                secondBestDesirability = desirability;
-            }
-        }
-
-        if (bestSquareId && accessibleSquares[bestSquareId]?.sub_type === 'recovery') {
-            setIsRecoveryRecommended(true);
-        } else {
-            setIsRecoveryRecommended(false);
-        }
-
-        const desirabilityGap = maxDesirability - secondBestDesirability;
-        if (isFinite(desirabilityGap) && secondBestDesirability !== -Infinity && (maxDesirability / secondBestDesirability) > 1.5) {
-            setIsRouteObvious(true);
-        } else {
-            setIsRouteObvious(false);
-        }
-
-        setGuidance({ recommended: bestSquareId, candidates });
-    };
-
-    const handleResolveSquare = (result, data, square) => {
-        console.log("Resolving square:", square.id, "sub_type:", square.square.sub_type, "style:", square.square.style);
-
-        let newRunState = { ...runState };
-        const isBoss = square.square.type === 'boss';
-        const hasBeenAttempted = newRunState.history.some(h => h.squareId === square.id && h.type === 'battle');
-        const cost = isBoss && !hasBeenAttempted ? 0 : 1;
-        if (newRunState.towerPower < cost) {
-            showToastMessage('塔破力が足りません。');
-            return;
-        }
-        newRunState.towerPower -= cost;
-        switch (result) {
-            case 'explore': {
-                logAction('EXPLORE', { sub_type: square.square.sub_type });
-                const megidoIds = data.party.map(m => m.id);
-                updateMegidoConditions(megidoIds, 2);
-                newRunState.explorationFatigue = [...new Set([...newRunState.explorationFatigue, ...megidoIds])];
-                
-                const floorNum = String(square.floor.floor);
-                if (!newRunState.cleared[floorNum]) {
-                    newRunState.cleared[floorNum] = [];
-                }
-                newRunState.cleared[floorNum].push(square.id);
-                newRunState.history.push({
-                    type: 'explore',
-                    squareId: square.id,
-                    floor: floorNum,
-                    megido: megidoIds,
-                    totalPower: data.totalPower,
-                    requiredPower: data.requiredPower,
-                    expectationLevel: data.expectationLevel,
-                    timestamp: new Date().toISOString()
-                });
-                showToastMessage('探索完了');
-                break;
-            }
-            case 'win': {
-                setWinStreak(s => s + 1);
-                const megidoIds = data.megido.filter(m => m).map(m => m.id);
-                const isLowCondition = megidoIds.some(id => (CONDITION_LEVELS.indexOf(megidoConditions[id] || '絶好調') >= 3));
-                logAction('COMBAT_RESULT', { result: 'win', isLowCondition });
-
-                updateMegidoConditions(megidoIds, 1);
-                const floorNum = String(square.floor.floor);
-                if (!newRunState.cleared[floorNum]) {
-                    newRunState.cleared[floorNum] = [];
-                }
-                newRunState.cleared[floorNum].push(square.id);
-                newRunState.history.push({
-                    type: 'battle',
-                    result: 'win',
-                    squareId: square.id,
-                    floor: floorNum,
-                    formationId: data.id,
-                    timestamp: new Date().toISOString()
-                });
-                showToastMessage('勝利！');
-                if (square.square.type === 'boss') {
-                    const newCounts = { ...floorClearCounts };
-                    newCounts[floorNum] = (newCounts[floorNum] || 0) + 1;
-                    setFloorClearCounts(newCounts);
-                    logAction('BOSS_DEFEAT', { floor: square.floor.floor, towerPower: newRunState.towerPower });
-
-                    const currentFloor = parseInt(floorNum, 10);
-                    const entryPower = runState.floorEntryPower[currentFloor] || 30; // Fallback
-                    const recoveredOnFloor = runState.powerRecoveredOnFloor[currentFloor] || 0;
-                    const consumedOnFloor = entryPower - newRunState.towerPower + recoveredOnFloor;
-
-                    const statsKey = 'towerPowerStats';
-                    const savedStatsRaw = localStorage.getItem(statsKey);
-                    const savedStats = savedStatsRaw ? JSON.parse(savedStatsRaw) : { runs: [], floorAverages: {} };
-
-                    const floorStats = savedStats.floorAverages[currentFloor] || { totalConsumed: 0, count: 0 };
-                    floorStats.totalConsumed += consumedOnFloor;
-                    floorStats.count += 1;
-                    savedStats.floorAverages[currentFloor] = floorStats;
-
-                    if (currentFloor === 35) {
-                        const totalConsumedInRun = 30 - newRunState.towerPower + (newRunState.totalPowerRecovered || 0);
-                        savedStats.runs.push({ totalConsumed: totalConsumedInRun });
-                    }
-
-                    localStorage.setItem(statsKey, JSON.stringify(savedStats));
-
-                    const nextFloorNum = Number(floorNum) + 1;
-                    if (nextFloorNum <= 35) {
-                        const nextFloorData = TOWER_MAP_DATA.find(f => f.floor === nextFloorNum);
-                        if (nextFloorData) {
-                            const nextFloorStartSquare = Object.keys(nextFloorData.squares).find(key => nextFloorData.squares[key].type === 'start');
-                            if (nextFloorStartSquare) {
-                                if (!newRunState.cleared[nextFloorNum]) {
-                                    newRunState.cleared[nextFloorNum] = [];
-                                }
-                                newRunState.cleared[nextFloorNum].push(nextFloorStartSquare);
-                                newRunState.highestFloorReached = nextFloorNum;
-                                newRunState.currentPosition = { floor: nextFloorNum, squareId: nextFloorStartSquare }; // Update current position
-                                newRunState.floorEntryPower[nextFloorNum] = newRunState.towerPower;
-                                if (floorRefs.current[nextFloorNum]) {
-                                    setTimeout(() => {
-                                        floorRefs.current[nextFloorNum].scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    }, 100);
-                                }
-                            }
-                        }
-                    }
-                }
-                break;
-            }
-            case 'lose': {
-                const megidoIds = data.megido.filter(m => m).map(m => m.id);
-                const isLowCondition = megidoIds.some(id => (CONDITION_LEVELS.indexOf(megidoConditions[id] || '絶好調') >= 3));
-                logAction('COMBAT_RESULT', { result: 'lose', isLowCondition });
-
-                updateMegidoConditions(megidoIds, 2);
-                newRunState.history.push({
-                    type: 'battle',
-                    result: 'lose',
-                    squareId: square.id,
-                    floor: String(square.floor.floor),
-                    formationId: data.id,
-                    timestamp: new Date().toISOString()
-                });
-                showToastMessage('敗北...');
-                break;
-            }
-            case 'retreat': {
-                setWinStreak(0);
-                const megidoIds = data.megido.filter(m => m).map(m => m.id);
-                const isLowCondition = megidoIds.some(id => (CONDITION_LEVELS.indexOf(megidoConditions[id] || '絶好調') >= 3));
-                logAction('COMBAT_RESULT', { result: 'retreat', isLowCondition });
-
-                newRunState.history.push({
-                    type: 'battle',
-                    result: 'retreat',
-                    squareId: square.id,
-                    floor: String(square.floor.floor),
-                    formationId: data.id,
-                    timestamp: new Date().toISOString()
-                });
-                showToastMessage('戦闘を棄権しました。');
-                break;
-            }
-            default:
-                break;
-        }
-        
-        setRunState(newRunState);
-        localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(newRunState));
-        setSelectedSquare(null);
-        localStorage.removeItem('ui_selectedSquareKey');
-        updateGuidance();
-
-        if (result === 'explore') {
-            const squareSubType = square.square.sub_type;
-            const squareStyle = square.square.style;
-
-            if (squareSubType === 'tower_power') { 
-                setModalState({ isOpen: true, title: '塔破力回復', message: '回復した塔破力の値を入力してください。', onConfirm: (amountStr) => { 
-                    const amount = parseInt(amountStr, 10);
-                    if (!isNaN(amount) && amount > 0) { 
-                        setRunState(prev => { 
-                            const currentFloor = prev.currentPosition.floor;
-                            const newState = { 
-                                ...prev, 
-                                towerPower: prev.towerPower + amount,
-                                totalPowerRecovered: (prev.totalPowerRecovered || 0) + amount,
-                                powerRecoveredOnFloor: {
-                                    ...prev.powerRecoveredOnFloor,
-                                    [currentFloor]: (prev.powerRecoveredOnFloor?.[currentFloor] || 0) + amount
-                                }
-                            }; 
-                            localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(newState)); 
-                            return newState; 
-                        }); 
-                        showToastMessage(`塔破力が${amount}回復しました。`); 
-                    } 
-                    setModalState(prev => ({ ...prev, isOpen: false })); 
-                } });
-            } else if (squareSubType === 'recovery') {
-                if (squareStyle === 'RANDOM') {
-                    setRecoveryModalState({
-                        isOpen: true,
-                        title: 'ランダムコンディション回復',
-                        message: 'ゲーム内で指定された回復スタイルを選択し、回復可能な人数を入力してください。',
-                        onConfirm: (styleKey, capacity) => {
-                            if (styleKey && !isNaN(capacity) && capacity > 0) {
-                                const fullStyleName = styleKey === 'R' ? 'RUSH' : styleKey === 'C' ? 'COUNTER' : 'BURST';
-                                handleConditionRecovery(fullStyleName, capacity, square.floor.floor);
-                            }
-                            setRecoveryModalState({ isOpen: false });
-                        }
-                    });
-                } else {
-                    setModalState({
-                        isOpen: true,
-                        title: 'コンディション回復',
-                        message: '回復可能な人数を入力してください。',
-                        onConfirm: (capacity) => {
-                            if (!isNaN(capacity) && capacity > 0) {
-                                handleConditionRecovery(square.square.style, capacity, square.floor.floor);
-                            }
-                            setModalState(prev => ({ ...prev, isOpen: false }));
-                        }
-                    });
-                }
-            }
-        }
-    };
-
-    const handleConditionRecovery = (style, capacity, floor) => {
-        const recoveryAmount = floor <= 20 ? -1 : -2;
-        const targetStyleKey = style.slice(0, 1);
-
-        const fatiguedMegido = Object.keys(megidoConditions)
-            .map(id => {
-                const m = COMPLETE_MEGIDO_LIST.find(x => String(x.id) === String(id));
-                const cond = megidoConditions[id];
-                if (m && cond !== '絶好調' && ownedMegidoIds.has(id)) {
-                    const megidoStyle = m.style ?? m.スタイル;
-                    if (megidoStyle) {
-                        const styleKey = megidoStyle.includes('ラッシュ') ? 'R' : megidoStyle.includes('カウンター') ? 'C' : 'B';
-                        if (styleKey === targetStyleKey) {
-                            return { id, name: m.名前, condition: cond, style: styleKey };
-                        }
-                    }
-                }
-                return null;
-            })
-            .filter(Boolean)
-            .sort((a, b) => CONDITION_ORDER.indexOf(b.condition) - CONDITION_ORDER.indexOf(a.condition));
-
-        if (fatiguedMegido.length <= capacity) {
-            const idsToRecover = fatiguedMegido.map(m => m.id);
-            updateMegidoConditions(idsToRecover, recoveryAmount);
-            showToastMessage(`${style}の疲労メギド${idsToRecover.length}体を回復しました。`);
-        } else {
-            let remainingCapacity = capacity;
-            const recoveredIds = new Set();
-            const conditionGroups = CONDITION_LEVELS.slice(1).reverse();
-
-            for (const cond of conditionGroups) {
-                if (remainingCapacity <= 0) break;
-                const group = fatiguedMegido.filter(m => m.condition === cond);
-                if (group.length > 0 && group.length <= remainingCapacity) {
-                    const idsInGroup = group.map(m => m.id);
-                    updateMegidoConditions(idsInGroup, recoveryAmount);
-                    idsInGroup.forEach(id => recoveredIds.add(id));
-                    remainingCapacity -= group.length;
-                } else if (group.length > 0 && group.length > remainingCapacity) {
-                    setManualRecovery({ style: targetStyleKey, points: remainingCapacity, recoveryAmount: recoveryAmount });
-                    showToastMessage(`${recoveredIds.size}体を自動回復しました。残り${remainingCapacity}人分は手動で選択してください。`);
-                    return;
-                }
-            }
-            if (recoveredIds.size > 0) {
-                showToastMessage(`${recoveredIds.size}体を自動回復しました。`);
-            }
-        }
-    };
-
-    const generateEventTweetUrl = (event) => {
-        let text = '';
-        if (event.type === 'birthday') {
-            text = `今日は${event.base_name}${event.unit_name ? `（${event.unit_name}）` : ''}の${event.born_type}日です！おメギド！！ #メギド72`;
-        } else if (event.type === 'anniversary') {
-            text = event.tweet_text_template.replace('X周年', event.anniversaryString);
-        } else {
-            text = event.tweet_text;
-        }
-        return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
-    };
-
-    const eventModalOverlayStyle = {
-        position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', 
-        backgroundColor: 'rgba(0,0,0,0.7)', 
-        display: 'flex', alignItems: 'center', justifyContent: 'center', 
-        zIndex: 1000
-    };
-
-    const eventModalContentStyle = {
-        background: 'var(--bg-panel)', padding: '2rem', borderRadius: '8px', 
-        textAlign: 'center', border: '1px solid var(--primary-accent)', 
-        boxShadow: '0 5px 25px rgba(0,0,0,0.5)'
-    };
-
-    const eventButtonStyle = {
-        normal: {
-            display: 'inline-block',
-            marginTop: '1.5rem',
-            padding: '10px 16px',
-            border: '1px solid var(--primary-accent)',
-            color: 'var(--primary-accent)',
-            backgroundColor: 'transparent',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            transition: 'all 0.2s ease',
-            cursor: 'pointer'
-        },
-        hover: {
-            display: 'inline-block',
-            marginTop: '1.5rem',
-            padding: '10px 16px',
-            border: '1px solid var(--primary-accent)',
-            color: 'var(--bg-main)',
-            backgroundColor: 'var(--primary-accent)',
-            borderRadius: '6px',
-            textDecoration: 'none',
-            transition: 'all 0.2s ease',
-            transform: 'translateY(-2px)',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            cursor: 'pointer'
-        }
     };
 
     const RightPanelContent = () => {
