@@ -122,22 +122,6 @@ const TowerTool = () => {
     const [selectedSquare, setSelectedSquare] = useState(null);
     const [mode, setMode] = useState(() => localStorage.getItem('ui_mode') || 'practice');
     
-    const [megidoDetails, setMegidoDetails] = useState(() => {
-        const saved = localStorage.getItem('megidoDetails');
-        return saved ? JSON.parse(saved) : {};
-    });
-    const [formations, setFormations] = useState(() => {
-        const saved = localStorage.getItem('formations');
-        return saved ? JSON.parse(saved) : [];
-    });
-    const [planState, setPlanState] = useState(() => {
-        const saved = localStorage.getItem('planState');
-        const defaultState = { assignments: {}, activeFloor: 1, explorationAssignments: {} };
-        if (!saved) return defaultState;
-        const parsed = JSON.parse(saved);
-        if (!parsed.explorationAssignments) parsed.explorationAssignments = {};
-        return parsed;
-    });
     const [memos, setMemos] = useState(() => {
         const saved = localStorage.getItem('memos');
         return saved ? JSON.parse(saved) : {};
@@ -151,16 +135,12 @@ const TowerTool = () => {
     const [selectedLogSquare, setSelectedLogSquare] = useState(null);
     const [logActionModal, setLogActionModal] = useState({ isOpen: false, squareKey: null });
 
-    const [planConditions, setPlanConditions] = useState({ fatigueByGroup: {}, megidoConditionsBySection: {} });
-
     const [practiceView, setPracticeView] = useState('action');
     const [modalState, setModalState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
     const [recoveryModalState, setRecoveryModalState] = useState({ isOpen: false });
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [achievementToast, setAchievementToast] = useState(null);
-    const [initialTagTarget, setInitialTagTarget] = useState(null);
-    const [previousScreen, setPreviousScreen] = useState('map');
     const [targetFloor, setTargetFloor] = useState(35);
     const [displayedEnemy, setDisplayedEnemy] = useState(null);
     const [eventToast, setEventToast] = useState(null);
@@ -179,7 +159,6 @@ const TowerTool = () => {
     });
     const [isMobileView, setIsMobileView] = useState(false);
     const [isTabletView, setIsTabletView] = useState(false);
-    const [editingFormation, setEditingFormation] = useState(null);
     const [showBetaModal, setShowBetaModal] = useState(false);
     
     const floorRefs = useRef({});
@@ -205,9 +184,46 @@ const TowerTool = () => {
         console.log("Action:", action, details);
     };
 
+    const handleSelectLog = (log) => {
+        setSelectedLog(log);
+        if (log) {
+            localStorage.setItem('ui_selectedLogName', log.name);
+        } else {
+            localStorage.removeItem('ui_selectedLogName');
+        }
+    };
+
+    const handleSquareClick = (floorData, square, squareId, index) => {
+        const squareInfo = { floor: floorData, square: square, id: squareId };
+        const squareKey = `${floorData.floor}-${squareId}`;
+        localStorage.setItem('ui_selectedSquareKey', squareKey);
+
+        if (mode === 'log') {
+            setLogActionModal({ isOpen: true, squareKey: squareKey });
+        } else {
+            setSelectedSquare(squareInfo);
+            setActiveTab('details');
+        }
+    };
+
+    const { 
+        megidoDetails, 
+        setMegidoDetails, 
+        handleMegidoDetailChange, 
+        handleMegidoDetailChangeWrapper, 
+        handleCheckDistributedMegido 
+    } = useMegido({ showToastMessage });
+
+    const ownedMegidoIds = useMemo(() => 
+        new Set(Object.keys(megidoDetails).filter(id => megidoDetails[id] && megidoDetails[id].owned)),
+        [megidoDetails]
+    );
+
     const { 
         runState, 
+        setRunState,
         megidoConditions, 
+        setMegidoConditions,
         manualRecovery, 
         setManualRecovery, 
         handleResolveSquare, 
@@ -231,6 +247,44 @@ const TowerTool = () => {
         setWinStreak,
         setActiveTab,
         isLoading
+    });
+
+    const { 
+        planState, 
+        setPlanState,
+        planConditions, 
+        onPlanExplorationParty, 
+        handlePlanCombatParty 
+    } = usePlanState({
+        formations,
+        megidoDetails,
+        mode,
+        showToastMessage
+    });
+
+    const { 
+        formations, 
+        setFormations, 
+        editingFormation, 
+        setEditingFormation, 
+        initialTagTarget, 
+        setInitialTagTarget, 
+        previousScreen, 
+        setPreviousScreen, 
+        handleSaveFormation, 
+        handleSaveFormationMemo, 
+        handleDeleteFormation, 
+        handleCopyFormation, 
+        handleImportFormation, 
+        handleCreateFormationFromEnemy 
+    } = useFormations({
+        showToastMessage,
+        idMaps,
+        setDisplayedEnemy,
+        setActiveTab,
+        setPracticeView,
+        mode,
+        handleMegidoDetailChange
     });
 
     // --- UI State Persistence ---
@@ -475,11 +529,6 @@ const TowerTool = () => {
         }
     }, []);
 
-    const ownedMegidoIds = useMemo(() => 
-        new Set(Object.keys(megidoDetails).filter(id => megidoDetails[id] && megidoDetails[id].owned)),
-        [megidoDetails]
-    );
-
     const idMaps = useMemo(() => {
         if (isLoading || typeof COMPLETE_MEGIDO_LIST === 'undefined' || typeof ENEMY_ALL_DATA === 'undefined' || typeof COMPLETE_ORB_LIST === 'undefined' || typeof COMPLETE_REISHOU_LIST === 'undefined') {
             return null;
@@ -495,125 +544,6 @@ const TowerTool = () => {
             reishou: reishouMaps
         };
     }, [isLoading]);
-
-    useEffect(() => {
-        if (mode !== 'plan') return;
-
-        const fatigueByGroup = {};
-        const megidoConditionsBySection = {};
-        Object.entries(SIMULATED_CONDITION_SECTIONS).forEach(([style, sections]) => {
-            sections.forEach(section => {
-                const groupKey = `${section.start}-${section.end}`;
-                fatigueByGroup[groupKey] = { used: 0, capacity: section.limit, style: style };
-                megidoConditionsBySection[groupKey] = {};
-            });
-        });
-
-        const megidoUsage = {};
-        for (const [fullSquareId, enemyAssignments] of Object.entries(planState.assignments || {})) {
-            const parts = fullSquareId.split('-');
-            const floor = parseInt(parts[0], 10);
-            const squareId = parts.slice(1).join('-');
-            for (const formationSlots of Object.values(enemyAssignments)) {
-                for (const formationId of formationSlots) {
-                    if (!formationId) continue;
-                    const formation = formations.find(f => f.id === formationId);
-                    if (formation && formation.megido) {
-                        formation.megido.forEach(m => {
-                            if (m && m.id) {
-                                const id = String(m.id);
-                                if (!megidoUsage[id]) megidoUsage[id] = [];
-                                if (!megidoUsage[id].some(u => u.squareId === squareId && u.type === 'combat')) {
-                                    megidoUsage[id].push({ floor, squareId, type: 'combat' });
-                                }
-                            }
-                        });
-                    }
-                }
-            }
-        }
-        for (const [squareId, explorationParties] of Object.entries(planState.explorationAssignments || {})) {
-            const floor = parseInt(squareId.split('-')[0].replace('f', ''));
-            for (const party of Object.values(explorationParties)) {
-                if (party && Array.isArray(party)) {
-                    party.forEach(megidoId => {
-                        if (megidoId) {
-                            const id = String(megidoId);
-                            if (!megidoUsage[id]) megidoUsage[id] = [];
-                            if (!megidoUsage[id].some(u => u.squareId === squareId && u.type === 'explore')) {
-                                megidoUsage[id].push({ floor, squareId, type: 'explore' });
-                            }
-                        }
-                    });
-                }
-            }
-        }
-
-
-        const finalFatigueState = {};
-        const ownedMegido = Object.keys(megidoDetails).filter(id => megidoDetails[id]?.owned);
-        ownedMegido.forEach(id => finalFatigueState[id] = 0);
-
-        const styleOrder = ['rush', 'counter', 'burst'];
-        const styleKeyMap = { 'ラッシュ': 'rush', 'カウンター': 'counter', 'バースト': 'burst' };
-
-        styleOrder.forEach(style => {
-            const sections = SIMULATED_CONDITION_SECTIONS[style];
-            if (!sections) return;
-
-            for (const section of sections) {
-                const groupKey = `${section.start}-${section.end}`;
-                const megidoUsedInThisSection = new Set();
-
-                // Apply recovery at the START of the section
-                const recoveryAmount = section.start >= 21 ? 2 : 1;
-                const extraRecovery = (style === 'burst' && section.start === 19) ? 2 : 0;
-                ownedMegido.forEach(id => {
-                    const megidoInfo = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === id);
-                    const megidoStyle = megidoInfo ? (megidoInfo.style ?? megidoInfo.スタイル) : null;
-                    if (megidoInfo && megidoStyle && styleKeyMap[megidoStyle] === style) {
-                        finalFatigueState[id] = Math.max(0, finalFatigueState[id] - recoveryAmount - extraRecovery);
-                    }
-                });
-
-                // Calculate fatigue for this section
-                for (let floor = section.start; floor <= section.end; floor++) {
-                    for (const megidoId in megidoUsage) {
-                        const megidoInfo = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === megidoId);
-                        const megidoStyle = megidoInfo ? (megidoInfo.style ?? megidoInfo.スタイル) : null;
-                        if (!megidoStyle || styleKeyMap[megidoStyle] !== style) continue;
-
-                        const usagesOnThisFloor = megidoUsage[megidoId].filter(u => u.floor === floor);
-                        if (usagesOnThisFloor.length > 0) {
-                            megidoUsedInThisSection.add(megidoId);
-                            usagesOnThisFloor.forEach(usage => {
-                                const conditionDrop = usage.type === 'explore' ? 2 : 1;
-                                finalFatigueState[megidoId] += conditionDrop;
-                            });
-                        }
-                    }
-                }
-
-                // Update display data for this section to show all fatigued megido of the correct style
-                fatigueByGroup[groupKey].used = megidoUsedInThisSection.size;
-                ownedMegido.forEach(megidoId => {
-                    const megidoInfo = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === megidoId);
-                    const megidoStyle = megidoInfo ? (megidoInfo.style ?? megidoInfo.スタイル) : null;
-                    if (megidoInfo && megidoStyle && styleKeyMap[megidoStyle] === style) {
-                        // Only show if not in peak condition
-                        if (finalFatigueState[megidoId] > 0) {
-                            megidoConditionsBySection[groupKey][megidoId] = {
-                                fatigue: finalFatigueState[megidoId],
-                                megido: megidoInfo
-                            };
-                        }
-                    }
-                });
-            }
-        });
-
-        setPlanConditions({ fatigueByGroup, megidoConditionsBySection });
-    }, [planState, formations, megidoDetails, mode]);
 
     useEffect(() => {
         const dataCheckInterval = setInterval(() => {
@@ -872,17 +802,6 @@ const TowerTool = () => {
         return () => clearInterval(intervalId);
     }, []); // Run only once on mount
 
-    const handleCreateFormationFromEnemy = (enemyName, floor) => {
-        setInitialTagTarget({ enemy: enemyName, floor: floor });
-        if (mode === 'plan') {
-            setPreviousScreen('combat_plan');
-            setActiveTab('formation');
-        } else {
-            setPreviousScreen('action');
-            setPracticeView('formation');
-        }
-    };
-
     const handleModeChange = (newMode) => {
         setMode(newMode);
         setDisplayedEnemy(null);
@@ -897,221 +816,6 @@ const TowerTool = () => {
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
         setDisplayedEnemy(null);
-    };
-
-    const handleMegidoDetailChange = (megidoId, key, value) => {
-        const newDetails = { ...megidoDetails };
-        if (!newDetails[megidoId]) {
-            const megidoData = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(megidoId));
-            newDetails[megidoId] = { owned: false, level: 70, ougiLevel: 3, special_reishou: megidoData?.専用霊宝 || false, bond_reishou: 0, reishou: [] };
-        }
-        newDetails[megidoId] = { ...newDetails[megidoId], [key]: value };
-        setMegidoDetails(newDetails);
-        localStorage.setItem('megidoDetails', JSON.stringify(newDetails));
-    };
-
-    const handleMegidoDetailChangeWrapper = (arg1, key, value) => {
-        if (typeof arg1 === 'object' && key === undefined && value === undefined) {
-            setMegidoDetails(arg1);
-            localStorage.setItem('megidoDetails', JSON.stringify(arg1));
-            showToastMessage('所持メギド情報を更新しました。');
-        } else {
-            handleMegidoDetailChange(arg1, key, value);
-        }
-    };
-    
-    const handleCheckDistributedMegido = () => {
-        if (typeof COMPLETE_MEGIDO_LIST === 'undefined') {
-            alert('メギドデータが読み込まれていません。');
-            return;
-        }
-        const newDetails = { ...megidoDetails };
-        let checkedCount = 0;
-        COMPLETE_MEGIDO_LIST.forEach(megido => {
-            if (megido.入手方法 && megido.入手方法.includes('配布')) {
-                if (!newDetails[megido.id] || !newDetails[megido.id].owned) {
-                    if (!newDetails[megido.id]) {
-                        newDetails[megido.id] = { owned: true, level: 70, ougiLevel: 3, special_reishou: megido.専用霊宝 || false, bond_reishou: 0, reishou: [] };
-                    } else {
-                        newDetails[megido.id].owned = true;
-                    }
-                    checkedCount++;
-                }
-            }
-        });
-        handleMegidoDetailChangeWrapper(newDetails);
-        showToastMessage(`${checkedCount}体の配布メギドを所持チェックしました。`);
-    };
-
-    const handleSaveFormation = (formationToSave, targetScreen) => {
-        const index = formations.findIndex(f => f.id === formationToSave.id);
-        const newFormations = index > -1 ? formations.map(f => f.id === formationToSave.id ? formationToSave : f) : [...formations, formationToSave];
-        setFormations(newFormations);
-        localStorage.setItem('formations', JSON.stringify(newFormations));
-        setDisplayedEnemy(null);
-        if (mode === 'plan') setActiveTab(targetScreen || 'formation');
-        else setPracticeView('action');
-        showToastMessage('編成を保存しました。');
-    };
-
-    const handleSaveFormationMemo = (formationId, newNotes) => {
-        if (!formationId) return;
-        const newFormations = formations.map(f => {
-            if (f.id === formationId) {
-                return { ...f, notes: newNotes };
-            }
-            return f;
-        });
-        setFormations(newFormations);
-        localStorage.setItem('formations', JSON.stringify(newFormations));
-        showToastMessage('編成メモを更新しました。');
-    };
-
-    const handleDeleteFormation = (formationId) => {
-        if (window.confirm('この編成を本当に削除しますか？')) {
-            const newFormations = formations.filter(f => f.id !== formationId);
-            setFormations(newFormations);
-            localStorage.setItem('formations', JSON.stringify(newFormations));
-            showToastMessage('編成を削除しました。');
-        }
-    };
-
-    const handleCopyFormation = (formationToCopy) => {
-        const newFormation = { ...JSON.parse(JSON.stringify(formationToCopy)), id: `f${Date.now()}`, name: `${formationToCopy.name} (コピー)` };
-        setFormations([...formations, newFormation]);
-        localStorage.setItem('formations', JSON.stringify([...formations, newFormation]));
-        showToastMessage('編成をコピーしました。');
-    };
-
-    const handleImportFormation = () => {
-        if (!idMaps) {
-            showToastMessage('IDマッピングが準備できていません。');
-            return;
-        }
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.accept = 'image/*';
-        fileInput.style.display = 'none';
-        const html5QrCode = new Html5Qrcode("qr-reader-div");
-        fileInput.onchange = e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const formationName = file.name.replace(/\.[^/.]+$/, "");
-            html5QrCode.scanFile(file, true)
-                .then(decodedText => {
-                    try {
-                        if (!/^[0-9]+$/.test(decodedText) || decodedText.length < 100) {
-                            throw new Error('無効なQRコード形式です。');
-                        }
-                        let pointer = 0;
-                        const enemyQRID = decodedText.substring(pointer, pointer += 3);
-                        const floor = parseInt(decodedText.substring(pointer, pointer += 2), 10);
-                        const newMegidoDetails = JSON.parse(JSON.stringify(megidoDetails));
-                        const newMegidoList = [];
-                        for (let i = 0; i < 5; i++) {
-                            const megidoQRID = decodedText.substring(pointer, pointer += 3);
-                            if (megidoQRID === '999') {
-                                newMegidoList.push(null);
-                                pointer += 21; // Skip the rest of the empty slot
-                                continue;
-                            }
-                            const ougiLevel = parseInt(decodedText.substring(pointer, pointer += 2), 10);
-                            const singularityLevel = parseInt(decodedText.substring(pointer, pointer += 1), 10);
-                            const levelChar = decodedText.substring(pointer, pointer += 1);
-                            const reishouQRIDs = [];
-                            for(let j=0; j<4; j++) {
-                                reishouQRIDs.push(decodedText.substring(pointer, pointer += 3));
-                            }
-                            const specialReishou = decodedText.substring(pointer, pointer += 1) === '1';
-                            const bondReishou = parseInt(decodedText.substring(pointer, pointer += 1), 10);
-                            const orbQRID = decodedText.substring(pointer, pointer += 3);
-
-                            const megidoId = idMaps.megido.newToOriginal.get(megidoQRID);
-                            if (!megidoId) continue;
-
-                            let megidoData = COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId);
-                            if (!megidoData) continue;
-
-                            megidoData = JSON.parse(JSON.stringify(megidoData));
-
-                            const levelMap = {'0': 70, '1': 72, '2': 74, '3': 76, '4': 80};
-                            megidoData.level = levelMap[levelChar] || 70;
-                            megidoData.ougiLevel = ougiLevel || 1;
-                            megidoData.special_reishou = specialReishou;
-                            megidoData.bond_reishou = bondReishou || 0;
-                            megidoData.singularity_level = singularityLevel || 0;
-
-                            const orbId = idMaps.orb.newToOriginal.get(orbQRID);
-                            megidoData.orb = orbId ? COMPLETE_ORB_LIST.find(o => o.id === orbId) : null;
-
-                            megidoData.reishou = reishouQRIDs
-                                .map(rqid => {
-                                    if (rqid === '999') return null;
-                                    const reishouId = idMaps.reishou.newToOriginal.get(rqid);
-                                    return reishouId ? COMPLETE_REISHOU_LIST.find(r => r.id === reishouId) : null;
-                                })
-                                .filter(Boolean);
-
-                            newMegidoList.push(megidoData);
-
-                            // Update global details
-                            handleMegidoDetailChange(megidoId, 'level', levelMap[levelChar] || 70);
-                            handleMegidoDetailChange(megidoId, 'ougiLevel', ougiLevel || 1);
-                            handleMegidoDetailChange(megidoId, 'special_reishou', specialReishou);
-                            handleMegidoDetailChange(megidoId, 'bond_reishou', bondReishou || 0);
-                            if (megidoData.Singularity) {
-                                handleMegidoDetailChange(megidoId, 'singularity_level', singularityLevel || 0);
-                            }
-                        }
-                        const enemyName = idMaps.enemy.newToOriginal.get(enemyQRID);
-                        const newFormation = {
-                            id: `f${Date.now()}`,
-                            name: formationName,
-                            megido: newMegidoList,
-                            tags: [],
-                            notes: '',
-                            enemyName: enemyName || null,
-                            floor: floor || null
-                        };
-                        const newFormations = [...formations, newFormation];
-                        setFormations(newFormations);
-                        localStorage.setItem('formations', JSON.stringify(newFormations));
-                        showToastMessage('編成をインポートしました。');
-                    } catch (error) {
-                        console.error("QRコードの解析または編成の復元に失敗しました:", error);
-                        showToastMessage('QRコードの読み取りに失敗しました。');
-                    }
-                })
-                .catch(err => {
-                    console.error(`QRコードのスキャンに失敗しました。${err}`);
-                    showToastMessage('QRコードのスキャンに失敗しました。');
-                });
-        };
-        document.body.appendChild(fileInput);
-        fileInput.click();
-        document.body.removeChild(fileInput);
-    };
-
-    const handleSquareClick = (floorData, square, squareId, index) => {
-        const squareInfo = { floor: floorData, square: square, id: squareId };
-        const squareKey = `${floorData.floor}-${squareId}`;
-        localStorage.setItem('ui_selectedSquareKey', squareKey);
-
-        if (mode === 'log') {
-            setLogActionModal({ isOpen: true, squareKey: squareKey });
-        } else {
-            setSelectedSquare(squareInfo);
-            setActiveTab('details');
-        }
-    };
-
-    const handleSelectLog = (log) => {
-        setSelectedLog(log);
-        if (log) {
-            localStorage.setItem('ui_selectedLogName', log.name);
-        } else {
-            localStorage.removeItem('ui_selectedLogName');
-        }
     };
 
     const onCancel = () => {
@@ -1209,48 +913,6 @@ const TowerTool = () => {
         setRunState({ ...runState, recommendations: newRecs });
         localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify({ ...runState, recommendations: newRecs }));
         showToastMessage('おすすめタイプを変更しました。');
-    };
-
-    const onPlanExplorationParty = (squareId, recType, party) => {
-        const newPlanState = {
-            ...planState,
-            explorationAssignments: {
-                ...planState.explorationAssignments,
-                [squareId]: {
-                    ...(planState.explorationAssignments[squareId] || {}),
-                    [recType]: party
-                }
-            }
-        };
-        setPlanState(newPlanState);
-        localStorage.setItem('planState', JSON.stringify(newPlanState));
-        showToastMessage('探索計画を更新しました。');
-    };
-
-    const handlePlanCombatParty = (squareId, enemyName, slotIndex, formationId) => {
-        const newAssignmentsForSquare = { ...(planState.assignments[squareId] || {}) };
-        const newSlotsForEnemy = [...(newAssignmentsForSquare[enemyName] || Array(3).fill(null))];
-
-        // Remove duplicates
-        const existingIndex = newSlotsForEnemy.indexOf(formationId);
-        if (existingIndex > -1) {
-            newSlotsForEnemy[existingIndex] = null;
-        }
-        newSlotsForEnemy[slotIndex] = formationId;
-
-        const newPlanState = {
-            ...planState,
-            assignments: {
-                ...planState.assignments,
-                [squareId]: {
-                    ...newAssignmentsForSquare,
-                    [enemyName]: newSlotsForEnemy
-                }
-            }
-        };
-        setPlanState(newPlanState);
-        localStorage.setItem('planState', JSON.stringify(newPlanState));
-        showToastMessage('戦闘計画を更新しました。');
     };
 
     const handleTargetEnemyChange = (squareId, enemyName) => {
