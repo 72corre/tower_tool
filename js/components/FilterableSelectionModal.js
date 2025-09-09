@@ -1,7 +1,7 @@
-const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onClose, isOpen, renderItem, showFilters, initialSearch, isFormationSearch = false, ...props }) => {
+const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onClose, isOpen, renderItem, showFilters, initialSearch, isFormationSearch = false, filterType = 'megido', ...props }) => {
     const { useMemo, useState, useEffect, useRef } = React;
     const dialogRef = useRef(null);
-    const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
+    const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', race: 'All', lineage: 'All', exactMatch: false });
 
     useEffect(() => {
         if (isOpen) {
@@ -11,84 +11,65 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onCl
             }
         } else {
             dialogRef.current?.close();
-            setFilters({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
+            // Reset filters on close
+            setFilters({ text: '', style: 'All', clock: 'All', class: 'All', race: 'All', lineage: 'All', exactMatch: false });
         }
     }, [isOpen, initialSearch]);
+
+    const filterLogic = (item) => {
+        const searchText = filters.text.toLowerCase();
+        
+        let searchMatch = filters.text === '';
+        if (!searchMatch) {
+            const name = (item.名前 || item.name || '').toLowerCase();
+            if (isFormationSearch) {
+                const tags = (item.tags || []).map(t => t.toLowerCase());
+                searchMatch = name.includes(searchText) || tags.some(t => t.includes(searchText));
+            } else {
+                if (filters.exactMatch) {
+                    searchMatch = name === searchText;
+                } else {
+                    const trait = (item.汎用特性 || item.trait || item.effects || '').toLowerCase();
+                    searchMatch = name.includes(searchText) || trait.includes(searchText);
+                }
+            }
+        }
+
+        if (!searchMatch) return false;
+        if (isFormationSearch) return true;
+
+        switch (filterType) {
+            case 'megido': {
+                const styleMatch = !filters.style || filters.style === 'All' || item.スタイル === filters.style;
+                const clockMatch = !filters.clock || filters.clock === 'All' || (item.時計 || '').startsWith(filters.clock);
+                const classMatch = !filters.class || filters.class === 'All' || item.クラス === filters.class;
+                return styleMatch && clockMatch && classMatch;
+            }
+            case 'orb': {
+                if (!filters.race || filters.race === 'All') return true;
+                return (item.race || '').includes(filters.race);
+            }
+            case 'reishou': {
+                if (!filters.lineage || filters.lineage === 'All') return true;
+                return item.lineage === filters.lineage;
+            }
+            default:
+                return true;
+        }
+    };
 
     const filteredItems = useMemo(() => {
         let sourceItems = items || [];
         if (!showFilters && !isFormationSearch) return sourceItems;
-
-        return sourceItems.filter(item => {
-            const searchText = filters.text.toLowerCase();
-            
-            let searchMatch = filters.text === '';
-            if (!searchMatch) {
-                const name = (item.名前 || item.name || '').toLowerCase();
-                if (isFormationSearch) {
-                    const tags = (item.tags || []).map(t => t.toLowerCase());
-                    searchMatch = name.includes(searchText) || tags.some(t => t.includes(searchText));
-                } else {
-                    if (filters.exactMatch) {
-                        searchMatch = name === searchText;
-                    } else {
-                        const trait = (item.汎用特性 || item.trait || item.effects || '').toLowerCase();
-                        searchMatch = name.includes(searchText) || trait.includes(searchText);
-                    }
-                }
-            }
-
-            if (isFormationSearch) return searchMatch; // For formations, only apply text search
-
-            const styleMatch = filters.style === 'All' || !item.スタイル || item.スタイル === filters.style;
-            const clockMatch = filters.clock === 'All' || !item.時計 || (item.時計 || '').startsWith(filters.clock);
-            const classMatch = filters.class === 'All' || !item.クラス || item.クラス === filters.class;
-
-            if (!item.スタイル) { // オーブや霊宝の場合
-                return searchMatch;
-            }
-
-            return searchMatch && styleMatch && clockMatch && classMatch;
-        });
-    }, [items, filters, showFilters, isFormationSearch]);
+        return sourceItems.filter(filterLogic);
+    }, [items, filters, showFilters, isFormationSearch, filterType]);
 
     const filteredSecondaryItems = useMemo(() => {
         let sourceItems = secondaryItems || [];
         if (!showFilters && !isFormationSearch) return sourceItems;
         if (!sourceItems) return [];
-
-        return sourceItems.filter(item => {
-            const searchText = filters.text.toLowerCase();
-            
-            let searchMatch = filters.text === '';
-            if (!searchMatch) {
-                const name = (item.名前 || item.name || '').toLowerCase();
-                if (isFormationSearch) {
-                    const tags = (item.tags || []).map(t => t.toLowerCase());
-                    searchMatch = name.includes(searchText) || tags.some(t => t.includes(searchText));
-                } else {
-                    if (filters.exactMatch) {
-                        searchMatch = name === searchText;
-                    } else {
-                        const trait = (item.汎用特性 || item.trait || item.effects || '').toLowerCase();
-                        searchMatch = name.includes(searchText) || trait.includes(searchText);
-                    }
-                }
-            }
-
-            if (isFormationSearch) return searchMatch;
-
-            const styleMatch = filters.style === 'All' || !item.スタイル || item.スタイル === filters.style;
-            const clockMatch = filters.clock === 'All' || !item.時計 || (item.時計 || '').startsWith(filters.clock);
-            const classMatch = filters.class === 'All' || !item.クラス || item.クラス === filters.class;
-
-            if (!item.スタイル) {
-                return searchMatch;
-            }
-
-            return searchMatch && styleMatch && clockMatch && classMatch;
-        });
-    }, [secondaryItems, filters, showFilters, isFormationSearch]);
+        return sourceItems.filter(filterLogic);
+    }, [secondaryItems, filters, showFilters, isFormationSearch, filterType]);
 
     const dialogStyle = isOpen ? {
         display: 'flex',
@@ -137,7 +118,7 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onCl
                         />
                     </div>
                 )}
-                {showFilters && <FilterControls filters={filters} onFilterChange={(type, value) => setFilters(f => ({ ...f, [type]: value }))} />}
+                {showFilters && <FilterControls filters={filters} onFilterChange={(type, value) => setFilters(f => ({ ...f, [type]: value }))} filterType={filterType} />}
             </div>
             
             <div style={contentStyle}>

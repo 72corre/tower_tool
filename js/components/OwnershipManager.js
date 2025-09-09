@@ -1,7 +1,8 @@
 const useLongPress = (callback = () => {}, ms = 300) => {
-    const [startLongPress, setStartLongPress] = React.useState(false);
+    const { useState, useEffect } = React;
+    const [startLongPress, setStartLongPress] = useState(false);
 
-    React.useEffect(() => {
+    useEffect(() => {
         let timerId;
         if (startLongPress) {
             timerId = setTimeout(callback, ms);
@@ -23,16 +24,103 @@ const useLongPress = (callback = () => {}, ms = 300) => {
     };
 };
 
+const getBondReishouTierName = (tier) => {
+    if (tier === 0) return 'なし';
+    if (tier === 1) return '<真>';
+    if (tier === 2) return '<剛>';
+    if (tier === 3) return '<絆>';
+    return `T${tier}`;
+};
+
+const Row = React.memo(({ megido, detail, onDetailChange, isMobileView }) => {
+    const { useCallback } = React;
+    const details = { owned: false, level: 70, ougiLevel: 3, special_reishou: megido.専用霊宝 || false, bond_reishou: 0, singularity_level: 0, ...detail };
+    
+    const handleOugiChange = useCallback((e) => {
+        const val = parseInt(e.target.value, 10);
+        if (isNaN(val) || val < 1) {
+            onDetailChange(megido.id, 'ougiLevel', 1);
+        } else if (val > 99) { // 上限を99に修正
+            onDetailChange(megido.id, 'ougiLevel', 99);
+        } else {
+            onDetailChange(megido.id, 'ougiLevel', val);
+        }
+    }, [onDetailChange, megido.id]);
+
+    return (
+        <tr>
+            <td><input type="checkbox" checked={details.owned} onChange={(e) => onDetailChange(megido.id, 'owned', e.target.checked)} /></td>
+            <td className={getStyleClass(megido.スタイル)} onClick={() => onDetailChange(megido.id, 'owned', !details.owned)} style={{ cursor: 'pointer' }}>{megido.名前}</td>
+            <td>
+                {megido.Singularity && (
+                    <select value={details.singularity_level} onChange={e => onDetailChange(megido.id, 'singularity_level', parseInt(e.target.value, 10))} className="select-field">
+                        {[0, 1, 2, 3, 4].map(lv => <option key={lv} value={lv}>{lv}</option>)}
+                    </select>
+                )}
+            </td>
+            <td>
+                <select value={details.level} onChange={e => onDetailChange(megido.id, 'level', parseInt(e.target.value, 10))} className="select-field">
+                    {[70, 75, 77, 79, 80].map(lv => <option key={lv} value={lv}>{lv}</option>)}
+                </select>
+            </td>
+            <td>
+                 <input 
+                    type="number" 
+                    min="1" 
+                    max="99" // 上限を99に修正
+                    value={details.ougiLevel} 
+                    onChange={handleOugiChange} 
+                />
+            </td>
+            <td>
+                {megido.専用霊宝 && <input type="checkbox" checked={details.special_reishou} onChange={(e) => onDetailChange(megido.id, 'special_reishou', e.target.checked)} />}
+            </td>
+            <td>
+                {megido.絆霊宝 && 
+                    <select value={details.bond_reishou} onChange={e => onDetailChange(megido.id, 'bond_reishou', parseInt(e.target.value, 10))} className="select-field">
+                        {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>{getBondReishouTierName(tier)}</option>)}
+                    </select>
+                }
+            </td>
+        </tr>
+    );
+});
+
 const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, isMobileView }) => {
+    const { useState, useMemo } = React;
     const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
     
-    const filteredList = useMemo(() => {
+    const sortedList = useMemo(() => {
         if (typeof COMPLETE_MEGIDO_LIST === 'undefined') return [];
-        return COMPLETE_MEGIDO_LIST.filter(m => {
+        
+        const clockOrder = { '祖': 1, '真': 2, '宵': 3, '継': 4 };
+        
+        return [...COMPLETE_MEGIDO_LIST].sort((a, b) => {
+            const clockTypeA = a.時計.substring(0, 1);
+            const clockTypeB = b.時計.substring(0, 1);
+            const numA = parseInt(a.時計.substring(1), 10);
+            const numB = parseInt(b.時計.substring(1), 10);
+
+            const orderA = clockOrder[clockTypeA] || 99;
+            const orderB = clockOrder[clockTypeB] || 99;
+
+            if (orderA !== orderB) {
+                return orderA - orderB;
+            }
+            if (numA !== numB) {
+                return numA - numB;
+            }
+            return a.id.localeCompare(b.id);
+        });
+    }, []);
+
+    const filteredList = useMemo(() => {
+        if (!sortedList.length) return [];
+        return sortedList.filter(m => {
             const searchText = filters.text.toLowerCase();
             
-            let searchMatch = filters.text === '';
-            if (!searchMatch) {
+            let searchMatch = true;
+            if (filters.text) {
                 const name = m.名前.toLowerCase();
                 if (filters.exactMatch) {
                     searchMatch = name === searchText;
@@ -48,7 +136,7 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
 
             return searchMatch && styleMatch && clockMatch && classMatch;
         });
-    }, [filters]);
+    }, [filters, sortedList]);
 
     const handleBulkCheck = (check) => {
         const newDetails = { ...megidoDetails };
@@ -59,54 +147,6 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
             newDetails[m.id].owned = check;
         });
         onDetailChange(newDetails);
-    };
-
-    const getBondReishouTierName = (tier) => {
-        if (tier === 0) return 'なし';
-        if (tier === 1) return '<真>';
-        if (tier === 2) return '<剛>';
-        if (tier === 3) return '<絆>';
-        return `T${tier}`;
-    };
-
-    const Row = ({ megido, details }) => {
-        const longPressProps = useLongPress(() => {
-            if (isMobileView) {
-                onDetailChange(megido.id, 'owned', true);
-            }
-        }, 500);
-
-        return (
-            <tr {...longPressProps}>
-                <td><input type="checkbox" checked={details.owned} onChange={(e) => onDetailChange(megido.id, 'owned', e.target.checked)} /></td>
-                <td className={getStyleClass(megido.スタイル)}>{megido.名前}</td>
-                <td>
-                    {megido.Singularity && (
-                        <select value={details.singularity_level} onChange={e => onDetailChange(megido.id, 'singularity_level', parseInt(e.target.value, 10))} className="select-field">
-                            {[0, 1, 2, 3, 4].map(lv => <option key={lv} value={lv}>{lv}</option>)}
-                        </select>
-                    )}
-                </td>
-                <td>
-                    <select value={details.level} onChange={e => onDetailChange(megido.id, 'level', parseInt(e.target.value, 10))} className="select-field">
-                        {[70, 75, 77, 79, 80].map(lv => <option key={lv} value={lv}>{lv}</option>)}
-                    </select>
-                </td>
-                <td>
-                     <input type="number" min="1" max="11" value={details.ougiLevel} onChange={e => onDetailChange(megido.id, 'ougiLevel', parseInt(e.target.value, 10))} className="input-field"/>
-                </td>
-                <td>
-                    {megido.専用霊宝 && <input type="checkbox" checked={details.special_reishou} onChange={(e) => onDetailChange(megido.id, 'special_reishou', e.target.checked)} />}
-                </td>
-                <td>
-                    {megido.絆霊宝 && 
-                        <select value={details.bond_reishou} onChange={e => onDetailChange(megido.id, 'bond_reishou', parseInt(e.target.value, 10))} className="select-field">
-                            {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>{getBondReishouTierName(tier)}</option>)}
-                        </select>
-                    }
-                </td>
-            </tr>
-        );
     };
 
     return (
@@ -128,8 +168,8 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
                     </thead>
                     <tbody>
                         {filteredList.map(megido => {
-                            const details = { owned: false, level: 70, ougiLevel: 3, special_reishou: megido.専用霊宝 || false, bond_reishou: 0, singularity_level: 0, ...(megidoDetails[megido.id] || {}) };
-                            return <Row key={megido.id} megido={megido} details={details} />;
+                            const detail = megidoDetails[megido.id];
+                            return <Row key={megido.id} megido={megido} detail={detail} onDetailChange={onDetailChange} isMobileView={isMobileView} />;
                         })}
                     </tbody>
                 </table>

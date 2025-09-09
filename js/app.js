@@ -96,7 +96,6 @@ const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) 
 };
 
 const TowerTool = () => {
-    const [showTutorial, setShowTutorial] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
         const saved = localStorage.getItem('unlockedAchievements');
@@ -163,20 +162,17 @@ const TowerTool = () => {
     const [isMobileView, setIsMobileView] = useState(false);
     const [isTabletView, setIsTabletView] = useState(false);
     const [showBetaModal, setShowBetaModal] = useState(false);
+    const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [isFooterCollapsed, setIsFooterCollapsed] = useState(() => {
         const saved = localStorage.getItem('isFooterCollapsed');
         return saved ? JSON.parse(saved) : true; // Default to collapsed
     });
 
-    const tryStartTutorial = useCallback(() => {
-        if (localStorage.getItem('tutorialCompleted') || showTutorial) {
-            return;
-        }
-        // 遅延させて、他のモーダルが閉じるアニメーションなどと競合させない
-        setTimeout(() => {
-            setShowTutorial(true);
-        }, 200);
-    }, [showTutorial]);
+    const handleToggleFooter = () => {
+        const newCollapsedState = !isFooterCollapsed;
+        setIsFooterCollapsed(newCollapsedState);
+        localStorage.setItem('isFooterCollapsed', JSON.stringify(newCollapsedState));
+    };
 
     useEffect(() => {
         const isFirstLaunch = !localStorage.getItem('hasLaunched');
@@ -203,12 +199,15 @@ const TowerTool = () => {
 
     const isSwipeAllowed = useMemo(() => {
         if (!isMobileView) return false;
+        // Disable swipe when formation editor is open
         if (activeTab === 'formation' && editingFormation) {
             return false;
         }
+        // Standard tabs in practice/plan mode
         if (mode !== 'log') {
             return ['details', 'ownership', 'formation'].includes(activeTab);
         }
+        // Tabs in log mode
         if (mode === 'log') {
             return ['summary', 'details'].includes(activeTab);
         }
@@ -223,10 +222,10 @@ const TowerTool = () => {
     
     const floorRefs = useRef({});
 
-    const showToastMessage = (message) => {
+    const showToastMessage = useCallback((message) => {
         setToastMessage(message); setShowToast(true);
         setTimeout(() => setShowToast(false), 3000);
-    };
+    }, []);
 
     const unlockAchievement = (achievementId) => {
         if (typeof ACHIEVEMENTS === 'undefined') return;
@@ -240,6 +239,7 @@ const TowerTool = () => {
     };
 
     const logAction = (action, details) => {
+        // Placeholder for analytics or logging
         console.log("Action:", action, details);
     };
 
@@ -346,6 +346,7 @@ const TowerTool = () => {
         handleMegidoDetailChange
     });
 
+    // --- UI State Persistence ---
     useEffect(() => { localStorage.setItem('ui_mode', mode); }, [mode]);
     useEffect(() => { localStorage.setItem('ui_activeTab', activeTab); }, [activeTab]);
 
@@ -353,6 +354,7 @@ const TowerTool = () => {
     const [isHtml5QrLoaded, setIsHtml5QrLoaded] = useState(false);
 
     useEffect(() => {
+        // QRious (for export) check
         if (window.QRious) {
             setIsQriousLoaded(true);
         } else {
@@ -404,6 +406,7 @@ const TowerTool = () => {
         checkAllAchievements();
     }, [formations, ownedMegidoIds, winStreak, floorClearCounts, themeToggleCount, dataManagementCount, planState]);
 
+    // Special check for APP_START on initial load
     useEffect(() => {
         unlockAchievement('APP_START');
     }, []);
@@ -463,6 +466,7 @@ const TowerTool = () => {
                     const data = JSON.parse(event.target.result);
                     if (window.confirm('現在のデータをインポートしたデータで上書きします。よろしいですか？')) {
                         setDataManagementCount(c => c + 1);
+                        // A more robust solution would validate each key
                         if(data.megidoDetails) setMegidoDetails(data.megidoDetails);
                         if(data.formations) setFormations(data.formations);
                         if(data.planState) setPlanState(data.planState);
@@ -478,6 +482,7 @@ const TowerTool = () => {
                         if(data.themeToggleCount) setThemeToggleCount(data.themeToggleCount);
                         if(data.dataManagementCount) setDataManagementCount(data.dataManagementCount);
 
+                        // Save to localStorage
                         localStorage.setItem('megidoDetails', JSON.stringify(data.megidoDetails || {}));
                         localStorage.setItem('formations', JSON.stringify(data.formations || []));
                         localStorage.setItem('planState', JSON.stringify(data.planState || { assignments: {}, activeFloor: 1, explorationAssignments: {} }));
@@ -516,9 +521,10 @@ const TowerTool = () => {
             alert('データが正常にリセットされました。ページをリロードします。');
             localStorage.clear();
             window.location.reload();
-        } else if (userInput !== null) {
+        } else if (userInput !== null) { // User clicked OK but the code was wrong
             alert('確認コードが一致しません。データのリセットはキャンセルされました。');
         }
+        // If userInput is null, the user clicked Cancel, so we do nothing.
     };
 
     const handleToggleTheme = () => {
@@ -528,6 +534,7 @@ const TowerTool = () => {
         localStorage.setItem('theme', newTheme);
     };
 
+    // Also need to load the theme on boot
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
@@ -615,6 +622,7 @@ const TowerTool = () => {
     useEffect(() => {
         if (isLoading) return;
 
+        // Restore selected square & log on initial load
         const savedSquareKey = localStorage.getItem('ui_selectedSquareKey');
         if (savedSquareKey && typeof TOWER_MAP_DATA !== 'undefined') {
             const [floorNumStr, ...idParts] = savedSquareKey.split('-');
@@ -636,7 +644,7 @@ const TowerTool = () => {
     }, [isLoading, seasonLogs]);
 
     useEffect(() => {
-        if (isLoading) return;
+        if (isLoading || typeof MEGIDO_BIRTHDAY_DATA === 'undefined') return;
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -688,6 +696,7 @@ const TowerTool = () => {
             }
         }
 
+        // If there are multiple events, pick one randomly to show.
         if (todaysEvents.length > 1) {
             const randomIndex = Math.floor(Math.random() * todaysEvents.length);
             todaysEvents = [todaysEvents[randomIndex]];
@@ -695,8 +704,8 @@ const TowerTool = () => {
 
         setEventQueue(todaysEvents);
 
+        // Check for beta modal
         const betaModalShown = localStorage.getItem('betaModalShown');
-        let shouldShowBeta = false;
         if (!betaModalShown) {
             const betaStartDate = new Date('2025-09-09');
             const betaEndDate = new Date('2025-09-17');
@@ -704,26 +713,25 @@ const TowerTool = () => {
             betaEndDate.setHours(0, 0, 0, 0);
 
             if (today >= betaStartDate && today < betaEndDate) {
-                shouldShowBeta = true;
+                setShouldShowBetaModal(true);
             }
         }
-        setShouldShowBetaModal(shouldShowBeta);
-
-        if (todaysEvents.length === 0 && !shouldShowBeta) {
-            tryStartTutorial();
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);
 
     useEffect(() => {
         if (eventQueue.length > 0) {
             setEventToast(eventQueue[0]);
         } else {
-            setEventToast(null);
+            setEventToast(null); // Clear toast when queue is empty
             if (shouldShowBetaModal) {
                 unlockAchievement('BETA_TESTER');
                 setShowBetaModal(true);
-                setShouldShowBetaModal(false);
+                setShouldShowBetaModal(false); // Prevent re-showing
+            } else {
+                const updateModalShown = localStorage.getItem('updateModalShown_20250910');
+                if (!updateModalShown) {
+                    setShowUpdateModal(true);
+                }
             }
         }
     }, [eventQueue, shouldShowBetaModal]);
@@ -734,13 +742,9 @@ const TowerTool = () => {
         }
         setDontShowAgain(false);
         setEventQueue(queue => queue.slice(1));
-
-        if (eventQueue.length <= 1 && !shouldShowBetaModal) {
-            tryStartTutorial();
-        }
     };
 
-    const updateGuidance = () => {
+    const updateGuidance = useCallback(() => {
         if (typeof TOWER_MAP_DATA === 'undefined' || !runState.currentPosition) return;
 
         const profile = calculateMetrics(getProfile());
@@ -789,7 +793,7 @@ const TowerTool = () => {
         }
 
         setGuidance({ recommended: bestSquareId, candidates });
-    };
+    }, [runState, megidoConditions, targetEnemies]);
 
     useEffect(() => {
         if (!isLoading) {
@@ -864,8 +868,8 @@ const TowerTool = () => {
     };
 
     useEffect(() => {
-        const threshold = 160;
-        let devtoolsOpen = false;
+        const threshold = 160; // The threshold for detecting devtools
+        let devtoolsOpen = false; // Flag to prevent continuous firing
 
         const checkDevTools = () => {
             const widthThreshold = window.outerWidth - window.innerWidth > threshold;
@@ -884,7 +888,7 @@ const TowerTool = () => {
         const intervalId = setInterval(checkDevTools, 1000);
 
         return () => clearInterval(intervalId);
-    }, []);
+    }, []); // Run only once on mount
 
     const handleModeChange = (newMode) => {
         setMode(newMode);
@@ -905,33 +909,6 @@ const TowerTool = () => {
     const onCancel = () => {
         setSelectedSquare(null);
         localStorage.removeItem('ui_selectedSquareKey');
-    };
-
-    const handleCloseTutorial = () => {
-        setShowTutorial(false);
-        localStorage.setItem('tutorialCompleted', 'true');
-        setSelectedSquare(null); // Close any open square details
-    };
-
-    const handleTutorialStepChange = (stepIndex) => {
-        // モバイルビューの場合、ステップ2と3でマップタブを強制的に開く
-        if (isMobileView && (stepIndex === 2 || stepIndex === 3)) {
-            setActiveTab('details');
-        }
-
-        // ステップ3では1F-Sマスを開く
-        if (stepIndex === 3) {
-            if (typeof TOWER_MAP_DATA !== 'undefined') {
-                const floor1 = TOWER_MAP_DATA.find(f => f.floor === 1);
-                if (floor1 && floor1.squares['s']) {
-                    const squareData = floor1.squares['s'];
-                    handleSquareClick(floor1, squareData, 's');
-                }
-            }
-        } else {
-            // それ以外のステップではマス詳細を閉じる
-            setSelectedSquare(null);
-        }
     };
 
     const getSquareStyle = (square, floorData, squareId) => {
@@ -1008,7 +985,7 @@ const TowerTool = () => {
             return '--node-color-random-rgb';
         }
         
-        return '--text-main';
+        return '--text-main'; // Default fallback
     };
 
     const onTargetSelect = (target, screen) => {
@@ -1028,6 +1005,7 @@ const TowerTool = () => {
 
     const handleTargetEnemyChange = (squareId, enemyName) => {
         const newTargetEnemies = { ...targetEnemies };
+        // If the same enemy is clicked again, untarget it.
         if (newTargetEnemies[squareId] === enemyName) {
             delete newTargetEnemies[squareId];
         } else {
@@ -1110,7 +1088,7 @@ const TowerTool = () => {
                 floorRefs.current[currentFloor].scrollIntoView({ behavior: 'smooth', block: 'center' });
                 showToastMessage(`${currentFloor}Fにスクロールしました。`);
             }
-        }, 800);
+        }, 800); // 800ms for long press
     };
 
     const handleLongPressEnd = () => {
@@ -1124,6 +1102,52 @@ const TowerTool = () => {
         onMouseUp: handleLongPressEnd,
         onMouseLeave: handleLongPressEnd,
     };
+
+    const generateConnections = (layoutGrid) => {
+        const connections = {};
+        if (!layoutGrid) return connections;
+        const rows = layoutGrid.length;
+        if (rows === 0) return connections;
+        const cols = layoutGrid[0].length;
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const currentSquareId = layoutGrid[r][c];
+                if (!currentSquareId) continue;
+
+                if (!connections[currentSquareId]) {
+                    connections[currentSquareId] = [];
+                }
+
+                const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+                for (const [dr, dc] of directions) {
+                    const nr = r + dr;
+                    const nc = c + dc;
+
+                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
+                        const neighborSquareId = layoutGrid[nr][nc];
+                        if (neighborSquareId && !connections[currentSquareId].includes(neighborSquareId)) {
+                            connections[currentSquareId].push(neighborSquareId);
+                        }
+                    }
+                }
+            }
+        }
+        return connections;
+    };
+
+    const towerConnections = useMemo(() => {
+        if (isLoading || typeof TOWER_MAP_DATA === 'undefined') {
+            return {};
+        }
+        const allConnections = {};
+        TOWER_MAP_DATA.forEach(floorData => {
+            if (floorData.layoutGrid) {
+                allConnections[floorData.floor] = generateConnections(floorData.layoutGrid);
+            }
+        });
+        return allConnections;
+    }, [isLoading]);
 
     const RightPanelContent = () => {
         return (<>
@@ -1141,101 +1165,104 @@ const TowerTool = () => {
                     targetEnemies={targetEnemies}
                 />
             ) : (
-                <div className="tab-content" style={{marginTop: '1rem'}}>
-                    {activeTab === 'details' && !selectedSquare && (
-                        <div className="placeholder" style={{height: '100%'}}>マスを選択してください</div>
-                    )}
-                    {activeTab === 'details' && selectedSquare && (() => {
-                        const floorNum = selectedSquare.floor.floor;
-                        const clearedSquaresOnFloor = runState.cleared[floorNum] || [];
-                        const isCleared = clearedSquaresOnFloor.includes(selectedSquare.id);
-                        const isPastFloor = floorNum < runState.highestFloorReached;
-                        
-                        let isResolvable = false;
-                        if (mode === 'practice' && !isCleared) {
-                            const neighbors = typeof connections !== 'undefined' ? Object.keys(connections).reduce((acc, key) => {
-                                if (connections[key].includes(selectedSquare.id)) acc.push(key);
-                                if (key === selectedSquare.id) acc.push(...connections[key]);
-                                return acc;
-                            }, []) : [];
-                            isResolvable = neighbors.some(neighborId => clearedSquaresOnFloor.includes(neighborId));
-                        }
-
-                        let isLocked = false;
-                        let lockText = '';
-                        if (mode === 'practice') {
-                            if (isPastFloor) {
-                                isLocked = true;
-                                lockText = '階移動済み';
-                            } else if (isCleared && selectedSquare.square.type !== 'start') {
-                                isLocked = true;
-                                lockText = '解放済み';
+                <div className="tab-content" style={{marginTop: '1rem', height: '100%'}}>
+                    <div style={{ display: activeTab === 'details' ? 'block' : 'none', height: '100%' }}>
+                        {!selectedSquare && (
+                            <div className="placeholder" style={{height: '100%'}}>マスを選択してください</div>
+                        )}
+                        {selectedSquare && (() => {
+                            const floorNum = selectedSquare.floor.floor;
+                            const clearedSquaresOnFloor = runState.cleared[floorNum] || [];
+                            const isCleared = clearedSquaresOnFloor.includes(selectedSquare.id);
+                            const isPastFloor = floorNum < runState.highestFloorReached;
+                            
+                            let isResolvable = false;
+                            if (mode === 'practice' && !isCleared) {
+                                const connections = towerConnections[floorNum];
+                                if (connections && connections[selectedSquare.id]) {
+                                    const neighbors = connections[selectedSquare.id];
+                                    isResolvable = neighbors.some(neighborId => clearedSquaresOnFloor.includes(neighborId));
+                                }
                             }
-                        }
 
-                        if (selectedSquare.square.type === 'start') {
-                            return <StartSquarePanel square={selectedSquare} isLocked={isLocked} lockText={lockText} onCreateFormation={handleCreateFormationFromEnemy} />;
-                        } else if (selectedSquare.square.type === 'explore') {
-                            return <ExplorationActionPanel 
-                                square={selectedSquare}
-                                isPlanMode={mode === 'plan'}
-                                ownedMegidoIds={ownedMegidoIds}
-                                megidoDetails={megidoDetails}
-                                megidoConditions={megidoConditions}
-                                onResolve={handleResolveSquare}
-                                recommendation={runState.recommendations[selectedSquare.id]}
-                                onRecommendationChange={onRecommendationChange}
-                                explorationAssignments={planState.explorationAssignments}
-                                onPlanExplorationParty={onPlanExplorationParty}
-                                planState={planState}
-                                memos={memos}
-                                onSaveMemo={onSaveMemo}
-                                showToastMessage={showToastMessage}
-                                isLocked={isLocked}
-                                lockText={lockText}
-                                runState={runState}
-                                formations={formations}
-                                seasonLogs={seasonLogs}
-                                isResolvable={isResolvable}
-                            />;
-                        } else {
-                            return <PracticeActionPanel 
-                                square={selectedSquare}
-                                formations={formations}
-                                onResolve={handleResolveSquare}
-                                megidoConditions={megidoConditions}
-                                onCreateFormation={handleCreateFormationFromEnemy}
-                                planState={planState}
-                                ownedMegidoIds={ownedMegidoIds}
-                                megidoDetails={megidoDetails}
-                                runState={runState}
-                                onRecommendationChange={onRecommendationChange}
-                                isLocked={isLocked}
-                                lockText={lockText}
-                                isPlanMode={mode === 'plan'}
-                                onPlanCombatParty={handlePlanCombatParty}
-                                targetEnemy={targetEnemies[selectedSquare.id]}
-                                onTargetEnemyChange={(enemyName) => handleTargetEnemyChange(selectedSquare.id, enemyName)}
-                                isResolvable={isResolvable}
-                                onSaveFormationMemo={handleSaveFormationMemo}
-                            />;
-                        }
-                    })()}
-                    {activeTab === 'ownership' && (
+                            let isLocked = false;
+                            let lockText = '';
+                            if (mode === 'practice') {
+                                if (isPastFloor) {
+                                    isLocked = true;
+                                    lockText = '階移動済み';
+                                } else if (isCleared && selectedSquare.square.type !== 'start') {
+                                    isLocked = true;
+                                    lockText = '解放済み';
+                                }
+                            }
+
+                            if (selectedSquare.square.type === 'start') {
+                                return <StartSquarePanel square={selectedSquare} isLocked={isLocked} lockText={lockText} onCreateFormation={handleCreateFormationFromEnemy} />;
+                            } else if (selectedSquare.square.type === 'explore') {
+                                return <ExplorationActionPanel 
+                                    square={selectedSquare}
+                                    isPlanMode={mode === 'plan'}
+                                    ownedMegidoIds={ownedMegidoIds}
+                                    megidoDetails={megidoDetails}
+                                    megidoConditions={megidoConditions}
+                                    onResolve={handleResolveSquare}
+                                    recommendation={runState.recommendations[selectedSquare.id]}
+                                    onRecommendationChange={onRecommendationChange}
+                                    explorationAssignments={planState.explorationAssignments}
+                                    onPlanExplorationParty={onPlanExplorationParty}
+                                    planState={planState}
+                                    memos={memos}
+                                    onSaveMemo={onSaveMemo}
+                                    showToastMessage={showToastMessage}
+                                    isLocked={isLocked}
+                                    lockText={lockText}
+                                    runState={runState}
+                                    formations={formations}
+                                    seasonLogs={seasonLogs}
+                                    isResolvable={isResolvable}
+                                    setModalState={setModalState}
+                                    towerConnections={towerConnections}
+                                />;
+                            } else {
+                                return <PracticeActionPanel 
+                                    square={selectedSquare}
+                                    formations={formations}
+                                    onResolve={handleResolveSquare}
+                                    megidoConditions={megidoConditions}
+                                    onCreateFormation={handleCreateFormationFromEnemy}
+                                    planState={planState}
+                                    ownedMegidoIds={ownedMegidoIds}
+                                    megidoDetails={megidoDetails}
+                                    runState={runState}
+                                    onRecommendationChange={onRecommendationChange}
+                                    isLocked={isLocked}
+                                    lockText={lockText}
+                                    isPlanMode={mode === 'plan'}
+                                    onPlanCombatParty={handlePlanCombatParty}
+                                    targetEnemy={targetEnemies[selectedSquare.id]}
+                                    onTargetEnemyChange={(enemyName) => handleTargetEnemyChange(selectedSquare.id, enemyName)}
+                                    isResolvable={isResolvable}
+                                    onSaveFormationMemo={handleSaveFormationMemo}
+                                />;
+                            }
+                        })()}
+                    </div>
+                    <div style={{ display: activeTab === 'ownership' ? 'block' : 'none', height: '100%' }}>
                         <OwnershipManager 
                             megidoDetails={megidoDetails} 
                             onDetailChange={handleMegidoDetailChangeWrapper}
                             onCheckDistributed={handleCheckDistributedMegido}
                         />
-                    )}
-                    {activeTab === 'formation' && (
-                        editingFormation ? (
+                    </div>
+                    <div style={{ display: activeTab === 'formation' ? 'block' : 'none', height: '100%' }}>
+                        {editingFormation ? (
                             <FormationEditor
                                 formation={editingFormation}
                                 onSave={handleSaveFormation}
                                 onCancel={() => {
                                     setEditingFormation(null);
-                                    setInitialTagTarget(null);
+                                    setInitialTagTarget(null); // Clear target on cancel
                                     setActiveTab(previousScreen === 'action' || previousScreen === 'combat_plan' ? 'details' : 'formation');
                                 }}
                                 ownedMegidoIds={ownedMegidoIds}
@@ -1268,8 +1295,8 @@ const TowerTool = () => {
                                 onEditingFormationChange={setEditingFormation}
                                 isMobileView={isMobileView}
                             />
-                        )
-                    )}
+                        )}
+                    </div>
                 </div>
             )}
         </>);
@@ -1314,7 +1341,6 @@ const TowerTool = () => {
                     onClose={() => {
                         setShowBetaModal(false);
                         localStorage.setItem('betaModalShown', 'true');
-                        tryStartTutorial();
                     }}
                     title="オープンβテストへようこそ！"
                 >
@@ -1334,6 +1360,37 @@ const TowerTool = () => {
 どうぞよろしくお願いいたします！
 
 それでは、良き戦争を！！！`}
+                </InfoModal>
+            )}
+
+            {showUpdateModal && (
+                <InfoModal
+                    isOpen={true}
+                    onClose={() => {
+                        setShowUpdateModal(false);
+                        localStorage.setItem('updateModalShown_20250910', 'true');
+                    }}
+                    title="アップデートのお知らせ (2025/09/10)"
+                >
+                    {`皆様からのフィードバックに基づき、以下の修正および機能追加を行いました。
+
+【主な改善点】
+・メギドの表示順を修正: 所持メギド管理画面の表示順を、ゲーム内図鑑の「祖→真→宵→継」の順に統一しました。
+・操作性の向上:
+　・所持メギド管理画面で、メギド名をクリックしても所持/未所持を切り替えられるようにしました。
+　・奥義レベルの上限値を「99」に修正しました。
+　・下部パネル（実践モード）が邪魔な時に折りたためるようにしました（モバイル表示含む）。
+・探索力の計算: 霊宝などを考慮した探索力の合計値を手動で入力・上書きできる機能を追加しました。
+
+【不具合修正】
+・フィルター機能の修正: 編成画面でオーブや霊宝を選択する際、専用のフィルター（種族、系列）が正しく表示・機能するように修正しました。
+・回復マスの修正: 実践モードで探索実行後、塔破力やコンディションの回復マスで効果が得られない問題を修正しました。
+・ランダムバフの選択: ランダムバフのマスを解決した際に、どのスタイルが強化されたかを選択・記録できるようになりました。
+
+【調査中の問題】
+・所持メギド画面でのスクロール問題: 特定の条件下で入力中に画面上部へスクロールしてしまう問題については、引き続き調査中です。多数の修正を試みましたが、解消には至っておりません。ご不便をおかけし申し訳ありません。
+
+今後とも、本ツールをよろしくお願いいたします。`}
                 </InfoModal>
             )}
 
@@ -1358,9 +1415,10 @@ const TowerTool = () => {
             <div className="main-content" style={{ display: 'flex', gap: '1rem', padding: '1rem' }}>
                 {isMobileView ? (
                     <div className="mobile-view-container" ref={swipeRef}>
-                        {mode === 'log' && activeTab === 'summary' ? (
+                        <div style={{ display: mode === 'log' && activeTab === 'summary' ? 'block' : 'none', height: '100%' }}>
                             <LogSummary selectedLog={selectedLog} />
-                        ) : activeTab === 'details' ? (
+                        </div>
+                        <div style={{ display: activeTab === 'details' ? 'block' : 'none', height: '100%' }}>
                             <div className="left-panel" style={{ width: '100%' }} {...mapContainerProps}>
                                 {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
                                     <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
@@ -1383,10 +1441,12 @@ const TowerTool = () => {
                                     </div>
                                 ))}
                             </div>
-                        ) : activeTab === 'ownership' ? (
-                            <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} />
-                        ) : activeTab === 'formation' ? (
-                            editingFormation ? (
+                        </div>
+                        <div style={{ display: activeTab === 'ownership' ? 'block' : 'none', height: '100%' }}>
+                            <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} isMobileView={isMobileView} />
+                        </div>
+                        <div style={{ display: activeTab === 'formation' ? 'block' : 'none', height: '100%' }}>
+                            {editingFormation ? (
                                 <FormationEditor
                                     formation={editingFormation}
                                     onSave={handleSaveFormation}
@@ -1420,8 +1480,8 @@ const TowerTool = () => {
                                     editingFormation={editingFormation}
                                     onEditingFormationChange={setEditingFormation}
                                 />
-                            )
-                        ) : null}
+                            )}
+                        </div>
                     </div>
                 ) : (
                     <>
@@ -1440,7 +1500,7 @@ const TowerTool = () => {
                                     onManualRecover={handleManualRecovery}
                                     isMobileView={isMobileView}
                                     isCollapsed={isFooterCollapsed}
-                                    onToggleCollapse={() => setIsFooterCollapsed(!isFooterCollapsed)}
+                                    onToggleCollapse={handleToggleFooter}
                                     planConditions={planConditions}
                                 />
                             }
@@ -1545,10 +1605,12 @@ const TowerTool = () => {
                         manualRecovery={manualRecovery}
                         onManualRecover={handleManualRecovery}
                         isMobileView={isMobileView}
+                        isCollapsed={isFooterCollapsed}
+                        onToggleCollapse={handleToggleFooter}
+                        planConditions={planConditions}
                     />
                 </div>
             )}
-            {showTutorial && <Tutorial onClose={handleCloseTutorial} setActiveTab={setActiveTab} onStepChange={handleTutorialStepChange} />}
         </div>
     );
 };

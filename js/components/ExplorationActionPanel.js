@@ -1,7 +1,8 @@
-const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, isPlanMode = false, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable }) => {
+const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, isPlanMode = false, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable, setModalState: setAppModalState }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [modalState, setModalState] = useState({ isOpen: false, slotIndex: null, recType: null });
     const [memo, setMemo] = useState('');
+    const [manualPower, setManualPower] = useState(null);
 
     const getTitle = (sq) => {
         if (!sq) return '探索';
@@ -32,12 +33,13 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
             const memoKey = `${square.floor.floor}-${square.id}`;
             setMemo(memos[memoKey] || '');
         }
+        // Reset manual power when square changes
+        setManualPower(null);
     }, [square, memos]);
 
     const handleSaveMemoClick = () => {
         if (onSaveMemo) {
             onSaveMemo(square, memo);
-            showToastMessage("メモを保存しました。");
         }
     };
 
@@ -83,6 +85,26 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
         const res = EXPLORATION_REWARDS[reqPower]?.[expLevel] || { stat: 'N/A', condition: 'N/A', power: 'N/A' };
         return { totalPower: totPower, requiredPower: reqPower, expectationLevel: expLevel, result: res };
     }, [practiceParty, megidoConditions, square, calculatePower, isPlanMode, recommendation]);
+
+    const displayPower = manualPower ?? totalPower;
+
+    const handleManualPowerInput = () => {
+        setAppModalState({
+            isOpen: true,
+            title: '探索力の手動入力',
+            message: '霊宝などを考慮した合計探索力の値を入力してください。',
+            onConfirm: (value) => {
+                const newPower = parseInt(value, 10);
+                if (!isNaN(newPower) && newPower >= 0) {
+                    setManualPower(newPower);
+                    showToastMessage(`探索力を ${newPower} に設定しました。`);
+                } else {
+                    showToastMessage('無効な値です。数値を入力してください。', 'error');
+                }
+                setAppModalState(s => ({ ...s, isOpen: false }));
+            }
+        });
+    };
 
     const availablePracticeMegido = useMemo(() => {
         if (isPlanMode) return [];
@@ -137,6 +159,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
     }, [modalState.recType, ownedMegidoIds, planState.explorationAssignments, square.id]);
 
     if (isPlanMode) {
+        // ... (plan mode JSX remains the same)
         return (
             <div style={{ position: 'relative' }}>
                 {isLocked && <LockedPanelOverlay text={lockText} />}
@@ -312,7 +335,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                             <p className={`${getStyleClass(item.スタイル)}`} style={{fontWeight: 700, fontSize: '16px'}}>
                                 {item.名前} {isRecommended && <span style={{color: 'var(--warning-color)'}}>★</span>}
                             </p>
-                            <p style={{fontSize: '14px', color: 'var(--text-subtle)'}}>探索力: {power} ({condition})</p>
+                            <p style={{fontSize: '14px', color: 'var(--text-subtle)'}}>{`探索力: ${power} (${condition})`}</p>
                             {isRestricted && (
                                 <div style={{ fontSize: '12px', color: 'var(--warning-color)', marginTop: '4px' }}>
                                     {restrictionReason}
@@ -349,8 +372,15 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
             </div>
 
             <div className="card" style={{marginTop: '16px'}}>
-                <div style={{display: 'flex', justifyContent: 'space-around', textAlign: 'center'}}>
-                    <div><p style={{fontSize: '12px', color: 'var(--text-subtle)'}}>合計探索力</p><p style={{fontSize: '24px', fontWeight: 700}}>{totalPower}</p></div>
+                <div style={{display: 'flex', justifyContent: 'space-around', alignItems: 'center', textAlign: 'center'}}>
+                    <div>
+                        <p style={{fontSize: '12px', color: 'var(--text-subtle)'}}>合計探索力</p>
+                        <p style={{fontSize: '24px', fontWeight: 700}}>{displayPower}</p>
+                    </div>
+                    <div>
+                        <button onClick={handleManualPowerInput} className="btn btn-secondary btn-sm">手動入力</button>
+                        {manualPower !== null && <button onClick={() => setManualPower(null)} className="btn btn-ghost btn-sm" style={{marginLeft: '8px'}}>リセット</button>}
+                    </div>
                     <div><p style={{fontSize: '12px', color: 'var(--text-subtle)'}}>推奨探索力</p><p style={{fontSize: '24px', fontWeight: 700}}>{requiredPower}</p></div>
                     <div><p style={{fontSize: '12px', color: 'var(--text-subtle)'}}>期待度</p><p style={{fontSize: '24px', fontWeight: 700, color: 'var(--info-color)'}}>{expectationLevel}</p></div>
                 </div>
@@ -367,13 +397,13 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                         if (['attack_buff', 'defense_buff', 'hp_buff', 'status_buff'].includes(subType)) {
                             return <p>ステ強化: {result.stat || '-'}</p>;
                         }
-                        return <p>ステ強化: {result.stat || '-'} / コンディション回復: {result.condition} / 塔破力回復: {result.power}</p>;
+                        return <p>{`ステ強化: ${result.stat || '-'} / コンディション回復: ${result.condition} / 塔破力回復: ${result.power}`}</p>;
                     })()}
                 </div>
             </div>
             {!isResolvable && !isLocked && <p style={{color: 'var(--warning-color)', fontSize: '12px', marginTop: '12px'}}>このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
             <div style={{marginTop: '16px'}}>
-                <button onClick={() => onResolve('explore', { party: practiceParty.filter(m => m), totalPower, requiredPower, expectationLevel }, square)} disabled={!practiceParty.some(m => m !== null) || !isResolvable} className="btn btn-primary" style={{width: '100%'}}>探索実行</button>
+                <button onClick={() => onResolve('explore', { party: practiceParty.filter(m => m), totalPower: displayPower, requiredPower, expectationLevel }, square)} disabled={!practiceParty.some(m => m !== null) || !isResolvable} className="btn btn-primary" style={{width: '100%'}}>探索実行</button>
             </div>
         </div>
     );

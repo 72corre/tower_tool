@@ -1,4 +1,4 @@
-const RecoveryModal = ({ isOpen, onClose, onConfirm, title, message }) => {
+const RecoveryModal = ({ isOpen, onClose, onConfirm, title, message, showNumberInput = true, numberInputPlaceholder = "回復人数" }) => {
     const [inputValue, setInputValue] = React.useState('');
     const [selectedStyle, setSelectedStyle] = React.useState(null);
 
@@ -10,9 +10,15 @@ const RecoveryModal = ({ isOpen, onClose, onConfirm, title, message }) => {
     }, [isOpen]);
 
     const handleConfirm = () => {
-        const numberValue = parseInt(inputValue, 10);
-        if (selectedStyle && !isNaN(numberValue) && numberValue > 0) {
-            onConfirm(selectedStyle, numberValue);
+        if (showNumberInput) {
+            const numberValue = parseInt(inputValue, 10);
+            if (selectedStyle && !isNaN(numberValue) && numberValue > 0) {
+                onConfirm(selectedStyle, numberValue);
+            }
+        } else {
+            if (selectedStyle) {
+                onConfirm(selectedStyle, null);
+            }
         }
         onClose();
     };
@@ -54,17 +60,25 @@ const RecoveryModal = ({ isOpen, onClose, onConfirm, title, message }) => {
                 ))}
             </div>
 
-            <input
-                type="number"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                className="input-field"
-                placeholder="回復人数"
-                disabled={!selectedStyle}
-            />
+            {showNumberInput && (
+                <input
+                    type="number"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    className="input-field"
+                    placeholder={numberInputPlaceholder}
+                    disabled={!selectedStyle}
+                />
+            )}
             <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                 <button onClick={onClose} className="btn btn-secondary">キャンセル</button>
-                <button onClick={handleConfirm} className="btn btn-primary" disabled={!selectedStyle || !inputValue}>確定</button>
+                <button 
+                    onClick={handleConfirm} 
+                    className="btn btn-primary" 
+                    disabled={!selectedStyle || (showNumberInput && !inputValue)}
+                >
+                    確定
+                </button>
             </div>
         </dialog>
     );

@@ -142,6 +142,7 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
             case 'megido': return { 
                 title: 'メギド選択', 
                 showFilters: true,
+                filterType: 'megido',
                 items: (typeof COMPLETE_MEGIDO_LIST !== 'undefined' ? COMPLETE_MEGIDO_LIST : []).filter(m => ownedMegidoIds.has(String(m.id))),
                 renderItem: (item, onSelect) => {
                     const baseName = getBaseMegidoName(item.名前);
@@ -149,8 +150,8 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
                     return <button key={item.id} onClick={() => onSelect(item)} disabled={isAlreadyInFormation} className="modal-item-btn"><p className={`font-bold ${getStyleClass(item.スタイル)}`}>{item.名前}</p></button>
                 }
             };
-            case 'orb': return { title: 'オーブ選択', showFilters: true, items: megido ? (typeof COMPLETE_ORB_LIST !== 'undefined' ? COMPLETE_ORB_LIST : []).filter(o => (o.conditions || '').includes(megido.スタイル) || (o.conditions || '').includes(megido.クラス) || !o.conditions) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name} <span style={{color: 'var(--text-subtle)'}}>({item.race})</span></p><p style={{fontSize: '12px'}}>{item.trait}</p></button>) };
-            case 'reishou': return { title: '霊宝選択', showFilters: true, items: megido ? (typeof COMPLETE_REISHOU_LIST !== 'undefined' ? COMPLETE_REISHOU_LIST : []).filter(r => { const style = r.conditions?.style; return style === megido.スタイル || style === '複数' || !style; }) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name}</p><p style={{fontSize: '12px'}}>{item.effects}</p></button>) };
+            case 'orb': return { title: 'オーブ選択', showFilters: true, filterType: 'orb', items: megido ? (typeof COMPLETE_ORB_LIST !== 'undefined' ? COMPLETE_ORB_LIST : []).filter(o => (o.conditions || '').includes(megido.スタイル) || (o.conditions || '').includes(megido.クラス) || !o.conditions) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name} <span style={{color: 'var(--text-subtle)'}}>({item.race})</span></p><p style={{fontSize: '12px'}}>{item.trait}</p></button>) };
+            case 'reishou': return { title: '霊宝選択', showFilters: true, filterType: 'reishou', items: megido ? (typeof COMPLETE_REISHOU_LIST !== 'undefined' ? COMPLETE_REISHOU_LIST : []).filter(r => { const style = r.conditions?.style; return style === megido.スタイル || style === '複数' || !style; }) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name}</p><p style={{fontSize: '12px'}}>{item.effects}</p></button>) };
             default: return { title: '', items: [], renderItem: () => null };
         }
     };

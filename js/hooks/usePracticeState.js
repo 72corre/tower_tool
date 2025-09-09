@@ -263,9 +263,6 @@ const usePracticeState = ({
         
         setRunState(newRunState);
         localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(newRunState));
-        setSelectedSquare(null);
-        localStorage.removeItem('ui_selectedSquareKey');
-        updateGuidance();
 
         if (result === 'explore') {
             const squareSubType = square.square.sub_type;
@@ -320,8 +317,44 @@ const usePracticeState = ({
                         }
                     });
                 }
+            } else if (['status_buff', 'attack_buff', 'defense_buff', 'hp_buff'].includes(squareSubType)) {
+                if (squareStyle === 'RANDOM') {
+                    setRecoveryModalState({
+                        isOpen: true,
+                        title: 'ランダムバフ対象選択',
+                        message: 'ゲーム内で指定された強化スタイルを選択してください。',
+                        showNumberInput: false,
+                        onConfirm: (styleKey) => {
+                            if (styleKey) {
+                                setRunState(prev => {
+                                    const lastHistoryIndex = prev.history.length - 1;
+                                    if (lastHistoryIndex >= 0) {
+                                        const newHistory = [...prev.history];
+                                        newHistory[lastHistoryIndex] = {
+                                            ...newHistory[lastHistoryIndex],
+                                            exploreResult: {
+                                                type: squareSubType,
+                                                style: styleKey
+                                            }
+                                        };
+                                        const newState = { ...prev, history: newHistory };
+                                        localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(newState));
+                                        return newState;
+                                    }
+                                    return prev;
+                                });
+                                const fullStyleName = styleKey === 'R' ? 'ラッシュ' : styleKey === 'C' ? 'カウンター' : 'バースト';
+                                showToastMessage(`${fullStyleName}が強化されました。`);
+                            }
+                            setRecoveryModalState({ isOpen: false });
+                        }
+                    });
+                }
             }
         }
+
+        setSelectedSquare(null);
+        localStorage.removeItem('ui_selectedSquareKey');
     }, [runState, megidoConditions, showToastMessage, logAction, updateMegidoConditions, setWinStreak, floorClearCounts, setFloorClearCounts, setSelectedSquare, setModalState, setRecoveryModalState, updateGuidance, handleConditionRecovery, floorRefs]);
 
     const handleManualRecovery = useCallback((megidoId) => {
