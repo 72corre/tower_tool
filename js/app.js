@@ -176,7 +176,11 @@ const TowerTool = () => {
         setActiveTab(mobileTabs[nextIndex]);
     };
 
-    const isSwipeAllowed = isMobileView && (['details', 'ownership', 'formation'].includes(activeTab) || (mode === 'log' && ['summary', 'details'].includes(activeTab)));
+    const isSwipeAllowed = isMobileView && (
+        (activeTab === 'formation' && !editingFormation) || 
+        (mode !== 'log' && ['details', 'ownership'].includes(activeTab)) ||
+        (mode === 'log' && ['summary', 'details'].includes(activeTab))
+    );
 
     const swipeRef = useSwipeNavigation({ 
         onSwipeLeft: () => handleSwipe('left'), 
@@ -1150,6 +1154,7 @@ const TowerTool = () => {
                                 onSave={handleSaveFormation}
                                 onCancel={() => {
                                     setEditingFormation(null);
+                                    setInitialTagTarget(null); // Clear target on cancel
                                     setActiveTab(previousScreen === 'action' || previousScreen === 'combat_plan' ? 'details' : 'formation');
                                 }}
                                 ownedMegidoIds={ownedMegidoIds}

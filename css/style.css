@@ -535,6 +535,17 @@
             transform: none;
             box-shadow: none;
         }
+
+        /* Ownership Table Adjustments */
+        .ownership-table th {
+            font-size: 12px; /* Smaller header font */
+        }
+        .ownership-table .select-field,
+        .ownership-table .input-field {
+            font-size: 12px; /* Smaller font for inputs */
+            padding: 4px 6px; /* Adjust padding */
+        }
+
         /* Toast */
         .toast {
             position: fixed;
@@ -900,7 +911,7 @@
 }
 
 .btn-icon img {
-    filter: invert(1);
+
 }
 
 /* Settings Modal */
@@ -1034,12 +1045,12 @@
 }
 
 .light-mode {
-    --bg-main: #F0F2F5;
-    --bg-panel: #FFFFFF;
-    --bg-panel-light: #F8F9FA;
+    --bg-main: #F0F0F0; /* Adjusted as requested */
+    --bg-panel: #F8F8F8; /* Slightly lighter for panels */
+    --bg-panel-light: #FFFFFF;
     --bg-hover: #E9ECEF;
-    --border-color: #DEE2E6;
-    --border-color-light: #E9ECEF;
+    --border-color: #DCDCDC; /* Adjusted for new background */
+    --border-color-light: #EAEAEA;
     --primary-accent: #007BFF;
     --primary-accent-dark: #0056b3;
     --text-main: #212529;
@@ -1048,7 +1059,7 @@
 }
 
 .light-mode .btn-icon img {
-    filter: none; /* Do not invert icon in light mode */
+    filter: invert(1); /* Invert icon in light mode */
 }
 
 .light-mode .mega-menu-overlay {

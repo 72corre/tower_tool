@@ -28,8 +28,9 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
     return (
         <header className="main-header">
             <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-                <button onClick={onOpenSettings} className="btn-icon" title="設定">
+                <button onClick={onOpenSettings} className="btn-icon" title="設定" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <img src="asset/settings.png" alt="設定" style={{width: '24px', height: '24px'}} />
+                    <span style={{ color: 'var(--primary-accent)' }}>設定</span>
                 </button>
                 <h1>{title}</h1>
                 <div className="mode-selector-wrapper">
@@ -110,8 +111,9 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
         <div className="mobile-header-container">
             <div className="mobile-header-top-bar">
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '8px' }}>
-                    <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                        <img src="asset/settings.png" alt="設定" style={{width: '24px', height: '24px'}} />
+                    <button onClick={onOpenSettings} className="btn-icon" title="設定" style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '4px 8px', backgroundColor: 'var(--bg-hover)', borderRadius: '6px' }}>
+                        <img src="asset/settings.png" alt="設定" style={{width: '18px', height: '18px'}} />
+                        <span style={{fontSize: '13px', color: 'var(--primary-accent)' }}>設定</span>
                     </button>
                     <div className="mode-selector-wrapper">
                         <div className={`mode-selector`} onClick={() => setIsModeMenuOpen(true)} style={{padding: '4px 8px'}}>

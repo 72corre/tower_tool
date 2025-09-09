@@ -1,4 +1,7 @@
 const FilterControls = ({ filters = {}, onFilterChange, onBulkCheck, onCheckDistributed, showBulkButtons = false, isMobileView = false }) => {
+    const { useState } = React;
+    const [isAccordionOpen, setIsAccordionOpen] = useState(false);
+
     const buttonClasses = "px-2 py-1 border rounded text-xs transition-colors duration-200";
     const successButton = `${buttonClasses} border-green-500 text-green-500 hover:bg-green-500 hover:text-white`;
     const dangerButton = `${buttonClasses} border-red-500 text-red-500 hover:bg-red-500 hover:text-white`;
@@ -41,17 +44,27 @@ const FilterControls = ({ filters = {}, onFilterChange, onBulkCheck, onCheckDist
                     />
                 </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <FilterItem label="時計" value={filters.clock || 'All'} onChange={e => onFilterChange('clock', e.target.value)}>
-                    <option value="All">全て</option><option value="祖">祖</option><option value="真">真</option><option value="継">継</option><option value="宵">宵</option>
-                </FilterItem>
-                <FilterItem label="クラス" value={filters.class || 'All'} onChange={e => onFilterChange('class', e.target.value)}>
-                    <option value="All">全て</option><option value="ファイター">ファイター</option><option value="トルーパー">トルーパー</option><option value="スナイパー">スナイパー</option>
-                </FilterItem>
-                <FilterItem label="スタイル" value={filters.style || 'All'} onChange={e => onFilterChange('style', e.target.value)}>
-                    <option value="All">全て</option><option value="カウンター">カウンター</option><option value="ラッシュ">ラッシュ</option><option value="バースト">バースト</option>
-                </FilterItem>
+
+            <div className="accordion-header" onClick={() => setIsAccordionOpen(!isAccordionOpen)} style={{ cursor: 'pointer', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: 'var(--bg-hover)' }}>
+                <span style={{ fontWeight: 500 }}>詳細フィルター {isAccordionOpen ? '−' : '＋'}</span>
             </div>
+
+            {isAccordionOpen && (
+                <div className="accordion-content">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <FilterItem label="時計" value={filters.clock || 'All'} onChange={e => onFilterChange('clock', e.target.value)}>
+                            <option value="All">全て</option><option value="祖">祖</option><option value="真">真</option><option value="継">継</option><option value="宵">宵</option>
+                        </FilterItem>
+                        <FilterItem label="クラス" value={filters.class || 'All'} onChange={e => onFilterChange('class', e.target.value)}>
+                            <option value="All">全て</option><option value="ファイター">ファイター</option><option value="トルーパー">トルーパー</option><option value="スナイパー">スナイパー</option>
+                        </FilterItem>
+                        <FilterItem label="スタイル" value={filters.style || 'All'} onChange={e => onFilterChange('style', e.target.value)}>
+                            <option value="All">全て</option><option value="カウンター">カウンター</option><option value="ラッシュ">ラッシュ</option><option value="バースト">バースト</option>
+                        </FilterItem>
+                    </div>
+                </div>
+            )}
+
             {showBulkButtons && <BulkButtons />}
         </div>
     );

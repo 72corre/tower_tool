@@ -14,14 +14,10 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         const newFormations = index > -1 ? formations.map(f => f.id === formationToSave.id ? formationToSave : f) : [...formations, formationToSave];
         setFormations(newFormations);
         localStorage.setItem('formations', JSON.stringify(newFormations));
-        setDisplayedEnemy(null);
-        if (mode === 'plan') {
-            setActiveTab('formation');
-        } else {
-            setPracticeView('formation');
-        }
+        setEditingFormation(null); // Go back to manager view
+        setInitialTagTarget(null); // Clear target
         showToastMessage('編成を保存しました。');
-    }, [formations, mode, setActiveTab, setDisplayedEnemy, setPracticeView, showToastMessage]);
+    }, [formations, showToastMessage]);
 
     const handleSaveFormationMemo = useCallback((formationId, newNotes) => {
         if (!formationId) return;
