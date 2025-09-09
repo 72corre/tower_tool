@@ -23,19 +23,19 @@ const LEVEL_BONUSES = {
 const RECOMMENDATION_TYPES = ['ラッシュ', 'カウンター', 'バースト', 'ファイター', 'トルーパー', 'スナイパー'];
 const EXPLORATION_REWARDS = {
     3500: {
-        1: { stat: "1%", condition: "5体", power: "6↓" },
-        2: { stat: "3%", condition: "15体", power: "8↓" },
-        3: { stat: "5%", condition: "20体↑", power: "13↑" }
+        1: { stat: "1%", condition: "5体", power: "6以下" },
+        2: { stat: "3%", condition: "15体", power: "8以下" },
+        3: { stat: "5%", condition: "20体＋", power: "13↑" }
     },
     4500: {
-        1: { stat: "-", condition: "5体", power: "6↓" },
-        2: { stat: "-", condition: "15体", power: "10↓" },
-        3: { stat: "-", condition: "20体↑", power: "15↑" }
+        1: { stat: "-", condition: "5体", power: "6以下" },
+        2: { stat: "-", condition: "15体", power: "10以下" },
+        3: { stat: "-", condition: "20体＋", power: "15以上" }
     },
     5500: {
-        1: { stat: "-", condition: "5体1段階", power: "6↓" },
-        2: { stat: "-", condition: "10体2段階", power: "11↓" },
-        3: { stat: "-", condition: "15体↑2段階", power: "16↑" }
+        1: { stat: "-", condition: "5体1段階", power: "6以下" },
+        2: { stat: "-", condition: "10体2段階", power: "11以下" },
+        3: { stat: "-", condition: "15体↑2段階＋", power: "16以上" }
     }
 };
 const connections = {

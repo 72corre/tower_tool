@@ -19,7 +19,7 @@ const calculateStats = (baseMegido, level) => {
 
 const getRequiredExplorationPower = (square) => {
     if (!square || !square.floor) return 3500;
-    if (square.sub_type === 'status_buff') return 3500;
+    if (square.sub_type === 'status_buff' || 'attack_buff' || 'hp_buff' || 'defense_buff')  return 3500;
     const floor = square.floor.floor;
     if (floor >= 21) return 5500;
     if (floor >= 11) return 4500;
@@ -74,9 +74,9 @@ const CONDITION_ORDER = ['絶好調', '好調', '普通', '不調', '絶不調',
 const getStyleClass = (style) => {
     if (!style) return '';
     const s = String(style).toLowerCase();
-    if (s.includes('ラッシュ') || s.includes('rush')) return 'text-rush';
-    if (s.includes('カウンター') || s.includes('counter')) return 'text-counter';
-    if (s.includes('バースト') || s.includes('burst')) return 'text-burst';
+    if (s.includes('ラッシュ') || s.includes('rush')|| s.includes('R')) return 'text-rush';
+    if (s.includes('カウンター') || s.includes('counter')|| s.includes('C')) return 'text-counter';
+    if (s.includes('バースト') || s.includes('burst')|| s.includes('B')) return 'text-burst';
     return '';
 };
 

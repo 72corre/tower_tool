@@ -11,7 +11,7 @@
             --text-subtle: #9E9E9E;
             --text-disabled: #6c6c6c;
             --rush-color: #B3B3B5;
-            --counter-color: #D9534F;
+            --counter-color: #F36C21;
             --burst-color: #5BC0DE;
             --font-main: 'Noto Sans JP', sans-serif;
             --danger-color: #e53e3e;
@@ -20,20 +20,20 @@
             --info-color: #3182ce;
 
             /* Node Colors */
-            --node-color-battle: #e07b39;
-            --node-color-battle-rgb: 224, 123, 57;
+            --node-color-battle: #e53e3e;
+            --node-color-battle-rgb: 229, 62, 62;
             --node-color-start: #9a7fcc;
             --node-color-start-rgb: 154, 127, 204;
             --node-color-boss: #83477c;
             --node-color-boss-rgb: 131, 71, 124;
-            --node-color-random: #4faba0;
-            --node-color-random-rgb: 79, 171, 160;
-            --node-color-tower-power: #7eaed4;
-            --node-color-tower-power-rgb: 126, 174, 212;
+            --node-color-random: #f0f0f0;
+            --node-color-random-rgb: 240, 240, 240;
+            --node-color-tower-power: #00793D;
+            --node-color-tower-power-rgb: 00, 121, 61;
             --node-color-recovery-r: #B3B3B5;
             --node-color-recovery-r-rgb: 179, 179, 181;
-            --node-color-recovery-c: #D9534F;
-            --node-color-recovery-c-rgb: 217, 83, 79;
+            --node-color-recovery-c: #F36C21;
+            --node-color-recovery-c-rgb: 243, 108, 33;
             --node-color-recovery-b: #5BC0DE;
             --node-color-recovery-b-rgb: 91, 192, 222;
         }
@@ -285,14 +285,11 @@
         .node-color-start { background-color: var(--node-color-start); }
         .node-color-battle { background-color: var(--node-color-battle); }
         .node-color-boss { background-color: var(--node-color-boss); }
-        .node-color-random { background-color: var(--node-color-random); }
+        .node-color-recovery-RANDOM { background-color: var(--node-color-random); }
         .node-color-tower-power { background-color: var(--node-color-tower-power); }
         .node-color-recovery-R { background-color: var(--node-color-recovery-r); }
         .node-color-recovery-C { background-color: var(--node-color-recovery-c); }
         .node-color-recovery-B { background-color: var(--node-color-recovery-b); }
-        .node-color-recovery-RANDOM {
-            background-color: #F5F5F5; /* オフホワイトで仮対応 */
-        }
         .node-color-tower-power { background-color: var(--node-color-tower-power); }
         .node-color-attack-buff, .node-color-defense-buff, .node-color-hp-buff, .node-color-status-buff { background-color: var(--node-color-random); }
 
@@ -910,9 +907,6 @@
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-.btn-icon img {
-
-}
 
 /* Settings Modal */
 .settings-overlay {
@@ -1034,7 +1028,7 @@
     color: var(--text-main);
 }
 
-..achievement-item.unlocked .achievement-name {
+.achievement-item.unlocked .achievement-name {
     color: var(--primary-accent);
 }
 

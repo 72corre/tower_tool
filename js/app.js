@@ -96,6 +96,8 @@ const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) 
 };
 
 const TowerTool = () => {
+    const [showTutorial, setShowTutorial] = useState(false);
+    const [tutorialReady, setTutorialReady] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
         const saved = localStorage.getItem('unlockedAchievements');
@@ -711,18 +713,32 @@ const TowerTool = () => {
         }
     }, [isLoading]);
 
-    useEffect(() => {
+        useEffect(() => {
+        if (isLoading) return; // データロード中はなにもしない
+
         if (eventQueue.length > 0) {
             setEventToast(eventQueue[0]);
-        } else {
-            setEventToast(null); // Clear toast when queue is empty
-            if (shouldShowBetaModal) {
-                unlockAchievement('BETA_TESTER');
-                setShowBetaModal(true);
-                setShouldShowBetaModal(false); // Prevent re-showing
-            }
+            return;
         }
-    }, [eventQueue, shouldShowBetaModal]);
+        
+        setEventToast(null); 
+
+        if (shouldShowBetaModal) {
+            unlockAchievement('BETA_TESTER');
+            setShowBetaModal(true);
+            setShouldShowBetaModal(false);
+            return;
+        }
+
+        if (tutorialReady && !showTutorial) {
+            // 少しだけ遅延させて、他のUIの描画を安定させる
+            setTimeout(() => {
+                setShowTutorial(true);
+                setTutorialReady(false);
+            }, 100);
+        }
+
+    }, [isLoading, eventQueue, shouldShowBetaModal, tutorialReady, showTutorial]);
 
     const handleCloseEventToast = () => {
         if (dontShowAgain && eventToast) {
@@ -898,6 +914,31 @@ const TowerTool = () => {
         setSelectedSquare(null);
         localStorage.removeItem('ui_selectedSquareKey');
     };
+
+    const handleCloseTutorial = () => {
+        setShowTutorial(false);
+        localStorage.setItem('tutorialCompleted', 'true');
+    };
+
+        
+
+    useEffect(() => {
+        const tutorialCompleted = localStorage.getItem('tutorialCompleted');
+        if (tutorialCompleted) return;
+
+        const betaModalShown = localStorage.getItem('betaModalShown');
+        if (betaModalShown) return;
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const betaStartDate = new Date('2025-09-09');
+        const betaEndDate = new Date('2025-09-17');
+        const isBetaPeriod = today >= betaStartDate && today < betaEndDate;
+
+        if (!isBetaPeriod) {
+            setTutorialReady(true);
+        }
+    }, []);
 
     const getSquareStyle = (square, floorData, squareId) => {
         let classes = '';
@@ -1282,6 +1323,9 @@ const TowerTool = () => {
                     onClose={() => {
                         setShowBetaModal(false);
                         localStorage.setItem('betaModalShown', 'true');
+                                                if (!localStorage.getItem('tutorialCompleted')) {
+                            setTutorialReady(true);
+                        }
                     }}
                     title="オープンβテストへようこそ！"
                 >
@@ -1515,6 +1559,7 @@ const TowerTool = () => {
                     />
                 </div>
             )}
+            {showTutorial && <Tutorial onClose={handleCloseTutorial} setActiveTab={setActiveTab} />}
         </div>
     );
 };

@@ -33,7 +33,7 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
                     <span style={{ color: 'var(--primary-accent)' }}>設定</span>
                 </button>
                 <h1>{title}</h1>
-                <div className="mode-selector-wrapper">
+                <div className="mode-selector-wrapper header-modes">
                     <div className={`mode-selector ${isModeMenuOpen ? 'open' : ''}`} onClick={() => setIsModeMenuOpen(true)}>
                         <img src={currentModeInfo.icon} alt="" className="mode-selector-icon" />
                         <span className="mode-selector-name">{currentModeInfo.title}</span>
@@ -115,7 +115,7 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                         <img src="asset/settings.png" alt="設定" style={{width: '18px', height: '18px'}} />
                         <span style={{fontSize: '13px', color: 'var(--primary-accent)' }}>設定</span>
                     </button>
-                    <div className="mode-selector-wrapper">
+                    <div className="mode-selector-wrapper header-modes">
                         <div className={`mode-selector`} onClick={() => setIsModeMenuOpen(true)} style={{padding: '4px 8px'}}>
                             <img src={currentModeInfo.icon} alt="" className="mode-selector-icon" style={{width: '18px', height: '18px'}} />
                             <span className="mode-selector-name" style={{fontSize: '13px'}}>{currentModeInfo.title}</span>

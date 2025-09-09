@@ -129,14 +129,14 @@ const FloorGrid = React.memo(({ floorData, handleSquareClick, getSquareStyle, ge
                                                 (() => {
                                                     const subTypeJp = EXPLORE_SUB_TYPE_MAP[square.sub_type] || '不明';
                                                     if (square.sub_type === 'tower_power') {
-                                                        return `塔破力回復(${square.value || '5-15'}程度)`;
+                                                        return `塔破力回復`;
                                                     }
-                                                    if (square.sub_type === 'recovery') {
-                                                        return `コンディション回復`;
+                                                    if ([square.sub_type === 'recovery'] .includes(square.sub_type)){
+                                                        return `${styleJp}のコンディション回復`;
                                                     }
                                                     if (['attack_buff', 'defense_buff', 'hp_buff', 'status_buff'].includes(square.sub_type)) {
                                                         const styleJp = STYLE_ABBREVIATION_MAP[square.style] || '不明';
-                                                        return `${styleJp}のステータス強化`;
+                                                        return `${styleJp}の${subTypeJp}`;
                                                     }
                                                     // Fallback for other types if any
                                                     const styleJp = STYLE_ABBREVIATION_MAP[square.style] || '不明';

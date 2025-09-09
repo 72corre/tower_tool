@@ -204,7 +204,7 @@ const Settings = ({
                                 <h3>このアプリについて</h3>
                                 <div className="about-section">
                                     <h4>バージョン</h4>
-                                    <p>ver. 2025.09.05-β</p>
+                                    <p>ver. 2025.09.09-β</p>
                                 </div>
                                 <div className="about-section">
                                     <h4>免責事項</h4>
