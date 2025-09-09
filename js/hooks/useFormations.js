@@ -161,15 +161,16 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
     }, [formations, idMaps, showToastMessage, handleMegidoDetailChange]);
 
     const handleCreateFormationFromEnemy = useCallback((enemyName, floor) => {
+        const newFormation = { id: `f${Date.now()}`, name: '', megido: Array(5).fill(null), tags: [], notes: '' };
+        setEditingFormation(newFormation);
         setInitialTagTarget({ enemy: enemyName, floor: floor });
         if (mode === 'plan') {
             setPreviousScreen('combat_plan');
-            setActiveTab('formation');
         } else {
             setPreviousScreen('action');
-            setPracticeView('formation');
         }
-    }, [mode, setActiveTab, setPracticeView]);
+        setActiveTab('formation'); // Always switch to formation tab
+    }, [mode, setActiveTab]);
 
     return {
         formations,

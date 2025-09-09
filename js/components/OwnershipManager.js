@@ -1,5 +1,5 @@
-const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed }) => {
-    const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
+const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, isMobileView }) => {
+    const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false, charGroup: 'All', char: 'All' });
     
     const filteredList = useMemo(() => {
         if (typeof COMPLETE_MEGIDO_LIST === 'undefined') return [];
@@ -20,7 +20,20 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed })
             const styleMatch = filters.style === 'All' || m.スタイル === filters.style;
             const clockMatch = filters.clock === 'All' || m.時計.startsWith(filters.clock);
             const classMatch = filters.class === 'All' || m.クラス === filters.class;
-            return searchMatch && styleMatch && clockMatch && classMatch;
+            
+            let charMatch = true;
+            if (filters.charGroup !== 'All' && filters.char !== 'All') {
+                charMatch = m.名前.startsWith(filters.char);
+            } else if (filters.charGroup !== 'All') {
+                // This part is a bit tricky as it depends on how you map characters to groups.
+                // This is a simplified example.
+                const firstChar = m.名前.charAt(0);
+                // You would need a more robust mapping for katakana/hiragana rows.
+                // This is just a placeholder logic.
+                charMatch = true; // Placeholder
+            }
+
+            return searchMatch && styleMatch && clockMatch && classMatch && charMatch;
         });
     }, [filters]);
 

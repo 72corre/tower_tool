@@ -1,19 +1,21 @@
-const useSwipeNavigation = ({ onSwipeLeft, onSwipeRight, threshold = 100 }) => {
+const useSwipeNavigation = ({ onSwipeLeft, onSwipeRight, threshold = 50, isSwipeEnabled = true }) => {
     const touchStart = React.useRef(null);
     const touchEnd = React.useRef(null);
     const ref = React.useRef(null);
 
     const handleTouchStart = (e) => {
+        if (!isSwipeEnabled) return;
         touchEnd.current = null; // Reset touch end on new touch
         touchStart.current = e.targetTouches[0];
     };
 
     const handleTouchMove = (e) => {
+        if (!isSwipeEnabled) return;
         touchEnd.current = e.targetTouches[0];
     };
 
     const handleTouchEnd = () => {
-        if (!touchStart.current || !touchEnd.current) {
+        if (!isSwipeEnabled || !touchStart.current || !touchEnd.current) {
             return;
         }
 
@@ -52,7 +54,7 @@ const useSwipeNavigation = ({ onSwipeLeft, onSwipeRight, threshold = 100 }) => {
             element.removeEventListener('touchmove', handleTouchMove);
             element.removeEventListener('touchend', handleTouchEnd);
         };
-    }, [ref.current, onSwipeLeft, onSwipeRight]);
+    }, [ref.current, onSwipeLeft, onSwipeRight, isSwipeEnabled]);
 
     return ref;
 };

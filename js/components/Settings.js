@@ -23,6 +23,10 @@ const Settings = ({
 
     const achievementsArray = Object.values(achievementsData);
     const visibleAchievements = achievementsArray.filter(ach => {
+        // In mobile view, hide private achievements entirely
+        if (isMobileView && ach.type === 'private') {
+            return false;
+        }
         return ach.type !== 'private' || unlockedAchievements.has(ach.id);
     });
 

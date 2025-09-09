@@ -12,7 +12,7 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
 
         if (initialTagTarget && initialTagTarget.enemy) {
             floor = initialTagTarget.floor;
-            enemy = initialTagTarget.enemy;
+            enemy = initialTag_target.enemy;
         } else if (formation.enemyName && formation.floor) {
             floor = formation.floor;
             enemy = formation.enemyName;
@@ -20,6 +20,12 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
 
         setSelectedEnemy(enemy);
         setSelectedFloor(floor);
+
+        // Clear fields when formation id changes to avoid carrying over old data
+        return () => {
+            setSelectedEnemy('');
+            setSelectedFloor(null);
+        }
     }, [initialTagTarget, formation.id]);
 
     const allEnemies = useMemo(() => {
@@ -219,7 +225,7 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
                             }}
                             className="w-5 h-5"
                         />
-                        <span className="label" style={{marginBottom: 0}}>霊宝忘れ防止の通知を受け取る</span>
+                        <span className="label" style={{marginBottom: 0}}>霊宝忘れ防止の通知を受け取る（現在機能していません）</span>
                     </label>
                 </div>
                 <div>

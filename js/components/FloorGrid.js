@@ -79,7 +79,7 @@ const FloorGrid = React.memo(({ floorData, handleSquareClick, getSquareStyle, ge
                 <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
                     {lines.map((line, i) => <line key={i} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} className={line.className} />)}
                 </svg>
-                <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: `repeat(${floorData.layoutGrid[0].length}, 1fr)`, gap: '16px', alignItems: 'center' }}>
+                <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: `repeat(${floorData.layoutGrid[0].length}, 1fr)`, gap: '4px', alignItems: 'center' }}>
                     {floorData.layoutGrid.flat().map((squareId, index) => {
                         if (!squareId) return <div key={index} style={{ height: '48px' }}></div>;
                         const square = floorData.squares[squareId];
@@ -129,7 +129,13 @@ const FloorGrid = React.memo(({ floorData, handleSquareClick, getSquareStyle, ge
                                                 (() => {
                                                     const subTypeJp = EXPLORE_SUB_TYPE_MAP[square.sub_type] || '不明';
                                                     if (square.sub_type === 'tower_power') {
-                                                        return subTypeJp;
+                                                        return `塔破力回復(${square.value || '5-15'}程度)`;
+                                                    }
+                                                    if (square.sub_type === 'recovery') {
+                                                        return 'コンディション回復';
+                                                    }
+                                                    if (['attack_buff', 'defense_buff', 'hp_buff', 'status_buff'].includes(square.sub_type)) {
+                                                        return 'ステータス強化';
                                                     }
                                                     const styleJp = STYLE_ABBREVIATION_MAP[square.style] || '不明';
                                                     return `${styleJp}の${subTypeJp}`;

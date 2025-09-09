@@ -176,9 +176,12 @@ const TowerTool = () => {
         setActiveTab(mobileTabs[nextIndex]);
     };
 
+    const isSwipeAllowed = isMobileView && (['details', 'ownership', 'formation'].includes(activeTab) || (mode === 'log' && ['summary', 'details'].includes(activeTab)));
+
     const swipeRef = useSwipeNavigation({ 
         onSwipeLeft: () => handleSwipe('left'), 
-        onSwipeRight: () => handleSwipe('right') 
+        onSwipeRight: () => handleSwipe('right'),
+        isSwipeEnabled: isSwipeAllowed
     });
     
     const floorRefs = useRef({});
@@ -610,7 +613,7 @@ const TowerTool = () => {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const currentYear = today.getFullYear();
-        const todaysEvents = [];
+        let todaysEvents = [];
 
         for (const event of MEGIDO_BIRTHDAY_DATA) {
             const [month, day] = event.date.replace('月', '-').replace('日', '').split('-').map(Number);
@@ -655,6 +658,12 @@ const TowerTool = () => {
             if (eventToShow) {
                 todaysEvents.push(eventToShow);
             }
+        }
+
+        // If there are multiple events, pick one randomly to show.
+        if (todaysEvents.length > 1) {
+            const randomIndex = Math.floor(Math.random() * todaysEvents.length);
+            todaysEvents = [todaysEvents[randomIndex]];
         }
 
         setEventQueue(todaysEvents);
@@ -1136,7 +1145,10 @@ const TowerTool = () => {
                             <FormationEditor
                                 formation={editingFormation}
                                 onSave={handleSaveFormation}
-                                onCancel={() => setEditingFormation(null)}
+                                onCancel={() => {
+                                    setEditingFormation(null);
+                                    setActiveTab(previousScreen === 'action' || previousScreen === 'combat_plan' ? 'details' : 'formation');
+                                }}
                                 ownedMegidoIds={ownedMegidoIds}
                                 megidoDetails={megidoDetails}
                                 initialTagTarget={initialTagTarget}
