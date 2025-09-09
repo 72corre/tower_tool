@@ -12,7 +12,7 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
 
         if (initialTagTarget && initialTagTarget.enemy) {
             floor = initialTagTarget.floor;
-            enemy = initialTag_target.enemy;
+            enemy = initialTagTarget.enemy;
         } else if (formation.enemyName && formation.floor) {
             floor = formation.floor;
             enemy = formation.enemyName;

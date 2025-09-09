@@ -109,5 +109,11 @@ const ACHIEVEMENTS = {
         name: 'いたち応援！',
         description: 'ベータテスト用報告フォームから開発者を応援する。',
         type: 'private'
+    },
+    'BIRTHDAY_TWEET': {
+        id: 'BIRTHDAY_TWEET',
+        name: '生まれてきてくれてありがとう',
+        description: '誕生日をお祝いするツイートを投稿する。',
+        type: 'secret'
     }
 };

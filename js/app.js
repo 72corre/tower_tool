@@ -685,10 +685,13 @@ const TowerTool = () => {
     useEffect(() => {
         if (eventQueue.length > 0) {
             setEventToast(eventQueue[0]);
-        } else if (shouldShowBetaModal) {
-            unlockAchievement('BETA_TESTER');
-            setShowBetaModal(true);
-            setShouldShowBetaModal(false); // Prevent re-showing
+        } else {
+            setEventToast(null); // Clear toast when queue is empty
+            if (shouldShowBetaModal) {
+                unlockAchievement('BETA_TESTER');
+                setShowBetaModal(true);
+                setShouldShowBetaModal(false); // Prevent re-showing
+            }
         }
     }, [eventQueue, shouldShowBetaModal]);
 
@@ -1207,6 +1210,7 @@ const TowerTool = () => {
                             style={isBirthdayButtonHovered ? eventButtonStyle.hover : eventButtonStyle.normal}
                             onMouseEnter={() => setIsBirthdayButtonHovered(true)}
                             onMouseLeave={() => setIsBirthdayButtonHovered(false)}
+                            onClick={() => unlockAchievement('BIRTHDAY_TWEET')}
                         >
                             ツイートでお祝いする
                         </a>
