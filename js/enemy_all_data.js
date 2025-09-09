@@ -107,7 +107,7 @@ const ENEMY_ALL_DATA = {
       {
         "floor": 30,
         "theme": "HP引き継ぎ禁止",
-        "square_id": "f2-b1",
+        "square_id": "f30-bs1",
         "square_type": "battle",
         "rules": ["ルール: 全能力+20%（幻獣）"]
       },
@@ -195,13 +195,13 @@ const ENEMY_ALL_DATA = {
         }
     ]
   },
-  "ネイロード": {
+  "守護竜ネイロード": {
     QRid:'005',
     "party": [
       null,
       null,
       {
-        "name": "ネイロード",
+        "name": "守護竜ネイロード",
         "style": "バースト",
         "class": "トルーパー", 
         "gauge":6 ,
@@ -232,7 +232,7 @@ const ENEMY_ALL_DATA = {
       {
         "floor": 4,
         "theme": "なし",
-        "square_id": "f4-b2",
+        "square_id": "f4-b1",
         "square_type": "battle",
         "rules": ["攻+50%（幻獣）"]
       },
@@ -314,7 +314,7 @@ const ENEMY_ALL_DATA = {
       {
         "floor": 4,
         "theme": "なし",
-        "square_id": "f4-b2",
+        "square_id": "f4-b1",
         "square_type": "battle",
         "rules": ["攻+50%（幻獣）"]
       },
@@ -327,7 +327,7 @@ const ENEMY_ALL_DATA = {
       }
     ]
   },
-  "アシュトレト": {
+  "輝竜アシュトレト": {
     QRid:'007',
     "party": [
       {
@@ -591,98 +591,4919 @@ const ENEMY_ALL_DATA = {
       }
     ]
   },
-  "ドラゴニュート": { "QRid": "010",  "party": [null,null,null,null,null],"locations": [null]},
-  "ゴウケツ": { "QRid": "011" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "クイックシルバー": { "QRid": "012" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "バラム": { "QRid": "013" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "アスモデウス": { "QRid": "014" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ディジースプー": { "QRid": "015" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ガガゼゼガ": { "QRid": "016" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ケツアルコアトル": { "QRid": "017" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "スカルワイバーン": { "QRid": "018" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "プロトアバドン": { "QRid": "019" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "黒い犬": { "QRid": "020" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "追放執行人": { "QRid": "021" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "魔眼賽ドゥーム": { "QRid": "022" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "氷龍帝オロチ": { "QRid": "023" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ミツクビ": { "QRid": "024" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "次元獣アナーケン": { "QRid": "025" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "大王吾妻": { "QRid": "026" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "カイル": { "QRid": "027" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ソウルクリエイト": { "QRid": "028" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "地龍アテルラナ": { "QRid": "029" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "魔業蟲": { "QRid": "030" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ソウルマローダー": { "QRid": "031" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "マグニファイ": { "QRid": "032" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "アドラメレク": { "QRid": "033" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ヤクトフレッサー": { "QRid": "034" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "愛玩幻獣アイニャ": { "QRid": "035" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "地龍帝スムドゥス": { "QRid": "036" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "サルガタナス": { "QRid": "037" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ウェパル": { "QRid": "038" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ベルフェゴール": { "QRid": "039" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "リヴァイアサン": { "QRid": "040" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "デメタス": { "QRid": "041" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "オーク哨戒部隊長": { "QRid": "042" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ウゴロモチ": { "QRid": "043" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "クロッキュ": { "QRid": "044" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ウィチセ": { "QRid": "045" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "死霊埋葬人": { "QRid": "046" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "次元獣イカロエン": { "QRid": "047",  "party": [null,null,null,null,null],"locations": [null] },
-  "アビスハンター": { "QRid": "048" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "大樹ユグドラシル": { "QRid": "049" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "レイガンベレット": { "QRid": "050" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "アッキピテル": { "QRid": "051" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "成り損ない": { "QRid": "052" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ゴウギ": { "QRid": "053" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "魔喰機・無限": { "QRid": "054" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "セーバーグランド": { "QRid": "055" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ホルン": { "QRid": "056" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ブタゴラス": { "QRid": "057" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ドカグイ": { "QRid": "058" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "バルガリオ": { "QRid": "059" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "イコア": { "QRid": "060" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "朧の闇": { "QRid": "061" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "メイドゥーム": { "QRid": "062" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "雷獄華ケラヴノス": { "QRid": "063" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "変貌貝姫リリィ": { "QRid": "064" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ファロオース": { "QRid": "065" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "タイガンニール": { "QRid": "066" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "禁獄獣ネメアー": { "QRid": "067" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ベイグラント": { "QRid": "068" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "グリードベア": { "QRid": "069" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ドン・ザブンブン": { "QRid": "070" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "シナナイン": { "QRid": "071",  "party": [null,null,null,null,null],"locations": [null]},
-  "ヌメローン": { "QRid": "072" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ケーダシン": { "QRid": "073",  "party": [null,null,null,null,null],"locations": [null] },
-  "マセタン": { "QRid": "074" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "バリバリアン": { "QRid": "075" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ケチャ・ラジャ": { "QRid": "076" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "炎帝ムスペル": { "QRid": "077" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "恐幻蜘蛛": { "QRid": "078" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ネイザーウィッチ": { "QRid": "079" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "執行者ラミアン": { "QRid": "080" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "グランアビス": { "QRid": "081" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "グジグランズ": { "QRid": "082" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "守護竜ネイロード（ 31階 ）": { "QRid": "083" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "輝竜アシュトレト（ 31階 ）": { "QRid": "084" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "火のザウラク（ 31階 ）": { "QRid": "085" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "水のクルサ（ 31階 ）": { "QRid": "086" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "雷のアザー（ 31階 ）": { "QRid": "087" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ディヴァガル（ 31階 ）": { "QRid": "088" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ギガンテス（ 31階 ）": { "QRid": "089" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "水樹ガオケレナ（ 31階 ）": { "QRid": "090" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "死を育む者（ 31階 ）": { "QRid": "091" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "マモン": { "QRid": "092" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ディヴァガル": { "QRid": "093" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ギガンテス": { "QRid": "094" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "水樹ガオケレナ": { "QRid": "095" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "死を育む者": { "QRid": "096" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "アフロンタレング": { "QRid": "097" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ノラモデウス": { "QRid": "098" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ドラギナッツオ": { "QRid": "099" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "魂なき黒き半身": { "QRid": "100" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "アムドゥスキアス": { "QRid": "101" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "ロクス": { "QRid": "102" ,  "party": [null,null,null,null,null],"locations": [null]},
-  "契りのドゥーエ": { "QRid": "103" ,  "party": [null,null,null,null,null],"locations": [null]},
+  "ドラゴニュート": { "QRid": "010",  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 2,
+        "theme": "なし",
+        "square_id": "f2-b1",
+        "square_type": "battle",
+        "rules": ["防+50%（幻獣）"]
+    },
+    {
+        "floor": 3,
+        "theme": "なし",
+        "square_id": "f3-b2",
+        "square_type": "battle",
+        "rules": ["早+50%（幻獣）"]
+    },
+    {
+        "floor": 5,
+        "theme": "なし",
+        "square_id": "f5-b1",
+        "square_type": "battle",
+        "rules": ["全能力+50%（幻獣）"]
+    }
+]},
+  "ゴウケツ": { "QRid": "011" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 2,
+        "theme": "なし",
+        "square_id": "f2-b2",
+        "square_type": "battle",
+        "rules": ["防+50%（幻獣）"]
+    },
+    {
+        "floor": 4,
+        "theme": "なし",
+        "square_id": "f4-b1",
+        "square_type": "battle",
+        "rules": ["攻+50%（幻獣）"]
+    },
+    {
+        "floor": 5,
+        "theme": "なし",
+        "square_id": "f5-b2",
+        "square_type": "battle",
+        "rules": ["全能力+50%（幻獣）"]
+    }
+]},
+  "クイックシルバー": { "QRid": "012" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 3,
+        "theme": "なし",
+        "square_id": "f3-b1",
+        "square_type": "battle",
+        "rules": ["早+50%（幻獣）"]
+    },
+    {
+        "floor": 4,
+        "theme": "なし",
+        "square_id": "f4-b2",
+        "square_type": "battle",
+        "rules": ["攻+50%（幻獣）"]
+    }
+]},
+  "バラム": { "QRid": "013" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 2,
+        "theme": "なし",
+        "square_id": "f2-o",
+        "square_type": "boss",
+        "rules": ["全能力+20%"]
+    }
+]},
+  "アスモデウス": { "QRid": "014" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 3,
+        "theme": "なし",
+        "square_id": "f3-o",
+        "square_type": "boss",
+        "rules": ["全能力+20%"]
+    }
+]},
+  "ディジースプー": { "QRid": "015" ,  "party": [null,null,null,null,null],"locations":[
+    {
+        "floor": 5,
+        "theme": "なし",
+        "square_id": "f5-o",
+        "square_type": "boss",
+        "rules": ["なし"]
+    }
+]},
+  "ガガゼゼガ": { "QRid": "016" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 4,
+        "theme": "なし",
+        "square_id": "f4-o",
+        "square_type": "boss",
+        "rules": ["攻+50%（幻獣）"]
+    },
+    {
+        "floor": 30,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f30-bs2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    }
+]},
+  "ケツアルコアトル": { "QRid": "017" ,  "party": [null,null,null,null,null],"locations":[
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b2",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b2",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b2",
+        "square_type": "battle",
+        "rules": ["戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b2",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b2",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    }
+]},
+  "スカルワイバーン": { "QRid": "018" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b1",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b3",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b1",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b3",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b1",
+        "square_type": "battle",
+        "rules": [ "戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b3",
+        "square_type": "battle",
+        "rules": ["戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b1",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b3",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b1",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b3",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    }
+]},
+  "プロトアバドン": { "QRid": "019" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b2",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b3",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b2",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b3",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b2",
+        "square_type": "battle",
+        "rules": ["戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b3",
+        "square_type": "battle",
+        "rules": ["戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b2",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b3",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b2",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b3",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    }
+]},
+  "黒い犬": { "QRid": "020" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b3",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b3",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b3",
+        "square_type": "battle",
+        "rules": ["戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b3",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b3",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    }
+]},
+  "追放執行人": { "QRid": "021" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b1",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b1",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b1",
+        "square_type": "battle",
+        "rules": ["戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b1",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b1",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    }
+]},
+  "魔眼賽ドゥーム": { "QRid": "022" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b2",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b2",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b2",
+        "square_type": "battle",
+        "rules": ["戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b2",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b2",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    }
+]},
+  "氷龍帝オロチ": { "QRid": "023" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-b1",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-b1",
+        "square_type": "battle",
+        "rules": ["アタック強化"]
+    },
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-b1",
+        "square_type": "battle",
+        "rules": ["戦闘開始時、覚醒ゲージ+99"]
+    },
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-b1",
+        "square_type": "battle",
+        "rules": ["チャージ強化"]
+    },
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-b1",
+        "square_type": "battle",
+        "rules": ["全フォトン強化"]
+    }
+]},
+  "ミツクビ": { "QRid": "024" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 6,
+        "theme": "なし",
+        "square_id": "f6-o",
+        "square_type": "boss",
+        "rules": ["攻+50%"]
+    }
+]},
+  "次元獣アナーケン": { "QRid": "025" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 7,
+        "theme": "なし",
+        "square_id": "f7-o",
+        "square_type": "boss",
+        "rules": ["攻+50%"]
+    }
+]},
+  "大王吾妻": { "QRid": "026" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 8,
+        "theme": "なし",
+        "square_id": "f8-o",
+        "square_type": "boss",
+        "rules": ["HP+80%"]
+    }
+]},
+  "カイル": { "QRid": "027" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 9,
+        "theme": "なし",
+        "square_id": "f9-o",
+        "square_type": "boss",
+        "rules": ["早+50%"]
+    }
+]},
+  "ソウルクリエイト": { "QRid": "028" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 10,
+        "theme": "なし",
+        "square_id": "f10-o",
+        "square_type": "boss",
+        "rules": ["なし"]
+    }
+]},
+  "地龍アテルラナ": { "QRid": "029" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    }
+]},
+  "魔業蟲": { "QRid": "030" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    }
+]},
+  "ソウルマローダー": { "QRid": "031" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    }
+]},
+  "マグニファイ": { "QRid": "032" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bs1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    }
+]},
+  "アドラメレク": { "QRid": "033" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    }
+]},
+  "ヤクトフレッサー": { "QRid": "034" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    }
+]},
+  "愛玩幻獣アイニャ": { "QRid": "035" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    }
+]},
+  "地龍帝スムドゥス": { "QRid": "036" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    }
+]},
+  "サルガタナス": { "QRid": "037" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 11,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f11-o",
+        "square_type": "boss",
+        "rules": ["劣化フォトン発生"]
+    }
+]},
+  "ウェパル": { "QRid": "038" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 12,
+        "theme": "なし",
+        "square_id": "f12-o",
+        "square_type": "boss",
+        "rules": ["チャージ無し"]
+    }
+]},
+  "ベルフェゴール": { "QRid": "039" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 13,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f13-o",
+        "square_type": "boss",
+        "rules": ["ペインフォトン発生"]
+    }
+]},
+  "リヴァイアサン": { "QRid": "040" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 14,
+        "theme": "なし",
+        "square_id": "f14-o",
+        "square_type": "boss",
+        "rules": [  "特殊フォトン発生" ]
+    }
+]},
+  "デメタス": { "QRid": "041" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 15,
+        "theme": "なし",
+        "square_id": "f15-o",
+        "square_type": "boss",
+        "rules": [ "なし"]
+    }
+]},
+  "オーク哨戒部隊長": { "QRid": "042" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+10" ]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-br1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+10" ]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bs1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl4",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br4",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    }
+]},
+  "ウゴロモチ": { "QRid": "043" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bs2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bs1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bs2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br3",
+        "square_type": "battle","rules":["毎ターン終了時、1回バリア（幻獣）" ]
+    }
+]},
+  "クロッキュ": { "QRid": "044" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bs2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bs2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bs1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    }
+]},
+  "ウィチセ": { "QRid": "045" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bs1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br3",
+        "square_type": "battle",
+        "rules": [ "被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bs1",
+        "square_type": "battle",
+        "rules": [ "素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br2",
+        "square_type": "battle",
+        "rules": [ "素早さ100%低下" ]
+    }
+]},
+  "死霊葬操人": { "QRid": "046" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bs1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bs1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    }
+]},
+  "次元獣イカロエン": { "QRid": "047",  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10" ]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10" ]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-br3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+10" ]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bs1",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下" ]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br2",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    }
+] },
+  "アビスハンター": { "QRid": "048" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-br2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    }
+]},
+  "大樹ユグドラシル": { "QRid": "049" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10" ]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+10"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-br4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    }
+]},
+  "レイガンベレット": { "QRid": "050" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bs1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bs2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-br3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）" ]
+    }
+]},
+  "アッキピテル": { "QRid": "051" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 16,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f16-o",
+        "square_type": "boss",
+        "rules": ["ペインフォトン発生" ]
+    }
+]},
+  "成り損ない": { "QRid": "052" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 18,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f18-o",
+        "square_type": "boss",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）"]
+    }
+]},
+  "ゴウギ": { "QRid": "053" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 19,
+        "theme": "なし",
+        "square_id": "f19-o",
+        "square_type": "boss",
+        "rules": [ "劣化フォトン発生"]
+    }
+]},
+  "魔喰機・無限": { "QRid": "054" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 20,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f20-o",
+        "square_type": "boss",
+        "rules": ["なし" ]
+    }
+]},
+  "セーバーグランド": { "QRid": "055" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 17,
+        "theme": "なし",
+        "square_id": "f17-o",
+        "square_type": "boss",
+        "rules": ["HP不可視"]
+    },
+    {
+        "floor": 30,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f30-bs3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    }
+]},
+  "ホルン": { "QRid": "056" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bs1",
+        "square_type": "battle",
+        "rules": [ "素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br2",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    }
+]},
+  "ブタゴラス": { "QRid": "057" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br5",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br2",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br5",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bl1",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bl2",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br3",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    }
+]},
+  "ドカグイ": { "QRid": "058" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br4",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl2",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br4",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl5",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bl3",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br1",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br4",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    }
+]},
+  "バルガリオ": { "QRid": "059" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    }
+]},
+  "イコア": { "QRid": "060" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl4",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br2",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl4",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bs2",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下" ]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bl1",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bl2",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    }
+]},
+  "朧の闇": { "QRid": "061" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br1",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下" ]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br4",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    }
+]},
+  "メイドゥーム": { "QRid": "062" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br5",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    }
+]},
+  "雷獄華ケラヴノス": { "QRid": "063" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl5",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-br5",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl2",
+        "square_type": "battle",
+        "rules": [ "被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br4",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl5",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bl3",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br1",
+        "square_type": "battle",
+        "rules": [ "素早さ100%低下" ]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br4",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    }
+]},
+  "変貌貝姫リリィ": { "QRid": "064" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl1",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br2",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br2",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl4",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl1",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）" ]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-bl5",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、HP30%回復（幻獣）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl1",
+        "square_type": "battle",
+        "rules": [ "被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-bl4",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-br5",
+        "square_type": "battle",
+        "rules": [ "被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bs2",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-bl1",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    },
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-br3",
+        "square_type": "battle",
+        "rules": ["素早さ100%低下"]
+    }
+]},
+  "ファロオース": { "QRid": "065" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-bl3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、覚醒+1（幻獣）"]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-bl3",
+        "square_type": "battle",
+        "rules": [ "毎ターン終了時、1回バリア（幻獣）" ]
+    },
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-br3",
+        "square_type": "battle",
+        "rules": ["毎ターン終了時、1回バリア（幻獣）"]
+    }
+]},
+  "タイガンニール": { "QRid": "066" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 21,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f21-o",
+        "square_type": "boss",
+        "rules": ["なし"]
+    }
+]},
+  "禁獄獣ネメアー": { "QRid": "067" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 22,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f22-o",
+        "square_type": "boss",
+        "rules": [ "HP+80%(幻獣)"]
+    }
+]},
+  "ベイグラント": { "QRid": "068" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 23,
+        "theme": "なし",
+        "square_id": "f23-o",
+        "square_type": "boss",
+        "rules": [ "HP+80%/幻獣" ]
+    }
+]},
+  "グリードベア": { "QRid": "069" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 25,
+        "theme": "なし",
+        "square_id": "f25-o",
+        "square_type": "boss",
+        "rules": ["なし"]
+    }
+]},
+  "ドン・ザブンブン": { "QRid": "070" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 24,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f24-o",
+        "square_type": "boss",
+        "rules": ["なし"]
+    },
+    {
+        "floor": 30,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f30-bs4",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）"]
+    }
+]},
+  "シナナイン": { "QRid": "071",  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bs1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bs1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bs1",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    }
+]},
+  "ヌメローン": { "QRid": "072" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bl1",
+        "square_type": "battle",
+        "rules": [ "ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-br2",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-br3",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-br4",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bs1",
+        "square_type": "battle",
+        "rules": [ "被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bl1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br2",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br1",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl4",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bs1",
+        "square_type": "battle",
+        "rules": [ "ペインフォトン発生"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl1",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生" ]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl4",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    }
+]},
+  "ケーダシン": { "QRid": "073",  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bs1",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bl2",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bl4",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bl2",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bl3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br4",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl2",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br4",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl2",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生" ]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl3",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-br4",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    }
+]},
+  "マセタン": { "QRid": "074" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bl2",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-br2",
+        "square_type": "battle",
+        "rules":["ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bl3",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生" ]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bl2",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br2",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bl3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br4",
+        "square_type": "battle",
+        "rules": [ "被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl4",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br4",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl2",
+        "square_type": "battle",
+        "rules": [ "ペインフォトン発生"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-br2",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl3",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-br3",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"
+        ]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl4",
+        "square_type": "battle",
+        "rules": [ "ペインフォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bs1",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl4",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br1",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br4",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bs1",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl4",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br1",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bs1",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bs2",
+        "square_type": "battle",
+        "rules": [ "スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br3",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    }
+]},
+  "バリバリアン": { "QRid": "075" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-br4",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br2",
+        "square_type": "battle",
+        "rules": [ "被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）" ]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br4",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl4",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-br2",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-br3",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl4",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl2",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl5",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl7",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br3",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br6",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl5",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl7",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br3",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl7",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br6",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl3",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br2",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br4",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    }
+]},
+  "ケチャ・ラジャ": { "QRid": "076" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bl1",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生" ]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-br1",
+        "square_type": "battle",
+        "rules": [ "ペインフォトン発生" ]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-br3",
+        "square_type": "battle",
+        "rules": [ "ペインフォトン発生" ]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bs1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bl1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-br1",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bs1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-br1",
+        "square_type": "battle",
+        "rules": [  "全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bs1",
+        "square_type": "battle",
+        "rules": [ "ペインフォトン発生" ]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl1",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    }
+]},
+  "炎帝ムスペル": { "QRid": "077" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bs1",
+        "square_type": "battle",
+        "rules": [ "ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bl2",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-bl4",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bl2",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-bl3",
+        "square_type": "battle",
+        "rules": ["被ダメージ20%上昇（メギド）"]
+    },
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-bl2",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl2",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生"]
+    },
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-bl3",
+        "square_type": "battle",
+        "rules": ["ペインフォトン発生" ]
+    }
+]},
+  "恐幻蜘蛛": { "QRid": "078" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 26,
+        "theme": "なし",
+        "square_id": "f26-o",
+        "square_type": "boss",
+        "rules": ["なし" ]
+    },
+    {
+        "floor": 30,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f30-bs5",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    }
+]},
+  "ネイザーウィッチ": { "QRid": "079" ,  "party": [null,null,null,null,null],"locations":[
+    {
+        "floor": 27,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f27-o",
+        "square_type": "boss",
+        "rules": ["なし" ]
+    }
+]},
+  "執行者ラミアン": { "QRid": "080" ,  "party": [null,null,null,null,null],"locations":[
+    {
+        "floor": 28,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f28-o",
+        "square_type": "boss",
+        "rules": [ "なし"]
+    }
+]},
+  "グランアビス": { "QRid": "081" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 29,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f29-o",
+        "square_type": "boss",
+        "rules": [ "なし" ]
+    }
+]},
+  "グジグランズ": { "QRid": "082" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 30,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f30-o",
+        "square_type": "boss",
+        "rules": [ "なし" ]
+    }
+]},
+  "守護竜ネイロード（ 31階 ）": { "QRid": "083" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bs1",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br1",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br2",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl3",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br5",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23" ]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br7",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    }
+]},
+  "輝竜アシュトレト（ 31階 ）": { "QRid": "084" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl2",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br4",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl5",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br6",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl7",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    }
+]},
+  "火のザウラク（ 31階 ）": { "QRid": "085" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl1",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br3",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl4",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl6",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    }
+]},
+  "水のクルサ（ 31階 ）": { "QRid": "086" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl1",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23" ]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br3",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl4",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl6",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    }
+]},
+  "雷のアザー（ 31階 ）": { "QRid": "087" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl1",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br3",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl4",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl6",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23" ]
+    }
+]},
+  "ディヴァガル（ 31階 ）": { "QRid": "088" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bs1",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23" ]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br1",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23" ]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br2",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl3",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23" ]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br5",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br7",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    }
+]},
+  "ギガンテス（ 31階 ）": { "QRid": "089" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bs1",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br1",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br2",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl3",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br5",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br7",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    }
+]},
+  "水樹ガオケレナ（ 31階 ）": { "QRid": "090" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl2",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br4",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23" ]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl5",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23" ]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br6",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl7",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    }
+]},
+  "死を育む者（ 31階 ）": { "QRid": "091" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl2",
+        "square_type": "battle",
+        "rules": [ "進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br4",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl5",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23" ]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-br6",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    },
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-bl7",
+        "square_type": "battle",
+        "rules": ["進化度・レベル制限：⭐︎2.5/Lv23"]
+    }
+]},
+  "マモン": { "QRid": "092" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 31,
+        "theme": "なし",
+        "square_id": "f31-o",
+        "square_type": "boss",
+        "rules": ["全能力+50%（敵）"]
+    }
+]},
+  "ディヴァガル": { "QRid": "093" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bs1",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl4",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br1",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br4",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bs1",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl4",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br4",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl4",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br4",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bs2",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl1",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl5",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    }
+]},
+  "ギガンテス": { "QRid": "094" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bs1",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl4",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br1",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br4",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bs1",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl4",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br1",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br4",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bs1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl4",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br4",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bs2",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl1",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl5",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br3",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    }
+]},
+  "水樹ガオケレナ": { "QRid": "095" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl2",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl5",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl7",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br3",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl2",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl5",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br3",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl7",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br6",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl3",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br2",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br4",
+        "square_type": "battle",
+        "rules": [ "スキル強化"]
+    }
+]},
+  "死を育む者": { "QRid": "096" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl2",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl5",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl7",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br3",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br6",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl2",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl7",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br6",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl3",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br4",
+        "square_type": "battle",
+        "rules": ["スキル強化"
+        ]
+    }
+]},
+  "アフロンタレング": { "QRid": "097" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl3",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl6",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br2",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br5",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br7",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl3",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl6",
+        "square_type": "battle",
+        "rules": [  "劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br7",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"  ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl1",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl3",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl6",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br2",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br5",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br7",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"  ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bs1",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl2",
+        "square_type": "battle",
+        "rules": [  "スキル強化"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl4",
+        "square_type": "battle",
+        "rules": [ "スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br5",
+        "square_type": "battle",
+        "rules": ["スキル強化" ]
+    }
+]},
+  "ノラモデウス": { "QRid": "098" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl1",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生"  ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl3",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl6",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br2",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br5",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br7",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl1",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl3",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl6",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br2",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br5",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br7",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"  ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl3",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl6",
+        "square_type": "battle",
+        "rules": [  "全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br2",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br5",
+        "square_type": "battle",
+        "rules": [  "全能力+20%（幻獣）"  ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br7",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl2",
+        "square_type": "battle",
+        "rules": [ "スキル強化"  ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl4",
+        "square_type": "battle",
+        "rules": ["スキル強化"  ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br5",
+        "square_type": "battle",
+        "rules": [ "スキル強化" ]
+    }
+]},
+  "ドラギナッツオ": { "QRid": "099" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl1",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl3",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-bl6",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生"]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br2",
+        "square_type": "battle",
+        "rules": [ "特殊フォトン発生" ]
+    },
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-br5",
+        "square_type": "battle",
+        "rules": ["特殊フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl1",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl3",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-bl6",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br2",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生" ]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br5",
+        "square_type": "battle",
+        "rules": [ "劣化フォトン発生"]
+    },
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-br7",
+        "square_type": "battle",
+        "rules": ["劣化フォトン発生" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl1",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl3",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-bl6",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br2",
+        "square_type": "battle", 
+        "rules": ["全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br5",
+        "square_type": "battle",
+        "rules": [ "全能力+20%（幻獣）"]
+    },
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-br7",
+        "square_type": "battle",
+        "rules": ["全能力+20%（幻獣）" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bs1",
+        "square_type": "battle",
+        "rules": [ "スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl2",
+        "square_type": "battle",
+        "rules": ["スキル強化"]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-bl4",
+        "square_type": "battle", 
+        "rules": [ "スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br1",
+        "square_type": "battle",
+        "rules": [ "スキル強化" ]
+    },
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-br5",
+        "square_type": "battle",
+        "rules": [ "スキル強化"
+        ]
+    }
+]},
+  "魂なき黒き半身": { "QRid": "100" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 32,
+        "theme": "なし",
+        "square_id": "f32-o",
+        "square_type": "boss",
+        "rules": [ "特殊フォトン発生"]
+    }
+]},
+  "アムドゥスキアス": { "QRid": "101" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 33,
+        "theme": "HP引き継ぎ禁止",
+        "square_id": "f33-o",
+        "square_type": "boss",
+        "rules": [ "劣化フォトン発生" ]
+    }
+]},
+  "ロクス": { "QRid": "102" ,  "party": [null,null,null,null,null],"locations":  [
+    {
+        "floor": 34,
+        "theme": "なし",
+        "square_id": "f34-o",
+        "square_type": "boss",
+        "rules": ["全能力+20%(幻獣)" ]
+    }
+]},
+  "契りのドゥーエ": { "QRid": "103" ,  "party": [null,null,null,null,null],"locations": [
+    {
+        "floor": 35,
+        "theme": "なし",
+        "square_id": "f35-o",
+        "square_type": "boss",
+        "rules": ["HP不可視"]
+    }
+]},
 };
