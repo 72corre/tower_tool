@@ -1,3 +1,28 @@
+const useLongPress = (callback = () => {}, ms = 300) => {
+    const [startLongPress, setStartLongPress] = React.useState(false);
+
+    React.useEffect(() => {
+        let timerId;
+        if (startLongPress) {
+            timerId = setTimeout(callback, ms);
+        } else {
+            clearTimeout(timerId);
+        }
+
+        return () => {
+            clearTimeout(timerId);
+        };
+    }, [callback, ms, startLongPress]);
+
+    return {
+        onMouseDown: () => setStartLongPress(true),
+        onMouseUp: () => setStartLongPress(false),
+        onMouseLeave: () => setStartLongPress(false),
+        onTouchStart: () => setStartLongPress(true),
+        onTouchEnd: () => setStartLongPress(false),
+    };
+};
+
 const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, isMobileView }) => {
     const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
     
@@ -44,6 +69,46 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
         return `T${tier}`;
     };
 
+    const Row = ({ megido, details }) => {
+        const longPressProps = useLongPress(() => {
+            if (isMobileView) {
+                onDetailChange(megido.id, 'owned', true);
+            }
+        }, 500);
+
+        return (
+            <tr {...longPressProps}>
+                <td><input type="checkbox" checked={details.owned} onChange={(e) => onDetailChange(megido.id, 'owned', e.target.checked)} /></td>
+                <td className={getStyleClass(megido.スタイル)}>{megido.名前}</td>
+                <td>
+                    {megido.Singularity && (
+                        <select value={details.singularity_level} onChange={e => onDetailChange(megido.id, 'singularity_level', parseInt(e.target.value, 10))} className="select-field">
+                            {[0, 1, 2, 3, 4].map(lv => <option key={lv} value={lv}>{lv}</option>)}
+                        </select>
+                    )}
+                </td>
+                <td>
+                    <select value={details.level} onChange={e => onDetailChange(megido.id, 'level', parseInt(e.target.value, 10))} className="select-field">
+                        {[70, 75, 77, 79, 80].map(lv => <option key={lv} value={lv}>{lv}</option>)}
+                    </select>
+                </td>
+                <td>
+                     <input type="number" min="1" max="11" value={details.ougiLevel} onChange={e => onDetailChange(megido.id, 'ougiLevel', parseInt(e.target.value, 10))} className="input-field"/>
+                </td>
+                <td>
+                    {megido.専用霊宝 && <input type="checkbox" checked={details.special_reishou} onChange={(e) => onDetailChange(megido.id, 'special_reishou', e.target.checked)} />}
+                </td>
+                <td>
+                    {megido.絆霊宝 && 
+                        <select value={details.bond_reishou} onChange={e => onDetailChange(megido.id, 'bond_reishou', parseInt(e.target.value, 10))} className="select-field">
+                            {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>{getBondReishouTierName(tier)}</option>)}
+                        </select>
+                    }
+                </td>
+            </tr>
+        );
+    };
+
     return (
         <div style={{display: 'flex', flexDirection: 'column', height: '100%', gap: '16px'}}>
             <FilterControls 
@@ -58,43 +123,13 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
                 <table className="ownership-table">
                     <thead>
                         <tr>
-                            <th>所持</th><th>名前</th><th>凸</th><th>Lv</th><th>奥義Lv</th><th>専用霊宝</th><th>絆霊宝</th>
+                            <th>所持</th><th>名前</th><th>凸</th><th>Lv</th><th>奥義</th><th>専用</th><th>絆</th>
                         </tr>
                     </thead>
                     <tbody>
                         {filteredList.map(megido => {
                             const details = { owned: false, level: 70, ougiLevel: 3, special_reishou: megido.専用霊宝 || false, bond_reishou: 0, singularity_level: 0, ...(megidoDetails[megido.id] || {}) };
-                            return (
-                            <tr key={megido.id}>
-                                <td><input type="checkbox" checked={details.owned} onChange={(e) => onDetailChange(megido.id, 'owned', e.target.checked)} /></td>
-                                <td className={getStyleClass(megido.スタイル)}>{megido.名前}</td>
-                                <td>
-                                    {megido.Singularity && (
-                                        <select value={details.singularity_level} onChange={e => onDetailChange(megido.id, 'singularity_level', parseInt(e.target.value, 10))} className="select-field">
-                                            {[0, 1, 2, 3, 4].map(lv => <option key={lv} value={lv}>{lv}</option>)}
-                                        </select>
-                                    )}
-                                </td>
-                                <td>
-                                    <select value={details.level} onChange={e => onDetailChange(megido.id, 'level', parseInt(e.target.value, 10))} className="select-field">
-                                        {[70, 75, 77, 79, 80].map(lv => <option key={lv} value={lv}>{lv}</option>)}
-                                    </select>
-                                </td>
-                                <td>
-                                     <input type="number" min="1" max="11" value={details.ougiLevel} onChange={e => onDetailChange(megido.id, 'ougiLevel', parseInt(e.target.value, 10))} className="input-field"/>
-                                </td>
-                                <td>
-                                    {megido.専用霊宝 && <input type="checkbox" checked={details.special_reishou} onChange={(e) => onDetailChange(megido.id, 'special_reishou', e.target.checked)} />}
-                                </td>
-                                <td>
-                                    {megido.絆霊宝 && 
-                                        <select value={details.bond_reishou} onChange={e => onDetailChange(megido.id, 'bond_reishou', parseInt(e.target.value, 10))} className="select-field">
-                                            {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>{getBondReishouTierName(tier)}</option>)}
-                                        </select>
-                                    }
-                                </td>
-                            </tr>
-                            );
+                            return <Row key={megido.id} megido={megido} details={details} />;
                         })}
                     </tbody>
                 </table>

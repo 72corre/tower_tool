@@ -162,6 +162,20 @@ const TowerTool = () => {
     const [isMobileView, setIsMobileView] = useState(false);
     const [isTabletView, setIsTabletView] = useState(false);
     const [showBetaModal, setShowBetaModal] = useState(false);
+    const [isFooterCollapsed, setIsFooterCollapsed] = useState(() => {
+        const saved = localStorage.getItem('isFooterCollapsed');
+        return saved ? JSON.parse(saved) : true; // Default to collapsed
+    });
+
+    useEffect(() => {
+        const isFirstLaunch = !localStorage.getItem('hasLaunched');
+        if (isFirstLaunch) {
+            localStorage.setItem('hasLaunched', 'true');
+            setMode('plan');
+            setActiveTab('ownership');
+            setIsFooterCollapsed(true);
+        }
+    }, []);
 
     const mobileTabs = useMemo(() => (mode === 'log' ? ['summary', 'details'] : ['details', 'ownership', 'formation']), [mode]);
 
@@ -1042,6 +1056,30 @@ const TowerTool = () => {
         }
     };
 
+    const longPressTimer = useRef();
+
+    const handleLongPressStart = () => {
+        longPressTimer.current = setTimeout(() => {
+            const currentFloor = runState?.currentPosition?.floor;
+            if (currentFloor && floorRefs.current[currentFloor]) {
+                floorRefs.current[currentFloor].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                showToastMessage(`${currentFloor}Fにスクロールしました。`);
+            }
+        }, 800); // 800ms for long press
+    };
+
+    const handleLongPressEnd = () => {
+        clearTimeout(longPressTimer.current);
+    };
+
+    const mapContainerProps = {
+        onTouchStart: handleLongPressStart,
+        onTouchEnd: handleLongPressEnd,
+        onMouseDown: handleLongPressStart,
+        onMouseUp: handleLongPressEnd,
+        onMouseLeave: handleLongPressEnd,
+    };
+
     const RightPanelContent = () => {
         // NOTE: The 'connections' variable used in the original code was not defined.
         // The logic using it has been temporarily commented out to prevent errors.
@@ -1279,7 +1317,7 @@ const TowerTool = () => {
                         {mode === 'log' && activeTab === 'summary' ? (
                             <LogSummary selectedLog={selectedLog} />
                         ) : activeTab === 'details' ? (
-                            <div className="left-panel" style={{ width: '100%' }}>
+                            <div className="left-panel" style={{ width: '100%' }} {...mapContainerProps}>
                                 {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
                                     <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
                                         <FloorGrid
@@ -1343,7 +1381,7 @@ const TowerTool = () => {
                     </div>
                 ) : (
                     <>
-                        <div className="left-panel" style={{ flex: '0 0 40%', overflowY: 'auto', height: 'calc(100vh - 150px)' }}>
+                        <div className="left-panel" style={{ flex: '0 0 40%', overflowY: 'auto', height: 'calc(100vh - 150px)' }} {...mapContainerProps}>
                             {mode === 'plan' ? 
                                 <PlanModeDashboard planConditions={planConditions} planState={planState} /> :
                                 <ResourceDashboard 
@@ -1357,6 +1395,8 @@ const TowerTool = () => {
                                     manualRecovery={manualRecovery}
                                     onManualRecover={handleManualRecovery}
                                     isMobileView={isMobileView}
+                                    isCollapsed={isFooterCollapsed}
+                                    onToggleCollapse={() => setIsFooterCollapsed(!isFooterCollapsed)}
                                 />
                             }
                             {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (

@@ -1,8 +1,4 @@
-const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, simulatedPlanData, isMobileView }) => {
-    const { useState, useMemo } = React;
-    const [isCollapsed, setIsCollapsed] = useState(true);
-
-    const toggleCollapse = () => setIsCollapsed(!isCollapsed);
+const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, simulatedPlanData, isMobileView, isCollapsed, onToggleCollapse }) => {
 
     const normalizeStyleKey = (style) => {
         if (!style) return null;
@@ -169,7 +165,7 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
 
     return (
         <div className={`resource-dashboard ${isCollapsed ? 'is-collapsed' : ''}`}>
-            <div className="dashboard-header" onClick={toggleCollapse}>
+            <div className="dashboard-header" onClick={onToggleCollapse}>
                 <div className="dashboard-summary-info">
                     <span>塔破力: <span style={{ fontWeight: 700, color: 'var(--danger-color)' }}>{runState.towerPower || 30}</span></span>
                     <div className="fatigue-summary">

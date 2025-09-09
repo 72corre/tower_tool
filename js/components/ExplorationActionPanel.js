@@ -356,7 +356,19 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                 </div>
                 <div style={{fontSize: '12px', textAlign: 'center', marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-color)'}}>
                     <p style={{fontWeight: 700}}>予測報酬</p>
-                    <p>ステ強化: {result.stat || '-'} / コンディション回復: {result.condition} / 塔破力回復: {result.power}</p>
+                    {(() => {
+                        const subType = square.square.sub_type;
+                        if (subType === 'tower_power') {
+                            return <p>塔破力回復: {result.power}</p>;
+                        }
+                        if (subType === 'recovery') {
+                            return <p>コンディション回復: {result.condition}</p>;
+                        }
+                        if (['attack_buff', 'defense_buff', 'hp_buff', 'status_buff'].includes(subType)) {
+                            return <p>ステ強化: {result.stat || '-'}</p>;
+                        }
+                        return <p>ステ強化: {result.stat || '-'} / コンディション回復: {result.condition} / 塔破力回復: {result.power}</p>;
+                    })()}
                 </div>
             </div>
             {!isResolvable && !isLocked && <p style={{color: 'var(--warning-color)', fontSize: '12px', marginTop: '12px'}}>このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
