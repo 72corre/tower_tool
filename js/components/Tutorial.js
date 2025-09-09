@@ -41,7 +41,7 @@ const TUTORIAL_STEPS = [
     },
     {
         title: "チュートリアル完了",
-        text: "基本的な説明は以上です！設定画面からいつでもデータのエクスポートが可能です。それでは、良き星間探索を！",
+        text: "基本的な説明は以上です！設定画面からいつでもデータのエクスポートが可能です。それでは、良き戦争を！",
         selector: null,
         action: (props) => props.setActiveTab('details'),
     }
@@ -59,6 +59,7 @@ const Tutorial = ({ onClose, setActiveTab, onStepChange }) => {
         if (onStepChange) {
             onStepChange(step);
         }
+
     }, [step, onStepChange]);
 
     useLayoutEffect(() => {
