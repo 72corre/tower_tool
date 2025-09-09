@@ -190,11 +190,22 @@ const TowerTool = () => {
         setActiveTab(mobileTabs[nextIndex]);
     };
 
-    const isSwipeAllowed = isMobileView && (
-        (activeTab === 'formation' && !editingFormation) || 
-        (mode !== 'log' && ['details', 'ownership'].includes(activeTab)) ||
-        (mode === 'log' && ['summary', 'details'].includes(activeTab))
-    );
+    const isSwipeAllowed = useMemo(() => {
+        if (!isMobileView) return false;
+        // Disable swipe when formation editor is open
+        if (activeTab === 'formation' && editingFormation) {
+            return false;
+        }
+        // Standard tabs in practice/plan mode
+        if (mode !== 'log') {
+            return ['details', 'ownership', 'formation'].includes(activeTab);
+        }
+        // Tabs in log mode
+        if (mode === 'log') {
+            return ['summary', 'details'].includes(activeTab);
+        }
+        return false;
+    }, [isMobileView, activeTab, editingFormation, mode]);
 
     const swipeRef = useSwipeNavigation({ 
         onSwipeLeft: () => handleSwipe('left'), 
@@ -1397,6 +1408,7 @@ const TowerTool = () => {
                                     isMobileView={isMobileView}
                                     isCollapsed={isFooterCollapsed}
                                     onToggleCollapse={() => setIsFooterCollapsed(!isFooterCollapsed)}
+                                    planConditions={planConditions}
                                 />
                             }
                             {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (

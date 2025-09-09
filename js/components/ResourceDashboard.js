@@ -1,4 +1,4 @@
-const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, simulatedPlanData, isMobileView, isCollapsed, onToggleCollapse }) => {
+const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isCollapsed, onToggleCollapse }) => {
 
     const normalizeStyleKey = (style) => {
         if (!style) return null;
@@ -64,8 +64,8 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
         return result;
     }, [runState, mode]);
 
-    if (mode !== 'practice' && mode !== 'plan') {
-        return null;
+    if ((mode === 'practice' && !runState) || (mode === 'plan' && !planConditions)) {
+        return null; // or a loading indicator
     }
 
     const styleMap = { "ラッシュ": "R", "カウンター": "C", "バースト": "B" };
@@ -131,6 +131,8 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
 
     const renderPlanMode = () => {
         const styleNameMap = { rush: 'ラッシュ', counter: 'カウンター', burst: 'バースト' };
+        if (!planConditions) return null; // Add guard clause
+
         return (
             <>
                 {Object.keys(SIMULATED_CONDITION_SECTIONS).map(styleKey => (
@@ -138,7 +140,7 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
                         <h4 className={getStyleClass(styleNameMap[styleKey])} style={{ fontWeight: 700, textAlign: 'center' }}>{styleNameMap[styleKey]}</h4>
                         {SIMULATED_CONDITION_SECTIONS[styleKey].map((section, index) => {
                             const groupKey = `${section.start}-${section.end}`;
-                            const groupData = simulatedPlanData.fatigueByGroup[groupKey] || { used: 0, capacity: section.limit, megido: [] };
+                            const groupData = planConditions.fatigueByGroup[groupKey] || { used: 0, capacity: section.limit, megido: [] };
                             const usageRate = groupData.capacity > 0 ? (groupData.used / groupData.capacity) * 100 : 0;
                             let barColor = 'var(--success-color)';
                             if (usageRate > 80) barColor = 'var(--danger-color)';
