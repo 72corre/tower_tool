@@ -914,7 +914,12 @@ const TowerTool = () => {
     };
 
     const handleTutorialStepChange = (stepIndex) => {
-        // "③ マップ詳細とアクション" is step 3
+        // モバイルビューの場合、ステップ2と3でマップタブを強制的に開く
+        if (isMobileView && (stepIndex === 2 || stepIndex === 3)) {
+            setActiveTab('details');
+        }
+
+        // ステップ3では1F-Sマスを開く
         if (stepIndex === 3) {
             if (typeof TOWER_MAP_DATA !== 'undefined') {
                 const floor1 = TOWER_MAP_DATA.find(f => f.floor === 1);
@@ -924,7 +929,8 @@ const TowerTool = () => {
                 }
             }
         } else {
-            setSelectedSquare(null); // Close for other steps
+            // それ以外のステップではマス詳細を閉じる
+            setSelectedSquare(null);
         }
     };
 
