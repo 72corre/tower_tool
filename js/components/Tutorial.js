@@ -1,5 +1,5 @@
 
-const { useState, useLayoutEffect, useRef } = React;
+const { useState, useLayoutEffect, useRef, useEffect } = React;
 
 const TUTORIAL_STEPS = [
     {
@@ -47,13 +47,19 @@ const TUTORIAL_STEPS = [
     }
 ];
 
-const Tutorial = ({ onClose, setActiveTab }) => {
+const Tutorial = ({ onClose, setActiveTab, onStepChange }) => {
     const [step, setStep] = useState(0);
     const [highlightStyle, setHighlightStyle] = useState({ display: 'none' });
     const [dialogStyle, setDialogStyle] = useState({});
     const dialogRef = useRef(null);
 
     const currentStep = TUTORIAL_STEPS[step];
+
+    useEffect(() => {
+        if (onStepChange) {
+            onStepChange(step);
+        }
+    }, [step, onStepChange]);
 
     useLayoutEffect(() => {
         if (currentStep.action) {

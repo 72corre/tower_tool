@@ -97,7 +97,6 @@ const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) 
 
 const TowerTool = () => {
     const [showTutorial, setShowTutorial] = useState(false);
-    const [tutorialReady, setTutorialReady] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
         const saved = localStorage.getItem('unlockedAchievements');
@@ -169,6 +168,16 @@ const TowerTool = () => {
         return saved ? JSON.parse(saved) : true; // Default to collapsed
     });
 
+    const tryStartTutorial = useCallback(() => {
+        if (localStorage.getItem('tutorialCompleted') || showTutorial) {
+            return;
+        }
+        // 遅延させて、他のモーダルが閉じるアニメーションなどと競合させない
+        setTimeout(() => {
+            setShowTutorial(true);
+        }, 200);
+    }, [showTutorial]);
+
     useEffect(() => {
         const isFirstLaunch = !localStorage.getItem('hasLaunched');
         if (isFirstLaunch) {
@@ -194,15 +203,12 @@ const TowerTool = () => {
 
     const isSwipeAllowed = useMemo(() => {
         if (!isMobileView) return false;
-        // Disable swipe when formation editor is open
         if (activeTab === 'formation' && editingFormation) {
             return false;
         }
-        // Standard tabs in practice/plan mode
         if (mode !== 'log') {
             return ['details', 'ownership', 'formation'].includes(activeTab);
         }
-        // Tabs in log mode
         if (mode === 'log') {
             return ['summary', 'details'].includes(activeTab);
         }
@@ -234,7 +240,6 @@ const TowerTool = () => {
     };
 
     const logAction = (action, details) => {
-        // Placeholder for analytics or logging
         console.log("Action:", action, details);
     };
 
@@ -341,7 +346,6 @@ const TowerTool = () => {
         handleMegidoDetailChange
     });
 
-    // --- UI State Persistence ---
     useEffect(() => { localStorage.setItem('ui_mode', mode); }, [mode]);
     useEffect(() => { localStorage.setItem('ui_activeTab', activeTab); }, [activeTab]);
 
@@ -349,7 +353,6 @@ const TowerTool = () => {
     const [isHtml5QrLoaded, setIsHtml5QrLoaded] = useState(false);
 
     useEffect(() => {
-        // QRious (for export) check
         if (window.QRious) {
             setIsQriousLoaded(true);
         } else {
@@ -401,7 +404,6 @@ const TowerTool = () => {
         checkAllAchievements();
     }, [formations, ownedMegidoIds, winStreak, floorClearCounts, themeToggleCount, dataManagementCount, planState]);
 
-    // Special check for APP_START on initial load
     useEffect(() => {
         unlockAchievement('APP_START');
     }, []);
@@ -461,7 +463,6 @@ const TowerTool = () => {
                     const data = JSON.parse(event.target.result);
                     if (window.confirm('現在のデータをインポートしたデータで上書きします。よろしいですか？')) {
                         setDataManagementCount(c => c + 1);
-                        // A more robust solution would validate each key
                         if(data.megidoDetails) setMegidoDetails(data.megidoDetails);
                         if(data.formations) setFormations(data.formations);
                         if(data.planState) setPlanState(data.planState);
@@ -477,7 +478,6 @@ const TowerTool = () => {
                         if(data.themeToggleCount) setThemeToggleCount(data.themeToggleCount);
                         if(data.dataManagementCount) setDataManagementCount(data.dataManagementCount);
 
-                        // Save to localStorage
                         localStorage.setItem('megidoDetails', JSON.stringify(data.megidoDetails || {}));
                         localStorage.setItem('formations', JSON.stringify(data.formations || []));
                         localStorage.setItem('planState', JSON.stringify(data.planState || { assignments: {}, activeFloor: 1, explorationAssignments: {} }));
@@ -516,10 +516,9 @@ const TowerTool = () => {
             alert('データが正常にリセットされました。ページをリロードします。');
             localStorage.clear();
             window.location.reload();
-        } else if (userInput !== null) { // User clicked OK but the code was wrong
+        } else if (userInput !== null) {
             alert('確認コードが一致しません。データのリセットはキャンセルされました。');
         }
-        // If userInput is null, the user clicked Cancel, so we do nothing.
     };
 
     const handleToggleTheme = () => {
@@ -529,7 +528,6 @@ const TowerTool = () => {
         localStorage.setItem('theme', newTheme);
     };
 
-    // Also need to load the theme on boot
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
@@ -617,7 +615,6 @@ const TowerTool = () => {
     useEffect(() => {
         if (isLoading) return;
 
-        // Restore selected square & log on initial load
         const savedSquareKey = localStorage.getItem('ui_selectedSquareKey');
         if (savedSquareKey && typeof TOWER_MAP_DATA !== 'undefined') {
             const [floorNumStr, ...idParts] = savedSquareKey.split('-');
@@ -639,7 +636,7 @@ const TowerTool = () => {
     }, [isLoading, seasonLogs]);
 
     useEffect(() => {
-        if (isLoading || typeof MEGIDO_BIRTHDAY_DATA === 'undefined') return;
+        if (isLoading) return;
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -691,7 +688,6 @@ const TowerTool = () => {
             }
         }
 
-        // If there are multiple events, pick one randomly to show.
         if (todaysEvents.length > 1) {
             const randomIndex = Math.floor(Math.random() * todaysEvents.length);
             todaysEvents = [todaysEvents[randomIndex]];
@@ -699,8 +695,8 @@ const TowerTool = () => {
 
         setEventQueue(todaysEvents);
 
-        // Check for beta modal
         const betaModalShown = localStorage.getItem('betaModalShown');
+        let shouldShowBeta = false;
         if (!betaModalShown) {
             const betaStartDate = new Date('2025-09-09');
             const betaEndDate = new Date('2025-09-17');
@@ -708,37 +704,29 @@ const TowerTool = () => {
             betaEndDate.setHours(0, 0, 0, 0);
 
             if (today >= betaStartDate && today < betaEndDate) {
-                setShouldShowBetaModal(true);
+                shouldShowBeta = true;
             }
         }
+        setShouldShowBetaModal(shouldShowBeta);
+
+        if (todaysEvents.length === 0 && !shouldShowBeta) {
+            tryStartTutorial();
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isLoading]);
 
-        useEffect(() => {
-        if (isLoading) return; // データロード中はなにもしない
-
+    useEffect(() => {
         if (eventQueue.length > 0) {
             setEventToast(eventQueue[0]);
-            return;
+        } else {
+            setEventToast(null);
+            if (shouldShowBetaModal) {
+                unlockAchievement('BETA_TESTER');
+                setShowBetaModal(true);
+                setShouldShowBetaModal(false);
+            }
         }
-        
-        setEventToast(null); 
-
-        if (shouldShowBetaModal) {
-            unlockAchievement('BETA_TESTER');
-            setShowBetaModal(true);
-            setShouldShowBetaModal(false);
-            return;
-        }
-
-        if (tutorialReady && !showTutorial) {
-            // 少しだけ遅延させて、他のUIの描画を安定させる
-            setTimeout(() => {
-                setShowTutorial(true);
-                setTutorialReady(false);
-            }, 100);
-        }
-
-    }, [isLoading, eventQueue, shouldShowBetaModal, tutorialReady, showTutorial]);
+    }, [eventQueue, shouldShowBetaModal]);
 
     const handleCloseEventToast = () => {
         if (dontShowAgain && eventToast) {
@@ -746,6 +734,10 @@ const TowerTool = () => {
         }
         setDontShowAgain(false);
         setEventQueue(queue => queue.slice(1));
+
+        if (eventQueue.length <= 1 && !shouldShowBetaModal) {
+            tryStartTutorial();
+        }
     };
 
     const updateGuidance = () => {
@@ -872,8 +864,8 @@ const TowerTool = () => {
     };
 
     useEffect(() => {
-        const threshold = 160; // The threshold for detecting devtools
-        let devtoolsOpen = false; // Flag to prevent continuous firing
+        const threshold = 160;
+        let devtoolsOpen = false;
 
         const checkDevTools = () => {
             const widthThreshold = window.outerWidth - window.innerWidth > threshold;
@@ -892,7 +884,7 @@ const TowerTool = () => {
         const intervalId = setInterval(checkDevTools, 1000);
 
         return () => clearInterval(intervalId);
-    }, []); // Run only once on mount
+    }, []);
 
     const handleModeChange = (newMode) => {
         setMode(newMode);
@@ -918,27 +910,23 @@ const TowerTool = () => {
     const handleCloseTutorial = () => {
         setShowTutorial(false);
         localStorage.setItem('tutorialCompleted', 'true');
+        setSelectedSquare(null); // Close any open square details
     };
 
-        
-
-    useEffect(() => {
-        const tutorialCompleted = localStorage.getItem('tutorialCompleted');
-        if (tutorialCompleted) return;
-
-        const betaModalShown = localStorage.getItem('betaModalShown');
-        if (betaModalShown) return;
-        
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const betaStartDate = new Date('2025-09-09');
-        const betaEndDate = new Date('2025-09-17');
-        const isBetaPeriod = today >= betaStartDate && today < betaEndDate;
-
-        if (!isBetaPeriod) {
-            setTutorialReady(true);
+    const handleTutorialStepChange = (stepIndex) => {
+        // "③ マップ詳細とアクション" is step 3
+        if (stepIndex === 3) {
+            if (typeof TOWER_MAP_DATA !== 'undefined') {
+                const floor1 = TOWER_MAP_DATA.find(f => f.floor === 1);
+                if (floor1 && floor1.squares['s']) {
+                    const squareData = floor1.squares['s'];
+                    handleSquareClick(floor1, squareData, 's');
+                }
+            }
+        } else {
+            setSelectedSquare(null); // Close for other steps
         }
-    }, []);
+    };
 
     const getSquareStyle = (square, floorData, squareId) => {
         let classes = '';
@@ -1014,7 +1002,7 @@ const TowerTool = () => {
             return '--node-color-random-rgb';
         }
         
-        return '--text-main'; // Default fallback
+        return '--text-main';
     };
 
     const onTargetSelect = (target, screen) => {
@@ -1034,7 +1022,6 @@ const TowerTool = () => {
 
     const handleTargetEnemyChange = (squareId, enemyName) => {
         const newTargetEnemies = { ...targetEnemies };
-        // If the same enemy is clicked again, untarget it.
         if (newTargetEnemies[squareId] === enemyName) {
             delete newTargetEnemies[squareId];
         } else {
@@ -1117,7 +1104,7 @@ const TowerTool = () => {
                 floorRefs.current[currentFloor].scrollIntoView({ behavior: 'smooth', block: 'center' });
                 showToastMessage(`${currentFloor}Fにスクロールしました。`);
             }
-        }, 800); // 800ms for long press
+        }, 800);
     };
 
     const handleLongPressEnd = () => {
@@ -1133,8 +1120,6 @@ const TowerTool = () => {
     };
 
     const RightPanelContent = () => {
-        // NOTE: The 'connections' variable used in the original code was not defined.
-        // The logic using it has been temporarily commented out to prevent errors.
         return (<>
             {mode === 'log' ? (
                 <LogViewer 
@@ -1244,7 +1229,7 @@ const TowerTool = () => {
                                 onSave={handleSaveFormation}
                                 onCancel={() => {
                                     setEditingFormation(null);
-                                    setInitialTagTarget(null); // Clear target on cancel
+                                    setInitialTagTarget(null);
                                     setActiveTab(previousScreen === 'action' || previousScreen === 'combat_plan' ? 'details' : 'formation');
                                 }}
                                 ownedMegidoIds={ownedMegidoIds}
@@ -1323,9 +1308,7 @@ const TowerTool = () => {
                     onClose={() => {
                         setShowBetaModal(false);
                         localStorage.setItem('betaModalShown', 'true');
-                                                if (!localStorage.getItem('tutorialCompleted')) {
-                            setTutorialReady(true);
-                        }
+                        tryStartTutorial();
                     }}
                     title="オープンβテストへようこそ！"
                 >
@@ -1559,7 +1542,7 @@ const TowerTool = () => {
                     />
                 </div>
             )}
-            {showTutorial && <Tutorial onClose={handleCloseTutorial} setActiveTab={setActiveTab} />}
+            {showTutorial && <Tutorial onClose={handleCloseTutorial} setActiveTab={setActiveTab} onStepChange={handleTutorialStepChange} />}
         </div>
     );
 };
