@@ -8,6 +8,8 @@ const usePracticeState = ({
     setSelectedSquare,
     setModalState,
     setRecoveryModalState,
+    setChoiceModalState,
+    setStatusBuffModalState,
     updateGuidance,
     floorClearCounts,
     setFloorClearCounts,
@@ -318,38 +320,53 @@ const usePracticeState = ({
                     });
                 }
             } else if (['status_buff', 'attack_buff', 'defense_buff', 'hp_buff'].includes(squareSubType)) {
-                if (squareStyle === 'RANDOM') {
-                    setRecoveryModalState({
-                        isOpen: true,
-                        title: 'ランダムバフ対象選択',
-                        message: 'ゲーム内で指定された強化スタイルを選択してください。',
-                        showNumberInput: false,
-                        onConfirm: (styleKey) => {
-                            if (styleKey) {
-                                setRunState(prev => {
-                                    const lastHistoryIndex = prev.history.length - 1;
-                                    if (lastHistoryIndex >= 0) {
-                                        const newHistory = [...prev.history];
-                                        newHistory[lastHistoryIndex] = {
-                                            ...newHistory[lastHistoryIndex],
-                                            exploreResult: {
-                                                type: squareSubType,
-                                                style: styleKey
-                                            }
-                                        };
-                                        const newState = { ...prev, history: newHistory };
-                                        localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(newState));
-                                        return newState;
+                setStatusBuffModalState({
+                    isOpen: true,
+                    expectationLevel: data.expectationLevel,
+                    onConfirm: ({ buffType, buffValue, towerPowerRecovery }) => {
+                        // 1. Record the buff in history
+                        setRunState(prev => {
+                            const lastHistoryIndex = prev.history.length - 1;
+                            if (lastHistoryIndex < 0) return prev;
+                            
+                            const newHistory = [...prev.history];
+                            newHistory[lastHistoryIndex] = {
+                                ...newHistory[lastHistoryIndex],
+                                exploreResult: {
+                                    type: buffType,
+                                    value: buffValue
+                                }
+                            };
+                            const newState = { ...prev, history: newHistory };
+                            localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(newState));
+                            return newState;
+                        });
+                        const buffLabelMap = { 'attack_buff': '攻撃力アップ', 'defense_buff': '防御力アップ', 'hp_buff': 'HPアップ' };
+                        showToastMessage(`${buffLabelMap[buffType]} (+${buffValue}%) を記録しました。`);
+
+                        // 2. If there's tower power to recover, recover it (allows 0)
+                        if (towerPowerRecovery >= 0) {
+                            setRunState(prev => {
+                                if (towerPowerRecovery === 0) return prev; // No change, no state update
+                                const currentFloor = prev.currentPosition.floor;
+                                const newState = {
+                                    ...prev,
+                                    towerPower: prev.towerPower + towerPowerRecovery,
+                                    totalPowerRecovered: (prev.totalPowerRecovered || 0) + towerPowerRecovery,
+                                    powerRecoveredOnFloor: {
+                                        ...prev.powerRecoveredOnFloor,
+                                        [currentFloor]: (prev.powerRecoveredOnFloor?.[currentFloor] || 0) + towerPowerRecovery
                                     }
-                                    return prev;
-                                });
-                                const fullStyleName = styleKey === 'R' ? 'ラッシュ' : styleKey === 'C' ? 'カウンター' : 'バースト';
-                                showToastMessage(`${fullStyleName}が強化されました。`);
+                                };
+                                localStorage.setItem(`${new Date().getFullYear()}年${new Date().getMonth() + 1}月シーズンの記録`, JSON.stringify(newState));
+                                return newState;
+                            });
+                            if (towerPowerRecovery > 0) {
+                               showToastMessage(`塔破力が${towerPowerRecovery}回復しました。`);
                             }
-                            setRecoveryModalState({ isOpen: false });
                         }
-                    });
-                }
+                    }
+                });
             }
         }
 

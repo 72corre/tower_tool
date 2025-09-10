@@ -8,12 +8,27 @@ const useMegido = ({ showToastMessage }) => {
 
     const handleMegidoDetailChange = useCallback((megidoId, key, value) => {
         setMegidoDetails(prevDetails => {
-            const newDetails = { ...prevDetails };
-            if (!newDetails[megidoId]) {
-                const megidoData = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(megidoId));
-                newDetails[megidoId] = { owned: false, level: 70, ougiLevel: 3, special_reishou: megidoData?.専用霊宝 || false, bond_reishou: 0, reishou: [] };
+            const megidoData = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(megidoId));
+            const oldMegidoDetail = prevDetails[megidoId] || {
+                owned: false,
+                level: 70,
+                ougiLevel: 3,
+                special_reishou: megidoData?.専用霊宝 || false,
+                bond_reishou: 0,
+                reishou: []
+            };
+
+            if (oldMegidoDetail[key] === value) {
+                return prevDetails;
             }
-            newDetails[megidoId] = { ...newDetails[megidoId], [key]: value };
+
+            const newMegidoDetail = { ...oldMegidoDetail, [key]: value };
+
+            const newDetails = {
+                ...prevDetails,
+                [megidoId]: newMegidoDetail
+            };
+
             localStorage.setItem('megidoDetails', JSON.stringify(newDetails));
             return newDetails;
         });

@@ -1,8 +1,7 @@
-const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, isPlanMode = false, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable, setModalState: setAppModalState }) => {
+const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, isPlanMode = false, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable, manualPower, onOpenManualPowerInput, onSetManualPower }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [modalState, setModalState] = useState({ isOpen: false, slotIndex: null, recType: null });
     const [memo, setMemo] = useState('');
-    const [manualPower, setManualPower] = useState(null);
 
     const getTitle = (sq) => {
         if (!sq) return '探索';
@@ -33,8 +32,6 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
             const memoKey = `${square.floor.floor}-${square.id}`;
             setMemo(memos[memoKey] || '');
         }
-        // Reset manual power when square changes
-        setManualPower(null);
     }, [square, memos]);
 
     const handleSaveMemoClick = () => {
@@ -59,17 +56,9 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
         return Math.floor(power);
     }, [megidoDetails]);
 
-    const getInitialPracticeParty = () => {
-        if (!planState || !recommendation) return [null, null, null];
-        const plannedPartyIds = planState.explorationAssignments?.[square.id]?.[recommendation];
-        if (!plannedPartyIds) return [null, null, null];
-        const plannedParty = plannedPartyIds.map(id => {
-            if (!id) return null;
-            return (typeof COMPLETE_MEGIDO_LIST !== 'undefined' ? COMPLETE_MEGIDO_LIST : []).find(m => String(m.id) === String(id)) || null;
-        });
-        return plannedParty.length === 3 ? plannedParty : [null, null, null];
-    };
-    const [practiceParty, setPracticeParty] = useState(getInitialPracticeParty);
+    const [practiceParty, setPracticeParty] = useState([null, null, null]);
+
+    
 
     const { totalPower, requiredPower, expectationLevel, result } = useMemo(() => {
         if (isPlanMode) return {};
@@ -88,42 +77,35 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
 
     const displayPower = manualPower ?? totalPower;
 
-    const handleManualPowerInput = () => {
-        setAppModalState({
-            isOpen: true,
-            title: '探索力の手動入力',
-            message: '霊宝などを考慮した合計探索力の値を入力してください。',
-            onConfirm: (value) => {
-                const newPower = parseInt(value, 10);
-                if (!isNaN(newPower) && newPower >= 0) {
-                    setManualPower(newPower);
-                    showToastMessage(`探索力を ${newPower} に設定しました。`);
-                } else {
-                    showToastMessage('無効な値です。数値を入力してください。', 'error');
-                }
-                setAppModalState(s => ({ ...s, isOpen: false }));
-            }
-        });
-    };
+    
 
     const availablePracticeMegido = useMemo(() => {
-        if (isPlanMode) return [];
-        const selectedIds = practiceParty.filter(m => m).map(m => m.id);
-        const plannedPartyIds = planState.explorationAssignments?.[square.id]?.[recommendation] || [];
+        if (isPlanMode || !planState || !square || typeof COMPLETE_MEGIDO_LIST === 'undefined') {
+            return [];
+        }
 
-        return (typeof COMPLETE_MEGIDO_LIST !== 'undefined' ? COMPLETE_MEGIDO_LIST : []).filter(m => 
-            ownedMegidoIds.has(String(m.id)) && 
-            (megidoConditions[String(m.id)] || '絶好調') !== '気絶' && 
-            !selectedIds.includes(m.id)
-        ).sort((a, b) => {
-            const aIsPlanned = plannedPartyIds.includes(String(a.id));
-            const bIsPlanned = plannedPartyIds.includes(String(b.id));
-        
+        const selectedIds = new Set(practiceParty.filter(m => m).map(m => m.id));
+        const plannedPartyIds = new Set(planState.explorationAssignments?.[square.id]?.[recommendation] || []);
+
+        const allOwnedMegido = COMPLETE_MEGIDO_LIST.filter(m => ownedMegidoIds.has(String(m.id)));
+
+        const available = allOwnedMegido.filter(m => {
+            const isSelectable = (megidoConditions[String(m.id)] || '絶好調') !== '気絶';
+            const isNotAlreadyInParty = !selectedIds.has(m.id);
+            return isSelectable && isNotAlreadyInParty;
+        });
+
+        available.sort((a, b) => {
+            const aIsPlanned = plannedPartyIds.has(String(a.id));
+            const bIsPlanned = plannedPartyIds.has(String(b.id));
+
             if (aIsPlanned && !bIsPlanned) return -1;
             if (!aIsPlanned && bIsPlanned) return 1;
-            
-            return a.名前.localeCompare(b.名前);
+
+            return a.名前.localeCompare(b.名前, 'ja');
         });
+
+        return available;
     }, [practiceParty, ownedMegidoIds, megidoConditions, isPlanMode, planState, square, recommendation]);
 
     const handlePracticeMegidoSelect = (megido) => {
@@ -378,8 +360,8 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                         <p style={{fontSize: '24px', fontWeight: 700}}>{displayPower}</p>
                     </div>
                     <div>
-                        <button onClick={handleManualPowerInput} className="btn btn-secondary btn-sm">手動入力</button>
-                        {manualPower !== null && <button onClick={() => setManualPower(null)} className="btn btn-ghost btn-sm" style={{marginLeft: '8px'}}>リセット</button>}
+                        <button onClick={() => onOpenManualPowerInput(square.id, manualPower)} className="btn btn-secondary btn-sm">手動入力</button>
+                        {manualPower !== null && <button onClick={() => onSetManualPower(square.id, null)} className="btn btn-ghost btn-sm" style={{marginLeft: '8px'}}>リセット</button>}
                     </div>
                     <div><p style={{fontSize: '12px', color: 'var(--text-subtle)'}}>推奨探索力</p><p style={{fontSize: '24px', fontWeight: 700}}>{requiredPower}</p></div>
                     <div><p style={{fontSize: '12px', color: 'var(--text-subtle)'}}>期待度</p><p style={{fontSize: '24px', fontWeight: 700, color: 'var(--info-color)'}}>{expectationLevel}</p></div>

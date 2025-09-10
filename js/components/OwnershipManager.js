@@ -32,20 +32,30 @@ const getBondReishouTierName = (tier) => {
     return `T${tier}`;
 };
 
-const Row = React.memo(({ megido, detail, onDetailChange, isMobileView }) => {
+const Row = React.memo(({ megido, detail, onDetailChange, isMobileView, setModalState }) => {
     const { useCallback } = React;
     const details = { owned: false, level: 70, ougiLevel: 3, special_reishou: megido.専用霊宝 || false, bond_reishou: 0, singularity_level: 0, ...detail };
     
-    const handleOugiChange = useCallback((e) => {
-        const val = parseInt(e.target.value, 10);
+    const handleOugiConfirm = useCallback((value) => {
+        const val = parseInt(value, 10);
         if (isNaN(val) || val < 1) {
             onDetailChange(megido.id, 'ougiLevel', 1);
-        } else if (val > 99) { // 上限を99に修正
+        } else if (val > 99) {
             onDetailChange(megido.id, 'ougiLevel', 99);
         } else {
             onDetailChange(megido.id, 'ougiLevel', val);
         }
     }, [onDetailChange, megido.id]);
+
+    const handleOugiClick = useCallback(() => {
+        setModalState({
+            isOpen: true,
+            title: `${megido.名前} の奥義レベル`,
+            message: '新しい奥義レベルを入力してください (1-99)',
+            onConfirm: handleOugiConfirm,
+            inputValue: details.ougiLevel
+        });
+    }, [megido.名前, details.ougiLevel, handleOugiConfirm, setModalState]);
 
     return (
         <tr>
@@ -64,13 +74,9 @@ const Row = React.memo(({ megido, detail, onDetailChange, isMobileView }) => {
                 </select>
             </td>
             <td>
-                 <input 
-                    type="number" 
-                    min="1" 
-                    max="99" // 上限を99に修正
-                    value={details.ougiLevel} 
-                    onChange={handleOugiChange} 
-                />
+                <button onClick={handleOugiClick} className="select-field-btn" style={{width: '100%'}}>
+                    {details.ougiLevel}
+                </button>
             </td>
             <td>
                 {megido.専用霊宝 && <input type="checkbox" checked={details.special_reishou} onChange={(e) => onDetailChange(megido.id, 'special_reishou', e.target.checked)} />}
@@ -86,7 +92,7 @@ const Row = React.memo(({ megido, detail, onDetailChange, isMobileView }) => {
     );
 });
 
-const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, isMobileView }) => {
+const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, isMobileView, setModalState }) => {
     const { useState, useMemo } = React;
     const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
     
@@ -169,7 +175,7 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
                     <tbody>
                         {filteredList.map(megido => {
                             const detail = megidoDetails[megido.id];
-                            return <Row key={megido.id} megido={megido} detail={detail} onDetailChange={onDetailChange} isMobileView={isMobileView} />;
+                            return <Row key={megido.id} megido={megido} detail={detail} onDetailChange={onDetailChange} isMobileView={isMobileView} setModalState={setModalState} />;
                         })}
                     </tbody>
                 </table>

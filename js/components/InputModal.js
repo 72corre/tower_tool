@@ -1,11 +1,11 @@
-const InputModal = ({ isOpen, onClose, onConfirm, title, message }) => {
-    const [inputValue, setInputValue] = React.useState('');
+const InputModal = ({ isOpen, onClose, onConfirm, title, message, inputValue: initialValue = '' }) => {
+    const [inputValue, setInputValue] = React.useState(initialValue);
 
     React.useEffect(() => {
         if (isOpen) {
-            setInputValue(''); // Reset input value when modal opens
+            setInputValue(initialValue || '');
         }
-    }, [isOpen]);
+    }, [isOpen, initialValue]);
 
     const handleConfirm = () => {
         const numberValue = parseInt(inputValue, 10);

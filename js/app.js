@@ -138,6 +138,8 @@ const TowerTool = () => {
     const [practiceView, setPracticeView] = useState('action');
     const [modalState, setModalState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
     const [recoveryModalState, setRecoveryModalState] = useState({ isOpen: false });
+    const [choiceModalState, setChoiceModalState] = useState({ isOpen: false });
+    const [statusBuffModalState, setStatusBuffModalState] = useState({ isOpen: false });
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [achievementToast, setAchievementToast] = useState(null);
@@ -278,6 +280,37 @@ const TowerTool = () => {
         [megidoDetails]
     );
 
+    const [manualExplorationPowers, setManualExplorationPowers] = useState({});
+
+    const handleSetManualPower = useCallback((squareId, power) => {
+        setManualExplorationPowers(prev => ({
+            ...prev,
+            [squareId]: power
+        }));
+    }, []);
+
+    const handleOpenManualPowerInput = useCallback((squareId, currentPower) => {
+        setModalState({
+            isOpen: true,
+            title: '探索力の手動入力',
+            message: '霊宝などを考慮した合計探索力の値を入力してください。',
+            inputValue: currentPower || '',
+            onConfirm: (value) => {
+                const newPower = parseInt(value, 10);
+                if (!isNaN(newPower) && newPower >= 0) {
+                    handleSetManualPower(squareId, newPower);
+                    showToastMessage(`探索力を ${newPower} に設定しました。`);
+                } else if (value === null || value === '') {
+                    handleSetManualPower(squareId, null);
+                    showToastMessage('手動入力をリセットしました。');
+                } else {
+                    showToastMessage('無効な値です。数値を入力してください。', 'error');
+                }
+                setModalState(s => ({ ...s, isOpen: false }));
+            }
+        });
+    }, [handleSetManualPower, showToastMessage]);
+
     const { 
         runState, 
         setRunState,
@@ -299,6 +332,8 @@ const TowerTool = () => {
         setSelectedSquare,
         setModalState,
         setRecoveryModalState,
+        setChoiceModalState,
+        setStatusBuffModalState,
         updateGuidance,
         floorClearCounts,
         setFloorClearCounts,
@@ -1103,53 +1138,113 @@ const TowerTool = () => {
         onMouseLeave: handleLongPressEnd,
     };
 
-    const generateConnections = (layoutGrid) => {
-        const connections = {};
-        if (!layoutGrid) return connections;
-        const rows = layoutGrid.length;
-        if (rows === 0) return connections;
-        const cols = layoutGrid[0].length;
-
-        for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-                const currentSquareId = layoutGrid[r][c];
-                if (!currentSquareId) continue;
-
-                if (!connections[currentSquareId]) {
-                    connections[currentSquareId] = [];
-                }
-
-                const directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-                for (const [dr, dc] of directions) {
-                    const nr = r + dr;
-                    const nc = c + dc;
-
-                    if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) {
-                        const neighborSquareId = layoutGrid[nr][nc];
-                        if (neighborSquareId && !connections[currentSquareId].includes(neighborSquareId)) {
-                            connections[currentSquareId].push(neighborSquareId);
-                        }
-                    }
-                }
-            }
-        }
-        return connections;
-    };
-
     const towerConnections = useMemo(() => {
-        if (isLoading || typeof TOWER_MAP_DATA === 'undefined') {
+        if (isLoading || typeof connections === 'undefined') {
             return {};
         }
         const allConnections = {};
-        TOWER_MAP_DATA.forEach(floorData => {
-            if (floorData.layoutGrid) {
-                allConnections[floorData.floor] = generateConnections(floorData.layoutGrid);
+        for (const squareId in connections) {
+            const floorNum = parseInt(squareId.split('-')[0].replace('f', ''));
+            if (!allConnections[floorNum]) {
+                allConnections[floorNum] = {};
             }
-        });
+            if (!allConnections[floorNum][squareId]) {
+                allConnections[floorNum][squareId] = [];
+            }
+            connections[squareId].forEach(neighborId => {
+                if (!allConnections[floorNum][squareId].includes(neighborId)) {
+                    allConnections[floorNum][squareId].push(neighborId);
+                }
+            });
+        }
         return allConnections;
     }, [isLoading]);
 
     const RightPanelContent = () => {
+        let content = null;
+        if (selectedSquare) {
+            const floorNum = selectedSquare.floor.floor;
+            const clearedSquaresOnFloor = runState.cleared[floorNum] || [];
+            const isCleared = clearedSquaresOnFloor.includes(selectedSquare.id);
+            const isPastFloor = floorNum < runState.highestFloorReached;
+            
+            let isResolvable = false;
+            if (mode === 'practice' && !isCleared) {
+                const connections = towerConnections[floorNum];
+                if (connections && connections[selectedSquare.id]) {
+                    const neighbors = connections[selectedSquare.id];
+                    isResolvable = neighbors.some(neighborId => clearedSquaresOnFloor.includes(neighborId));
+                }
+            }
+
+            let isLocked = false;
+            let lockText = '';
+            if (mode === 'practice') {
+                if (isPastFloor) {
+                    isLocked = true;
+                    lockText = '階移動済み';
+                } else if (isCleared && selectedSquare.square.type !== 'start') {
+                    isLocked = true;
+                    lockText = '解放済み';
+                }
+            }
+
+            if (selectedSquare.square.type === 'start') {
+                content = <StartSquarePanel square={selectedSquare} isLocked={isLocked} lockText={lockText} onCreateFormation={handleCreateFormationFromEnemy} />;
+            } else if (selectedSquare.square.type === 'explore') {
+                content = <ExplorationActionPanel 
+                    square={selectedSquare}
+                    isPlanMode={mode === 'plan'}
+                    ownedMegidoIds={ownedMegidoIds}
+                    megidoDetails={megidoDetails}
+                    megidoConditions={megidoConditions}
+                    onResolve={handleResolveSquare}
+                    recommendation={runState.recommendations[selectedSquare.id]}
+                    onRecommendationChange={onRecommendationChange}
+                    explorationAssignments={planState.explorationAssignments}
+                    onPlanExplorationParty={onPlanExplorationParty}
+                    planState={planState}
+                    memos={memos}
+                    onSaveMemo={onSaveMemo}
+                    showToastMessage={showToastMessage}
+                    isLocked={isLocked}
+                    lockText={lockText}
+                    runState={runState}
+                    formations={formations}
+                    seasonLogs={seasonLogs}
+                    isResolvable={isResolvable}
+                    setModalState={setModalState}
+                    towerConnections={towerConnections}
+                    manualPower={manualExplorationPowers[selectedSquare.id]}
+                    onOpenManualPowerInput={handleOpenManualPowerInput}
+                    onSetManualPower={handleSetManualPower}
+                />;
+            } else {
+                content = <PracticeActionPanel 
+                    square={selectedSquare}
+                    formations={formations}
+                    onResolve={handleResolveSquare}
+                    megidoConditions={megidoConditions}
+                    onCreateFormation={handleCreateFormationFromEnemy}
+                    planState={planState}
+                    ownedMegidoIds={ownedMegidoIds}
+                    megidoDetails={megidoDetails}
+                    runState={runState}
+                    onRecommendationChange={onRecommendationChange}
+                    isLocked={isLocked}
+                    lockText={lockText}
+                    isPlanMode={mode === 'plan'}
+                    onPlanCombatParty={handlePlanCombatParty}
+                    targetEnemy={targetEnemies[selectedSquare.id]}
+                    onTargetEnemyChange={(enemyName) => handleTargetEnemyChange(selectedSquare.id, enemyName)}
+                    isResolvable={isResolvable}
+                    onSaveFormationMemo={handleSaveFormationMemo}
+                />;
+            }
+        } else {
+            content = <div className="placeholder" style={{height: '100%'}}>マスを選択してください</div>;
+        }
+
         return (<>
             {mode === 'log' ? (
                 <LogViewer 
@@ -1167,92 +1262,14 @@ const TowerTool = () => {
             ) : (
                 <div className="tab-content" style={{marginTop: '1rem', height: '100%'}}>
                     <div style={{ display: activeTab === 'details' ? 'block' : 'none', height: '100%' }}>
-                        {!selectedSquare && (
-                            <div className="placeholder" style={{height: '100%'}}>マスを選択してください</div>
-                        )}
-                        {selectedSquare && (() => {
-                            const floorNum = selectedSquare.floor.floor;
-                            const clearedSquaresOnFloor = runState.cleared[floorNum] || [];
-                            const isCleared = clearedSquaresOnFloor.includes(selectedSquare.id);
-                            const isPastFloor = floorNum < runState.highestFloorReached;
-                            
-                            let isResolvable = false;
-                            if (mode === 'practice' && !isCleared) {
-                                const connections = towerConnections[floorNum];
-                                if (connections && connections[selectedSquare.id]) {
-                                    const neighbors = connections[selectedSquare.id];
-                                    isResolvable = neighbors.some(neighborId => clearedSquaresOnFloor.includes(neighborId));
-                                }
-                            }
-
-                            let isLocked = false;
-                            let lockText = '';
-                            if (mode === 'practice') {
-                                if (isPastFloor) {
-                                    isLocked = true;
-                                    lockText = '階移動済み';
-                                } else if (isCleared && selectedSquare.square.type !== 'start') {
-                                    isLocked = true;
-                                    lockText = '解放済み';
-                                }
-                            }
-
-                            if (selectedSquare.square.type === 'start') {
-                                return <StartSquarePanel square={selectedSquare} isLocked={isLocked} lockText={lockText} onCreateFormation={handleCreateFormationFromEnemy} />;
-                            } else if (selectedSquare.square.type === 'explore') {
-                                return <ExplorationActionPanel 
-                                    square={selectedSquare}
-                                    isPlanMode={mode === 'plan'}
-                                    ownedMegidoIds={ownedMegidoIds}
-                                    megidoDetails={megidoDetails}
-                                    megidoConditions={megidoConditions}
-                                    onResolve={handleResolveSquare}
-                                    recommendation={runState.recommendations[selectedSquare.id]}
-                                    onRecommendationChange={onRecommendationChange}
-                                    explorationAssignments={planState.explorationAssignments}
-                                    onPlanExplorationParty={onPlanExplorationParty}
-                                    planState={planState}
-                                    memos={memos}
-                                    onSaveMemo={onSaveMemo}
-                                    showToastMessage={showToastMessage}
-                                    isLocked={isLocked}
-                                    lockText={lockText}
-                                    runState={runState}
-                                    formations={formations}
-                                    seasonLogs={seasonLogs}
-                                    isResolvable={isResolvable}
-                                    setModalState={setModalState}
-                                    towerConnections={towerConnections}
-                                />;
-                            } else {
-                                return <PracticeActionPanel 
-                                    square={selectedSquare}
-                                    formations={formations}
-                                    onResolve={handleResolveSquare}
-                                    megidoConditions={megidoConditions}
-                                    onCreateFormation={handleCreateFormationFromEnemy}
-                                    planState={planState}
-                                    ownedMegidoIds={ownedMegidoIds}
-                                    megidoDetails={megidoDetails}
-                                    runState={runState}
-                                    onRecommendationChange={onRecommendationChange}
-                                    isLocked={isLocked}
-                                    lockText={lockText}
-                                    isPlanMode={mode === 'plan'}
-                                    onPlanCombatParty={handlePlanCombatParty}
-                                    targetEnemy={targetEnemies[selectedSquare.id]}
-                                    onTargetEnemyChange={(enemyName) => handleTargetEnemyChange(selectedSquare.id, enemyName)}
-                                    isResolvable={isResolvable}
-                                    onSaveFormationMemo={handleSaveFormationMemo}
-                                />;
-                            }
-                        })()}
+                        {content}
                     </div>
                     <div style={{ display: activeTab === 'ownership' ? 'block' : 'none', height: '100%' }}>
                         <OwnershipManager 
                             megidoDetails={megidoDetails} 
                             onDetailChange={handleMegidoDetailChangeWrapper}
                             onCheckDistributed={handleCheckDistributedMegido}
+                            setModalState={setModalState}
                         />
                     </div>
                     <div style={{ display: activeTab === 'formation' ? 'block' : 'none', height: '100%' }}>
@@ -1375,20 +1392,17 @@ const TowerTool = () => {
                     {`皆様からのフィードバックに基づき、以下の修正および機能追加を行いました。
 
 【主な改善点】
-・メギドの表示順を修正: 所持メギド管理画面の表示順を、ゲーム内図鑑の「祖→真→宵→継」の順に統一しました。
-・操作性の向上:
-　・所持メギド管理画面で、メギド名をクリックしても所持/未所持を切り替えられるようにしました。
-　・奥義レベルの上限値を「99」に修正しました。
-　・下部パネル（実践モード）が邪魔な時に折りたためるようにしました（モバイル表示含む）。
-・探索力の計算: 霊宝などを考慮した探索力の合計値を手動で入力・上書きできる機能を追加しました。
+・所持メギド管理の操作性向上: 奥義レベルの入力方式を、直接入力からモーダル入力に変更しました。これにより、入力中に画面が強制的にスクロールされる問題が解消されます。
+・ステータス上昇マスの機能改善: マス解決時のモーダルを、上昇した「能力の種類」と「上昇率(%)」を一度に入力できる専用のものに改修しました。
+・期待度3のボーナスを実装: ステータス上昇マスで探索期待度が3だった場合、追加で塔破力の回復量を入力できるようになりました（0も可）。
+・探索メギド選択の利便性向上: 探索パーティを選択する際、「計画モード」で設定したメギドがリストの最上部に優先して表示されるように、ソート機能を改善しました。
 
 【不具合修正】
-・フィルター機能の修正: 編成画面でオーブや霊宝を選択する際、専用のフィルター（種族、系列）が正しく表示・機能するように修正しました。
-・回復マスの修正: 実践モードで探索実行後、塔破力やコンディションの回復マスで効果が得られない問題を修正しました。
-・ランダムバフの選択: ランダムバフのマスを解決した際に、どのスタイルが強化されたかを選択・記録できるようになりました。
+・隣接判定の修正: 5Fなどで特定のマスが選択できなかった問題を、全フロアに渡って正しい接続情報を参照するように修正しました。
+・探索パネルの安定性向上: 探索パネルの表示ロジックを見直し、動作を軽量化しました。
 
-【調査中の問題】
-・所持メギド画面でのスクロール問題: 特定の条件下で入力中に画面上部へスクロールしてしまう問題については、引き続き調査中です。多数の修正を試みましたが、解消には至っておりません。ご不便をおかけし申し訳ありません。
+【既知の問題】
+・探索パーティの自動設定: 探索開始時に「計画モード」のパーティを自動で読み込む機能は、深刻なバグの原因となっていたため、一時的に無効化しています。代わりに、上記の「計画メギドの優先表示」機能をご利用いただけますと幸いです。
 
 今後とも、本ツールをよろしくお願いいたします。`}
                 </InfoModal>
@@ -1547,6 +1561,20 @@ const TowerTool = () => {
                 onConfirm={recoveryModalState.onConfirm}
                 title={recoveryModalState.title}
                 message={recoveryModalState.message}
+            />
+            <ChoiceModal
+                isOpen={choiceModalState.isOpen}
+                onClose={() => setChoiceModalState({ isOpen: false })}
+                onConfirm={choiceModalState.onConfirm}
+                title={choiceModalState.title}
+                message={choiceModalState.message}
+                options={choiceModalState.options}
+            />
+            <StatusBuffModal
+                isOpen={statusBuffModalState.isOpen}
+                onClose={() => setStatusBuffModalState({ isOpen: false })}
+                onConfirm={statusBuffModalState.onConfirm}
+                expectationLevel={statusBuffModalState.expectationLevel}
             />
             <LogActionModal 
                 isOpen={logActionModal.isOpen}
