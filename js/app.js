@@ -1088,6 +1088,8 @@ const TowerTool = () => {
             return {};
         }
         const allConnections = {};
+
+        // Initialize all possible nodes to avoid key errors later
         for (const squareId in connections) {
             const floorNum = parseInt(squareId.split('-')[0].replace('f', ''));
             if (!allConnections[floorNum]) {
@@ -1097,8 +1099,22 @@ const TowerTool = () => {
                 allConnections[floorNum][squareId] = [];
             }
             connections[squareId].forEach(neighborId => {
-                if (!allConnections[floorNum][squareId].includes(neighborId)) {
-                    allConnections[floorNum][squareId].push(neighborId);
+                if (!allConnections[floorNum][neighborId]) {
+                    allConnections[floorNum][neighborId] = [];
+                }
+            });
+        }
+
+        for (const startNode in connections) {
+            const floorNum = parseInt(startNode.split('-')[0].replace('f', ''));
+            connections[startNode].forEach(endNode => {
+                // Add forward connection (start -> end)
+                if (!allConnections[floorNum][startNode].includes(endNode)) {
+                    allConnections[floorNum][startNode].push(endNode);
+                }
+                // Add backward connection (end -> start)
+                if (!allConnections[floorNum][endNode].includes(startNode)) {
+                    allConnections[floorNum][endNode].push(startNode);
                 }
             });
         }
@@ -1342,6 +1358,10 @@ const TowerTool = () => {
 【不具合修正】
 ・編成の作成・編集画面で、メギドやオーブを選択する際に画面がちらつき、選択が解除される問題を修正しました。
 ・モバイル表示時に、所持メギド管理画面で奥義レベルを変更するモーダルが表示されない問題を修正しました。
+・マスの隣接判定について、双方向の接続を補完することでロジックを改善しました。これにより、特定のマスを解放できないバグが修正されたはずです。
+
+【その他】
+・リヴァイアサンより後の本編加入キャラクターが、配布チェック機能で対応していない件について、これは星間の塔の解放時点でのストーリー配布メギドと、全てのイベント配布メギドを含むリストを想定していたためこの形になりました。これについては今後もっとわかりやすい処理になるように変更する予定です。お手数をおかけしてしまってすみません。
 
 ご利用いただきありがとうございます。今後とも本ツールをよろしくお願いいたします。`}
                 </InfoModal>

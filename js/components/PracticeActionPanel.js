@@ -102,7 +102,7 @@ const PracticeActionPanel = ({
 
     // --- Common Render Logic ---
     const formation = formations.find(f => f.id === selectedFormationId);
-    const isFormationDisabled = formation && formation.megido.some(m => m && (megidoConditions[String(m.id)] === '気絶' || megidoConditions[String(m.id)] === '絶不調'));
+    const isFormationDisabled = formation && formation.megido.some(m => m && megidoConditions[String(m.id)] === '気絶');
 
     useEffect(() => {
         if (formation) {
@@ -246,7 +246,7 @@ const PracticeActionPanel = ({
                     </button>
                 </div>
             )}
-            {isFormationDisabled && <p style={{color: 'var(--danger-color)', fontSize: '12px', marginTop: '12px'}}>この編成には絶不調または気絶状態のメギドが含まれているため、使用できません。</p>}
+            {isFormationDisabled && <p style={{color: 'var(--danger-color)', fontSize: '12px', marginTop: '12px'}}>この編成には気絶状態のメギドが含まれているため、使用できません。</p>}
             {!isResolvable && !isLocked && <p style={{color: 'var(--warning-color)', fontSize: '12px', marginTop: '12px'}}>このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
             
             <FilterableSelectionModal 
