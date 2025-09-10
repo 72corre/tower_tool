@@ -29,11 +29,11 @@ const InputModal = ({ isOpen, onClose, onConfirm, title, message, inputValue: in
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        zIndex: 1000
+        zIndex: 1200
     };
 
     const dialogStyle = {
-        zIndex: 1001,
+        zIndex: 1201,
         borderRadius: '8px',
         border: '1px solid #444',
         padding: '1.5rem',

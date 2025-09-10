@@ -148,20 +148,24 @@ const usePlanState = ({ formations, megidoDetails, mode, showToastMessage }) => 
     };
 
     const handlePlanCombatParty = (squareId, enemyName, slotIndex, formationId) => {
-        const newAssignmentsForSquare = { ...(planState.assignments[squareId] || {}) };
+        const currentAssignments = planState.assignments || {};
+        const newAssignmentsForSquare = { ...(currentAssignments[squareId] || {}) };
         const newSlotsForEnemy = [...(newAssignmentsForSquare[enemyName] || Array(3).fill(null))];
 
-        // Remove duplicates
-        const existingIndex = newSlotsForEnemy.indexOf(formationId);
-        if (existingIndex > -1) {
-            newSlotsForEnemy[existingIndex] = null;
+        // Remove duplicates if a formation is being assigned (not removed)
+        if (formationId) {
+            const existingIndex = newSlotsForEnemy.indexOf(formationId);
+            // If it exists in a DIFFERENT slot, remove it from the old slot
+            if (existingIndex > -1 && existingIndex !== slotIndex) {
+                newSlotsForEnemy[existingIndex] = null;
+            }
         }
         newSlotsForEnemy[slotIndex] = formationId;
 
         const newPlanState = {
             ...planState,
             assignments: {
-                ...planState.assignments,
+                ...currentAssignments,
                 [squareId]: {
                     ...newAssignmentsForSquare,
                     [enemyName]: newSlotsForEnemy

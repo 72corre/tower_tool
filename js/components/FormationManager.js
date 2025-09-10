@@ -1,3 +1,59 @@
+const FormationCard = React.memo(({
+    form,
+    isExpanded,
+    onToggleExpand,
+    isInvalid,
+    nameStyle,
+    cardStyle,
+    onGenerateShareImage,
+    onCopy,
+    onExport,
+    onEdit,
+    onDelete,
+    onTagClick
+}) => {
+    return (
+        <div className="card" style={cardStyle}>
+            <div className="formation-card-header">
+                <h3 style={{...nameStyle, fontWeight: 700, margin: 0, flexGrow: 1}}>{form.name}</h3>
+                <button 
+                    className="formation-card-menu-btn"
+                    onClick={() => onToggleExpand(form.id)}
+                >
+                    ︙
+                </button>
+            </div>
+
+            {isExpanded && (
+                <div className="formation-card-actions">
+                    <button onClick={() => onGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
+                    <button onClick={() => onCopy(form)} className="btn btn-secondary">コピー</button>
+                    <button onClick={() => onExport(form)} className="btn btn-secondary">エクスポート</button>
+                    <button onClick={() => onEdit(form)} className="btn btn-secondary">編集</button>
+                    <button onClick={() => {
+                        if (window.confirm(`「${form.name}」を削除してもよろしいですか？`)) {
+                            onDelete(form.id);
+                        }
+                    }} className="btn btn-danger">削除</button>
+                </div>
+            )}
+
+            <p style={{color: 'var(--text-subtle)', margin: '8px 0', whiteSpace: 'pre-wrap'}}>{form.notes || ''}</p>
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px'}}>{(form.tags || []).map((tag, i) => (
+                <button key={`${tag}-${i}`} className="tag-button-item" onClick={() => onTagClick(tag)}>
+                    {tag}
+                </button>
+            ))}</div>
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px'}}>{(form.megido || []).map((m, i) => m ? 
+                <span key={`${m.id}-${i}`} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}} className={getStyleClass(m.スタイル)}>{m.名前}</span> : 
+                <span key={i} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}}>-</span>
+            )
+            }
+            </div>
+        </div>
+    );
+});
+
 const FormationManager = ({
     ownedMegidoIds,
     formations,
@@ -23,7 +79,7 @@ const FormationManager = ({
     const [tagSearch, setTagSearch] = useState({ text: '', exactMatch: false });
     const [qrCodeData, setQrCodeData] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
-    const [generatedImageData, setGeneratedImageData] = useState(null);
+    const [generatedImageData, setGeneratedImageData] = useState('');
     const [tweetUrl, setTweetUrl] = useState('');
     const [expandedCardId, setExpandedCardId] = useState(null);
 
@@ -401,6 +457,10 @@ const FormationManager = ({
         setQrCodeData(qrString);
     };
 
+    const handleToggleExpand = (formId) => {
+        setExpandedCardId(prevId => prevId === formId ? null : formId);
+    };
+
     return (
         <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
             {qrCodeData && isQriousLoaded && (
@@ -453,47 +513,23 @@ const FormationManager = ({
                     const isInvalid = isFormationInvalid(form, megidoDetails, ownedMegidoIds);
                     const cardStyle = isInvalid ? { backgroundColor: 'rgba(217, 83, 79, 0.3)' } : {};
                     const nameStyle = isInvalid ? { color: 'var(--danger-color)' } : {};
-                    const isExpanded = expandedCardId === form.id;
 
                     return (
-                        <div key={form.id} className="card" style={cardStyle}>
-                            <div className="formation-card-header">
-                                <h3 style={{...nameStyle, fontWeight: 700, margin: 0, flexGrow: 1}}>{form.name}</h3>
-                                <button 
-                                    className="formation-card-menu-btn"
-                                    onClick={() => setExpandedCardId(isExpanded ? null : form.id)}
-                                >
-                                    ︙
-                                </button>
-                            </div>
-
-                            {isExpanded && (
-                                <div className="formation-card-actions">
-                                    <button onClick={() => handleGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
-                                    <button onClick={() => onCopy(form)} className="btn btn-secondary">コピー</button>
-                                    <button onClick={() => handleExportClick(form)} className="btn btn-secondary">エクスポート</button>
-                                    <button onClick={() => { setPreviousScreen('formation'); onEditingFormationChange(form); }} className="btn btn-secondary">編集</button>
-                                    <button onClick={() => {
-                                        if (window.confirm(`「${form.name}」を削除してもよろしいですか？`)) {
-                                            onDelete(form.id);
-                                        }
-                                    }} className="btn btn-danger">削除</button>
-                                </div>
-                            )}
-
-                            <p style={{color: 'var(--text-subtle)', margin: '8px 0', whiteSpace: 'pre-wrap'}}>{form.notes || ''}</p>
-                            <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px'}}>{(form.tags || []).map((tag, i) => (
-                                <button key={`${tag}-${i}`} className="tag-button-item" onClick={() => setTagSearch({ text: tag, exactMatch: true }) }>
-                                    {tag}
-                                </button>
-                            ))}</div>
-                            <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px'}}>{(form.megido || []).map((m, i) => m ? 
-                                <span key={`${m.id}-${i}`} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}} className={getStyleClass(m.スタイル)}>{m.名前}</span> : 
-                                <span key={i} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}}>-</span>
-                            )
-                            }
-                            </div>
-                        </div>
+                        <FormationCard
+                            key={form.id}
+                            form={form}
+                            isExpanded={expandedCardId === form.id}
+                            onToggleExpand={handleToggleExpand}
+                            isInvalid={isInvalid}
+                            nameStyle={nameStyle}
+                            cardStyle={cardStyle}
+                            onGenerateShareImage={handleGenerateShareImage}
+                            onCopy={onCopy}
+                            onExport={handleExportClick}
+                            onEdit={() => { setPreviousScreen('formation'); onEditingFormationChange(form); }}
+                            onDelete={onDelete}
+                            onTagClick={(tag) => setTagSearch({ text: tag, exactMatch: true })}
+                        />
                     );
                 })}
             </div>

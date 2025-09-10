@@ -1,10 +1,14 @@
-const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedMegidoIds, megidoDetails, initialTagTarget, previousScreen, showToastMessage, onTargetSelect }) => {
+const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCancel, ownedMegidoIds, megidoDetails, initialTagTarget, previousScreen, showToastMessage, onTargetSelect }) => {
     const { useState, useMemo, useEffect } = React;
     const [formation, setFormation] = useState(initialFormation);
     const [modalState, setModalState] = useState({ type: null, isOpen: false, slotIndex: null });
     const [selectedFloor, setSelectedFloor] = useState(null);
     const [selectedEnemy, setSelectedEnemy] = useState('');
     const [isEnemyModalOpen, setIsEnemyModalOpen] = useState(false);
+
+    useEffect(() => {
+        setFormation(initialFormation);
+    }, [initialFormation]);
 
     useEffect(() => {
         let floor = null;
@@ -257,4 +261,4 @@ const FormationEditor = ({ formation: initialFormation, onSave, onCancel, ownedM
             </div>
         </div>
     );
-};
+});
