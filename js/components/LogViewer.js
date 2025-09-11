@@ -1,4 +1,4 @@
-const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLogSquare, onSelectLogSquare, onDeleteLog, targetEnemies }) => {
+const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLogSquare, onSelectLogSquare, onDeleteLog, targetEnemies, towerConnections }) => {
     const { useState, useEffect, useMemo } = React;
     const [logTab, setLogTab] = useState('all_summary');
 
@@ -7,7 +7,7 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLo
     }, [selectedLogSquare]);
 
     const allLogsSummaryData = useMemo(() => {
-        if (!logs || typeof TOWER_MAP_DATA === 'undefined' || typeof connections === 'undefined') return null;
+        if (!logs || typeof TOWER_MAP_DATA === 'undefined' || !towerConnections) return null;
 
         const enemyWinLoss = {};
         const megidoUsage = {};
@@ -75,38 +75,38 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLo
             avgTotalConsumption = total / towerStats.runs.length;
         }
 
-        const floorConsumptionAverages = {};
+        const floorConsumptionData = {};
+        TOWER_MAP_DATA.forEach(floorData => {
+            const floor = floorData.floor;
+            const connectionsForFloor = towerConnections[floor] || {};
+            const distance = calculateShortestPath(floorData, connectionsForFloor);
+
+            if (distance === -1) {
+                floorConsumptionData[floor] = 'N/A';
+                return;
+            }
+
+            if (floor >= 1 && floor <= 10) floorConsumptionData[floor] = distance + 2;
+            else if (floor >= 11 && floor <= 20) floorConsumptionData[floor] = distance * 1.8;
+            else if (floor >= 21 && floor <= 30) floorConsumptionData[floor] = distance * 2;
+            else if (floor === 31) floorConsumptionData[floor] = distance * 5;
+            else if (floor > 31 && floor <= 35) floorConsumptionData[floor] = distance + 3;
+            else floorConsumptionData[floor] = distance; // Fallback
+        });
+
         let hasRealData = false;
         if (towerStats && towerStats.floorAverages) {
             for (const floor in towerStats.floorAverages) {
                 const data = towerStats.floorAverages[floor];
                 if(data.count > 0) {
-                    floorConsumptionAverages[floor] = data.totalConsumed / data.count;
+                    floorConsumptionData[floor] = data.totalConsumed / data.count;
                     hasRealData = true;
                 }
             }
         }
 
-        const estimatedConsumption = {};
-        if (!hasRealData) {
-            TOWER_MAP_DATA.forEach(floorData => {
-                const floor = floorData.floor;
-                const distance = calculateShortestPath(floorData, connections);
-                if (distance === -1) {
-                    estimatedConsumption[floor] = 'N/A';
-                    return;
-                }
-
-                if (floor >= 1 && floor <= 10) estimatedConsumption[floor] = distance + 2;
-                else if (floor >= 11 && floor <= 20) estimatedConsumption[floor] = distance * 1.8;
-                else if (floor >= 21 && floor <= 30) estimatedConsumption[floor] = distance * 2;
-                else if (floor === 31) estimatedConsumption[floor] = distance * 5;
-                else if (floor > 31 && floor <= 35) estimatedConsumption[floor] = distance + 3;
-            });
-        }
-
-        return { enemyStats, sortedMegidoUsage, avgTotalConsumption, floorConsumptionAverages, estimatedConsumption, hasRealData };
-    }, [logs, formations]);
+        return { enemyStats, sortedMegidoUsage, avgTotalConsumption, floorConsumptionData, hasRealData };
+    }, [logs, formations, towerConnections]);
 
     const summaryData = useMemo(() => {
         if (!selectedLog) return null;
@@ -251,12 +251,12 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLo
                         <div className="card">
                              <h3 className="card-header">平均塔破力</h3>
                              <p>挑戦全体の平均消費塔破力: <strong>{allLogsSummaryData.avgTotalConsumption ? allLogsSummaryData.avgTotalConsumption.toFixed(2) : 'データなし'}</strong></p>
-                             <h4 style={{marginTop: '16px'}}>階ごとの平均消費塔破力 {allLogsSummaryData.hasRealData ? '' : '(推定値)'}</h4>
+                             <h4 style={{marginTop: '16px'}}>階ごとの平均消費塔破力 (実績/推定)</h4>
                              <div className="table-container" style={{maxHeight: '300px'}}>
                                 <table>
                                     <thead><tr><th>階</th><th>平均消費量</th></tr></thead>
                                     <tbody>
-                                        {Object.entries(allLogsSummaryData.hasRealData ? allLogsSummaryData.floorConsumptionAverages : allLogsSummaryData.estimatedConsumption).map(([floor, avg]) => (
+                                        {Object.entries(allLogsSummaryData.floorConsumptionData).map(([floor, avg]) => (
                                             <tr key={floor}>
                                                 <td>{floor}F</td>
                                                 <td>{typeof avg === 'number' ? avg.toFixed(2) : avg}</td>

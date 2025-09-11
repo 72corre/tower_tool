@@ -1141,6 +1141,7 @@ const TowerTool = () => {
                     idMaps={idMaps}
                     formations={formations}
                     targetEnemies={targetEnemies}
+                    towerConnections={towerConnections}
                 />
             ) : (
                 <div className="tab-content" style={{marginTop: '1rem', height: '100%'}}>

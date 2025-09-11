@@ -51,7 +51,7 @@ const InputModal = ({ isOpen, onClose, onConfirm, title, message, inputValue: in
 
     return (
         <div style={backdropStyle} onClick={onClose}>
-            <dialog open className="card" style={dialogStyle} onClick={e => e.stopPropagation()}>
+            <div className="card" style={dialogStyle} onClick={e => e.stopPropagation()}>
                 <h3 className="card-header">{title}</h3>
                 <p style={{textAlign: 'center', marginBottom: '1rem'}}>{message}</p>
                 <input
@@ -66,7 +66,7 @@ const InputModal = ({ isOpen, onClose, onConfirm, title, message, inputValue: in
                     <button onClick={onClose} className="btn btn-secondary">キャンセル</button>
                     <button onClick={handleConfirm} className="btn btn-primary">確定</button>
                 </div>
-            </dialog>
+            </div>
         </div>
     );
 };
