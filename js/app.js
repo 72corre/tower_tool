@@ -118,7 +118,11 @@ const TowerTool = () => {
         return saved ? parseInt(saved, 10) : 0;
     });
     const [isLoading, setIsLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState(() => localStorage.getItem('ui_activeTab') || 'details');
+    const [activeTab, setActiveTab] = useState(() => {
+        const savedTab = localStorage.getItem('ui_activeTab');
+        const allowedTabs = ['details', 'ownership', 'formation'];
+        return (savedTab && allowedTabs.includes(savedTab)) ? savedTab : 'details';
+    });
     const [selectedSquare, setSelectedSquare] = useState(null);
     const [mode, setMode] = useState(() => localStorage.getItem('ui_mode') || 'practice');
     
@@ -1304,19 +1308,13 @@ const TowerTool = () => {
                         setShowUpdateModal(false);
                         localStorage.setItem('updateModalShown_20250911_final', 'true');
                     }}
-                    title="機能改善と不具合修正のお知らせ (2025/09/11)"
+                    title="機能改善と不具合修正のお知らせ (2025/09/12)"
                 >
-                    {`【機能改善】
-・マップ画面および編成リストの表示パフォーマンスを改善し、よりスムーズに動作するようにしました。
-・ご要望に基づき、スワイプによるタブ移動機能、および長押しによるスクロール機能を廃止しました。
-
-【不具合修正】
-・編成の作成・編集画面で、メギドやオーブを選択する際に画面がちらつき、選択が解除される問題を修正しました。
-・モバイル表示時に、所持メギド管理画面で奥義レベルを変更するモーダルが表示されない問題を修正しました。
-・マスの隣接判定について、双方向の接続を補完することでロジックを改善しました。これにより、特定のマスを解放できないバグが修正されたはずです。
+                    {`【不具合修正】
+・EXオーブが装備条件を満たしても表示されないバグを修正しました
 
 【その他】
-・リヴァイアサンより後の本編加入キャラクターが、配布チェック機能で対応していない件について、これは星間の塔の解放時点でのストーリー配布メギドと、全てのイベント配布メギドを含むリストを想定していたためこの形になりました。これについては今後もっとわかりやすい処理になるように変更する予定です。お手数をおかけしてしまってすみません。
+・編成画面でフッダ―を開閉した場合にクラッシュする問題について、その状態から再度ツールを開いた場合、マップ画面が表示されるようになったはずです……
 
 ご利用いただきありがとうございます。今後とも本ツールをよろしくお願いいたします。`}
                 </InfoModal>
