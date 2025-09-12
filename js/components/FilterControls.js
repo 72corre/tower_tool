@@ -91,9 +91,9 @@ const FilterControls = ({ filters = {}, onFilterChange, onBulkCheck, onCheckDist
                     className="input-field w-full"
                 />
                 <div className="flex items-center gap-2">
-                    <label className="label mb-0 text-sm" htmlFor="exact-match-checkbox">完全一致:</label>
+                    <label className="label mb-0 text-sm" htmlFor={`exact-match-checkbox-${filterType}`}>完全一致:</label>
                     <input
-                        id="exact-match-checkbox"
+                        id={`exact-match-checkbox-${filterType}`}
                         type="checkbox"
                         checked={filters.exactMatch || false}
                         onChange={e => onFilterChange('exactMatch', e.target.checked)}

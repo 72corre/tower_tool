@@ -131,7 +131,7 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
 
     const renderPlanMode = () => {
         const styleNameMap = { rush: 'ラッシュ', counter: 'カウンター', burst: 'バースト' };
-        if (!planConditions) return null; // Add guard clause
+        if (!planConditions || !planConditions.fatigueByGroup || !planConditions.megidoConditionsBySection) return null;
 
         return (
             <>
@@ -140,7 +140,10 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
                         <h4 className={getStyleClass(styleNameMap[styleKey])} style={{ fontWeight: 700, textAlign: 'center' }}>{styleNameMap[styleKey]}</h4>
                         {SIMULATED_CONDITION_SECTIONS[styleKey].map((section, index) => {
                             const groupKey = `${section.start}-${section.end}`;
-                            const groupData = planConditions.fatigueByGroup[groupKey] || { used: 0, capacity: section.limit, megido: [] };
+                            const groupData = planConditions.fatigueByGroup[groupKey] || { used: 0, capacity: section.limit };
+                            const sectionMegidoData = planConditions.megidoConditionsBySection[groupKey] || {};
+                            const fatiguedMegidoList = Object.values(sectionMegidoData);
+
                             const usageRate = groupData.capacity > 0 ? (groupData.used / groupData.capacity) * 100 : 0;
                             let barColor = 'var(--success-color)';
                             if (usageRate > 80) barColor = 'var(--danger-color)';
@@ -151,9 +154,8 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
                                     <p style={{ fontSize: '12px', fontWeight: 500 }}>{section.start}F - {section.end}F ({groupData.used}/{groupData.capacity})</p>
                                     <div className="progress-bar"><div className="progress-bar-inner" style={{ width: `${usageRate}%`, backgroundColor: barColor }}></div></div>
                                     <div className="fatigue-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 8px', marginTop: '8px' }}>
-                                        {groupData.megido.map(m => {
-                                            const finalCondition = simulatedPlanData.finalMegidoConditions[m.id] || 0;
-                                            return <span key={m.id}>{m.名前}({getNextCondition('絶好調', finalCondition)})</span>
+                                        {fatiguedMegidoList.map(({ megido, fatigue }) => {
+                                            return <span key={megido.id}>{megido.名前}({getNextCondition('絶好調', fatigue)})</span>
                                         })}
                                     </div>
                                 </div>

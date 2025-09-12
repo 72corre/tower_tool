@@ -266,7 +266,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
 
                             const isPlannedInSquare = Object.values(plan.assignments[fullSquareId]).some(slots =>
                                 slots.some(formId =>
-                                    formations.find(f => f.id === formId)?.megido.some(m => m && String(m.id) === megidoId)
+                                    formations[formId]?.megidoSlots.some(slot => slot && String(slot.megidoId) === megidoId)
                                 )
                             );
 
@@ -284,7 +284,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                         if (h.type !== 'battle') return;
                         const floor = parseInt(h.floor, 10);
                         const isFutureFloorInScope = currentSection ? (floor > currentFloor && floor <= currentSection.end) : (floor > currentFloor);
-                        const isUsed = formations.find(f => f.id === h.formationId)?.megido.some(m => m && String(m.id) === megidoId);
+                        const isUsed = formations[h.formationId]?.megidoSlots.some(slot => slot && String(slot.megidoId) === megidoId);
                         
                         if (isUsed) {
                             if (floor === currentFloor && !reasonForCurrent) {

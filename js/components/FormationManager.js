@@ -27,7 +27,7 @@ const FormationCard = React.memo(({
             {isExpanded && (
                 <div className="formation-card-actions">
                     <button onClick={() => onGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
-                    <button onClick={() => onCopy(form)} className="btn btn-secondary">コピー</button>
+                    <button onClick={() => onCopy(form.id)} className="btn btn-secondary">コピー</button>
                     <button onClick={() => onExport(form)} className="btn btn-secondary">エクスポート</button>
                     <button onClick={() => onEdit(form)} className="btn btn-secondary">編集</button>
                     <button onClick={() => {
@@ -44,8 +44,8 @@ const FormationCard = React.memo(({
                     {tag}
                 </button>
             ))}</div>
-            <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px'}}>{(form.megido || []).map((m, i) => m ? 
-                <span key={`${m.id}-${i}`} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}} className={getStyleClass(m.スタイル)}>{m.名前}</span> : 
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px'}}>{(form.megidoSlots || []).map((slot, i) => slot ? 
+                <span key={`${slot.megidoId}-${i}`} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}} className={getStyleClass(slot.megidoStyle)}>{slot.megidoName}</span> : 
                 <span key={i} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}}>-</span>
             )
             }
@@ -76,12 +76,41 @@ const FormationManager = ({
     onEditingFormationChange,
     isMobileView
 }) => {
+    const { useState, useEffect, useMemo, useCallback } = React;
     const [tagSearch, setTagSearch] = useState({ text: '', exactMatch: false });
     const [qrCodeData, setQrCodeData] = useState(null);
     const [showShareModal, setShowShareModal] = useState(false);
     const [generatedImageData, setGeneratedImageData] = useState('');
     const [tweetUrl, setTweetUrl] = useState('');
     const [expandedCardId, setExpandedCardId] = useState(null);
+
+    const rehydrateFormation = useCallback((formation) => {
+        if (!formation || !formation.megidoSlots) return { ...formation, megido: [] };
+
+        const rehydratedMegido = formation.megidoSlots.map(slot => {
+            if (!slot || !slot.megidoId) return null;
+
+            const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(slot.megidoId));
+            if (!megidoMaster) return null;
+
+            const orb = slot.orbId ? COMPLETE_ORB_LIST.find(o => String(o.id) === String(slot.orbId)) : null;
+            const reishou = slot.reishouIds.map(rId => COMPLETE_REISHOU_LIST.find(r => String(r.id) === String(rId))).filter(Boolean);
+            const details = megidoDetails[slot.megidoId] || {};
+
+            return {
+                ...megidoMaster,
+                orb: orb,
+                reishou: reishou,
+                level: details.level || 70,
+                ougiLevel: details.ougiLevel || 1,
+                special_reishou: details.special_reishou || false,
+                bond_reishou: details.bond_reishou || 0,
+                singularity_level: details.singularity_level || 0,
+            };
+        });
+
+        return { ...formation, megido: rehydratedMegido };
+    }, [megidoDetails]);
 
     const drawOutlinedText = (ctx, text, x, y, options = {}) => {
         const {
@@ -125,7 +154,9 @@ const FormationManager = ({
 
     const handleGenerateShareImage = async (form) => {
         showToastMessage('共有用画像を生成中です...');
-        setTweetUrl(generateTweetText(form));
+        const rehydratedForm = rehydrateFormation(form);
+
+        setTweetUrl(generateTweetText(rehydratedForm));
         const canvas = document.createElement('canvas');
         canvas.width = 1200;
         canvas.height = 675;
@@ -164,8 +195,8 @@ const FormationManager = ({
             img.src = src;
         });
         const imagePromises = [loadImage('asset/back.png')];
-        form.megido.forEach(m => imagePromises.push(m ? loadImage(`asset/メギド/${m.名前}.png`) : Promise.resolve(null)));
-        form.megido.forEach(m => imagePromises.push(m && m.orb ? loadImage(`asset/オーブ/${m.orb.name}.png`) : Promise.resolve(null)));
+        rehydratedForm.megido.forEach(m => imagePromises.push(m ? loadImage(`asset/メギド/${m.名前}.png`) : Promise.resolve(null)));
+        rehydratedForm.megido.forEach(m => imagePromises.push(m && m.orb ? loadImage(`asset/オーブ/${m.orb.name}.png`) : Promise.resolve(null)));
         const [bgImage, ...loadedImages] = await Promise.all(imagePromises);
         const megidoImages = loadedImages.slice(0, 5);
         const orbImages = loadedImages.slice(5);
@@ -191,17 +222,17 @@ const FormationManager = ({
         // --- LEFT COLUMN (Info) ---
         const leftColumnMaxWidth = 450;
 
-        if (form.floor || form.enemyName) {
-            const floorData = TOWER_MAP_DATA.find(f => f.floor === form.floor);
-            const square = floorData ? Object.values(floorData.squares).find(s => s.enemies && s.enemies.includes(form.enemyName)) : null;
+        if (rehydratedForm.floor || rehydratedForm.enemyName) {
+            const floorData = TOWER_MAP_DATA.find(f => f.floor === rehydratedForm.floor);
+            const square = floorData ? Object.values(floorData.squares).find(s => s.enemies && s.enemies.includes(rehydratedForm.enemyName)) : null;
             const rules = square ? square.rules.join(', ') : '';
 
-            const floorText = `${form.floor || '?'}F`;
+            const floorText = `${rehydratedForm.floor || '?'}F`;
             drawOutlinedText(ctx, floorText, LAYOUT.PADDING, LAYOUT.PADDING, {
                 font: 'bold 42px "Noto Sans JP", sans-serif'
             });
             const floorWidth = ctx.measureText(floorText).width;
-            drawOutlinedText(ctx, form.enemyName || 'N/A', LAYOUT.PADDING + floorWidth + 15, LAYOUT.PADDING + 10, {
+            drawOutlinedText(ctx, rehydratedForm.enemyName || 'N/A', LAYOUT.PADDING + floorWidth + 15, LAYOUT.PADDING + 10, {
                 font: 'bold 32px "Noto Sans JP", sans-serif',
                 maxWidth: leftColumnMaxWidth - floorWidth - 15
             });
@@ -213,7 +244,7 @@ const FormationManager = ({
             });
         } else {
             // Fallback to formation name
-            drawOutlinedText(ctx, form.name || '名称未設定の編成', LAYOUT.PADDING, LAYOUT.PADDING + 10, {
+            drawOutlinedText(ctx, rehydratedForm.name || '名称未設定の編成', LAYOUT.PADDING, LAYOUT.PADDING + 10, {
                 font: 'bold 32px "Noto Sans JP", sans-serif',
                 textBaseline: 'top',
                 maxWidth: leftColumnMaxWidth
@@ -221,12 +252,12 @@ const FormationManager = ({
         }
 
         // --- CENTER COLUMN (Notes) ---
-        if (form.notes) {
+        if (rehydratedForm.notes) {
             const notesX = leftColumnMaxWidth + LAYOUT.PADDING * 2;
             const notesMaxWidth = canvas.width - notesX - qrBgSize - LAYOUT.PADDING * 3;
             const lineHeight = 22;
             let currentY = LAYOUT.PADDING;
-            const lines = form.notes.split('\n');
+            const lines = rehydratedForm.notes.split('\n');
 
             for (let i = 0; i < lines.length; i++) {
                 if (i >= 4) break; // Max 4 lines
@@ -249,7 +280,7 @@ const FormationManager = ({
         const cardStartX = (canvas.width - cardTotalW) / 2;
 
         megidoImages.forEach((img, i) => {
-            const megido = form.megido[i];
+            const megido = rehydratedForm.megido[i];
             if (!megido) return;
             const cardX = cardStartX + i * (cardW + 25);
             ctx.strokeStyle = COLORS.BORDER;
@@ -364,10 +395,12 @@ const FormationManager = ({
         }
     }, [initialTagTarget]);
 
+    const formationList = useMemo(() => Object.values(formations), [formations]);
+
     const filteredFormations = useMemo(() => {
         if (typeof COMPLETE_MEGIDO_LIST === 'undefined') return [];
-        if (!tagSearch.text) return formations;
-        return formations.filter(f => {
+        if (!tagSearch.text) return formationList;
+        return formationList.filter(f => {
             if (!f.tags || f.tags.length === 0) return false;
             const searchText = tagSearch.text.toLowerCase();
             if (tagSearch.exactMatch) {
@@ -376,7 +409,7 @@ const FormationManager = ({
                 return f.tags.some(tag => tag.toLowerCase().includes(searchText));
             }
         });
-    }, [tagSearch, formations]);
+    }, [tagSearch, formationList]);
 
     const handleSave = (formationToSave, targetScreen) => {
         onSave(formationToSave, targetScreen);
@@ -408,17 +441,19 @@ const FormationManager = ({
     };
 
     const handleExportClick = (form, returnOnly = false) => {
+        const rehydratedForm = rehydrateFormation(form);
+
         if (!idMaps) {
             showToastMessage('IDマッピングが完了していません。');
             return null;
         }
         let qrString = '';
-        const enemyId = form.enemyName ? (idMaps.enemy.originalToNew.get(form.enemyName) || '000') : '000';
-        const floor = form.floor ? form.floor.toString().padStart(2, '0') : '00';
+        const enemyId = rehydratedForm.enemyName ? (idMaps.enemy.originalToNew.get(rehydratedForm.enemyName) || '000') : '000';
+        const floor = rehydratedForm.floor ? rehydratedForm.floor.toString().padStart(2, '0') : '00';
         qrString += enemyId;
         qrString += floor;
         for (let i = 0; i < 5; i++) {
-            const megido = form.megido[i];
+            const megido = rehydratedForm.megido[i];
             if (megido) {
                 const megidoDetailsForSlot = megidoDetails[megido.id] || {};
                 qrString += idMaps.megido.originalToNew.get(String(megido.id)) || '999';
@@ -510,14 +545,15 @@ const FormationManager = ({
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                 {(filteredFormations || []).map(form => {
-                    const isInvalid = isFormationInvalid(form, megidoDetails, ownedMegidoIds);
+                    const rehydratedForm = rehydrateFormation(form);
+                    const isInvalid = isFormationInvalid(rehydratedForm, megidoDetails, ownedMegidoIds);
                     const cardStyle = isInvalid ? { backgroundColor: 'rgba(217, 83, 79, 0.3)' } : {};
                     const nameStyle = isInvalid ? { color: 'var(--danger-color)' } : {};
 
                     return (
                         <FormationCard
                             key={form.id}
-                            form={form}
+                            form={form} // Pass the original, non-rehydrated form for display
                             isExpanded={expandedCardId === form.id}
                             onToggleExpand={handleToggleExpand}
                             isInvalid={isInvalid}
@@ -526,7 +562,10 @@ const FormationManager = ({
                             onGenerateShareImage={handleGenerateShareImage}
                             onCopy={onCopy}
                             onExport={handleExportClick}
-                            onEdit={() => { setPreviousScreen('formation'); onEditingFormationChange(form); }}
+                            onEdit={() => { 
+                                setPreviousScreen('formation'); 
+                                onEditingFormationChange(rehydratedForm); 
+                            }}
                             onDelete={onDelete}
                             onTagClick={(tag) => setTagSearch({ text: tag, exactMatch: true })}
                         />

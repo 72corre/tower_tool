@@ -1,4 +1,4 @@
-const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLogSquare, onSelectLogSquare, onDeleteLog, targetEnemies, towerConnections }) => {
+const LogViewer = ({ logs, onSelectLog, selectedLog, formations = {}, selectedLogSquare, onSelectLogSquare, onDeleteLog, targetEnemies, towerConnections }) => {
     const { useState, useEffect, useMemo } = React;
     const [logTab, setLogTab] = useState('all_summary');
 
@@ -32,18 +32,18 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLo
             });
 
             history.forEach(h => {
-                const processMegido = (megidoList) => {
-                    megidoList.forEach(m => {
-                        if (m) {
-                            const megidoId = m.id || m;
+                const processMegido = (items) => {
+                    items.forEach(item => {
+                        if (item) {
+                            const megidoId = item.megidoId || item;
                             megidoUsage[megidoId] = (megidoUsage[megidoId] || 0) + 1;
                         }
                     });
                 };
 
                 if (h.type === 'battle' && h.formationId) {
-                    const form = formations.find(f => f.id === h.formationId);
-                    if (form?.megido) processMegido(form.megido);
+                    const form = formations[h.formationId];
+                    if (form?.megidoSlots) processMegido(form.megidoSlots);
                 } else if (h.type === 'explore' && Array.isArray(h.megido)) {
                     processMegido(h.megido);
                 }
@@ -127,10 +127,10 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLo
             const floorRangeIndex = Math.floor((floor - 1) / 5);
             const floorRange = floorRanges[floorRangeIndex];
 
-            const processMegido = (megidoList) => {
-                megidoList.forEach(m => {
-                    if (m) {
-                        const megidoId = m.id || m;
+            const processMegido = (items) => {
+                items.forEach(item => {
+                    if (item) {
+                        const megidoId = item.megidoId || item;
                         if (!megidoUsage[megidoId]) {
                             const megidoData = COMPLETE_MEGIDO_LIST.find(md => String(md.id) === String(megidoId));
                             megidoUsage[megidoId] = { 
@@ -149,8 +149,8 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLo
             };
 
             if (h.type === 'battle' && h.formationId) {
-                const form = formations.find(f => f.id === h.formationId);
-                if (form?.megido) processMegido(form.megido);
+                const form = formations[h.formationId];
+                if (form?.megidoSlots) processMegido(form.megidoSlots);
                 if (!formationStats[h.formationId]) {
                     formationStats[h.formationId] = { name: form?.name || '不明な編成', usage: 0, wins: 0 };
                 }
@@ -327,7 +327,7 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = [], selectedLo
                         {squareHistory.length > 0 ? (
                             <ul style={{display: 'flex', flexDirection: 'column', gap: '8px', listStyle: 'none', padding: 0}}>
                                 {squareHistory.map((h, i) => {
-                                    const form = h.formationId && h.type === 'battle' ? (formations || []).find(f => f.id === h.formationId) : null;
+                                    const form = h.formationId && h.type === 'battle' ? formations[h.formationId] : null;
                                     const exploreMegidoNames = h.type === 'explore' && Array.isArray(h.megido) 
                                         ? h.megido.map(mId => (COMPLETE_MEGIDO_LIST.find(md => String(md.id) === String(mId))?.名前 || '不明')).join(', ')
                                         : '';

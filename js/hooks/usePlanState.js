@@ -13,7 +13,7 @@ const usePlanState = ({ formations, megidoDetails, mode, showToastMessage }) => 
     const [planConditions, setPlanConditions] = useState({ fatigueByGroup: {}, megidoConditionsBySection: {} });
 
     useEffect(() => {
-        if (mode !== 'plan') return;
+        if (mode !== 'plan' || !formations) return;
 
         const fatigueByGroup = {};
         const megidoConditionsBySection = {};
@@ -33,11 +33,11 @@ const usePlanState = ({ formations, megidoDetails, mode, showToastMessage }) => 
             for (const formationSlots of Object.values(enemyAssignments)) {
                 for (const formationId of formationSlots) {
                     if (!formationId) continue;
-                    const formation = formations.find(f => f.id === formationId);
-                    if (formation && formation.megido) {
-                        formation.megido.forEach(m => {
-                            if (m && m.id) {
-                                const id = String(m.id);
+                    const formation = formations[formationId]; // <-- Fix 1: Dictionary lookup
+                    if (formation && formation.megidoSlots) { // <-- Fix 2: Use megidoSlots
+                        formation.megidoSlots.forEach(slot => { // <-- Fix 2
+                            if (slot && slot.megidoId) { // <-- Fix 2
+                                const id = String(slot.megidoId);
                                 if (!megidoUsage[id]) megidoUsage[id] = [];
                                 if (!megidoUsage[id].some(u => u.squareId === squareId && u.type === 'combat')) {
                                     megidoUsage[id].push({ floor, squareId, type: 'combat' });

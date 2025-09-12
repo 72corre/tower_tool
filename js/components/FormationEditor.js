@@ -1,4 +1,4 @@
-const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCancel, ownedMegidoIds, megidoDetails, initialTagTarget, previousScreen, showToastMessage, onTargetSelect }) => {
+const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCancel, ownedMegidoIds, megidoDetails, initialTagTarget, previousScreen, showToastMessage, onTargetSelect, uniquePrefix }) => {
     const { useState, useMemo, useEffect } = React;
     const [formation, setFormation] = useState(initialFormation);
     const [modalState, setModalState] = useState({ type: null, isOpen: false, slotIndex: null });
@@ -154,7 +154,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                     return <button key={item.id} onClick={() => onSelect(item)} disabled={isAlreadyInFormation} className="modal-item-btn"><p className={`font-bold ${getStyleClass(item.スタイル)}`}>{item.名前}</p></button>
                 }
             };
-            case 'orb': return { title: 'オーブ選択', showFilters: true, filterType: 'orb', items: megido ? (typeof COMPLETE_ORB_LIST !== 'undefined' ? COMPLETE_ORB_LIST : []).filter(o => (o.conditions || '').includes(megido.スタイル) || (o.conditions || '').includes(megido.クラス) || !o.conditions) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name} <span style={{color: 'var(--text-subtle)'}}>({item.race})</span></p><p style={{fontSize: '12px'}}>{item.trait}</p></button>) };
+            case 'orb': return { title: 'オーブ選択', showFilters: true, filterType: 'orb', items: megido ? (typeof COMPLETE_ORB_LIST !== 'undefined' ? COMPLETE_ORB_LIST : []).filter(o => { const cond = o.conditions; if (!cond) return true; if (cond === megido.スタイル || cond === megido.クラス) { return true; } const GENERAL_CONDITIONS = ['ラッシュ', 'カウンター', 'バースト', 'ファイター', 'トルーパー', 'スナイパー']; if (GENERAL_CONDITIONS.includes(cond)) { return false; } const isCondForReArmed = /[RCB]$/.test(cond); if (isCondForReArmed) { return cond === megido.名前; } else { return cond.startsWith(getBaseMegidoName(megido.名前)); } }) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name} <span style={{color: 'var(--text-subtle)'}}>({item.race})</span></p><p style={{fontSize: '12px'}}>{item.trait}</p></button>) };
             case 'reishou': return { title: '霊宝選択', showFilters: true, filterType: 'reishou', items: megido ? (typeof COMPLETE_REISHOU_LIST !== 'undefined' ? COMPLETE_REISHOU_LIST : []).filter(r => { const style = r.conditions?.style; return style === megido.スタイル || style === '複数' || !style; }) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name}</p><p style={{fontSize: '12px'}}>{item.effects}</p></button>) };
             default: return { title: '', items: [], renderItem: () => null };
         }
@@ -162,7 +162,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
 
     return (
         <div className="formation-editor-form">
-            <FilterableSelectionModal {...getModalConfig()} onSelect={handleSelect} onClose={() => setModalState({ isOpen: false, type: null, slotIndex: null })} isOpen={modalState.isOpen && modalState.type !== null} />
+            <FilterableSelectionModal {...getModalConfig()} onSelect={handleSelect} onClose={() => setModalState({ isOpen: false, type: null, slotIndex: null })} isOpen={modalState.isOpen && modalState.type !== null} uniquePrefix={uniquePrefix} />
             <FilterableSelectionModal 
                 title="エネミーを選択" 
                 isOpen={isEnemyModalOpen} 
@@ -179,6 +179,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                     </button>
                 )}
                 showFilters={true}
+                filterType="enemy"
             />
             <button onClick={onCancel} className="btn btn-ghost" style={{marginBottom: '16px'}}>&larr; 元の画面に戻る</button>
             <div className="card" style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>

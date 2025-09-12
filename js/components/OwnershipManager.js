@@ -164,6 +164,8 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
                 onCheckDistributed={onCheckDistributed}
                 showBulkButtons={true}
                 isMobileView={isMobileView}
+                filterType="megido"
+                uniquePrefix="ownership"
             />
             <div className="table-container">
                 <table className="ownership-table">

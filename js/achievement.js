@@ -5,14 +5,14 @@ const ACHIEVEMENTS = {
         name: '最初の編成',
         description: '初めての編成を保存する。',
         type: 'public',
-        condition: (data) => data.formations && data.formations.length >= 1
+        condition: (data) => data.formations && Object.keys(data.formations).length >= 1
     },
     'TEN_FORMATIONS': {
         id: 'TEN_FORMATIONS',
         name: '編成の達人',
         description: '合計10個の編成を保存する。',
         type: 'public',
-        condition: (data) => data.formations && data.formations.length >= 10
+        'condition': (data) => data.formations && Object.keys(data.formations).length >= 10
     },
     'MEGIDO_72': {
         id: 'MEGIDO_72',
@@ -91,12 +91,6 @@ const ACHIEVEMENTS = {
         name: 'やり直し',
         description: '実践モードの進行をリセットする。',
         type: 'secret'
-    },
-    'DEBUG': {
-        id: 'DEBUG',
-        name: 'デバッグ',
-        description: '開発者コンソールを開く。',
-        type: 'private'
     },
     'BETA_TESTER': {
         id: 'BETA_TESTER',

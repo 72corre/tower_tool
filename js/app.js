@@ -158,17 +158,23 @@ const TowerTool = () => {
         const saved = localStorage.getItem('targetEnemies');
         return saved ? JSON.parse(saved) : {};
     });
-    const [viewMode, setViewMode] = useState(() => {
-        return localStorage.getItem('viewMode') || 'auto';
-    });
-    const [isMobileView, setIsMobileView] = useState(false);
-    const [isTabletView, setIsTabletView] = useState(false);
+    const [viewMode, setViewMode] = useState(() => localStorage.getItem('viewMode') || 'auto');
     const [showBetaModal, setShowBetaModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [isFooterCollapsed, setIsFooterCollapsed] = useState(() => {
         const saved = localStorage.getItem('isFooterCollapsed');
         return saved ? JSON.parse(saved) : true; // Default to collapsed
     });
+
+    const isMobileSize = useMediaQuery('(max-width: 768px)');
+    const isTabletSize = useMediaQuery('(min-width: 769px) and (max-width: 1180px)');
+    const isMobileView = viewMode === 'mobile' || (viewMode === 'auto' && isMobileSize);
+    const isTabletView = viewMode === 'tablet' || (viewMode === 'auto' && isTabletSize);
+
+    useEffect(() => {
+        document.body.classList.toggle('mobile-view', isMobileView);
+        document.body.classList.toggle('tablet-view', isTabletView && !isMobileView);
+    }, [isMobileView, isTabletView]);
 
     const handleToggleFooter = () => {
         const newCollapsedState = !isFooterCollapsed;
@@ -186,8 +192,6 @@ const TowerTool = () => {
         }
     }, []);
 
-    
-    
     const floorRefs = useRef({});
 
     const showToastMessage = useCallback((message) => {
@@ -549,31 +553,6 @@ const TowerTool = () => {
     };
 
     useEffect(() => {
-        const handleResize = () => {
-            const width = window.innerWidth;
-            const isMobile = width <= 768;
-            const isTablet = width > 768 && width <= 1180;
-
-            const shouldBeMobile = viewMode === 'mobile' || (viewMode === 'auto' && isMobile);
-            const shouldBeTablet = viewMode === 'tablet' || (viewMode === 'auto' && isTablet);
-
-            setIsMobileView(shouldBeMobile);
-            setIsTabletView(shouldBeTablet);
-            
-            document.body.classList.remove('mobile-view', 'tablet-view');
-            if (shouldBeMobile) {
-                document.body.classList.add('mobile-view');
-            } else if (shouldBeTablet) {
-                document.body.classList.add('tablet-view');
-            }
-        };
-
-        handleResize();
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, [viewMode]);
-
-    useEffect(() => {
         const interval = setInterval(() => {
             if (window.Html5Qrcode) {
                 setIsHtml5QrLoaded(true);
@@ -868,29 +847,6 @@ const TowerTool = () => {
         showAchievementToast(achievement);
     };
 
-    useEffect(() => {
-        const threshold = 160; // The threshold for detecting devtools
-        let devtoolsOpen = false; // Flag to prevent continuous firing
-
-        const checkDevTools = () => {
-            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-
-            if (widthThreshold || heightThreshold) {
-                if (!devtoolsOpen) {
-                    devtoolsOpen = true;
-                    showAchievementToastById('DEBUG');
-                }
-            } else {
-                devtoolsOpen = false;
-            }
-        };
-
-        const intervalId = setInterval(checkDevTools, 1000);
-
-        return () => clearInterval(intervalId);
-    }, []); // Run only once on mount
-
     const handleModeChange = (newMode) => {
         setMode(newMode);
         setDisplayedEnemy(null);
@@ -1080,8 +1036,6 @@ const TowerTool = () => {
             cursor: 'pointer'
         }
     };
-
-    
 
     const towerConnections = useMemo(() => {
         if (isLoading || typeof connections === 'undefined') {
@@ -1417,14 +1371,14 @@ const TowerTool = () => {
                             </div>
                         </div>
                         <div style={{ display: activeTab === 'ownership' ? 'block' : 'none', height: '100%' }}>
-                            <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} isMobileView={isMobileView} />
+                            <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} isMobileView={isMobileView} setModalState={setModalState} />
                         </div>
                         <div style={{ display: activeTab === 'formation' ? 'block' : 'none', height: '100%' }}>
                             {editingFormation ? (
                                 <FormationEditor
                                     formation={editingFormation}
                                     onSave={handleSaveFormation}
-                                    onCancel={() => setEditingFormation(null)}
+                                    onCancel={handleCancelFormationEdit}
                                     ownedMegidoIds={ownedMegidoIds}
                                     megidoDetails={megidoDetails}
                                     initialTagTarget={initialTagTarget}
