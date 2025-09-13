@@ -63,7 +63,6 @@ const InputModal = ({ isOpen, onClose, onConfirm, title, message, inputValue: in
                     autoFocus
                 />
                 <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                    <button onClick={onClose} className="btn btn-secondary">キャンセル</button>
                     <button onClick={handleConfirm} className="btn btn-primary">確定</button>
                 </div>
             </div>

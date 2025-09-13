@@ -18,7 +18,7 @@ const modeMenuItems = [
     { key: 'log', title: 'ログ', description: '過去の記録を閲覧するモードです', icon: 'asset/log.png' }
 ];
 
-const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, activeTab, onTabClick, selectedSquare, onSaveLog, onResetRun, onOpenSettings, isMobileView }) => {
+const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, activeTab, onTabClick, selectedSquare, onSaveLog, onResetRun, onUndo, onOpenSettings, isMobileView }) => {
     const [isModeMenuOpen, setIsModeMenuOpen] = React.useState(false);
     const [isFloorMenuOpen, setIsFloorMenuOpen] = React.useState(false);
 
@@ -64,6 +64,7 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
                 {mode === 'practice' && (
                     <>
                         <button onClick={onSaveLog} className="btn btn-ghost record">記録</button>
+                        <button onClick={onUndo} className="btn btn-ghost undo">アンドゥ</button>
                         <button onClick={() => onResetRun(false)} className="btn btn-ghost retire">リタイア</button>
                     </>
                 )}
@@ -75,7 +76,7 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
     );
 };
 
-const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog }) => {
+const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog }) => {
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
     const [isModeMenuOpen, setIsModeMenuOpen] = useState(false);
@@ -141,6 +142,7 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                                 {isActionsMenuOpen && (
                                     <div className="mobile-actions-menu">
                                         <button onClick={() => { onSaveLog(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">挑戦ログを保存</button>
+                                        <button onClick={() => { onUndo(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">アンドゥ</button>
                                         <button onClick={() => { onResetRun(false); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item danger">挑戦をリタイア</button>
                                     </div>
                                 )}
@@ -210,7 +212,6 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                             </div>
                         </div>
                         <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
-                            <button className="btn-close-modal" onClick={() => setIsLogSelectionOpen(false)}>閉じる</button>
                         </div>
                     </div>
                 </div>
@@ -238,7 +239,6 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                             ))}
                         </div>
                         <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
-                            <button className="btn-close-modal" onClick={() => setIsFloorModalOpen(false)}>閉じる</button>
                         </div>
                     </div>
                 </div>

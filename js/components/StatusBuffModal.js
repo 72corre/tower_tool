@@ -96,7 +96,6 @@ const StatusBuffModal = ({ isOpen, onClose, onConfirm, expectationLevel }) => {
                     )}
                 </div>
                 <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                    <button onClick={onClose} className="btn btn-secondary">キャンセル</button>
                     <button onClick={handleConfirm} className="btn btn-primary">確定</button>
                 </div>
             </dialog>

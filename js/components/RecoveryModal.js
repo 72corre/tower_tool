@@ -33,53 +33,67 @@ const RecoveryModal = ({ isOpen, onClose, onConfirm, title, message, showNumberI
         { text: 'バースト', value: 'B' }
     ];
 
-    const dialogStyle = {
-        zIndex: 1002,
-        width: '400px',
+    const backdropStyle = {
         position: 'fixed',
-        top: '25%',
-        left: '50%',
-        transform: 'translateX(-50%)'
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1000
+    };
+
+    const dialogStyle = {
+        zIndex: 1001,
+        borderRadius: '8px',
+        border: '1px solid #444',
+        padding: '1.5rem',
+        width: '400px',
+        maxWidth: '90vw'
     };
 
     return (
-        <dialog open style={dialogStyle} className="card">
-            <h3 className="card-header">{title}</h3>
-            <p>{message}</p>
-            
-            <div style={{ margin: '16px 0', display: 'flex', justifyContent: 'space-around', gap: '8px' }}>
-                {styleOptions.map(opt => (
-                    <button 
-                        key={opt.value} 
-                        onClick={() => setSelectedStyle(opt.value)}
-                        className={`btn ${selectedStyle === opt.value ? 'btn-primary' : 'btn-secondary'}`}
-                        style={{ flex: 1 }}
-                    >
-                        {opt.text}
-                    </button>
-                ))}
-            </div>
+        <div style={backdropStyle} onClick={onClose}>
+            <div className="card" style={dialogStyle} onClick={e => e.stopPropagation()}>
+                <h3 className="card-header">{title}</h3>
+                <p>{message}</p>
+                
+                <div style={{ margin: '16px 0', display: 'flex', justifyContent: 'space-around', gap: '8px' }}>
+                    {styleOptions.map(opt => (
+                        <button 
+                            key={opt.value} 
+                            onClick={() => setSelectedStyle(opt.value)}
+                            className={`btn ${selectedStyle === opt.value ? 'btn-primary' : 'btn-secondary'}`}
+                            style={{ flex: 1 }}
+                        >
+                            {opt.text}
+                        </button>
+                    ))}
+                </div>
 
-            {showNumberInput && (
-                <input
-                    type="number"
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    className="input-field"
-                    placeholder={numberInputPlaceholder}
-                    disabled={!selectedStyle}
-                />
-            )}
-            <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                <button onClick={onClose} className="btn btn-secondary">キャンセル</button>
-                <button 
-                    onClick={handleConfirm} 
-                    className="btn btn-primary" 
-                    disabled={!selectedStyle || (showNumberInput && !inputValue)}
-                >
-                    確定
-                </button>
+                {showNumberInput && (
+                    <input
+                        type="number"
+                        value={inputValue}
+                        onChange={(e) => setInputValue(e.target.value)}
+                        className="input-field"
+                        placeholder={numberInputPlaceholder}
+                        disabled={!selectedStyle}
+                    />
+                )}
+                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+                    <button 
+                        onClick={handleConfirm} 
+                        className="btn btn-primary" 
+                        disabled={!selectedStyle || (showNumberInput && !inputValue)}
+                    >
+                        確定
+                    </button>
+                </div>
             </div>
-        </dialog>
+        </div>
     );
 };

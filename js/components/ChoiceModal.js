@@ -51,7 +51,6 @@ const ChoiceModal = ({ isOpen, onClose, onConfirm, title, message, options }) =>
                     ))}
                 </div>
                 <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                    <button onClick={onClose} className="btn btn-secondary">キャンセル</button>
                 </div>
             </dialog>
         </div>

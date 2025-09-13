@@ -84,9 +84,7 @@ const Settings = ({
             <div className="card settings-modal" style={settingsModalStyle} onClick={(e) => e.stopPropagation()}>
                 <div className="settings-header">
                     <h2 style={{ margin: 0, fontSize: isDesktopView ? '1.5rem' : '1.25rem' }}>設定</h2>
-                    <button onClick={onClose} className="btn-icon" title="閉じる">
-                        <span style={{fontSize: '24px', lineHeight: '1'}}>&times;</span>
-                    </button>
+                    
                 </div>
                 <div style={settingsContentStyle}>
                     <div style={sidebarStyle}>

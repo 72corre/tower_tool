@@ -55,7 +55,6 @@ const InfoModal = ({ isOpen, onClose, title, children }) => {
                     {children}
                 </div>
                 <div style={footerStyle}>
-                    <button className="btn btn-primary" onClick={onClose}>閉じる</button>
                 </div>
             </div>
         </div>

@@ -88,7 +88,6 @@ const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) 
                     )}
                 </div>
                 <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
-                    <button className="btn-close-modal" onClick={onClose}>閉じる</button>
                 </div>
             </div>
         </div>
@@ -295,7 +294,8 @@ const TowerTool = () => {
         handleResolveSquare, 
         handleResetRun, 
         handleManualRecovery, 
-        handleConditionRecovery 
+        handleConditionRecovery, 
+        handleUndo 
     } = usePracticeState({
         megidoDetails,
         ownedMegidoIds,
@@ -1331,6 +1331,7 @@ const TowerTool = () => {
                 selectedSquare={selectedSquare}
                 onSaveLog={handleSaveLog}
                 onResetRun={handleResetRun}
+                onUndo={handleUndo}
                 onOpenSettings={handleOpenSettings}
                 isMobileView={isMobileView}
                 runState={runState}
@@ -1527,7 +1528,6 @@ const TowerTool = () => {
             {isMobileView && selectedSquare && (
                 <div className="mobile-panel-overlay" onClick={() => onCancel()}>
                     <div className="mobile-panel-content" onClick={(e) => e.stopPropagation()}>
-                        <button className="btn-close-modal" onClick={() => onCancel()}>&times;</button>
                         <RightPanelContent />
                     </div>
                 </div>

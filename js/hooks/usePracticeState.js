@@ -33,6 +33,7 @@ const usePracticeState = ({
         totalPowerRecovered: 0
     });
     const [manualRecovery, setManualRecovery] = useState(null);
+    const [historyStack, setHistoryStack] = useState([]);
 
     const CONDITION_LEVELS = ['絶好調', '好調', '普通', '不調', '絶不調', '気絶'];
     const CONDITION_ORDER = ['気絶', '絶不調', '不調', '普通', '好調', '絶好調'];
@@ -119,6 +120,7 @@ const usePracticeState = ({
     }, [megidoConditions, ownedMegidoIds, showToastMessage, updateMegidoConditions]);
 
     const handleResolveSquare = useCallback((result, data, square) => {
+        setHistoryStack(prev => [...prev, { runState, megidoConditions }]);
         let newRunState = { ...runState };
         const isBoss = square.square.type === 'boss';
         const hasBeenAttempted = newRunState.history.some(h => h.squareId === square.id && h.type === 'battle');
@@ -136,11 +138,13 @@ const usePracticeState = ({
                 newRunState.explorationFatigue = [...new Set([...newRunState.explorationFatigue, ...megidoIds])];
                 
                 const floorNum = String(square.floor.floor);
-                if (!newRunState.cleared[floorNum]) {
-                    newRunState.cleared[floorNum] = [];
-                }
-                newRunState.cleared[floorNum].push(square.id);
-                newRunState.history.push({
+                const oldClearedFloor = newRunState.cleared[floorNum] || [];
+                newRunState.cleared = {
+                    ...newRunState.cleared,
+                    [floorNum]: [...oldClearedFloor, square.id]
+                };
+
+                newRunState.history = [...newRunState.history, {
                     type: 'explore',
                     squareId: square.id,
                     floor: floorNum,
@@ -149,7 +153,7 @@ const usePracticeState = ({
                     requiredPower: data.requiredPower,
                     expectationLevel: data.expectationLevel,
                     timestamp: new Date().toISOString()
-                });
+                }];
                 showToastMessage('探索完了');
                 break;
             }
@@ -161,18 +165,19 @@ const usePracticeState = ({
 
                 updateMegidoConditions(megidoIds, 1);
                 const floorNum = String(square.floor.floor);
-                if (!newRunState.cleared[floorNum]) {
-                    newRunState.cleared[floorNum] = [];
-                }
-                newRunState.cleared[floorNum].push(square.id);
-                newRunState.history.push({
+                const oldClearedFloor = newRunState.cleared[floorNum] || [];
+                newRunState.cleared = {
+                    ...newRunState.cleared,
+                    [floorNum]: [...oldClearedFloor, square.id]
+                };
+                newRunState.history = [...newRunState.history, {
                     type: 'battle',
                     result: 'win',
                     squareId: square.id,
                     floor: floorNum,
                     formationId: data.id,
                     timestamp: new Date().toISOString()
-                });
+                }];
                 showToastMessage('勝利！');
                 if (square.square.type === 'boss') {
                     const newCounts = { ...floorClearCounts };
@@ -207,13 +212,17 @@ const usePracticeState = ({
                         if (nextFloorData) {
                             const nextFloorStartSquare = Object.keys(nextFloorData.squares).find(key => nextFloorData.squares[key].type === 'start');
                             if (nextFloorStartSquare) {
-                                if (!newRunState.cleared[nextFloorNum]) {
-                                    newRunState.cleared[nextFloorNum] = [];
-                                }
-                                newRunState.cleared[nextFloorNum].push(nextFloorStartSquare);
+                                const oldClearedNextFloor = newRunState.cleared[nextFloorNum] || [];
+                                newRunState.cleared = {
+                                    ...newRunState.cleared,
+                                    [nextFloorNum]: [...oldClearedNextFloor, nextFloorStartSquare]
+                                };
                                 newRunState.highestFloorReached = nextFloorNum;
                                 newRunState.currentPosition = { floor: nextFloorNum, squareId: nextFloorStartSquare };
-                                newRunState.floorEntryPower[nextFloorNum] = newRunState.towerPower;
+                                newRunState.floorEntryPower = {
+                                    ...newRunState.floorEntryPower,
+                                    [nextFloorNum]: newRunState.towerPower
+                                };
                                 if (floorRefs.current[nextFloorNum]) {
                                     setTimeout(() => {
                                         floorRefs.current[nextFloorNum].scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -231,14 +240,14 @@ const usePracticeState = ({
                 logAction('COMBAT_RESULT', { result: 'lose', isLowCondition });
 
                 updateMegidoConditions(megidoIds, 2);
-                newRunState.history.push({
+                newRunState.history = [...newRunState.history, {
                     type: 'battle',
                     result: 'lose',
                     squareId: square.id,
                     floor: String(square.floor.floor),
                     formationId: data.id,
                     timestamp: new Date().toISOString()
-                });
+                }];
                 showToastMessage('敗北...');
                 break;
             }
@@ -248,14 +257,14 @@ const usePracticeState = ({
                 const isLowCondition = megidoIds.some(id => (CONDITION_LEVELS.indexOf(megidoConditions[id] || '絶好調') >= 3));
                 logAction('COMBAT_RESULT', { result: 'retreat', isLowCondition });
 
-                newRunState.history.push({
+                newRunState.history = [...newRunState.history, {
                     type: 'battle',
                     result: 'retreat',
                     squareId: square.id,
                     floor: String(square.floor.floor),
                     formationId: data.id,
                     timestamp: new Date().toISOString()
-                });
+                }];
                 showToastMessage('戦闘を棄権しました。');
                 break;
             }
@@ -374,6 +383,20 @@ const usePracticeState = ({
         localStorage.removeItem('ui_selectedSquareKey');
     }, [runState, megidoConditions, showToastMessage, logAction, updateMegidoConditions, setWinStreak, floorClearCounts, setFloorClearCounts, setSelectedSquare, setModalState, setRecoveryModalState, updateGuidance, handleConditionRecovery, floorRefs]);
 
+    const handleUndo = useCallback(() => {
+        if (historyStack.length === 0) {
+            showToastMessage('アンドゥできる操作がありません。');
+            return;
+        }
+
+        const lastState = historyStack[historyStack.length - 1];
+        setRunState(lastState.runState);
+        setMegidoConditions(lastState.megidoConditions);
+        setHistoryStack(prev => prev.slice(0, -1));
+        showToastMessage('直前の操作をアンドゥしました。');
+
+    }, [historyStack, showToastMessage]);
+
     const handleManualRecovery = useCallback((megidoId) => {
         if (!manualRecovery) return;
 
@@ -401,6 +424,7 @@ const usePracticeState = ({
         const confirmReset = isInitialBoot ? true : window.confirm('本当に今回の挑戦をリセットしますか？\nコンディション、実践モードの進捗が初期化されます。');
         if (confirmReset) {
             unlockAchievement('RESET_RUN');
+            setHistoryStack([]);
             const newRecommendations = {};
             if (typeof TOWER_MAP_DATA !== 'undefined') {
                 TOWER_MAP_DATA.forEach(floor => {
@@ -481,6 +505,7 @@ const usePracticeState = ({
         handleResolveSquare,
         handleResetRun,
         handleManualRecovery,
-        handleConditionRecovery
+        handleConditionRecovery,
+        handleUndo
     };
 };
