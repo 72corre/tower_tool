@@ -1,10 +1,16 @@
-const LogViewer = ({ logs, onSelectLog, selectedLog, formations = {}, selectedLogSquare, onSelectLogSquare, onDeleteLog, targetEnemies, towerConnections }) => {
+const LogViewer = ({ logs, onSelectLog, selectedLog, formations = {}, selectedLogSquare, onSelectLogSquare, onDeleteLog, targetEnemies, towerConnections, isMobileView, activeTab }) => {
     const { useState, useEffect, useMemo } = React;
-    const [logTab, setLogTab] = useState('all_summary');
+    const [logTab, setLogTab] = useState(isMobileView ? activeTab : 'all_summary');
 
     useEffect(() => {
-        if (selectedLogSquare) setLogTab('detail');
-    }, [selectedLogSquare]);
+        if (isMobileView) {
+            setLogTab(activeTab);
+        }
+    }, [activeTab, isMobileView]);
+
+    useEffect(() => {
+        if (selectedLogSquare && !isMobileView) setLogTab('detail');
+    }, [selectedLogSquare, isMobileView]);
 
     const allLogsSummaryData = useMemo(() => {
         if (!logs || typeof TOWER_MAP_DATA === 'undefined' || !towerConnections) return null;
@@ -195,21 +201,27 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = {}, selectedLo
 
     return (
         <div>
-            <h2 className="card-header">シーズンログ閲覧</h2>
-            <div style={{display: 'flex', gap: '8px', marginBottom: '16px'}}>
-                <select onChange={handleSelectLog} className="select-field" style={{flexGrow: 1}} value={selectedLog ? selectedLog.name : ""}>
-                    <option value="">ログを選択...</option>
-                    {logs.map(log => <option key={log.date} value={log.name}>{log.name}</option>)}
-                </select>
-                <button onClick={() => onDeleteLog(selectedLog.name)} disabled={!selectedLog} className="btn btn-danger">削除</button>
-            </div>
+            {!isMobileView && (
+                <>
+                    <h2 className="card-header">シーズンログ閲覧</h2>
+                    <div style={{display: 'flex', gap: '8px', marginBottom: '16px'}}>
+                        <select onChange={handleSelectLog} className="select-field" style={{flexGrow: 1}} value={selectedLog ? selectedLog.name : ""}>
+                            <option value="">ログを選択...</option>
+                            {logs.map(log => <option key={log.date} value={log.name}>{log.name}</option>)}
+                        </select>
+                        <button onClick={() => onDeleteLog(selectedLog.name)} disabled={!selectedLog} className="btn btn-danger">削除</button>
+                    </div>
+                </>
+            )}
             
             <div className="card">
-                <div className="tabs" style={{borderBottom: '1px solid var(--border-color)', marginBottom: '16px'}}>
-                    <button onClick={() => setLogTab('all_summary')} className={`tab-button ${logTab === 'all_summary' ? 'active' : ''}`}>通算サマリー</button>
-                    <button onClick={() => setLogTab('summary')} disabled={!selectedLog} className={`tab-button ${logTab === 'summary' ? 'active' : ''}`}>シーズンサマリー</button>
-                    <button onClick={() => setLogTab('detail')} disabled={!selectedLogSquare} className={`tab-button ${logTab === 'detail' ? 'active' : ''}`}>マス詳細</button>
-                </div>
+                {!isMobileView && (
+                    <div className="tabs" style={{borderBottom: '1px solid var(--border-color)', marginBottom: '16px'}}>
+                        <button onClick={() => setLogTab('all_summary')} className={`tab-button ${logTab === 'all_summary' ? 'active' : ''}`}>通算サマリー</button>
+                        <button onClick={() => setLogTab('summary')} disabled={!selectedLog} className={`tab-button ${logTab === 'summary' ? 'active' : ''}`}>シーズンサマリー</button>
+                        <button onClick={() => setLogTab('detail')} disabled={!selectedLogSquare} className={`tab-button ${logTab === 'detail' ? 'active' : ''}`}>マス詳細</button>
+                    </div>
+                )}
 
                 {logTab === 'all_summary' && allLogsSummaryData && (
                     <div style={{display: 'flex', flexDirection: 'column', gap: '24px'}}>

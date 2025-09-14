@@ -37,9 +37,9 @@ const Settings = ({
 
     // --- Conditional Styles ---
     const settingsModalStyle = {
-        width: isDesktopView ? '80vw' : '95vw',
-        height: isDesktopView ? 'auto' : '90vh',
-        maxHeight: isDesktopView ? '80vh' : 'none',
+        width: 'min(1200px, 90vw)',
+        height: '85vh',
+        maxHeight: '85vh',
         display: 'flex',
         flexDirection: 'column'
     };
@@ -59,18 +59,19 @@ const Settings = ({
         borderBottom: isMobileView ? '1px solid var(--border-color)' : 'none',
         borderRight: isMobileView ? 'none' : '1px solid var(--border-color)',
         padding: isMobileView ? '0' : '0 1rem 0 0',
-        margin: isMobileView ? '0 0 1rem 0' : '0'
+        margin: isMobileView ? '0 0 0.5rem 0' : '0'
     };
 
     const mainContentStyle = {
         flexGrow: 1,
         overflowY: 'auto',
-        padding: isDesktopView ? '0 1.5rem' : '0 0.5rem'
+        padding: isDesktopView ? '0 1.5rem' : '0 1rem'
     };
 
     const tabButtonStyle = {
         whiteSpace: isMobileView ? 'nowrap' : 'normal',
-        padding: isMobileView ? '0.75rem 1rem' : '0.5rem 1rem'
+        padding: isMobileView ? '0.6rem 0.8rem' : '0.5rem 1rem',
+        fontSize: isMobileView ? '0.85rem' : '1rem'
     };
 
     const settingItemStyle = {
@@ -83,7 +84,7 @@ const Settings = ({
         <div className="settings-overlay" onClick={onClose}>
             <div className="card settings-modal" style={settingsModalStyle} onClick={(e) => e.stopPropagation()}>
                 <div className="settings-header">
-                    <h2 style={{ margin: 0, fontSize: isDesktopView ? '1.5rem' : '1.25rem' }}>設定</h2>
+                    <h2 style={{ margin: 0, fontSize: isDesktopView ? '1.5rem' : '1.1rem' }}>設定</h2>
                     
                 </div>
                 <div style={settingsContentStyle}>

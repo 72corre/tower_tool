@@ -133,11 +133,18 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
         const styleNameMap = { rush: 'ラッシュ', counter: 'カウンター', burst: 'バースト' };
         if (!planConditions || !planConditions.fatigueByGroup || !planConditions.megidoConditionsBySection) return null;
 
+        // isMobileView に応じてスタイルを動的に変更
+        const cardPadding = isMobileView ? '4px' : '8px';
+        const titleFontSize = isMobileView ? '0.9rem' : '1.1rem';
+        const pFontSize = isMobileView ? '10px' : '12px';
+        const fatigueListGap = isMobileView ? '2px 4px' : '4px 8px';
+        const sectionMarginTop = isMobileView ? '4px' : '8px';
+
         return (
-            <>
+            <div style={{ display: 'flex', flexDirection: 'row', gap: isMobileView ? '4px' : '8px' }}>
                 {Object.keys(SIMULATED_CONDITION_SECTIONS).map(styleKey => (
-                    <div key={styleKey} className="card" style={{ padding: '8px' }}>
-                        <h4 className={getStyleClass(styleNameMap[styleKey])} style={{ fontWeight: 700, textAlign: 'center' }}>{styleNameMap[styleKey]}</h4>
+                    <div key={styleKey} className="card" style={{ padding: cardPadding, marginBottom: '8px', flex: 1 }}>
+                        <h4 className={getStyleClass(styleNameMap[styleKey])} style={{ fontWeight: 700, textAlign: 'center', fontSize: titleFontSize, margin: '4px 0' }}>{styleNameMap[styleKey]}</h4>
                         {SIMULATED_CONDITION_SECTIONS[styleKey].map((section, index) => {
                             const groupKey = `${section.start}-${section.end}`;
                             const groupData = planConditions.fatigueByGroup[groupKey] || { used: 0, capacity: section.limit };
@@ -150,10 +157,10 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
                             else if (usageRate > 50) barColor = 'var(--warning-color)';
 
                             return (
-                                <div key={index} style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid var(--border-color)', backgroundColor: (planState.activeFloor >= section.start && planState.activeFloor <= section.end) ? 'rgba(112, 240, 224, 0.1)' : 'transparent', borderRadius: '4px', padding: '4px' }}>
-                                    <p style={{ fontSize: '12px', fontWeight: 500 }}>{section.start}F - {section.end}F ({groupData.used}/{groupData.capacity})</p>
+                                <div key={index} style={{ marginTop: sectionMarginTop, paddingTop: '4px', borderTop: '1px solid var(--border-color)', backgroundColor: (planState.activeFloor >= section.start && planState.activeFloor <= section.end) ? 'rgba(112, 240, 224, 0.1)' : 'transparent', borderRadius: '4px', padding: '4px' }}>
+                                    <p style={{ fontSize: pFontSize, fontWeight: 500, margin: '0 0 4px 0' }}>{section.start}F - {section.end}F ({groupData.used}/{groupData.capacity})</p>
                                     <div className="progress-bar"><div className="progress-bar-inner" style={{ width: `${usageRate}%`, backgroundColor: barColor }}></div></div>
-                                    <div className="fatigue-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 8px', marginTop: '8px' }}>
+                                    <div className="fatigue-list" style={{ display: 'flex', flexWrap: 'wrap', gap: fatigueListGap, marginTop: '4px', fontSize: pFontSize }}>
                                         {fatiguedMegidoList.map(({ megido, fatigue }) => {
                                             return <span key={megido.id}>{megido.名前}({getNextCondition('絶好調', fatigue)})</span>
                                         })}
@@ -163,7 +170,7 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
                         })}
                     </div>
                 ))}
-            </>
+            </div>
         );
     };
 

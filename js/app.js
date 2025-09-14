@@ -50,9 +50,13 @@ const LogSummary = ({ selectedLog }) => {
 const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) => {
     if (!isOpen || !selectedLog || !squareKey) return null;
 
-    const history = selectedLog.runState.history.filter(h => h.squareId === squareKey);
     const [floorNum, ...idParts] = squareKey.split('-');
     const squareId = idParts.join('-');
+    
+    const history = selectedLog.runState.history.filter(h => 
+        String(h.floor) === floorNum && h.squareId === squareId
+    );
+
     const floorData = towerData.find(f => String(f.floor) === floorNum);
     const squareData = floorData?.squares[squareId];
 
@@ -119,7 +123,7 @@ const TowerTool = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(() => {
         const savedTab = localStorage.getItem('ui_activeTab');
-        const allowedTabs = ['details', 'ownership', 'formation'];
+        const allowedTabs = ['details', 'ownership', 'formation', 'summary', 'all_summary'];
         return (savedTab && allowedTabs.includes(savedTab)) ? savedTab : 'details';
     });
     const [selectedSquare, setSelectedSquare] = useState(null);
@@ -174,6 +178,8 @@ const TowerTool = () => {
     const isMobileView = viewMode === 'mobile' || (viewMode === 'auto' && isMobileSize);
     const isTabletView = viewMode === 'tablet' || (viewMode === 'auto' && isTabletSize);
 
+    const floorRefs = useRef({});
+
     useEffect(() => {
         document.body.classList.toggle('mobile-view', isMobileView);
         document.body.classList.toggle('tablet-view', isTabletView && !isMobileView);
@@ -194,8 +200,6 @@ const TowerTool = () => {
             setIsFooterCollapsed(true);
         }
     }, []);
-
-    const floorRefs = useRef({});
 
     const showToastMessage = useCallback((message) => {
         setToastMessage(message); setShowToast(true);
@@ -233,6 +237,10 @@ const TowerTool = () => {
         localStorage.setItem('ui_selectedSquareKey', squareKey);
 
         if (mode === 'log') {
+            if (!selectedLog) {
+                showToastMessage('先に閲覧したいログを選択してください。');
+                return;
+            }
             setLogActionModal({ isOpen: true, squareKey: squareKey });
         } else {
             setSelectedSquare(squareInfo);
@@ -1100,6 +1108,8 @@ const TowerTool = () => {
                     formations={formations}
                     targetEnemies={targetEnemies}
                     towerConnections={towerConnections}
+                    isMobileView={isMobileView}
+                    activeTab={activeTab}
                 />
             ) : (
                 <div className="tab-content" style={{marginTop: '1rem', height: '100%'}}>
@@ -1244,6 +1254,31 @@ const TowerTool = () => {
         return <div>Loading...</div>;
     }
 
+    const MapContent = () => (
+        <>
+            {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
+                <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
+                    <FloorGrid
+                        key={floor.floor}
+                        floorData={floor}
+                        handleSquareClick={handleSquareClick}
+                        getSquareStyle={getSquareStyle}
+                        getSquareColorClass={getSquareColorClass}
+                        getSquareColorRgbVarName={getSquareColorRgbVarName}
+                        memos={memos}
+                        activeFloor={planState.activeFloor}
+                        targetFloor={targetFloor}
+                        selectedSquare={selectedSquare}
+                        runState={runState}
+                        mode={mode}
+                        planState={planState}
+                        guidance={guidance}
+                    />
+                </div>
+            ))}
+        </>
+    );
+
     return (
         <div className="app-container">
             {eventToast && (
@@ -1308,13 +1343,13 @@ const TowerTool = () => {
                         setShowUpdateModal(false);
                         localStorage.setItem('updateModalShown_20250911_final', 'true');
                     }}
-                    title="機能改善と不具合修正のお知らせ (2025/09/12)"
+                    title="機能改善と不具合修正のお知らせ (2025/09/14)"
                 >
-                    {`【不具合修正】
-・EXオーブが装備条件を満たしても表示されないバグを修正しました
+                    {`【機能の追加】
+・アンドゥ機能を追加
+                    【不具合修正】
+・モバイル端末でのログモードを修正
 
-【その他】
-・編成画面でフッダ―を開閉した場合にクラッシュする問題について、その状態から再度ツールを開いた場合、マップ画面が表示されるようになったはずです……
 
 ご利用いただきありがとうございます。今後とも本ツールをよろしくお願いいたします。`}
                 </InfoModal>
@@ -1342,31 +1377,12 @@ const TowerTool = () => {
             <div className="main-content" style={{ display: 'flex', gap: '1rem', padding: '1rem' }}>
                 {isMobileView ? (
                     <div className="mobile-view-container">
-                        <div style={{ display: mode === 'log' && activeTab === 'summary' ? 'block' : 'none', height: '100%' }}>
-                            <LogSummary selectedLog={selectedLog} />
+                        <div style={{ display: mode === 'log' && (activeTab === 'summary' || activeTab === 'all_summary') ? 'block' : 'none', height: '100%', padding: '1rem' }}>
+                            <RightPanelContent />
                         </div>
                         <div style={{ display: activeTab === 'details' ? 'block' : 'none', height: '100%' }}>
-                            <div className="left-panel" style={{ width: '100%' }} >
-                                {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
-                                    <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
-                                        <FloorGrid
-                                            key={floor.floor}
-                                            floorData={floor}
-                                            handleSquareClick={handleSquareClick}
-                                            getSquareStyle={getSquareStyle}
-                                            getSquareColorClass={getSquareColorClass}
-                                            getSquareColorRgbVarName={getSquareColorRgbVarName}
-                                            memos={memos}
-                                            activeFloor={planState.activeFloor}
-                                            targetFloor={targetFloor}
-                                            selectedSquare={selectedSquare}
-                                            runState={runState}
-                                            mode={mode}
-                                            planState={planState}
-                                            guidance={guidance}
-                                        />
-                                    </div>
-                                ))}
+                            <div className="left-panel" style={{ width: '100%', overflowY: 'auto' }} >
+                                <MapContent />
                             </div>
                         </div>
                         <div style={{ display: activeTab === 'ownership' ? 'block' : 'none', height: '100%' }}>
@@ -1414,7 +1430,7 @@ const TowerTool = () => {
                     <>
                         <div className="left-panel" style={{ flex: '0 0 40%', overflowY: 'auto', height: 'calc(100vh - 150px)' }} >
                             {mode === 'plan' ? 
-                                <PlanModeDashboard planConditions={planConditions} planState={planState} /> :
+                                <PlanModeDashboard planConditions={planConditions} planState={planState} isMobileView={isMobileView} /> :
                                 <ResourceDashboard 
                                     runState={runState}
                                     megidoConditions={megidoConditions}
@@ -1431,26 +1447,7 @@ const TowerTool = () => {
                                     planConditions={planConditions}
                                 />
                             }
-                            {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
-                                <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
-                                    <FloorGrid
-                                        key={floor.floor}
-                                        floorData={floor}
-                                        handleSquareClick={handleSquareClick}
-                                        getSquareStyle={getSquareStyle}
-                                        getSquareColorClass={getSquareColorClass}
-                                        getSquareColorRgbVarName={getSquareColorRgbVarName}
-                                        memos={memos}
-                                        activeFloor={planState.activeFloor}
-                                        targetFloor={targetFloor}
-                                        selectedSquare={selectedSquare}
-                                        runState={runState}
-                                        mode={mode}
-                                        planState={planState}
-                                        guidance={guidance}
-                                    />
-                                </div>
-                            ))}
+                            <MapContent />
                         </div>
                         <div className={`right-panel ${isRouteObvious ? 'desaturate-panel' : ''}`} style={{ flex: '1' }}>
                             <RightPanelContent />

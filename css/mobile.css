@@ -5,7 +5,7 @@ body.mobile-view .main-content {
     /* PCでは横並びのレイアウトを、スマホでは縦積みに変更 */
     flex-direction: column !important;
     /* スマホでは不要な余白を削除 */
-    padding: 0 !important;
+    padding-top: 101px !important; /* Offset for fixed header */
     gap: 0 !important;
 }
 
@@ -267,6 +267,11 @@ body.mobile-view .ownership-table .input-field {
 
 /* --- Mobile Header --- */
 .mobile-header-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 950; /* Ensure it's above content but below modals */
     background-color: var(--bg-panel);
     border-bottom: 1px solid var(--border-color);
     padding-top: env(safe-area-inset-top);
