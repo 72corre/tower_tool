@@ -94,7 +94,7 @@ const FormationManager = ({
             if (!megidoMaster) return null;
 
             const orb = slot.orbId ? COMPLETE_ORB_LIST.find(o => String(o.id) === String(slot.orbId)) : null;
-            const reishou = slot.reishouIds.map(rId => COMPLETE_REISHOU_LIST.find(r => String(r.id) === String(rId))).filter(Boolean);
+            const reishou = (slot.reishouIds || []).map(rId => COMPLETE_REISHOU_LIST.find(r => String(r.id) === String(rId))).filter(Boolean);
             const details = megidoDetails[slot.megidoId] || {};
 
             return {
@@ -541,7 +541,7 @@ const FormationManager = ({
                 {!isMobileView && (
                     <button onClick={handleNewFormation} className="btn btn-ghost">新規作成</button>
                 )}
-                <button onClick={onImport} className="btn btn-ghost" disabled={!isHtml5QrLoaded}>インポート</button>
+                <button onClick={onImport} className="btn btn-ghost" disabled={!isHtml5QrLoaded || !idMaps}>インポート</button>
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                 {(filteredFormations || []).map(form => {

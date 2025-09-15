@@ -147,12 +147,12 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         fileInput.type = 'file';
         fileInput.accept = 'image/*';
         fileInput.style.display = 'none';
-        const html5QrCode = new Html5Qrcode("qr-reader-div");
+        const html5QrCode = new Html5Qrcode("qr-reader-div", { verbose: true });
         fileInput.onchange = e => {
             const file = e.target.files[0];
             if (!file) return;
             const formationName = file.name.replace(/\.[^/.]+$/, "");
-            html5QrCode.scanFile(file, true)
+            html5QrCode.scanFile(file)
                 .then(decodedText => {
                     try {
                         if (!/^[0-9]+$/.test(decodedText) || decodedText.length < 100) {
@@ -287,7 +287,6 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         handleSaveFormationMemo,
         handleDeleteFormation,
         handleCopyFormation,
-        handleImportFormation,
         handleCreateFormationFromEnemy
     };
 };

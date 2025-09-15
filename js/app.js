@@ -351,17 +351,129 @@ const TowerTool = () => {
         handleSaveFormationMemo, 
         handleDeleteFormation, 
         handleCopyFormation, 
-        handleImportFormation, 
         handleCreateFormationFromEnemy 
     } = useFormations({
         showToastMessage,
-        idMaps,
         setDisplayedEnemy,
         setActiveTab,
         setPracticeView,
-        mode,
-        handleMegidoDetailChange
+        mode
     });
+
+    const handleImportFormation = () => {
+        if (!idMaps) {
+            showToastMessage('IDマッピングが準備できていません。');
+            return;
+        }
+        const fileInput = document.createElement('input');
+        fileInput.type = 'file';
+        fileInput.accept = 'image/*';
+        fileInput.style.display = 'none';
+        const html5QrCode = new Html5Qrcode("qr-reader-div", { verbose: true });
+        fileInput.onchange = e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const formationName = file.name.replace(/\.[^/.]+$/, "");
+            html5QrCode.scanFile(file)
+                .then(decodedText => {
+                    try {
+                        if (!/^[0-9]+$/.test(decodedText) || decodedText.length < 100) {
+                            throw new Error('無効なQRコード形式です。');
+                        }
+                        let pointer = 0;
+                        const enemyQRID = decodedText.substring(pointer, pointer += 3);
+                        const floor = parseInt(decodedText.substring(pointer, pointer += 2), 10);
+                        
+                        const megidoSlots = [];
+
+                        for (let i = 0; i < 5; i++) {
+                            const megidoQRID = decodedText.substring(pointer, pointer += 3);
+                            if (megidoQRID === '999') {
+                                megidoSlots.push(null);
+                                pointer += 21; // Skip the rest of the empty slot
+                                continue;
+                            }
+                            const ougiLevel = parseInt(decodedText.substring(pointer, pointer += 2), 10);
+                            const singularityLevel = parseInt(decodedText.substring(pointer, pointer += 1), 10);
+                            const levelChar = decodedText.substring(pointer, pointer += 1);
+                            const reishouQRIDs = [];
+                            for(let j=0; j<4; j++) {
+                                reishouQRIDs.push(decodedText.substring(pointer, pointer += 3));
+                            }
+                            const specialReishou = decodedText.substring(pointer, pointer += 1) === '1';
+                            const bondReishou = parseInt(decodedText.substring(pointer, pointer += 1), 10);
+                            const orbQRID = decodedText.substring(pointer, pointer += 3);
+
+                            const megidoId = idMaps.megido.newToOriginal.get(megidoQRID);
+                            if (!megidoId) {
+                                megidoSlots.push(null);
+                                continue;
+                            };
+
+                            const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId);
+                            if (!megidoMaster) {
+                                megidoSlots.push(null);
+                                continue;
+                            };
+
+                            const levelMap = {'0': 70, '1': 72, '2': 74, '3': 76, '4': 80};
+                            const level = levelMap[levelChar] || 70;
+                            
+                            const orbId = idMaps.orb.newToOriginal.get(orbQRID);
+                            const orbMaster = orbId ? COMPLETE_ORB_LIST.find(o => o.id === orbId) : null;
+
+                            const reishouIds = reishouQRIDs
+                                .map(rqid => (rqid === '999') ? null : idMaps.reishou.newToOriginal.get(rqid))
+                                .filter(Boolean);
+
+                            megidoSlots.push({
+                                megidoId: megidoId,
+                                orbId: orbId,
+                                reishouIds: reishouIds,
+                                megidoName: megidoMaster.名前,
+                                megidoStyle: megidoMaster.スタイル || megidoMaster.style,
+                                leaderSkill: megidoMaster.LS,
+                                orbName: orbMaster ? orbMaster.name : '',
+                            });
+
+                            // Update global details
+                            handleMegidoDetailChange(megidoId, 'level', level);
+                            handleMegidoDetailChange(megidoId, 'ougiLevel', ougiLevel || 1);
+                            handleMegidoDetailChange(megidoId, 'special_reishou', specialReishou);
+                            handleMegidoDetailChange(megidoId, 'bond_reishou', bondReishou || 0);
+                            if (megidoMaster.Singularity) {
+                                handleMegidoDetailChange(megidoId, 'singularity_level', singularityLevel || 0);
+                            }
+                        }
+                        const enemyName = idMaps.enemy.newToOriginal.get(enemyQRID);
+                        const newFormation = {
+                            id: `f${Date.now()}`,
+                            name: formationName,
+                            megidoSlots: megidoSlots,
+                            tags: [],
+                            notes: '',
+                            enemyName: enemyName || null,
+                            floor: floor || null
+                        };
+                        
+                        const newFormations = { ...formations, [newFormation.id]: newFormation };
+                        setFormations(newFormations);
+                        localStorage.setItem('formations', JSON.stringify(newFormations));
+                        showToastMessage('編成をインポートしました。');
+                    } catch (error) {
+                        console.error("QRコードの解析または編成の復元に失敗しました:", error);
+                        showToastMessage('QRコードの読み取りに失敗しました。');
+                    }
+                })
+                .catch(err => {
+                    console.error(`QRコードのスキャンに失敗しました。${err}`);
+                    showToastMessage('QRコードのスキャンに失敗しました。');
+                });
+        };
+        document.body.appendChild(fileInput);
+        fileInput.click();
+        document.body.removeChild(fileInput);
+    };
 
     // --- UI State Persistence ---
     useEffect(() => { localStorage.setItem('ui_mode', mode); }, [mode]);
@@ -1343,12 +1455,12 @@ const TowerTool = () => {
                         setShowUpdateModal(false);
                         localStorage.setItem('updateModalShown_20250911_final', 'true');
                     }}
-                    title="機能改善と不具合修正のお知らせ (2025/09/14)"
+                    title="機能改善と不具合修正のお知らせ (2025/09/15)"
                 >
-                    {`【機能の追加】
-・アンドゥ機能を追加
+                    {`
                     【不具合修正】
-・モバイル端末でのログモードを修正
+・QRコードでのインポート機能を修正、利用可能に
+・PCでのレイアウトが崩れていた問題を修正
 
 
 ご利用いただきありがとうございます。今後とも本ツールをよろしくお願いいたします。`}
@@ -1374,7 +1486,25 @@ const TowerTool = () => {
                 selectedLog={selectedLog}
                 onSelectLog={handleSelectLog}
             />
-            <div className="main-content" style={{ display: 'flex', gap: '1rem', padding: '1rem' }}>
+                        {!isMobileView && (
+                <nav className="desktop-nav">
+                    <div className="desktop-nav-tabs">
+                        <button onClick={() => handleTabClick('details')} className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}>マス詳細</button>
+                        <button onClick={() => handleTabClick('ownership')} className={`tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>所持メギド管理</button>
+                        <button onClick={() => handleTabClick('formation')} className={`tab-button ${activeTab === 'formation' ? 'active' : ''}`}>編成管理</button>
+                    </div>
+                    <div className="desktop-nav-actions">
+                        {mode === 'practice' && (
+                            <>
+                                <button onClick={handleSaveLog} className="btn btn-ghost record">記録</button>
+                                <button onClick={handleUndo} className="btn btn-ghost undo">アンドゥ</button>
+                                <button onClick={() => handleResetRun(false)} className="btn btn-ghost retire">リタイア</button>
+                            </>
+                        )}
+                    </div>
+                </nav>
+            )}
+            <div className="main-content">
                 {isMobileView ? (
                     <div className="mobile-view-container">
                         <div style={{ display: mode === 'log' && (activeTab === 'summary' || activeTab === 'all_summary') ? 'block' : 'none', height: '100%', padding: '1rem' }}>
@@ -1427,34 +1557,40 @@ const TowerTool = () => {
                         </div>
                     </div>
                 ) : (
-                    <>
-                        <div className="left-panel" style={{ flex: '0 0 40%', overflowY: 'auto', height: 'calc(100vh - 150px)' }} >
-                            {mode === 'plan' ? 
-                                <PlanModeDashboard planConditions={planConditions} planState={planState} isMobileView={isMobileView} /> :
-                                <ResourceDashboard 
-                                    runState={runState}
-                                    megidoConditions={megidoConditions}
-                                    ownedMegidoIds={ownedMegidoIds}
-                                    planState={planState}
-                                    formations={formations}
-                                    mode={mode}
-                                    megidoDetails={megidoDetails}
-                                    manualRecovery={manualRecovery}
-                                    onManualRecover={handleManualRecovery}
-                                    isMobileView={isMobileView}
-                                    isCollapsed={isFooterCollapsed}
-                                    onToggleCollapse={handleToggleFooter}
-                                    planConditions={planConditions}
-                                />
-                            }
+                    <div className="desktop-grid-container">
+                        <div className="left-panel">
                             <MapContent />
                         </div>
-                        <div className={`right-panel ${isRouteObvious ? 'desaturate-panel' : ''}`} style={{ flex: '1' }}>
-                            <RightPanelContent />
+                        <div className="right-panel">
+                            <div className={`details-container ${isRouteObvious ? 'desaturate-panel' : ''}`}>
+                                <RightPanelContent />
+                            </div>
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
+            {!isMobileView && (
+                <div className="desktop-dashboard-footer">
+                    {mode === 'plan' ? 
+                        <PlanModeDashboard planConditions={planConditions} planState={planState} isMobileView={isMobileView} /> :
+                        <ResourceDashboard 
+                            runState={runState}
+                            megidoConditions={megidoConditions}
+                            ownedMegidoIds={ownedMegidoIds}
+                            planState={planState}
+                            formations={formations}
+                            mode={mode}
+                            megidoDetails={megidoDetails}
+                            manualRecovery={manualRecovery}
+                            onManualRecover={handleManualRecovery}
+                            isMobileView={isMobileView}
+                            isCollapsed={isFooterCollapsed}
+                            onToggleCollapse={handleToggleFooter}
+                            planConditions={planConditions}
+                        />
+                    }
+                </div>
+            )}
             <footer className={`footer-glow-${partyConditionRisk} ${isRecoveryRecommended ? 'footer-recovery-glow' : ''}`} style={{ textAlign: 'center', padding: '1rem', borderTop: '1px solid #ccc' }}>
                 <p>星間の塔 攻略支援ツール</p>
             </footer>

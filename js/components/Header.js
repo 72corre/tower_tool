@@ -53,12 +53,40 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
     );
 };
 
-const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, activeTab, onTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings }) => {
+const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, onOpenSettings }) => {
     const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
-    const [isFloorMenuOpen, setIsFloorMenuOpen] = React.useState(false);
+    const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
     const currentModeInfo = modeMenuItems.find(item => item.key === mode) || modeMenuItems[0];
     const currentFloorInfo = floorMenuItems.find(item => item.key === targetFloor) || { key: targetFloor, title: `${targetFloor}F` };
+
+    const FloorSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }) => {
+        if (!isOpen) return null;
+        return (
+            <div className="mobile-modal-overlay" onClick={onClose}>
+                <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0, width: 'min(500px, 90vw)'}}>
+                    <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
+                        <h3 style={{marginTop: 0, textAlign: 'center'}}>目標階層を選択</h3>
+                    </div>
+                    <div className="floor-selection-list" style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
+                        {menuItems.map(item => (
+                            <button
+                                key={item.key}
+                                className={`modal-item-btn ${currentKey === item.key ? 'selected' : ''}`}
+                                onClick={() => {
+                                    onSelect(item.key);
+                                    onClose();
+                                }}
+                            >
+                                <strong style={{fontSize: '1.1rem'}}>{item.title}</strong>
+                                <span style={{fontSize: '0.8rem', color: 'var(--text-subtle)'}}>{item.description}</span>
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     return (
         <header className="main-header">
@@ -67,49 +95,32 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
                         <img src="asset/settings.png" alt="設定" style={{width: '28px', height: '28px'}} />
                     </button>
-                    <div className="mode-selector-wrapper">
-                        <button className="btn-icon" onClick={() => setIsModeModalOpen(true)} title={currentModeInfo.title}>
-                            <img src={currentModeInfo.icon} alt="" style={{width: '28px', height: '28px'}} />
-                        </button>
-                        <ModeSelectionModal
-                            isOpen={isModeModalOpen}
-                            onClose={() => setIsModeModalOpen(false)}
-                            onSelect={onModeChange}
-                            currentKey={mode}
-                            menuItems={modeMenuItems}
-                        />
-                    </div>
                 </div>
                 
                 <h1>{title}</h1>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div className="mode-selector-wrapper">
-                         <div className={`mode-selector ${isFloorMenuOpen ? 'open' : ''}`} onClick={() => setIsFloorMenuOpen(true)}>
-                            {currentFloorInfo.icon && <img src={currentFloorInfo.icon} alt="" className="mode-selector-icon" />}
-                            <span className="mode-selector-name">目標: {currentFloorInfo.title}</span>
-                            <span className="mode-selector-arrow">∨</span>
-                        </div>
-                        {isFloorMenuOpen && (
-                             <div className="mega-menu-container">
-                                <div className="mega-menu-overlay" onClick={() => setIsFloorMenuOpen(false)}></div>
-                                <MegaMenu onClose={() => setIsFloorMenuOpen(false)} onSelect={onTargetFloorChange} currentKey={targetFloor} menuItems={floorMenuItems} layout="columns" />
-                            </div>
-                        )}
-                    </div>
+                    <button className="btn btn-ghost" onClick={() => setIsModeModalOpen(true)}>
+                        モード: {currentModeInfo.title}
+                    </button>
+                    <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
+                        目標: {currentFloorInfo.title}
+                    </button>
+                    <ModeSelectionModal
+                        isOpen={isModeModalOpen}
+                        onClose={() => setIsModeModalOpen(false)}
+                        onSelect={onModeChange}
+                        currentKey={mode}
+                        menuItems={modeMenuItems}
+                    />
+                    <FloorSelectionModal
+                        isOpen={isFloorModalOpen}
+                        onClose={() => setIsFloorModalOpen(false)}
+                        onSelect={onTargetFloorChange}
+                        currentKey={targetFloor}
+                        menuItems={floorMenuItems}
+                    />
                 </div>
-            </div>
-            <div className="tabs" style={{ display: 'flex', alignItems: 'center', gap: '8px', position: 'absolute', bottom: '16px', right: '24px' }}>
-                {mode === 'practice' && (
-                    <>
-                        <button onClick={onSaveLog} className="btn btn-ghost record">記録</button>
-                        <button onClick={onUndo} className="btn btn-ghost undo">アンドゥ</button>
-                        <button onClick={() => onResetRun(false)} className="btn btn-ghost retire">リタイア</button>
-                    </>
-                )}
-                <button onClick={() => onTabClick('details')} className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}>マス詳細</button>
-                <button onClick={() => onTabClick('ownership')} className={`tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>所持メギド管理</button>
-                <button onClick={() => onTabClick('formation')} className={`tab-button ${activeTab === 'formation' ? 'active' : ''}`}>編成管理</button>
             </div>
         </header>
     );

@@ -74,21 +74,60 @@
             margin: 0;
         }
         .main-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
+            padding: 1rem;
             flex-grow: 1;
             overflow: hidden;
-            padding-top: 16px;
-            padding-bottom: 60px; /* フッターの高さ分 */
         }
-        .left-column {
-            position: relative; /* For enemy detail overlay positioning */
+
+        .desktop-grid-container {
+            display: flex;
+            gap: 1rem;
+            height: calc(100vh - 130px); /* Adjust based on header/footer height */
+        }
+
+        .left-panel {
+            flex: 0 0 400px; /* Fixed width */
+            min-width: 0; /* Prevents overflow issues with flexbox */
+            overflow-y: auto;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .right-panel {
+            flex: 1; /* Takes remaining space */
+            min-width: 0;
             display: flex;
             flex-direction: column;
-            gap: 16px;
-            overflow: hidden;
+            gap: 1rem;
         }
+
+        .dashboard-container {
+            flex-shrink: 0;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        .details-container {
+            flex-grow: 1;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-y: auto;
+        }
+
+        /* Override for mobile */
+        .mobile-view-container .left-panel {
+            background-color: transparent;
+            border: none;
+            padding: 0;
+        }
+
         .map-area {
             background-color: var(--bg-panel);
             border: 1px solid var(--border-color);
@@ -96,15 +135,6 @@
             padding: 16px;
             overflow-y: auto;
             flex-grow: 1;
-        }
-        .right-column {
-            background-color: var(--bg-panel);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 24px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
         }
         .card {
             background-color: var(--bg-panel-light);
@@ -1241,4 +1271,27 @@
     .megido-slot-editor-desktop .megido-slot-reishou-none {
         font-size: 14px;
     }
+}
+
+.desktop-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.desktop-nav-tabs, .desktop-nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.desktop-dashboard-footer {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    width: 450px;
+    z-index: 900;
 }
