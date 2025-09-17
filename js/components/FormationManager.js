@@ -1,4 +1,4 @@
-const FormationCard = React.memo(({
+const FormationCard = ({
     form,
     isExpanded,
     onToggleExpand,
@@ -10,7 +10,8 @@ const FormationCard = React.memo(({
     onExport,
     onEdit,
     onDelete,
-    onTagClick
+    onTagClick,
+    onPost,     // 投稿ボタンのクリックハンドラ
 }) => {
     return (
         <div className="card" style={cardStyle}>
@@ -26,6 +27,7 @@ const FormationCard = React.memo(({
 
             {isExpanded && (
                 <div className="formation-card-actions">
+                    <button onClick={() => onPost(form)} className="btn btn-primary">投稿</button>
                     <button onClick={() => onGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
                     <button onClick={() => onCopy(form.id)} className="btn btn-secondary">コピー</button>
                     <button onClick={() => onExport(form)} className="btn btn-secondary">エクスポート</button>
@@ -52,7 +54,7 @@ const FormationCard = React.memo(({
             </div>
         </div>
     );
-});
+};
 
 const FormationManager = ({
     ownedMegidoIds,
@@ -74,7 +76,9 @@ const FormationManager = ({
     idMaps,
     editingFormation,
     onEditingFormationChange,
-    isMobileView
+    onOpenCommunityFormations,
+    handlePostFormation,
+    isPosting,
 }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [tagSearch, setTagSearch] = useState({ text: '', exactMatch: false });
@@ -83,6 +87,7 @@ const FormationManager = ({
     const [generatedImageData, setGeneratedImageData] = useState('');
     const [tweetUrl, setTweetUrl] = useState('');
     const [expandedCardId, setExpandedCardId] = useState(null);
+    const [postModalState, setPostModalState] = useState({ isOpen: false, formation: null });
 
     const rehydrateFormation = useCallback((formation) => {
         if (!formation || !formation.megidoSlots) return { ...formation, megido: [] };
@@ -184,7 +189,7 @@ const FormationManager = ({
         new QRious({
             element: qrCanvas,
             value: qrString,
-            size: 400, // 高解像度で生成
+            size: 400,
             padding: 0
         });
         const loadImage = (src) => new Promise((resolve) => {
@@ -207,11 +212,10 @@ const FormationManager = ({
         ctx.fillStyle = COLORS.BG_MAIN;
         ctx.fillRect(0, LAYOUT.HEADER_H, canvas.width, canvas.height - LAYOUT.HEADER_H);
 
-        // --- RIGHT COLUMN (QR Code) ---
         const qrPadding = 6;
         const qrBgSize = LAYOUT.QR_SIZE + qrPadding * 2;
         const qrBgX = canvas.width - qrBgSize - LAYOUT.PADDING;
-        const qrBgY = 5; // Lowered QR code position
+        const qrBgY = 5;
         const qrX = qrBgX + qrPadding + 4;
         const qrY = qrBgY + qrPadding + 4;
 
@@ -219,7 +223,6 @@ const FormationManager = ({
         ctx.fillRect(qrBgX, qrBgY, qrBgSize, qrBgSize);
         ctx.drawImage(qrCanvas, qrX, qrY, LAYOUT.QR_SIZE, LAYOUT.QR_SIZE);
 
-        // --- LEFT COLUMN (Info) ---
         const leftColumnMaxWidth = 450;
 
         if (rehydratedForm.floor || rehydratedForm.enemyName) {
@@ -228,30 +231,14 @@ const FormationManager = ({
             const rules = square ? square.rules.join(', ') : '';
 
             const floorText = `${rehydratedForm.floor || '?'}F`;
-            drawOutlinedText(ctx, floorText, LAYOUT.PADDING, LAYOUT.PADDING, {
-                font: 'bold 42px "Noto Sans JP", sans-serif'
-            });
+            drawOutlinedText(ctx, floorText, LAYOUT.PADDING, LAYOUT.PADDING, { font: 'bold 42px "Noto Sans JP", sans-serif' });
             const floorWidth = ctx.measureText(floorText).width;
-            drawOutlinedText(ctx, rehydratedForm.enemyName || 'N/A', LAYOUT.PADDING + floorWidth + 15, LAYOUT.PADDING + 10, {
-                font: 'bold 32px "Noto Sans JP", sans-serif',
-                maxWidth: leftColumnMaxWidth - floorWidth - 15
-            });
-            drawOutlinedText(ctx, rules, LAYOUT.PADDING, LAYOUT.PADDING + 55, {
-                font: '20px "Noto Sans JP", sans-serif',
-                fillStyle: COLORS.TEXT_SUBTLE,
-                textBaseline: 'top',
-                maxWidth: leftColumnMaxWidth
-            });
+            drawOutlinedText(ctx, rehydratedForm.enemyName || 'N/A', LAYOUT.PADDING + floorWidth + 15, LAYOUT.PADDING + 10, { font: 'bold 32px "Noto Sans JP", sans-serif', maxWidth: leftColumnMaxWidth - floorWidth - 15 });
+            drawOutlinedText(ctx, rules, LAYOUT.PADDING, LAYOUT.PADDING + 55, { font: '20px "Noto Sans JP", sans-serif', fillStyle: COLORS.TEXT_SUBTLE, textBaseline: 'top', maxWidth: leftColumnMaxWidth });
         } else {
-            // Fallback to formation name
-            drawOutlinedText(ctx, rehydratedForm.name || '名称未設定の編成', LAYOUT.PADDING, LAYOUT.PADDING + 10, {
-                font: 'bold 32px "Noto Sans JP", sans-serif',
-                textBaseline: 'top',
-                maxWidth: leftColumnMaxWidth
-            });
+            drawOutlinedText(ctx, rehydratedForm.name || '名称未設定の編成', LAYOUT.PADDING, LAYOUT.PADDING + 10, { font: 'bold 32px "Noto Sans JP", sans-serif', textBaseline: 'top', maxWidth: leftColumnMaxWidth });
         }
 
-        // --- CENTER COLUMN (Notes) ---
         if (rehydratedForm.notes) {
             const notesX = leftColumnMaxWidth + LAYOUT.PADDING * 2;
             const notesMaxWidth = canvas.width - notesX - qrBgSize - LAYOUT.PADDING * 3;
@@ -260,19 +247,13 @@ const FormationManager = ({
             const lines = rehydratedForm.notes.split('\n');
 
             for (let i = 0; i < lines.length; i++) {
-                if (i >= 4) break; // Max 4 lines
+                if (i >= 4) break;
                 const line = lines[i];
-                drawOutlinedText(ctx, line, notesX, currentY, {
-                    font: '18px "Noto Sans JP", sans-serif',
-                    fillStyle: COLORS.TEXT_SUBTLE,
-                    textBaseline: 'top',
-                    maxWidth: notesMaxWidth
-                });
+                drawOutlinedText(ctx, line, notesX, currentY, { font: '18px "Noto Sans JP", sans-serif', fillStyle: COLORS.TEXT_SUBTLE, textBaseline: 'top', maxWidth: notesMaxWidth });
                 currentY += lineHeight;
             }
         }
 
-        // --- Cards Section ---
         const cardW = 210;
         const cardH = 480;
         const cardY = LAYOUT.HEADER_H + 30;
@@ -289,38 +270,22 @@ const FormationManager = ({
             if (img) {
                 ctx.drawImage(img, cardX + 15, cardY + 15, cardW - 30, cardW - 30);
             } else {
-                drawOutlinedText(ctx, megido.名前, cardX + cardW / 2, cardY + 80, {
-                    textAlign: 'center',
-                    maxWidth: cardW - 20
-                });
+                drawOutlinedText(ctx, megido.名前, cardX + cardW / 2, cardY + 80, { textAlign: 'center', maxWidth: cardW - 20 });
             }
             let infoY = cardY + cardW;
             const ougiText = `奥義Lv. ${megido.ougiLevel || 1}`;
-            drawOutlinedText(ctx, ougiText, cardX + cardW / 2, infoY, {
-                font: 'bold 22px "Noto Sans JP", sans-serif',
-                textAlign: 'center',
-                fillStyle: COLORS.ACCENT_GOLD
-            });
+            drawOutlinedText(ctx, ougiText, cardX + cardW / 2, infoY, { font: 'bold 22px "Noto Sans JP", sans-serif', textAlign: 'center', fillStyle: COLORS.ACCENT_GOLD });
             infoY += 30;
             if (megido.special_reishou) {
-                drawOutlinedText(ctx, '☆ 専用霊宝', cardX + cardW / 2, infoY, {
-                    font: '18px "Noto Sans JP", sans-serif',
-                    textAlign: 'center'
-                });
+                drawOutlinedText(ctx, '☆ 専用霊宝', cardX + cardW / 2, infoY, { font: '18px "Noto Sans JP", sans-serif', textAlign: 'center' });
                 infoY += 25;
             }
             if (megido.bond_reishou) {
-                drawOutlinedText(ctx, `☆ 絆霊宝 Tier ${megido.bond_reishou}`, cardX + cardW / 2, infoY, {
-                    font: '18px "Noto Sans JP", sans-serif',
-                    textAlign: 'center'
-                });
+                drawOutlinedText(ctx, `☆ 絆霊宝 Tier ${megido.bond_reishou}`, cardX + cardW / 2, infoY, { font: '18px "Noto Sans JP", sans-serif', textAlign: 'center' });
                 infoY += 25;
             }
             if (megido.Singularity && megido.singularity_level > 0) {
-                drawOutlinedText(ctx, `☆ 凸 ${megido.singularity_level}`, cardX + cardW / 2, infoY, {
-                    font: '18px "Noto Sans JP", sans-serif',
-                    textAlign: 'center'
-                });
+                drawOutlinedText(ctx, `☆ 凸 ${megido.singularity_level}`, cardX + cardW / 2, infoY, { font: '18px "Noto Sans JP", sans-serif', textAlign: 'center' });
                 infoY += 25;
             }
             infoY += 10;
@@ -336,11 +301,7 @@ const FormationManager = ({
                     ctx.drawImage(orbImg, cardX + (cardW - 60) / 2, infoY, 60, 60);
                     infoY += 60;
                 }
-                drawOutlinedText(ctx, orb.name, cardX + cardW / 2, infoY, {
-                    font: '16px "Noto Sans JP", sans-serif',
-                    textAlign: 'center',
-                    maxWidth: cardW - 20
-                });
+                drawOutlinedText(ctx, orb.name, cardX + cardW / 2, infoY, { font: '16px "Noto Sans JP", sans-serif', textAlign: 'center', maxWidth: cardW - 20 });
                 infoY += 25;
             }
             if (megido.reishou && megido.reishou.length > 0) {
@@ -350,11 +311,7 @@ const FormationManager = ({
                 ctx.globalAlpha = 1.0;
                 infoY += 10;
                 megido.reishou.forEach(r => {
-                    drawOutlinedText(ctx, r.name, cardX + cardW / 2, infoY, {
-                        font: '16px "Noto Sans JP", sans-serif',
-                        textAlign: 'center',
-                        maxWidth: cardW - 20
-                    });
+                    drawOutlinedText(ctx, r.name, cardX + cardW / 2, infoY, { font: '16px "Noto Sans JP", sans-serif', textAlign: 'center', maxWidth: cardW - 20 });
                     infoY += 20;
                 });
             }
@@ -367,11 +324,7 @@ const FormationManager = ({
         if (qrCodeData && isQriousLoaded) {
             const canvas = document.getElementById('qr-canvas');
             if (canvas) {
-                new QRious({
-                    element: canvas,
-                    value: qrCodeData,
-                    size: 512
-                });
+                new QRious({ element: canvas, value: qrCodeData, size: 512 });
             }
         }
     }, [qrCodeData, isQriousLoaded]);
@@ -385,13 +338,7 @@ const FormationManager = ({
     useEffect(() => {
         if (initialTagTarget) {
             setPreviousScreen(previousScreen);
-            onEditingFormationChange({
-                id: `f${Date.now()}`,
-                name: '',
-                tags: [],
-                notes: '',
-                megido: Array(5).fill(null)
-            });
+            onEditingFormationChange({ id: `f${Date.now()}`, name: '', tags: [], notes: '', megido: Array(5).fill(null) });
         }
     }, [initialTagTarget]);
 
@@ -430,13 +377,7 @@ const FormationManager = ({
 
     const handleNewFormation = () => {
         setPreviousScreen('formation');
-        onEditingFormationChange({
-            id: `f${Date.now()}`,
-            name: '',
-            tags: [],
-            notes: '',
-            megido: Array(5).fill(null)
-        });
+        onEditingFormationChange({ id: `f${Date.now()}`, name: '', tags: [], notes: '', megido: Array(5).fill(null) });
         showToastMessage('新規編成の準備ができました。');
     };
 
@@ -476,14 +417,7 @@ const FormationManager = ({
                 const orbId = (megido.orb && megido.orb.id) ? (idMaps.orb.originalToNew.get(megido.orb.id) || '999') : '999';
                 qrString += orbId;
             } else {
-                qrString += '999'; // Megido ID
-                qrString += '01';  // Ougi Level
-                qrString += '0';   // Singularity Level
-                qrString += '0';   // Level Cap
-                qrString += '999999999999'; // Reishou
-                qrString += '0';   // Special Reishou
-                qrString += '0';   // Bond Reishou
-                qrString += '999'; // Orb
+                qrString += '9990100999999999999900999';
             }
         }
         if (returnOnly) {
@@ -497,7 +431,7 @@ const FormationManager = ({
     };
 
     return (
-        <div style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
+        <div style={{display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '16px'}}>
             {qrCodeData && isQriousLoaded && (
                 <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200}}>
                     <div className="card" style={{textAlign: 'center', padding: '40px'}}>
@@ -520,28 +454,50 @@ const FormationManager = ({
                     </div>
                 </div>
             )}
-            <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', alignItems: 'center'}}>
-                <input 
-                    type="text" 
-                    placeholder="名前またはタグで検索..."
-                    value={tagSearch.text}
-                    onChange={e => setTagSearch({ text: e.target.value, exactMatch: tagSearch.exactMatch })}
-                    className="input-field" 
-                    style={{flexGrow: 1}}
+            {postModalState.isOpen && (
+                <PostFormationModal 
+                    isOpen={postModalState.isOpen}
+                    onClose={() => setPostModalState({ isOpen: false, formation: null })}
+                    formationToPost={postModalState.formation}
+                    isPosting={isPosting}
+                    onSubmit={async (data) => {
+                        await handlePostFormation(data);
+                        setPostModalState({ isOpen: false, formation: null });
+                    }}
                 />
-                <div className="flex items-center gap-2">
-                    <label className="label mb-0 text-sm" htmlFor="tag-exact-match">完全一致:</label>
+            )}
+            <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
+                <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
                     <input 
-                        id="tag-exact-match"
-                        type="checkbox" 
-                        checked={tagSearch.exactMatch} 
-                        onChange={e => setTagSearch({ text: tagSearch.text, exactMatch: e.target.checked })}
+                        type="text" 
+                        placeholder="名前またはタグで検索..."
+                        value={tagSearch.text}
+                        onChange={e => setTagSearch({ text: e.target.value, exactMatch: tagSearch.exactMatch })}
+                        className="input-field" 
+                        style={{flexGrow: 1}}
                     />
+                    <div className="flex items-center gap-1">
+                        <label className="label mb-0 text-xs whitespace-nowrap" htmlFor="tag-exact-match">完全一致:</label>
+                        <input 
+                            id="tag-exact-match"
+                            type="checkbox" 
+                            checked={tagSearch.exactMatch} 
+                            onChange={e => setTagSearch({ text: tagSearch.text, exactMatch: e.target.checked })}
+                        />
+                    </div>
                 </div>
-                {!isMobileView && (
-                    <button onClick={handleNewFormation} className="btn btn-ghost">新規作成</button>
-                )}
-                <button onClick={onImport} className="btn btn-ghost" disabled={!isHtml5QrLoaded || !idMaps}>インポート</button>
+
+                <div style={{display: 'flex', gap: '16px', justifyContent: 'flex-end'}}>
+                    <button onClick={handleNewFormation} className="btn btn-ghost p-1" title="新規作成">
+                        <img src="asset/create.png" alt="新規作成" style={{width: '32px', height: '32px'}} />
+                    </button>
+                    <button onClick={onImport} className="btn btn-ghost p-1" disabled={!isHtml5QrLoaded || !idMaps} title="QRコードでインポート">
+                        <img src="asset/scan.png" alt="QRコードでインポート" style={{width: '32px', height: '32px'}} />
+                    </button>
+                    <button onClick={onOpenCommunityFormations} className="btn btn-ghost p-1" title="みんなの編成">
+                        <img src="asset/community.png" alt="みんなの編成" style={{width: '32px', height: '32px'}} />
+                    </button>
+                </div>
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                 {(filteredFormations || []).map(form => {
@@ -549,11 +505,11 @@ const FormationManager = ({
                     const isInvalid = isFormationInvalid(rehydratedForm, megidoDetails, ownedMegidoIds);
                     const cardStyle = isInvalid ? { backgroundColor: 'rgba(217, 83, 79, 0.3)' } : {};
                     const nameStyle = isInvalid ? { color: 'var(--danger-color)' } : {};
-
+                    
                     return (
                         <FormationCard
                             key={form.id}
-                            form={form} // Pass the original, non-rehydrated form for display
+                            form={form}
                             isExpanded={expandedCardId === form.id}
                             onToggleExpand={handleToggleExpand}
                             isInvalid={isInvalid}
@@ -562,22 +518,14 @@ const FormationManager = ({
                             onGenerateShareImage={handleGenerateShareImage}
                             onCopy={onCopy}
                             onExport={handleExportClick}
-                            onEdit={() => { 
-                                setPreviousScreen('formation'); 
-                                onEditingFormationChange(rehydratedForm); 
-                            }}
-                            onDelete={onDelete}
-                            onTagClick={(tag) => setTagSearch({ text: tag, exactMatch: true })}
+                            onEdit={(f) => onEditingFormationChange(f)}
+                                onDelete={onDelete}
+                                onTagClick={(tag) => setTagSearch({ text: tag, exactMatch: false })}
+                                onPost={(f) => setPostModalState({ isOpen: true, formation: f })}
                         />
                     );
                 })}
             </div>
-            {isMobileView && (
-                <div className="fab-container">
-                    <button onClick={handleNewFormation} className="fab-add-formation">+</button>
-                    <span className="fab-text">新規作成</span>
-                </div>
-            )}
         </div>
     );
 };

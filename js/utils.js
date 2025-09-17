@@ -116,3 +116,54 @@ const calculateShortestPath = (floorData, connections) => {
 
     return -1; // Path not found
 };
+
+const encodeFormationToQrString = (formation, megidoDetails, idMaps) => {
+    if (!formation || !idMaps) return '';
+
+    let qrString = '';
+
+    const enemyId = formation.enemyName ? (idMaps.enemy.originalToNew.get(formation.enemyName) || '000') : '000';
+    const floor = formation.floor ? formation.floor.toString().padStart(2, '0') : '00';
+
+    qrString += enemyId;
+    qrString += floor;
+
+    for (let i = 0; i < 5; i++) {
+        const megidoSlot = formation.megidoSlots[i];
+        if (megidoSlot && megidoSlot.megidoId) {
+            const megidoId = megidoSlot.megidoId;
+            // 投稿時は、その編成に保存されている情報ではなく、ユーザーが所持している最新のメギド情報を参照する
+            const details = megidoDetails[megidoId] || {};
+
+            qrString += idMaps.megido.originalToNew.get(String(megidoId)) || '999';
+            qrString += (details.ougiLevel || 1).toString().padStart(2, '0');
+            
+            const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId);
+            const singularityLevel = megidoMaster && megidoMaster.Singularity ? (details.singularity_level || 0).toString() : '0';
+            qrString += singularityLevel;
+
+            const level = details.level || 70;
+            let levelChar = '0';
+            if (level >= 80) levelChar = '4';
+            else if (level >= 76) levelChar = '3';
+            else if (level >= 74) levelChar = '2';
+            else if (level >= 72) levelChar = '1';
+            qrString += levelChar;
+
+            const reishouIds = (details.reishou || []).map(rId => idMaps.reishou.originalToNew.get(rId) || '999').slice(0, 4);
+            while (reishouIds.length < 4) {
+                reishouIds.push('999');
+            }
+            qrString += reishouIds.join('');
+
+            qrString += details.special_reishou ? '1' : '0';
+            qrString += (details.bond_reishou || 0).toString();
+
+            const orbId = (details.orb && details.orb.id) ? (idMaps.orb.originalToNew.get(details.orb.id) || '999') : '999';
+            qrString += orbId;
+        } else {
+            qrString += '9990100999999999999900999'; // Empty slot data
+        }
+    }
+    return qrString;
+};

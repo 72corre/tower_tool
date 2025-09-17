@@ -172,6 +172,15 @@ const TowerTool = () => {
         const saved = localStorage.getItem('isFooterCollapsed');
         return saved ? JSON.parse(saved) : true; // Default to collapsed
     });
+    
+    const { 
+        communityFormationsState,
+        handleOpenCommunityFormations,
+        handleCloseCommunityFormations,
+        handleCopyCommunityFormation,
+        handlePostFormation,
+        isPosting,
+    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps });
 
     const isMobileSize = useMediaQuery('(max-width: 768px)');
     const isTabletSize = useMediaQuery('(min-width: 769px) and (max-width: 1180px)');
@@ -832,7 +841,7 @@ const TowerTool = () => {
                 setShowBetaModal(true);
                 setShouldShowBetaModal(false); // Prevent re-showing
             } else {
-                const updateModalShown = localStorage.getItem('updateModalShown_20250910');
+                const updateModalShown = localStorage.getItem('updateModalShown_20250911_final');
                 if (!updateModalShown) {
                     setShowUpdateModal(true);
                 }
@@ -1107,6 +1116,8 @@ const TowerTool = () => {
         showToastMessage('メモを保存しました。');
     };
 
+    
+
     const generateEventTweetUrl = (event) => {
         let text = '';
         if (event.type === 'birthday') {
@@ -1306,6 +1317,7 @@ const TowerTool = () => {
                                     onTargetEnemyChange={(enemyName) => handleTargetEnemyChange(selectedSquare.id, enemyName)}
                                     isResolvable={isResolvable}
                                     onSaveFormationMemo={handleSaveFormationMemo}
+                                    onOpenCommunityFormations={handleOpenCommunityFormations}
                                 />;
                             }
                         })()}
@@ -1353,7 +1365,9 @@ const TowerTool = () => {
                                 idMaps={idMaps}
                                 editingFormation={editingFormation}
                                 onEditingFormationChange={setEditingFormation}
-                                isMobileView={isMobileView}
+                                onOpenCommunityFormations={handleOpenCommunityFormations}
+                                handlePostFormation={handlePostFormation} 
+                                isPosting={isPosting} 
                             />}
                         </div>
                     </div>
@@ -1429,22 +1443,7 @@ const TowerTool = () => {
                     }}
                     title="オープンβテストへようこそ！"
                 >
-                    {`この度は「星間の塔攻略支援ツール」オープンβにご参加いただき、本当にありがとうございます！！
-
-今回お試しいただいているのは、まだ全然完成していない“プロトタイプ版”です。
-「とりあえず動いてるな～」くらいの段階なので、荒削りな部分や足りない機能が多い点はご容赦ください。
-
-そのうえで、実際に触っていただく中で、
-「不具合を見つけた」「ここが使いにくい」「もっとこうしてほしい」
-といったご意見がありましたら、ぜひ気軽にお知らせください。
-
-報告はGoogleフォーム（設定 → ベータテスト用報告フォーム）から、何度でもご記入いただけます。
-小さな感想や気づきでも大歓迎です！
-
-皆さまからの声が、このツールをより良く育てていく力になります。
-どうぞよろしくお願いいたします！
-
-それでは、良き戦争を！！！`}
+                    {`この度は「星間の塔攻略支援ツール」オープンβにご参加いただき、本当にありがとうございます！！\n\n今回お試しいただいているのは、まだ全然完成していない“プロトタイプ版”です。\n「とりあえず動いてるな～」くらいの段階なので、荒削りな部分や足りない機能が多い点はご容赦ください。\n\nそのうえで、実際に触っていただく中で、\n「不具合を見つけた」「ここが使いにくい」「もっとこうしてほしい」\nといったご意見がありましたら、ぜひ気軽にお知らせください。\n\n報告はGoogleフォーム（設定 → ベータテスト用報告フォーム）から、何度でもご記入いただけます。\n小さな感想や気づきでも大歓迎です！\n\n皆さまからの声が、このツールをより良く育てていく力になります。\nどうぞよろしくお願いいたします！\n\nそれでは、良き戦争を！！！`}
                 </InfoModal>
             )}
 
@@ -1455,13 +1454,16 @@ const TowerTool = () => {
                         setShowUpdateModal(false);
                         localStorage.setItem('updateModalShown_20250911_final', 'true');
                     }}
-                    title="機能改善と不具合修正のお知らせ (2025/09/15)"
+                    title="機能改善と不具合修正のお知らせ (2025/09/17)"
                 >
                     {`
+                    【新機能追加】
+・みんなの編成機能を追加する為の準備をしました　※この機能は現段階では機能していません、17日20時以降か、明日の午前中に追加予定です
                     【不具合修正】
-・QRコードでのインポート機能を修正、利用可能に
-・PCでのレイアウトが崩れていた問題を修正
-
+・５階ボスのエネミー名が間違っていたのを修正
+・サキュバスの専用霊宝の設定が間違っていたのを修正
+                    【その他報告】
+・第一回ベータテストを終了しました。正式リリースは10月30日頃となります。
 
 ご利用いただきありがとうございます。今後とも本ツールをよろしくお願いいたします。`}
                 </InfoModal>
@@ -1552,6 +1554,7 @@ const TowerTool = () => {
                                     idMaps={idMaps}
                                     editingFormation={editingFormation}
                                     onEditingFormationChange={setEditingFormation}
+                                    onOpenCommunityFormations={handleOpenCommunityFormations}
                                 />
                             )}
                         </div>
@@ -1658,6 +1661,19 @@ const TowerTool = () => {
                 isTabletView={isTabletView}
                 onUnlockAchievement={unlockAchievement}
             />
+            {communityFormationsState.isOpen && (
+                <CommunityFormations
+                    onClose={handleCloseCommunityFormations}
+                    onCopyFormation={handleCopyCommunityFormation}
+                    ownedMegidoIds={ownedMegidoIds}
+                    showToastMessage={showToastMessage}
+                    initialFloor={communityFormationsState.floor}
+                    initialEnemy={communityFormationsState.enemy}
+                    userFormations={formations} // ユーザーの編成一覧
+                    runHistory={runState.history} // 勝利履歴
+                    megidoDetails={megidoDetails} // メギド詳細データ
+                />
+            )}
             {isMobileView && selectedSquare && (
                 <div className="mobile-panel-overlay" onClick={() => onCancel()}>
                     <div className="mobile-panel-content" onClick={(e) => e.stopPropagation()}>

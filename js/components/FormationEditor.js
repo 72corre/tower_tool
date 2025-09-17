@@ -1,4 +1,4 @@
-const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCancel, ownedMegidoIds, megidoDetails, initialTagTarget, previousScreen, showToastMessage, onTargetSelect, uniquePrefix }) => {
+const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCancel, ownedMegidoIds, megidoDetails, onMegidoDetailChange, initialTagTarget, previousScreen, showToastMessage, onTargetSelect, uniquePrefix }) => {
     const { useState, useMemo, useEffect } = React;
     const [formation, setFormation] = useState(initialFormation);
     const [modalState, setModalState] = useState({ type: null, isOpen: false, slotIndex: null });
@@ -9,6 +9,25 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
     useEffect(() => {
         setFormation(initialFormation);
     }, [initialFormation]);
+
+    // onMegidoDetailChangeによってmegidoDetailsが変更された場合、内部のformation stateにも同期させる
+    useEffect(() => {
+        if (!onMegidoDetailChange) return; // このpropがない場合は何もしない
+        setFormation(currentFormation => {
+            const newMegidoList = (currentFormation.megido || []).map(m => {
+                if (!m) return null;
+                const details = megidoDetails[m.id];
+                // 既存のmegidoオブジェクトに、更新されたdetailsをマージする
+                return details ? { ...m, ...details } : m;
+            });
+            // メギドリストが実際に変更された場合のみstateを更新
+            if (JSON.stringify(currentFormation.megido) !== JSON.stringify(newMegidoList)) {
+                return { ...currentFormation, megido: newMegidoList };
+            }
+            return currentFormation;
+        });
+    }, [megidoDetails, onMegidoDetailChange]);
+
 
     useEffect(() => {
         let floor = null;
@@ -25,7 +44,6 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
         setSelectedEnemy(enemy);
         setSelectedFloor(floor);
 
-        // Clear fields when formation id changes to avoid carrying over old data
         return () => {
             setSelectedEnemy('');
             setSelectedFloor(null);
@@ -52,14 +70,6 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
 
     const isSaveDisabled = !formation.megido?.[2];
 
-    const handleMegidoStatChange = (slotIndex, field, value) => {
-        const newMegidoList = [...formation.megido];
-        if (newMegidoList[slotIndex]) {
-            newMegidoList[slotIndex][field] = value;
-            setFormation(f => ({ ...f, megido: newMegidoList }));
-        }
-    };
-
     const handleSelect = (item) => {
         const { type, slotIndex } = modalState;
         const newMegidoList = [...(formation.megido || Array(5).fill(null))];
@@ -69,21 +79,18 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
             const isLeader = slotIndex === 2;
             const megidoData = item;
             const details = megidoDetails[megidoData.id] || { 
-                owned: false, 
+                owned: true, 
                 level: 70, 
                 ougiLevel: 1, 
                 special_reishou: megidoData.専用霊宝 || false, 
                 bond_reishou: 0,
+                singularity_level: 0,
                 reishou: []
             };
             
             newMegidoList[slotIndex] = { 
                 ...megidoData, 
-                level: details.level,
-                ougiLevel: details.ougiLevel,
-                special_reishou: details.special_reishou,
-                bond_reishou: details.bond_reishou,
-                reishou: details.reishou || [],
+                ...details,
                 orb: null,
                 isLeader 
             };
@@ -242,15 +249,20 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                                 <MegidoSlotEditor 
                                     megido={formation.megido ? formation.megido[index] : null} 
                                     isLeader={index === 2}
-                                    ownedMegidoIds={ownedMegidoIds}
-                                    megidoDetails={megidoDetails}
+                                    ownedMegidoIds={ownedMegidoIds} // これを追加
+                                    megidoDetails={megidoDetails} // これも追加
                                     onSlotClick={() => setModalState({ type: 'megido', isOpen: true, slotIndex: index })}
                                     onOrbClick={(e) => { e.stopPropagation(); if(formation.megido?.[index]) setModalState({ type: 'orb', isOpen: true, slotIndex: index }); }}
                                     onReishouClick={(e) => { e.stopPropagation(); if(formation.megido?.[index]) setModalState({ type: 'reishou', isOpen: true, slotIndex: index }); }}
                                     onRemoveMegido={(e) => { e.stopPropagation(); const newList = [...formation.megido]; newList[index] = null; setFormation(f => ({...f, megido: newList})); }}
                                     onRemoveOrb={(e) => { e.stopPropagation(); const newList = [...formation.megido]; if(newList[index]) newList[index].orb = null; setFormation(f => ({...f, megido: newList})); }}
                                     onRemoveReishou={(reishouIndex) => { const newList = [...formation.megido]; if(newList[index]) newList[index].reishou.splice(reishouIndex, 1); setFormation(f => ({...f, megido: newList})); }}
-                                    onStatChange={(field, value) => handleMegidoStatChange(index, field, value)}
+                                    onStatChange={(field, value) => {
+                                        const megidoId = formation.megido[index]?.id;
+                                        if (megidoId && onMegidoDetailChange) {
+                                            onMegidoDetailChange(megidoId, field, value);
+                                        }
+                                    }}
                                 />
                             </div>
                         ))}

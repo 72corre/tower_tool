@@ -26,7 +26,8 @@ const PracticeActionPanel = ({
     targetEnemy,
     onTargetEnemyChange,
     isResolvable,
-    onSaveFormationMemo
+    onSaveFormationMemo,
+    onOpenCommunityFormations
 }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [memoText, setMemoText] = useState('');
@@ -232,10 +233,17 @@ const PracticeActionPanel = ({
                             border: isTargeted ? '2px solid var(--primary-accent)' : '2px solid transparent',
                             transition: 'all 0.2s ease'
                         }}>
-                            <span style={{ fontWeight: 'bold', color: isTargeted ? 'var(--bg-main)' : 'var(--text-main)' }}>{enemy}</span>
-                            <div>
-                                <button onClick={() => onTargetEnemyChange(enemy)} className="btn btn-secondary btn-small">{isTargeted ? 'ターゲット中' : 'ターゲット'}</button>
-                                <button onClick={() => onCreateFormation(enemy, floorData.floor)} className="btn btn-primary btn-small" style={{marginLeft: '8px'}}>新規編成作成</button>
+                            <div onClick={() => onTargetEnemyChange(enemy)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', flexGrow: 1}}>
+                                {isTargeted && <span style={{color: '#70F0E0', fontWeight: 'bold', fontSize: '20px'}}>&gt;</span>}
+                                <span style={{ fontWeight: 'bold', color: isTargeted ? '#70F0E0' : 'var(--text-main)' }}>{enemy}</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <button onClick={() => onCreateFormation(enemy, floorData.floor)} className="btn btn-ghost p-1" title="新規編成">
+                                    <img src="asset/create.png" alt="新規編成" style={{width: '24px', height: '24px'}} />
+                                </button>
+                                <button onClick={() => onOpenCommunityFormations(floorData.floor, enemy)} className="btn btn-ghost p-1" title="みんなの編成">
+                                    <img src="asset/community.png" alt="みんなの編成" style={{width: '24px', height: '24px'}} />
+                                </button>
                             </div>
                         </div>
                     )

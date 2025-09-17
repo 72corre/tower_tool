@@ -85,7 +85,7 @@ const TOWER_MAP_DATA = [
     {
         floor: 5,
         theme: 'なし',
-        boss: 'ディジィースプー',
+        boss: 'ディジースプー',
         layout_type: 'grid',
         layoutGrid: [
             [null,null,'f5-e1', null, 'f5-e2',null,null],
@@ -100,7 +100,7 @@ const TOWER_MAP_DATA = [
             'f5-s': { type: 'start' },
             'f5-b1': { type: 'battle', enemies: ['赤月の残党兵長', 'ドラゴニュート', '輝竜アシュトレト'], rules: ['全能力+50%（幻獣）'] },
             'f5-b2': { type: 'battle', enemies: ['守護竜ネイロード', 'デクリオンオーク', 'ゴウケツ'], rules: ['全能力+50%（幻獣）'] },
-            'f5-o': { type: 'boss', enemies: ['ディジィースプー'], rules: ['なし'] }
+            'f5-o': { type: 'boss', enemies: ['ディジースプー'], rules: ['なし'] }
         }
     },
     // 6F～10F

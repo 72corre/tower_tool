@@ -156,7 +156,7 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
     };
 
     return (
-        <div style={{display: 'flex', flexDirection: 'column', height: '100%', gap: '16px'}}>
+        <div style={{display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', marginTop: '16px'}}>
             <FilterControls 
                 filters={filters}
                 onFilterChange={(type, value) => setFilters(f => ({ ...f, [type]: value }))}
