@@ -155,7 +155,7 @@ const encodeFormationToQrString = (formation, megidoDetails, idMaps) => {
             else if (level >= 72) levelChar = '1';
             qrString += levelChar;
 
-            const reishouIds = (details.reishou || []).map(rId => idMaps.reishou.originalToNew.get(rId) || '999').slice(0, 4);
+            const reishouIds = (megidoSlot.reishouIds || []).map(rId => idMaps.reishou.originalToNew.get(rId) || '999').slice(0, 4);
             while (reishouIds.length < 4) {
                 reishouIds.push('999');
             }
