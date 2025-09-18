@@ -7,8 +7,10 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
     const [isEnemyModalOpen, setIsEnemyModalOpen] = useState(false);
 
     useEffect(() => {
-        setFormation(initialFormation);
-    }, [initialFormation]);
+        if (initialFormation) {
+            setFormation(rehydrateFormation(initialFormation, megidoDetails));
+        }
+    }, [initialFormation, megidoDetails]);
 
     // onMegidoDetailChangeによってmegidoDetailsが変更された場合、内部のformation stateにも同期させる
     useEffect(() => {
@@ -140,6 +142,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
         }
 
         finalFormation.tags = Array.from(newTags);
+
         onSave(finalFormation, previousScreen);
         showToastMessage("編成を保存しました");
     };

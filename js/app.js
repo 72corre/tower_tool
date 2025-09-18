@@ -99,6 +99,28 @@ const LogActionModal = ({ isOpen, onClose, squareKey, selectedLog, towerData }) 
 };
 
 const TowerTool = () => {
+    const [currentUser, setCurrentUser] = useState(null);
+
+    // 認証状態の監視
+    useEffect(() => {
+        const unsubscribe = onAuthChange(user => {
+            setCurrentUser(user);
+        });
+        return () => unsubscribe(); // クリーンアップ
+    }, []);
+
+    const handleSignIn = async (provider) => {
+        const user = await signInWithProvider(provider);
+        if (user) {
+            showToastMessage(`${user.displayName}としてログインしました。`);
+        }
+    };
+
+    const handleSignOut = async () => {
+        await signOutUser();
+        showToastMessage('ログアウトしました。');
+    };
+
     const [showSettings, setShowSettings] = useState(false);
     const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
         const saved = localStorage.getItem('unlockedAchievements');
@@ -173,14 +195,7 @@ const TowerTool = () => {
         return saved ? JSON.parse(saved) : true; // Default to collapsed
     });
     
-    const { 
-        communityFormationsState,
-        handleOpenCommunityFormations,
-        handleCloseCommunityFormations,
-        handleCopyCommunityFormation,
-        handlePostFormation,
-        isPosting,
-    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps });
+    
 
     const isMobileSize = useMediaQuery('(max-width: 768px)');
     const isTabletSize = useMediaQuery('(min-width: 769px) and (max-width: 1180px)');
@@ -347,6 +362,22 @@ const TowerTool = () => {
         showToastMessage
     });
 
+    const idMaps = useMemo(() => {
+        if (isLoading || typeof COMPLETE_MEGIDO_LIST === 'undefined' || typeof ENEMY_ALL_DATA === 'undefined' || typeof COMPLETE_ORB_LIST === 'undefined' || typeof COMPLETE_REISHOU_LIST === 'undefined') {
+            return null;
+        }
+        const megidoMaps = generateMegidoMappings();
+        const enemyMaps = generateEnemyMappings();
+        const orbMaps = generateOrbMappings();
+        const reishouMaps = generateReishouMappings();
+        return {
+            megido: megidoMaps,
+            enemy: enemyMaps,
+            orb: orbMaps,
+            reishou: reishouMaps
+        };
+    }, [isLoading]);
+
     const { 
         formations, 
         setFormations, 
@@ -363,11 +394,23 @@ const TowerTool = () => {
         handleCreateFormationFromEnemy 
     } = useFormations({
         showToastMessage,
+        idMaps,
         setDisplayedEnemy,
         setActiveTab,
         setPracticeView,
-        mode
+        mode,
+        handleMegidoDetailChange
     });
+
+    const { 
+        communityFormationsState,
+        handleOpenCommunityFormations,
+        handleCloseCommunityFormations,
+        handleCopyCommunityFormation,
+        handlePostFormation,
+        handleDeleteCommunityFormation,
+        isPosting,
+    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser });
 
     const handleImportFormation = () => {
         if (!idMaps) {
@@ -413,7 +456,9 @@ const TowerTool = () => {
                             const bondReishou = parseInt(decodedText.substring(pointer, pointer += 1), 10);
                             const orbQRID = decodedText.substring(pointer, pointer += 3);
 
-                            const megidoId = idMaps.megido.newToOriginal.get(megidoQRID);
+                            console.log("megidoQRID:", megidoQRID);
+                            const megidoId = idMaps.megido.newToOriginal.get(String(megidoQRID));
+                            console.log("megidoId:", megidoId);
                             if (!megidoId) {
                                 megidoSlots.push(null);
                                 continue;
@@ -701,21 +746,7 @@ const TowerTool = () => {
         }
     }, []);
 
-    const idMaps = useMemo(() => {
-        if (isLoading || typeof COMPLETE_MEGIDO_LIST === 'undefined' || typeof ENEMY_ALL_DATA === 'undefined' || typeof COMPLETE_ORB_LIST === 'undefined' || typeof COMPLETE_REISHOU_LIST === 'undefined') {
-            return null;
-        }
-        const megidoMaps = generateMegidoMappings();
-        const enemyMaps = generateEnemyMappings();
-        const orbMaps = generateOrbMappings();
-        const reishouMaps = generateReishouMappings();
-        return {
-            megido: megidoMaps,
-            enemy: enemyMaps,
-            orb: orbMaps,
-            reishou: reishouMaps
-        };
-    }, [isLoading]);
+    
 
     useEffect(() => {
         const dataCheckInterval = setInterval(() => {
@@ -1452,20 +1483,19 @@ const TowerTool = () => {
                     isOpen={true}
                     onClose={() => {
                         setShowUpdateModal(false);
-                        localStorage.setItem('updateModalShown_20250911_final', 'true');
+                        localStorage.setItem('updateModalShown_20250918_community', 'true');
                     }}
-                    title="機能改善と不具合修正のお知らせ (2025/09/17)"
+                    title="機能改善と不具合修正のお知らせ (2025/09/18)"
                 >
-                    {`
-                    【新機能追加】
-・みんなの編成機能を追加する為の準備をしました　※この機能は現段階では機能していません、17日20時以降か、明日の午前中に追加予定です
-                    【不具合修正】
-・５階ボスのエネミー名が間違っていたのを修正
-・サキュバスの専用霊宝の設定が間違っていたのを修正
-                    【その他報告】
-・第一回ベータテストを終了しました。正式リリースは10月30日頃となります。
+                    {`【新機能】
+・「みんなの編成」機能を追加しました。
+・投稿・削除にはGoogleアカウントかTwitterでのログインが必要です。
+・閲覧するだけならログインは不要です。
+・投稿されたデータを☆５で点数を付けることが可能です。
+・採点するにはその編成を使う必要があります。
 
-ご利用いただきありがとうございます。今後とも本ツールをよろしくお願いいたします。`}
+【その他】
+・この機能はまだテスト段階なので、今後大きく変化する可能性もあります。`}
                 </InfoModal>
             )}
 
@@ -1487,6 +1517,9 @@ const TowerTool = () => {
                 seasonLogs={seasonLogs}
                 selectedLog={selectedLog}
                 onSelectLog={handleSelectLog}
+                currentUser={currentUser}
+                onSignIn={handleSignIn}
+                onSignOut={handleSignOut}
             />
                         {!isMobileView && (
                 <nav className="desktop-nav">
@@ -1555,6 +1588,8 @@ const TowerTool = () => {
                                     editingFormation={editingFormation}
                                     onEditingFormationChange={setEditingFormation}
                                     onOpenCommunityFormations={handleOpenCommunityFormations}
+                                    handlePostFormation={handlePostFormation}
+                                    isPosting={isPosting}
                                 />
                             )}
                         </div>
@@ -1665,13 +1700,17 @@ const TowerTool = () => {
                 <CommunityFormations
                     onClose={handleCloseCommunityFormations}
                     onCopyFormation={handleCopyCommunityFormation}
+                    onDeleteFormation={handleDeleteCommunityFormation}
+                    currentUser={currentUser}
                     ownedMegidoIds={ownedMegidoIds}
                     showToastMessage={showToastMessage}
                     initialFloor={communityFormationsState.floor}
                     initialEnemy={communityFormationsState.enemy}
+                    initialHighlightId={communityFormationsState.highlightId}
                     userFormations={formations} // ユーザーの編成一覧
                     runHistory={runState.history} // 勝利履歴
-                    megidoDetails={megidoDetails} // メギド詳細データ
+                                        megidoDetails={megidoDetails} // メギド詳細データ
+                    idMaps={idMaps}
                 />
             )}
             {isMobileView && selectedSquare && (

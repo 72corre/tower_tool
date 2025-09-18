@@ -118,6 +118,11 @@ const calculateShortestPath = (floorData, connections) => {
 };
 
 const encodeFormationToQrString = (formation, megidoDetails, idMaps) => {
+    console.log('--- Encoding Formation Start ---');
+    console.log('Input Formation:', JSON.parse(JSON.stringify(formation)));
+    console.log('Inspecting megidoSlots:', JSON.stringify(formation.megidoSlots, null, 2)); // ★ 詳細ログを追加
+    console.log('Megido Details:', JSON.parse(JSON.stringify(megidoDetails)));
+
     if (!formation || !idMaps) return '';
 
     let qrString = '';
@@ -159,11 +164,55 @@ const encodeFormationToQrString = (formation, megidoDetails, idMaps) => {
             qrString += details.special_reishou ? '1' : '0';
             qrString += (details.bond_reishou || 0).toString();
 
-            const orbId = (details.orb && details.orb.id) ? (idMaps.orb.originalToNew.get(details.orb.id) || '999') : '999';
+            const orbId = megidoSlot.orbId ? (idMaps.orb.originalToNew.get(String(megidoSlot.orbId)) || '999') : '999';
             qrString += orbId;
         } else {
-            qrString += '9990100999999999999900999'; // Empty slot data
+            qrString += '999010099999999999900999'; // Empty slot data
         }
     }
+    console.log('Output QR String:', qrString);
+    console.log('QR String Length:', qrString.length);
+    console.log('--- Encoding Formation End ---');
     return qrString;
+};
+
+const rehydrateFormation = (formation, megidoDetails) => {
+    if (!formation) return null;
+    // If formation already has a hydrated 'megido' array, just return it.
+    if (formation.megido) return formation;
+    if (!formation.megidoSlots) return { ...formation, megido: [] };
+
+    const rehydratedMegido = formation.megidoSlots.map(slot => {
+        if (!slot || !slot.megidoId) return null;
+
+        const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(slot.megidoId));
+        if (!megidoMaster) return null;
+
+        const orb = slot.orbId ? COMPLETE_ORB_LIST.find(o => String(o.id) === String(slot.orbId)) : null;
+        const reishou = (slot.reishouIds || []).map(rId => COMPLETE_REISHOU_LIST.find(r => String(r.id) === String(rId))).filter(Boolean);
+        const details = megidoDetails[slot.megidoId] || {};
+
+        return {
+            ...megidoMaster,
+            orb: orb,
+            reishou: reishou,
+            level: details.level || 70,
+            ougiLevel: details.ougiLevel || 1,
+            special_reishou: details.special_reishou || false,
+            bond_reishou: details.bond_reishou || 0,
+            singularity_level: details.singularity_level || 0,
+        };
+    });
+
+    return { ...formation, megido: rehydratedMegido };
+};
+
+const getMegido = (megidoId) => {
+    if (!megidoId) return null;
+    return COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(megidoId));
+};
+
+const getOrb = (orbId) => {
+    if (!orbId) return null;
+    return COMPLETE_ORB_LIST.find(o => String(o.id) === String(orbId));
 };

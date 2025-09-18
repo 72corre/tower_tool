@@ -1,5 +1,5 @@
 const firebaseConfig = {
-  apiKey: "未入力",
+  apiKey: "AIzaSyBS89pYuPITwJJh-Vtj6CPAFUZmm1XBqhQ",
   authDomain: "tower-tool-average.firebaseapp.com",
   projectId: "tower-tool-average",
   storageBucket: "tower-tool-average.appspot.com",

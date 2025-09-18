@@ -1,10 +1,11 @@
-let db;
+let db, auth;
 
 function initializeFirebase() {
     if (typeof firebase !== 'undefined') {
         try {
             const app = firebase.initializeApp(firebaseConfig);
             db = firebase.firestore(app);
+            auth = firebase.auth(); // ★ 追加
             console.log("Firebase initialized successfully");
         } catch (e) {
             console.error("Error initializing Firebase:", e);
@@ -14,6 +15,46 @@ function initializeFirebase() {
     }
 }
 
+// --- Auth Functions ---
+
+const getProvider = (providerName) => {
+    switch(providerName) {
+        case 'google':
+            return new firebase.auth.GoogleAuthProvider();
+        case 'twitter':
+            return new firebase.auth.TwitterAuthProvider();
+        default:
+            throw new Error(`Unknown provider: ${providerName}`);
+    }
+};
+
+async function signInWithProvider(providerName) {
+    if (!auth) throw new Error("Firebase Auth not initialized.");
+    const provider = getProvider(providerName);
+    try {
+        const result = await auth.signInWithPopup(provider);
+        return result.user;
+    } catch (error) {
+        console.error(`Sign-in with ${providerName} failed:`, error);
+        // Handle specific errors if needed
+        if (error.code === 'auth/account-exists-with-different-credential') {
+            alert('このメールアドレスは既に使用されています。別のログイン方法をお試しください。');
+        }
+        return null;
+    }
+}
+
+async function signOutUser() {
+    if (!auth) throw new Error("Firebase Auth not initialized.");
+    await auth.signOut();
+}
+
+function onAuthChange(callback) {
+    if (!auth) throw new Error("Firebase Auth not initialized.");
+    return auth.onAuthStateChanged(callback);
+}
+
+// --- Firestore Functions (existing) ---
 // 編成IDを生成する（日本語対応）
 function getFormationId(formation) {
     try {
@@ -144,11 +185,32 @@ async function postCommunityFormation(formationData) {
 }
 
 /**
+ * 「みんなの編成」の投稿を削除します。
+ * @param {string} formationId - 削除する投稿のドキュメントID。
+ * @returns {Promise<boolean>} 成功した場合はtrue、失敗した場合はfalse。
+ */
+async function deleteCommunityFormation(formationId) {
+    if (!db) {
+        console.error("Firestore is not initialized.");
+        return false;
+    }
+    try {
+        await db.collection('communityFormations').doc(formationId).delete();
+        console.log("Formation deleted successfully: ", formationId);
+        return true;
+    } catch (e) {
+        console.error("Error deleting formation: ", e);
+        return false;
+    }
+}
+
+/**
  * 条件に基づいて「みんなの編成」をFirestoreから取得します。
  * @param {object} filters - フィルタ条件。例: { floor: 5, megidoName: 'バエル' }
  * @returns {Promise<Array>} 取得した編成データの配列。
  */
 async function getCommunityFormations(filters = {}) {
+    console.log('Searching with filters:', filters);
     if (!db) {
         console.error("Firestore is not initialized.");
         return [];
@@ -162,15 +224,24 @@ async function getCommunityFormations(filters = {}) {
             query = query.where('floor', '==', parseInt(filters.floor, 10));
         }
         if (filters.enemyName) {
-            // 部分一致はできないため、前方一致で代替
-            query = query.where('enemyName', '>=', filters.enemyName).where('enemyName', '<=', filters.enemyName + '\uf8ff');
+            const enemy = filters.enemyName;
+            query = query.where('enemyName', '>=', enemy).where('enemyName', '<', enemy + '\uf8ff');
         }
         if (filters.megidoName) {
             query = query.where('megidoNames', 'array-contains', filters.megidoName);
         }
 
+        // orderBy のロジックを修正
+        if (filters.enemyName) {
+            // enemyNameで検索した場合、orderByの第一引数はenemyNameにする必要がある
+            query = query.orderBy('enemyName').orderBy('createdAt', 'desc');
+        } else {
+            // それ以外の場合はcreatedAtでソート
+            query = query.orderBy('createdAt', 'desc');
+        }
+
         // 最終的なクエリを実行
-        const querySnapshot = await query.orderBy('createdAt', 'desc').limit(50).get();
+        const querySnapshot = await query.limit(50).get();
         
         const formations = querySnapshot.docs.map(doc => ({
             id: doc.id,

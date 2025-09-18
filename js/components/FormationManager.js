@@ -11,7 +11,8 @@ const FormationCard = ({
     onEdit,
     onDelete,
     onTagClick,
-    onPost,     // 投稿ボタンのクリックハンドラ
+    onPost,
+    onGoToSource, // ★ 追加
 }) => {
     return (
         <div className="card" style={cardStyle}>
@@ -27,6 +28,9 @@ const FormationCard = ({
 
             {isExpanded && (
                 <div className="formation-card-actions">
+                    {form.communityId && ( // ★ 追加
+                        <button onClick={() => onGoToSource(form)} className="btn btn-secondary">採点しに行く</button>
+                    )} 
                     <button onClick={() => onPost(form)} className="btn btn-primary">投稿</button>
                     <button onClick={() => onGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
                     <button onClick={() => onCopy(form.id)} className="btn btn-secondary">コピー</button>
@@ -89,34 +93,6 @@ const FormationManager = ({
     const [expandedCardId, setExpandedCardId] = useState(null);
     const [postModalState, setPostModalState] = useState({ isOpen: false, formation: null });
 
-    const rehydrateFormation = useCallback((formation) => {
-        if (!formation || !formation.megidoSlots) return { ...formation, megido: [] };
-
-        const rehydratedMegido = formation.megidoSlots.map(slot => {
-            if (!slot || !slot.megidoId) return null;
-
-            const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(slot.megidoId));
-            if (!megidoMaster) return null;
-
-            const orb = slot.orbId ? COMPLETE_ORB_LIST.find(o => String(o.id) === String(slot.orbId)) : null;
-            const reishou = (slot.reishouIds || []).map(rId => COMPLETE_REISHOU_LIST.find(r => String(r.id) === String(rId))).filter(Boolean);
-            const details = megidoDetails[slot.megidoId] || {};
-
-            return {
-                ...megidoMaster,
-                orb: orb,
-                reishou: reishou,
-                level: details.level || 70,
-                ougiLevel: details.ougiLevel || 1,
-                special_reishou: details.special_reishou || false,
-                bond_reishou: details.bond_reishou || 0,
-                singularity_level: details.singularity_level || 0,
-            };
-        });
-
-        return { ...formation, megido: rehydratedMegido };
-    }, [megidoDetails]);
-
     const drawOutlinedText = (ctx, text, x, y, options = {}) => {
         const {
             font = 'bold 24px "Noto Sans JP", sans-serif',
@@ -149,7 +125,7 @@ const FormationManager = ({
             const floorData = TOWER_MAP_DATA.find(f => f.floor === form.floor);
             if (floorData) {
                 const square = Object.values(floorData.squares).find(s => s.enemies && s.enemies.includes(form.enemyName));
-                const rules = square ? square.rules.join(', ') : '';
+                const rules = square ? square.rules.join(", ") : '';
                 text += `${form.floor}F：${rules} ${form.enemyName}\n`;
             }
         }
@@ -159,7 +135,7 @@ const FormationManager = ({
 
     const handleGenerateShareImage = async (form) => {
         showToastMessage('共有用画像を生成中です...');
-        const rehydratedForm = rehydrateFormation(form);
+        const rehydratedForm = rehydrateFormation(form, megidoDetails);
 
         setTweetUrl(generateTweetText(rehydratedForm));
         const canvas = document.createElement('canvas');
@@ -228,7 +204,7 @@ const FormationManager = ({
         if (rehydratedForm.floor || rehydratedForm.enemyName) {
             const floorData = TOWER_MAP_DATA.find(f => f.floor === rehydratedForm.floor);
             const square = floorData ? Object.values(floorData.squares).find(s => s.enemies && s.enemies.includes(rehydratedForm.enemyName)) : null;
-            const rules = square ? square.rules.join(', ') : '';
+            const rules = square ? square.rules.join(", ") : '';
 
             const floorText = `${rehydratedForm.floor || '?'}F`;
             drawOutlinedText(ctx, floorText, LAYOUT.PADDING, LAYOUT.PADDING, { font: 'bold 42px "Noto Sans JP", sans-serif' });
@@ -382,44 +358,19 @@ const FormationManager = ({
     };
 
     const handleExportClick = (form, returnOnly = false) => {
-        const rehydratedForm = rehydrateFormation(form);
-
-        if (!idMaps) {
-            showToastMessage('IDマッピングが完了していません。');
+        if (!idMaps || !megidoDetails) {
+            showToastMessage('IDマッピングが完了していません。', 'error');
             return null;
         }
-        let qrString = '';
-        const enemyId = rehydratedForm.enemyName ? (idMaps.enemy.originalToNew.get(rehydratedForm.enemyName) || '000') : '000';
-        const floor = rehydratedForm.floor ? rehydratedForm.floor.toString().padStart(2, '0') : '00';
-        qrString += enemyId;
-        qrString += floor;
-        for (let i = 0; i < 5; i++) {
-            const megido = rehydratedForm.megido[i];
-            if (megido) {
-                const megidoDetailsForSlot = megidoDetails[megido.id] || {};
-                qrString += idMaps.megido.originalToNew.get(String(megido.id)) || '999';
-                qrString += (megido.ougiLevel || 1).toString().padStart(2, '0');
-                qrString += (megidoDetailsForSlot.singularity_level || 0).toString();
-                const level = megido.level || 70;
-                let levelChar = '0';
-                if (level >= 80) levelChar = '4';
-                else if (level >= 76) levelChar = '3';
-                else if (level >= 74) levelChar = '2';
-                else if (level >= 72) levelChar = '1';
-                qrString += levelChar;
-                const reishouIds = (megido.reishou || []).map(r => idMaps.reishou.originalToNew.get(r.id) || '999').slice(0, 4);
-                while (reishouIds.length < 4) {
-                    reishouIds.push('999');
-                }
-                qrString += reishouIds.join('');
-                qrString += megido.special_reishou ? '1' : '0';
-                qrString += (megido.bond_reishou || 0).toString();
-                const orbId = (megido.orb && megido.orb.id) ? (idMaps.orb.originalToNew.get(megido.orb.id) || '999') : '999';
-                qrString += orbId;
-            } else {
-                qrString += '9990100999999999999900999';
-            }
+
+        // QR文字列の生成を utils.js の関数に一元化
+        const qrString = encodeFormationToQrString(form, megidoDetails, idMaps);
+
+        if (!qrString) {
+            showToastMessage('QRコード文字列の生成に失敗しました。', 'error');
+            return null;
         }
+
         if (returnOnly) {
             return qrString;
         }
@@ -428,6 +379,14 @@ const FormationManager = ({
 
     const handleToggleExpand = (formId) => {
         setExpandedCardId(prevId => prevId === formId ? null : formId);
+    };
+
+    const handleGoToSource = (form) => {
+        if (form.communityId) {
+            onOpenCommunityFormations(form.floor, form.enemyName, form.communityId);
+        } else {
+            showToastMessage('この編成は「みんなの編成」からコピーされたものではありません。', 'info');
+        }
     };
 
     return (
@@ -494,14 +453,14 @@ const FormationManager = ({
                     <button onClick={onImport} className="btn btn-ghost p-1" disabled={!isHtml5QrLoaded || !idMaps} title="QRコードでインポート">
                         <img src="asset/scan.png" alt="QRコードでインポート" style={{width: '32px', height: '32px'}} />
                     </button>
-                    <button onClick={onOpenCommunityFormations} className="btn btn-ghost p-1" title="みんなの編成">
+                    <button onClick={() => onOpenCommunityFormations()} className="btn btn-ghost p-1" title="みんなの編成">
                         <img src="asset/community.png" alt="みんなの編成" style={{width: '32px', height: '32px'}} />
                     </button>
                 </div>
             </div>
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                 {(filteredFormations || []).map(form => {
-                    const rehydratedForm = rehydrateFormation(form);
+                    const rehydratedForm = rehydrateFormation(form, megidoDetails);
                     const isInvalid = isFormationInvalid(rehydratedForm, megidoDetails, ownedMegidoIds);
                     const cardStyle = isInvalid ? { backgroundColor: 'rgba(217, 83, 79, 0.3)' } : {};
                     const nameStyle = isInvalid ? { color: 'var(--danger-color)' } : {};
@@ -522,6 +481,7 @@ const FormationManager = ({
                                 onDelete={onDelete}
                                 onTagClick={(tag) => setTagSearch({ text: tag, exactMatch: false })}
                                 onPost={(f) => setPostModalState({ isOpen: true, formation: f })}
+                                onGoToSource={handleGoToSource}
                         />
                     );
                 })}

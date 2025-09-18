@@ -1,7 +1,7 @@
 const { useState, useEffect, useMemo } = React;
 
-const CommunityFormations = ({ onClose, onCopyFormation, ownedMegidoIds, showToastMessage, initialFloor, initialEnemy, userFormations, runHistory, megidoDetails, idMaps }) => {
-    const { getMegido, getOrb } = useMegido({ showToastMessage });
+const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, currentUser, ownedMegidoIds, showToastMessage, initialFloor, initialEnemy, initialHighlightId, userFormations, runHistory, megidoDetails, idMaps }) => {
+    
     const [formations, setFormations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -21,17 +21,39 @@ const CommunityFormations = ({ onClose, onCopyFormation, ownedMegidoIds, showToa
         }
     });
 
-    // データ取得処理
     useEffect(() => {
+        // ユーザーが何か入力するまで検索を実行しない
+        if (!filters.floor && !filters.enemy && !filters.megidoName) {
+            setFormations([]);
+            setIsLoading(false);
+            return;
+        }
+
         const fetchFormations = async () => {
             setIsLoading(true);
             try {
-                const fetchedFormations = await getCommunityFormations({
+                // Step 1: Fetch the base community formations
+                const baseFormations = await getCommunityFormations({
                     floor: filters.floor,
                     enemyName: filters.enemy,
                     megidoName: filters.megidoName
                 });
-                setFormations(fetchedFormations);
+
+                if (baseFormations.length > 0) {
+                    // Step 2: Get all ratings for the fetched formations in one batch
+                    const formationIds = baseFormations.map(f => f.id);
+                    const ratings = await getRatingsForFormations(formationIds);
+
+                    // Step 3: Merge the ratings data into the formation data
+                    const mergedFormations = baseFormations.map(formation => ({
+                        ...formation,
+                        ...ratings[formation.id] // Add total_rating and rating_count
+                    }));
+                    setFormations(mergedFormations);
+                } else {
+                    setFormations([]); // No formations found
+                }
+
                 setError(null);
             } catch (err) {
                 console.error("Error fetching formations: ", err);
@@ -68,6 +90,24 @@ const CommunityFormations = ({ onClose, onCopyFormation, ownedMegidoIds, showToa
         });
     }, [formations, filters.hideNotOwned, filters.excludeTags, ownedMegidoIds]);
 
+    // ハイライトとスクロール処理
+    useEffect(() => {
+        if (initialHighlightId && filteredFormations.length > 0) {
+            const targetElement = document.getElementById(`community-card-${initialHighlightId}`);
+            if (targetElement) {
+                // 少し待ってからスクロールしないと、レンダリングが間に合わない場合がある
+                setTimeout(() => {
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    targetElement.classList.add('highlight');
+                    // 2秒後にハイライトを解除
+                    setTimeout(() => {
+                        targetElement.classList.remove('highlight');
+                    }, 2000);
+                }, 100);
+            }
+        }
+    }, [filteredFormations, initialHighlightId]);
+
     const handleFilterChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFilters(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
@@ -101,7 +141,22 @@ const CommunityFormations = ({ onClose, onCopyFormation, ownedMegidoIds, showToa
 
         await submitRating(formationId, rating);
         showToastMessage(`${rating}点で評価しました！`);
-        // TODO: 評価後にデータを更新する
+
+        // 楽観的更新: UIに即時反映させる
+        setFormations(currentFormations => 
+            currentFormations.map(f => {
+                if (f.id === formationId) {
+                    const newTotalRating = (f.total_rating || 0) + rating;
+                    const newRatingCount = (f.rating_count || 0) + 1;
+                    return {
+                        ...f,
+                        total_rating: newTotalRating,
+                        rating_count: newRatingCount,
+                    };
+                }
+                return f;
+            })
+        );
     };
 
     return (
@@ -173,16 +228,24 @@ const CommunityFormations = ({ onClose, onCopyFormation, ownedMegidoIds, showToa
                     ) : error ? (
                          <div className="text-center text-red-500 pt-10">{error}</div>
                     ) : filteredFormations.length > 0 ? (
-                        filteredFormations.map((data, index) => (
-                            <CommunityFormationCard
-                                key={data.id || index}
-                                formationData={data}
-                                onCopy={onCopyFormation}
-                                onRate={handleRate}
-                                getMegido={getMegido}
-                                getOrb={getOrb}
-                            />
-                        ))
+                        filteredFormations.map((data, index) => {
+                            const hasUsed = Object.values(userFormations).some(f => f.communityId === data.id);
+                            return (
+                                <div id={`community-card-${data.id}`} key={data.id || index}>
+                                    <CommunityFormationCard
+                                        formationData={data}
+                                        onCopy={onCopyFormation}
+                                        onRate={handleRate}
+                                        onDelete={onDeleteFormation} // ★ 追加
+                                        currentUser={currentUser} // ★ 追加
+                                        getMegido={getMegido}
+                                        getOrb={getOrb}
+                                        idMaps={idMaps}
+                                        hasUsed={hasUsed}
+                                    />
+                                </div>
+                            );
+                        })
                     ) : (
                         <div className="text-center text-gray-500 pt-10">
                             <p>条件に合う編成が見つかりませんでした。</p>

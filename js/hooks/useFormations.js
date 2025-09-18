@@ -168,7 +168,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
                             const megidoQRID = decodedText.substring(pointer, pointer += 3);
                             if (megidoQRID === '999') {
                                 megidoSlots.push(null);
-                                pointer += 21; // Skip the rest of the empty slot
+                                pointer += 22; // Skip the rest of the empty slot
                                 continue;
                             }
                             const ougiLevel = parseInt(decodedText.substring(pointer, pointer += 2), 10);

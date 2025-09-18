@@ -53,7 +53,7 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
     );
 };
 
-const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, onOpenSettings }) => {
+const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, onOpenSettings, currentUser, onSignIn, onSignOut }) => {
     const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
@@ -106,6 +106,20 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
                     <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
                         目標: {currentFloorInfo.title}
                     </button>
+                    
+                    {currentUser ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', border: '1px solid var(--border-color)', borderRadius: '99px' }}>
+                            <img src={currentUser.photoURL} alt={currentUser.displayName} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                            <span style={{ fontSize: '12px', fontWeight: 500, marginRight: '8px' }}>{currentUser.displayName}</span>
+                            <button onClick={onSignOut} className="btn btn-secondary btn-small">ログアウト</button>
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                             <button onClick={() => onSignIn('google')} className="btn btn-secondary btn-small">Googleログイン</button>
+                             <button onClick={() => onSignIn('twitter')} className="btn btn-secondary btn-small">Twitterログイン</button>
+                        </div>
+                    )}
+
                     <ModeSelectionModal
                         isOpen={isModeModalOpen}
                         onClose={() => setIsModeModalOpen(false)}
@@ -126,11 +140,12 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
     );
 };
 
-const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog }) => {
+const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, onSignIn, onSignOut }) => {
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
     const [isModeModalOpen, setIsModeModalOpen] = useState(false);
     const [isLogSelectionOpen, setIsLogSelectionOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     const currentModeInfo = modeMenuItems.find(item => item.key === mode) || modeMenuItems[0];
 
@@ -168,6 +183,25 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
         }
     };
 
+    const AuthContent = () => {
+        if (currentUser) {
+            return (
+                <div style={{textAlign: 'center'}}>
+                    <img src={currentUser.photoURL} alt={currentUser.displayName} style={{width: '64px', height: '64px', borderRadius: '50%', margin: '0 auto 1rem'}} />
+                    <p>{currentUser.displayName}としてログイン中</p>
+                    <button onClick={() => { onSignOut(); setIsAuthModalOpen(false); }} className="btn btn-danger">ログアウト</button>
+                </div>
+            );
+        } else {
+            return (
+                <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+                    <button onClick={() => { onSignIn('google'); setIsAuthModalOpen(false); }} className="btn btn-secondary">Googleでログイン</button>
+                    <button onClick={() => { onSignIn('twitter'); setIsAuthModalOpen(false); }} className="btn btn-secondary">Twitterでログイン</button>
+                </div>
+            );
+        }
+    };
+
     return (
         <div className="mobile-header-container">
             <div className="mobile-header-top-bar">
@@ -192,24 +226,31 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                     </h1>
                 </div>
 
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                    <div className="mobile-header-actions">
-                        {activeTab === 'details' && mode === 'practice' && (
-                            <>
-                                <button onClick={() => setIsActionsMenuOpen(true)} className="btn-icon">︙</button>
-                                {isActionsMenuOpen && (
-                                    <div className="mobile-actions-menu-overlay" onClick={() => setIsActionsMenuOpen(false)}></div>
-                                )}
-                                {isActionsMenuOpen && (
-                                    <div className="mobile-actions-menu">
-                                        <button onClick={() => { onSaveLog(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">挑戦ログを保存</button>
-                                        <button onClick={() => { onUndo(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">アンドゥ</button>
-                                        <button onClick={() => { onResetRun(false); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item danger">挑戦をリタイア</button>
-                                    </div>
-                                )}
-                            </>
-                        )}
-                    </div>
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px' }}>
+                    {currentUser ? (
+                        <button onClick={() => setIsAuthModalOpen(true)} className="btn-icon">
+                            <img src={currentUser.photoURL} alt="ユーザー情報" style={{width: '28px', height: '28px', borderRadius: '50%'}} />
+                        </button>
+                    ) : (
+                        <button onClick={() => setIsAuthModalOpen(true)} className="btn-icon" title="ログイン">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '24px', height: '24px'}}><path d="M12 2.5a5.5 5.5 0 0 1 3.096 10.047 9.005 9.005 0 0 1 5.9 8.181.75.75 0 1 1-1.499.044 7.5 7.5 0 0 0-14.993 0 .75.75 0 0 1-1.5-.045 9.005 9.005 0 0 1 5.9-8.181A5.5 5.5 0 0 1 12 2.5ZM8 8a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z" /></svg>
+                        </button>
+                    )}
+                    {activeTab === 'details' && mode === 'practice' && (
+                        <>
+                            <button onClick={() => setIsActionsMenuOpen(true)} className="btn-icon">︙</button>
+                            {isActionsMenuOpen && (
+                                <div className="mobile-actions-menu-overlay" onClick={() => setIsActionsMenuOpen(false)}></div>
+                            )}
+                            {isActionsMenuOpen && (
+                                <div className="mobile-actions-menu">
+                                    <button onClick={() => { onSaveLog(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">挑戦ログを保存</button>
+                                    <button onClick={() => { onUndo(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">アンドゥ</button>
+                                    <button onClick={() => { onResetRun(false); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item danger">挑戦をリタイア</button>
+                                </div>
+                            )}
+                        </>
+                    )}
                 </div>
             </div>
             <div className="mobile-header-tabs">
@@ -247,6 +288,14 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                 currentKey={mode}
                 menuItems={modeMenuItems}
             />
+
+            {isAuthModalOpen && (
+                <div className="mobile-modal-overlay" onClick={() => setIsAuthModalOpen(false)}>
+                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()}>
+                        <AuthContent />
+                    </div>
+                </div>
+            )}
 
             {isLogSelectionOpen && (
                  <div className="mobile-modal-overlay" onClick={() => setIsLogSelectionOpen(false)}>
