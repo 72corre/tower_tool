@@ -1493,6 +1493,8 @@ const TowerTool = () => {
 ・閲覧するだけならログインは不要です。
 ・投稿されたデータを☆５で点数を付けることが可能です。
 ・採点するにはその編成を使う必要があります。
+・「おまかせ探索」を追加しました
+・次のコンディション回復マスまでの期間に計画モードで計画されているか、過去の履歴で使用されているメギドを取り除いて、目標とする期待度となる最小の組み合わせを探し出します。
 
 【その他】
 ・この機能はまだテスト段階なので、今後大きく変化する可能性もあります。`}
@@ -1745,4 +1747,5 @@ const TowerTool = () => {
 
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);
+
 root.render(<TowerTool />);
