@@ -1,7 +1,50 @@
 const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, isPlanMode = false, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable, manualPower, onOpenManualPowerInput, onSetManualPower }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
+    const { findOptimalExplorationParty } = useAutoAssign();
     const [modalState, setModalState] = useState({ isOpen: false, slotIndex: null, recType: null });
     const [memo, setMemo] = useState('');
+    const [targetExpectation, setTargetExpectation] = useState(3);
+    const [autoAssignResult, setAutoAssignResult] = useState({ isOpen: false, result: null });
+
+    const handleAutoAssign = (retryOptions = {}) => {
+        const { lowerExpectation = false, includeGoodCondition = false } = retryOptions;
+
+        let currentTargetExpectation = targetExpectation;
+        if (lowerExpectation && currentTargetExpectation > 1) {
+            currentTargetExpectation -= 1;
+            setTargetExpectation(currentTargetExpectation); // Update the UI as well
+        }
+
+        const result = findOptimalExplorationParty({
+            currentFloor: square.floor.floor,
+            targetExpectation: currentTargetExpectation,
+            requiredPower,
+            ownedMegidoIds,
+            megidoConditions,
+            megidoDetails,
+            planState,
+            runState,
+            seasonLogs,
+            formations,
+            includeGoodCondition,
+            calculatePower,
+            recommendation
+        });
+
+        setAutoAssignResult({ isOpen: true, result });
+    };
+
+    const handleSelectParty = (party) => {
+        const newParty = [null, null, null];
+        party.forEach((megido, index) => {
+            newParty[index] = megido;
+        });
+        setPracticeParty(newParty);
+    };
+
+    const handleCloseAutoAssignModal = () => {
+        setAutoAssignResult({ isOpen: false, result: null });
+    };
 
     const getTitle = (sq) => {
         if (!sq) return '探索';
@@ -230,6 +273,13 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
         <div style={{ position: 'relative' }}>
             {isLocked && <LockedPanelOverlay text={lockText} />}
             <h3 className="card-header">{getTitle(square.square)}</h3>
+            <AutoAssignResultModal
+                isOpen={autoAssignResult.isOpen}
+                onClose={handleCloseAutoAssignModal}
+                result={autoAssignResult.result}
+                onSelectParty={handleSelectParty}
+                onRetry={handleAutoAssign}
+            />
             <FilterableSelectionModal 
                 title="探索メギド選択"
                 isOpen={modalState.isOpen}
@@ -334,6 +384,31 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                     {RECOMMENDATION_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
                 </select>
             </div>
+            <div className="card" style={{marginTop: '16px', padding: '16px'}}>
+                <h4 className="label" style={{marginTop: 0}}>探索おまかせ編成</h4>
+                <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
+                    <div style={{flex: 1}}>
+                        <label className="label" style={{fontSize: '12px'}}>目標期待度</label>
+                        <select 
+                            value={targetExpectation} 
+                            onChange={e => setTargetExpectation(Number(e.target.value))} 
+                            className="select-field"
+                        >
+                            <option value={3}>3 (大成功)</option>
+                            <option value={2}>2 (成功)</option>
+                            <option value={1}>1 (通常)</option>
+                        </select>
+                    </div>
+                    <button 
+                        onClick={handleAutoAssign} 
+                        className="btn btn-primary"
+                        style={{height: 'fit-content', alignSelf: 'flex-end'}}
+                    >
+                        おまかせ編成
+                    </button>
+                </div>
+            </div>
+
             <h4 className="label">探索パーティ選択 (1〜3体)</h4>
             <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
                 {practiceParty.map((megido, index) => {

@@ -68,8 +68,8 @@ const usePracticeState = ({
         });
     }, [showToastMessage]);
 
-    const handleConditionRecovery = useCallback((style, capacity, floor) => {
-        const recoveryAmount = floor <= 20 ? -1 : -2;
+    const handleConditionRecovery = useCallback((style, capacity, floor, amount) => {
+        const recoveryAmount = amount ? -amount : (floor <= 20 ? -1 : -2);
         const targetStyleKey = style.slice(0, 1);
 
         const fatiguedMegido = Object.keys(megidoConditions)
@@ -302,29 +302,34 @@ const usePracticeState = ({
                     setModalState(prev => ({ ...prev, isOpen: false })); 
                 } });
             } else if (squareSubType === 'recovery') {
+                const isSpecialCase = square.floor.floor >= 1 && square.floor.floor <= 10 && data.expectationLevel === 3;
+
                 if (squareStyle === 'RANDOM') {
                     setRecoveryModalState({
                         isOpen: true,
                         title: 'ランダムコンディション回復',
                         message: 'ゲーム内で指定された回復スタイルを選択し、回復可能な人数を入力してください。',
-                        onConfirm: (styleKey, capacity) => {
+                        showRecoveryAmountInput: isSpecialCase,
+                        onConfirm: (styleKey, capacity, recoveryAmount) => {
                             if (styleKey && !isNaN(capacity) && capacity > 0) {
                                 const fullStyleName = styleKey === 'R' ? 'RUSH' : styleKey === 'C' ? 'COUNTER' : 'BURST';
-                                handleConditionRecovery(fullStyleName, capacity, square.floor.floor);
+                                handleConditionRecovery(fullStyleName, capacity, square.floor.floor, isSpecialCase ? recoveryAmount : null);
                             }
                             setRecoveryModalState({ isOpen: false });
                         }
                     });
                 } else {
-                    setModalState({
+                    setRecoveryModalState({
                         isOpen: true,
                         title: 'コンディション回復',
                         message: '回復可能な人数を入力してください。',
-                        onConfirm: (capacity) => {
+                        fixedStyle: square.square.style.slice(0, 1),
+                        showRecoveryAmountInput: isSpecialCase,
+                        onConfirm: (styleKey, capacity, recoveryAmount) => {
                             if (!isNaN(capacity) && capacity > 0) {
-                                handleConditionRecovery(square.square.style, capacity, square.floor.floor);
+                                handleConditionRecovery(square.square.style, capacity, square.floor.floor, isSpecialCase ? recoveryAmount : null);
                             }
-                            setModalState(prev => ({ ...prev, isOpen: false }));
+                            setRecoveryModalState({ isOpen: false });
                         }
                     });
                 }
