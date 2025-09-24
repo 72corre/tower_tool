@@ -1032,7 +1032,7 @@ const TowerTool = () => {
         localStorage.removeItem('ui_selectedSquareKey');
     };
 
-    const getSquareStyle = (square, floorData, squareId) => {
+    const getSquareStyle = useCallback((square, floorData, squareId) => {
         let classes = '';
         if (selectedSquare && selectedSquare.floor.floor === floorData.floor && selectedSquare.id === squareId) {
             classes += ' node-state-selected';
@@ -1066,9 +1066,9 @@ const TowerTool = () => {
             }
         }
         return classes;
-    };
+    }, [selectedSquare, runState, mode, planState, guidance]);
 
-    const getSquareColorClass = (square) => {
+    const getSquareColorClass = useCallback((square) => {
         if (square.type === 'start') return 'node-color-start';
         if (square.type === 'boss') return 'node-color-boss';
         if (square.type === 'battle') return 'node-color-battle';
@@ -1087,9 +1087,9 @@ const TowerTool = () => {
         }
         
         return '';
-    };
+    }, []);
 
-    const getSquareColorRgbVarName = (square) => {
+    const getSquareColorRgbVarName = useCallback((square) => {
         if (square.type === 'start') return '--node-color-start-rgb';
         if (square.type === 'boss') return '--node-color-boss-rgb';
         if (square.type === 'battle') return '--node-color-battle-rgb';
@@ -1108,7 +1108,7 @@ const TowerTool = () => {
         }
         
         return '--text-main'; // Default fallback
-    };
+    }, []);
 
     const onTargetSelect = (target, screen) => {
         console.log('Target selected:', target, screen);
@@ -1674,7 +1674,7 @@ const TowerTool = () => {
                 <div className="toast-container">
                     <div className="toast-content">
                         <div className="toast-icon">
-                            <img src="asset/achievement.png" alt="Achievement Icon" />
+                            <img src="asset/achievement.webp" alt="Achievement Icon" />
                         </div>
                         <div className="toast-text">
                             <div className="toast-title">実績を解除しました！</div>

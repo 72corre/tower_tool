@@ -448,13 +448,13 @@ const FormationManager = ({
 
                 <div style={{display: 'flex', gap: '16px', justifyContent: 'flex-end'}}>
                     <button onClick={handleNewFormation} className="btn btn-ghost p-1" title="新規作成">
-                        <img src="asset/create.png" alt="新規作成" style={{width: '32px', height: '32px'}} />
+                        <img src="asset/create.webp" alt="新規作成" style={{width: '32px', height: '32px'}} />
                     </button>
                     <button onClick={onImport} className="btn btn-ghost p-1" disabled={!isHtml5QrLoaded || !idMaps} title="QRコードでインポート">
-                        <img src="asset/scan.png" alt="QRコードでインポート" style={{width: '32px', height: '32px'}} />
+                        <img src="asset/scan.webp" alt="QRコードでインポート" style={{width: '32px', height: '32px'}} />
                     </button>
                     <button onClick={() => onOpenCommunityFormations()} className="btn btn-ghost p-1" title="みんなの編成">
-                        <img src="asset/community.png" alt="みんなの編成" style={{width: '32px', height: '32px'}} />
+                        <img src="asset/community.webp" alt="みんなの編成" style={{width: '32px', height: '32px'}} />
                     </button>
                 </div>
             </div>

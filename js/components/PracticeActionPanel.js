@@ -239,7 +239,8 @@ const PracticeActionPanel = ({
                             </div>
                             <div style={{ display: 'flex', gap: '8px' }}>
                                 <button onClick={() => onCreateFormation(enemy, floorData.floor)} className="btn btn-ghost p-1" title="新規編成">
-                                    <img src="asset/create.png" alt="新規編成" style={{width: '24px', height: '24px'}} />
+                                    <img src="asset/create.webp" alt="新規編成" style={{width: '24px', height: '24px'}} />
+L245: <img src="asset/community.webp" alt="みんなの編成" style={{width: '24px', height: '24px'}} />
                                 </button>
                                 <button onClick={() => onOpenCommunityFormations(floorData.floor, enemy)} className="btn btn-ghost p-1" title="みんなの編成">
                                     <img src="asset/community.png" alt="みんなの編成" style={{width: '24px', height: '24px'}} />

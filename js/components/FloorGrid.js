@@ -6,7 +6,7 @@ const getSquareIcon = (square) => {
         iconName = square.sub_type;
     }
     
-    return `${basePath}${iconName}.png`;
+    return `${basePath}${iconName}.webp`;
 };
 
 const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, runState, mode }) => {
@@ -82,73 +82,95 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, get
 
 const FloorGrid = React.memo(({ floorData, handleSquareClick, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance }) => {
     const containerRef = React.useRef(null);
-    const [lines, setLines] = React.useState([]);
+    const [lineCoords, setLineCoords] = React.useState([]);
 
     React.useEffect(() => {
         if (!containerRef.current) return;
 
-        const newLines = [];
-        const squareElements = containerRef.current.querySelectorAll('[data-square-id]');
-        const elementsMap = new Map();
-        squareElements.forEach(el => elementsMap.set(el.dataset.squareId, el));
-        const floorSquareIds = new Set(Object.keys(floorData.squares));
-        const clearedSquaresOnFloor = runState.cleared[floorData.floor] || [];
+        const calculateLineCoordinates = () => {
+            const newCoords = [];
+            const squareElements = containerRef.current.querySelectorAll('[data-square-id]');
+            const elementsMap = new Map();
+            squareElements.forEach(el => elementsMap.set(el.dataset.squareId, el));
+            const floorSquareIds = new Set(Object.keys(floorData.squares));
 
-        for (const startId in connections) {
-            if (floorSquareIds.has(startId)) {
-                const startElement = elementsMap.get(startId);
-                if (startElement) {
-                    connections[startId].forEach(endId => {
-                        if (floorSquareIds.has(endId)) {
-                            const endElement = elementsMap.get(endId);
-                            if (endElement) {
-                                const containerRect = containerRef.current.getBoundingClientRect();
-                                const startRect = startElement.getBoundingClientRect();
-                                const endRect = endElement.getBoundingClientRect();
-                                
-                                const isStartCleared = clearedSquaresOnFloor.includes(startId);
-                                const isEndCleared = clearedSquaresOnFloor.includes(endId);
-                                
-                                let lineClass = 'map-line';
-                                if (mode === 'practice') {
-                                    if (isStartCleared && isEndCleared) {
-                                        lineClass = 'line-traversed';
-                                    } else if (isStartCleared && !isEndCleared) {
-                                        if (guidance.recommended === endId) {
-                                            lineClass = 'line-recommended';
-                                        } else if (guidance.candidates.hasOwnProperty(endId)) {
-                                            lineClass = 'line-candidate';
-                                        }
-                                    }
-                                } else if (mode === 'plan') {
-                                    lineClass = 'line-plan';
+            for (const startId in connections) {
+                if (floorSquareIds.has(startId)) {
+                    const startElement = elementsMap.get(startId);
+                    if (startElement) {
+                        connections[startId].forEach(endId => {
+                            // To avoid drawing lines twice, we only draw from the "smaller" ID to the "larger" one
+                            if (floorSquareIds.has(endId) && startId < endId) {
+                                const endElement = elementsMap.get(endId);
+                                if (endElement) {
+                                    const containerRect = containerRef.current.getBoundingClientRect();
+                                    const startRect = startElement.getBoundingClientRect();
+                                    const endRect = endElement.getBoundingClientRect();
+                                    
+                                    newCoords.push({
+                                        startId,
+                                        endId,
+                                        x1: startRect.left + startRect.width / 2 - containerRect.left,
+                                        y1: startRect.top + startRect.height / 2 - containerRect.top,
+                                        x2: endRect.left + endRect.width / 2 - containerRect.left,
+                                        y2: endRect.top + endRect.height / 2 - containerRect.top,
+                                    });
                                 }
-
-                                newLines.push({
-                                    x1: startRect.left + startRect.width / 2 - containerRect.left,
-                                    y1: startRect.top + startRect.height / 2 - containerRect.top,
-                                    x2: endRect.left + endRect.width / 2 - containerRect.left,
-                                    y2: endRect.top + endRect.height / 2 - containerRect.top,
-                                    className: lineClass
-                                });
                             }
-                        }
-                    });
+                        });
+                    }
                 }
             }
-        }
-        setLines(newLines);
-    }, [floorData, runState.cleared, mode, targetFloor, guidance]);
+            setLineCoords(newCoords);
+        };
+
+        // Initial calculation
+        calculateLineCoordinates();
+
+        // Recalculate on window resize
+        window.addEventListener('resize', calculateLineCoordinates);
+        return () => {
+            window.removeEventListener('resize', calculateLineCoordinates);
+        };
+
+    }, [floorData]); // Dependency is only on floorData, not on runState etc.
 
     const isGreyedOut = floorData.floor > targetFloor;
     const isPastFloor = runState.currentPosition?.floor > floorData.floor;
+    const clearedSquaresOnFloor = runState.cleared[floorData.floor] || [];
 
     return (
         <div className={`floor-grid ${activeFloor === floorData.floor ? 'floor-highlight' : ''} ${isGreyedOut ? 'opacity-40' : ''} ${isPastFloor ? 'past-floor' : ''}`}>
             <h3 className="floor-header">{floorData.floor}階 <span>(テーマ: {floorData.theme})</span></h3>
             <div ref={containerRef} style={{ position: 'relative' }}>
                 <svg style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
-                    {lines.map((line, i) => <line key={i} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} className={line.className} />)}
+                    {lineCoords.map((line, i) => {
+                        const isStartCleared = clearedSquaresOnFloor.includes(line.startId);
+                        const isEndCleared = clearedSquaresOnFloor.includes(line.endId);
+                        
+                        let lineClass = 'map-line';
+                        if (mode === 'practice') {
+                            if (isStartCleared && isEndCleared) {
+                                lineClass = 'line-traversed';
+                            } else if (isStartCleared && !isEndCleared) {
+                                if (guidance.recommended === line.endId) {
+                                    lineClass = 'line-recommended';
+                                } else if (guidance.candidates.hasOwnProperty(line.endId)) {
+                                    lineClass = 'line-candidate';
+                                }
+                            } else if (!isStartCleared && isEndCleared) {
+                                if (guidance.recommended === line.startId) {
+                                    lineClass = 'line-recommended';
+                                } else if (guidance.candidates.hasOwnProperty(line.startId)) {
+                                    lineClass = 'line-candidate';
+                                }
+                            }
+                        } else if (mode === 'plan') {
+                            lineClass = 'line-plan';
+                        }
+
+                        return <line key={i} x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} className={lineClass} />;
+                    })}
                 </svg>
                 <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: `repeat(${floorData.layoutGrid[0].length}, 1fr)`, gap: '4px', alignItems: 'center' }}>
                     {floorData.layoutGrid.flat().map((squareId, index) => (

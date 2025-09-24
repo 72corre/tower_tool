@@ -1,21 +1,23 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
-const floorMenuItems = [
-    { key: 1, title: '1F', icon: 'asset/1F.png', description: 'まずはこれがオススメ。Ωアバドンを倒しに行きます' },
-    { key: 5, title: '5F', icon: 'asset/5F.png', description: '１階まで登れたら、次はこれ。ディジィースプーを倒しに行きます' },
-    { key: 10, title: '10F', icon: 'asset/10F.png', description: 'ここからコンディション管理が大変に。ソウルクリエイトを倒しに行きます' },
-    { key: 15, title: '15F', icon: 'asset/15F.png', description: 'かなり慣れた人向け。デメタスを倒しに行きます。' },
-    { key: 20, title: '20F', icon: 'asset/20F.png', description: '魔喰機・無限を倒しに行きます' },
-    { key: 25, title: '25F', icon: 'asset/25F.png', description: 'グリードベアを倒しに行きます。' },
-    { key: 30, title: '30F', icon: 'asset/30F.png', description: 'グジグランズを倒しに行きます' },
-    { key: 31, title: '31F', icon: 'asset/31F.png', description: '最難関です。あともう一息！' },
-    { key: 35, title: '35F', icon: 'asset/35F.png', description: 'これであなたも星間の塔マスター！契りのドゥーエを倒しに行きます' },
+const modeDescriptions = [
+    { key: 'plan', title: '計画', description: 'どの様に登るのかを計画するモードです', icon: 'asset/plan.webp' },
+    { key: 'practice', title: '実践', description: '実際に登りながら利用するモードです', icon: 'asset/practice.webp' },
+    { key: 'log', title: 'ログ', description: '過去の記録を閲覧するモードです', icon: 'asset/log.webp' }
 ];
 
-const modeMenuItems = [
-    { key: 'plan', title: '計画', description: 'どの様に登るのかを計画するモードです', icon: 'asset/plan.png' },
-    { key: 'practice', title: '実践', description: '実際に登りながら利用するモードです', icon: 'asset/practice.png' },
-    { key: 'log', title: 'ログ', description: '過去の記録を閲覧するモードです', icon: 'asset/log.png' }
+const modeMenuItems = modeDescriptions;
+
+const floorMenuItems = [
+    { key: 1, title: '1F', description: 'まずはこれがオススメ。Ωアバドンを倒しに行きます' },
+    { key: 5, title: '5F', description: '１階まで登れたら、次はこれ。ディジィースプーを倒しに行きます' },
+    { key: 10, title: '10F', description: 'ここからコンディション管理が大変に。ソウルクリエイトを倒しに行きます' },
+    { key: 15, title: '15F', description: 'かなり慣れた人向け。デメタスを倒しに行きます。' },
+    { key: 20, title: '20F', description: '魔喰機・無限を倒しに行きます' },
+    { key: 25, title: '25F', description: 'グリードベアを倒しに行きます。' },
+    { key: 30, title: '30F', description: 'グジグランズを倒しに行きます' },
+    { key: 31, title: '31F', description: '最難関です。あともう一息！' },
+    { key: 35, title: '35F', description: 'これであなたも星間の塔マスター！契りのドゥーエを倒しに行きます' },
 ];
 
 const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }) => {
@@ -93,7 +95,7 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                        <img src="asset/settings.png" alt="設定" style={{width: '28px', height: '28px'}} />
+                        <img src="asset/settings.webp" alt="設定" style={{width: '28px', height: '28px'}} />
                     </button>
                 </div>
                 
@@ -207,7 +209,7 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
             <div className="mobile-header-top-bar">
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '12px' }}>
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                        <img src="asset/settings.png" alt="設定" style={{width: '24px', height: '24px'}} />
+                        <img src="asset/settings.webp" alt="設定" style={{width: '24px', height: '24px'}} />
                     </button>
                     <div className="mode-selector-wrapper">
                         <button className="btn-icon" onClick={() => setIsModeModalOpen(true)} title={currentModeInfo.title}>
