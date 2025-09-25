@@ -414,3 +414,13 @@ body.mobile-view .floor-grid {
     grid-template-columns: repeat(5, 1fr);
     gap: 4px;
 }
+
+/* Map Search Modal */
+body.mobile-view .map-search-controls .predefined-search {
+    justify-content: center;
+}
+
+body.mobile-view .predefined-search .btn {
+    font-size: 12px;
+    padding: 4px 8px;
+}

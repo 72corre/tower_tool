@@ -55,7 +55,7 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
     );
 };
 
-const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, onOpenSettings, currentUser, onSignIn, onSignOut }) => {
+const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, onOpenSettings, currentUser, onSignIn, onSignOut, onOpenMapSearch }) => {
     const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
@@ -108,6 +108,9 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
                     <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
                         目標: {currentFloorInfo.title}
                     </button>
+                    <button id="map-search-button" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
+                        <img src="asset/map_search.png" alt="マス検索" style={{width: '24px', height: '24px'}} />
+                    </button>
                     
                     {currentUser ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', border: '1px solid var(--border-color)', borderRadius: '99px' }}>
@@ -142,7 +145,7 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
     );
 };
 
-const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, onSignIn, onSignOut }) => {
+const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, onSignIn, onSignOut, onOpenMapSearch }) => {
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
     const [isModeModalOpen, setIsModeModalOpen] = useState(false);
@@ -213,7 +216,7 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                     </button>
                     <div className="mode-selector-wrapper">
                         <button className="btn-icon" onClick={() => setIsModeModalOpen(true)} title={currentModeInfo.title}>
-                            <img src={currentModeInfo.icon} alt="" style={{width: '24px', height: '24px'}} />
+                            <img src="asset/plan.webp" alt="" style={{width: '24px', height: '24px'}} />
                         </button>
                     </div>
                 </div>
@@ -229,6 +232,9 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
                 </div>
 
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px' }}>
+                    <button id="map-search-button-mobile" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
+                        <img src="asset/map_search.png" alt="マス検索" style={{width: '24px', height: '24px'}} />
+                    </button>
                     {currentUser ? (
                         <button onClick={() => setIsAuthModalOpen(true)} className="btn-icon">
                             <img src={currentUser.photoURL} alt="ユーザー情報" style={{width: '28px', height: '28px', borderRadius: '50%'}} />

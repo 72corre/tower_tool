@@ -194,6 +194,10 @@ const TowerTool = () => {
         const saved = localStorage.getItem('isFooterCollapsed');
         return saved ? JSON.parse(saved) : true; // Default to collapsed
     });
+    const [isMapSearchModalOpen, setIsMapSearchModalOpen] = useState(false);
+
+    const handleOpenMapSearch = () => setIsMapSearchModalOpen(true);
+    const handleCloseMapSearch = () => setIsMapSearchModalOpen(false);
     
     
 
@@ -391,7 +395,13 @@ const TowerTool = () => {
         handleSaveFormationMemo, 
         handleDeleteFormation, 
         handleCopyFormation, 
-        handleCreateFormationFromEnemy 
+        handleCreateFormationFromEnemy, 
+        handleGenerateShareImage, 
+        generatedImageData, 
+        showShareModal, 
+        setShowShareModal, 
+        tweetUrl, 
+        setTweetUrl 
     } = useFormations({
         showToastMessage,
         idMaps,
@@ -399,7 +409,8 @@ const TowerTool = () => {
         setActiveTab,
         setPracticeView,
         mode,
-        handleMegidoDetailChange
+        handleMegidoDetailChange,
+        megidoDetails
     });
 
     const { 
@@ -1398,7 +1409,12 @@ const TowerTool = () => {
                                 onEditingFormationChange={setEditingFormation}
                                 onOpenCommunityFormations={handleOpenCommunityFormations}
                                 handlePostFormation={handlePostFormation} 
-                                isPosting={isPosting} 
+                                isPosting={isPosting}
+                                handleGenerateShareImage={handleGenerateShareImage}
+                                generatedImageData={generatedImageData}
+                                showShareModal={showShareModal}
+                                setShowShareModal={setShowShareModal}
+                                tweetUrl={tweetUrl}
                             />}
                         </div>
                     </div>
@@ -1522,6 +1538,7 @@ const TowerTool = () => {
                 currentUser={currentUser}
                 onSignIn={handleSignIn}
                 onSignOut={handleSignOut}
+                onOpenMapSearch={handleOpenMapSearch}
             />
                         {!isMobileView && (
                 <nav className="desktop-nav">
@@ -1592,6 +1609,11 @@ const TowerTool = () => {
                                     onOpenCommunityFormations={handleOpenCommunityFormations}
                                     handlePostFormation={handlePostFormation}
                                     isPosting={isPosting}
+                                    handleGenerateShareImage={handleGenerateShareImage}
+                                    generatedImageData={generatedImageData}
+                                    showShareModal={showShareModal}
+                                    setShowShareModal={setShowShareModal}
+                                    tweetUrl={tweetUrl}
                                 />
                             )}
                         </div>
@@ -1697,6 +1719,19 @@ const TowerTool = () => {
                 isMobileView={isMobileView}
                 isTabletView={isTabletView}
                 onUnlockAchievement={unlockAchievement}
+            />
+            <MapSearchModal
+                isOpen={isMapSearchModalOpen}
+                onClose={handleCloseMapSearch}
+                towerData={typeof TOWER_MAP_DATA !== 'undefined' ? TOWER_MAP_DATA : []}
+                megidoData={typeof COMPLETE_MEGIDO_LIST !== 'undefined' ? COMPLETE_MEGIDO_LIST : []}
+                enemyData={typeof ENEMY_ALL_DATA !== 'undefined' ? ENEMY_ALL_DATA : []}
+                formations={formations}
+                planState={planState}
+                megidoDetails={megidoDetails}
+                idMaps={idMaps}
+                onSelectSquare={handleSquareClick}
+                onGenerateShareImage={handleGenerateShareImage}
             />
             {communityFormationsState.isOpen && (
                 <CommunityFormations

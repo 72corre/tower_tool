@@ -1317,6 +1317,165 @@
     border-radius: 8px;
     padding: 24px;
     width: 90%;
-    max-width: 500px;
+    max-width: 800px; /* MapSearchModalに合わせて調整 */
+    max-height: 80vh; /* MapSearchModalに合わせて調整 */
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+/* MapSearchModal Specific Styles */
+.map-search-controls {
+    margin-bottom: 1.5rem;
+}
+
+.map-search-controls .free-text-search {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1rem;
+}
+
+.map-search-controls .free-text-search input {
+    flex-grow: 1;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color-light);
+    background-color: var(--bg-main);
+    color: var(--text-main);
+}
+
+.map-search-controls .free-text-search button {
+    flex-shrink: 0;
+}
+
+.map-search-controls .predefined-search {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+#map-search-results {
+    flex-grow: 1;
+    overflow-y: auto;
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.search-result-floor-group {
+    margin-bottom: 1.5rem;
+}
+
+.search-result-floor-group h3 {
+    font-size: 1.3em;
+    font-weight: 700;
+    color: var(--primary-accent);
+    border-bottom: 1px solid var(--border-color-light);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.search-result-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 8px;
+}
+
+.search-result-item {
+    background-color: var(--bg-panel-light);
+    border: 1px solid var(--border-color-light);
+    border-radius: 6px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    position: relative; /* For overlay */
+    overflow: hidden;
+}
+
+.search-result-item:hover {
+    background-color: var(--bg-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.search-result-item.highlight-rush {
+    background-color: rgba(var(--node-color-recovery-r-rgb), 0.2);
+    border-color: var(--node-color-recovery-r);
+}
+.search-result-item.highlight-counter {
+    background-color: rgba(var(--node-color-recovery-c-rgb), 0.2);
+    border-color: var(--node-color-recovery-c);
+}
+.search-result-item.highlight-burst {
+    background-color: rgba(var(--node-color-recovery-b-rgb), 0.2);
+    border-color: var(--node-color-recovery-b);
+}
+.search-result-item.highlight-random {
+    background-color: rgba(var(--node-color-random-rgb), 0.1);
+    border-color: var(--node-color-random);
+}
+.search-result-item.highlight-tower-power {
+    background-color: rgba(var(--node-color-tower-power-rgb), 0.2);
+    border-color: var(--node-color-tower-power);
+}
+
+.search-result-item .floor-info {
+    font-size: 0.8em;
+    color: var(--text-subtle);
+    margin-bottom: 4px;
+}
+
+.search-result-item .square-type {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.search-result-item .square-details {
+    font-size: 0.9em;
+    color: var(--text-subtle);
+}
+
+.search-result-item .formation-name {
+    font-weight: 500;
+    color: var(--primary-accent);
+    margin-top: 4px;
+}
+
+.search-result-item .enemy-name {
+    font-size: 0.9em;
+    color: var(--danger-color);
+}
+
+.search-result-item .megido-names {
+    font-size: 0.8em;
+    color: var(--text-main);
+    margin-top: 4px;
+}
+
+.search-result-item .tags {
+    font-size: 0.7em;
+    color: var(--info-color);
+    margin-top: 4px;
+}
+
+.search-result-item .share-image-button {
+    margin-top: 8px;
+    padding: 4px 8px;
+    font-size: 0.8em;
+    background-color: var(--primary-accent);
+    color: var(--bg-main);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.search-result-item .share-image-button:hover {
+    background-color: var(--primary-accent-dark);
 }
