@@ -17,19 +17,19 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onCl
     }, [isOpen, initialSearch]);
 
     const filterLogic = (item) => {
-        const searchText = filters.text.toLowerCase();
+        const searchText = hiraganaToKatakana(filters.text.toLowerCase());
         
         let searchMatch = filters.text === '';
         if (!searchMatch) {
-            const name = (item.名前 || item.name || '').toLowerCase();
+            const name = hiraganaToKatakana((item.名前 || item.name || '').toLowerCase());
             if (isFormationSearch) {
-                const tags = (item.tags || []).map(t => t.toLowerCase());
+                const tags = (item.tags || []).map(t => hiraganaToKatakana(t.toLowerCase()));
                 searchMatch = name.includes(searchText) || tags.some(t => t.includes(searchText));
             } else {
                 if (filters.exactMatch) {
                     searchMatch = name === searchText;
                 } else {
-                    const trait = (item.汎用特性 || item.trait || item.effects || '').toLowerCase();
+                    const trait = hiraganaToKatakana((item.汎用特性 || item.trait || item.effects || '').toLowerCase());
                     searchMatch = name.includes(searchText) || trait.includes(searchText);
                 }
             }

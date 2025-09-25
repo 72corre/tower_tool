@@ -33,7 +33,7 @@ const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, for
 
     const handleSearch = useCallback((type, params = {}) => {
         let results = [];
-        const lowerSearchTerm = searchTerm.toLowerCase();
+        const katakanaSearchTerm = hiraganaToKatakana(searchTerm.toLowerCase());
 
         const addResult = (floorNum, squareId, resultType, details = {}) => {
             const existing = results.find(r => r.floor === floorNum && r.squareId === squareId && r.type === resultType);
@@ -42,17 +42,17 @@ const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, for
             }
         };
 
-        if (type === 'free_text' && lowerSearchTerm) {
+        if (type === 'free_text' && katakanaSearchTerm) {
             // マス情報の検索
             towerData.forEach(floorData => {
                 Object.entries(floorData.squares).forEach(([squareId, square]) => {
                     // エネミー名
-                    if (square.enemies && square.enemies.some(enemy => enemy.toLowerCase().includes(lowerSearchTerm))) {
-                        addResult(floorData.floor, squareId, 'square', { squareType: square.type, squareSubType: square.sub_type, squareStyle: square.style, enemyName: square.enemies.find(enemy => enemy.toLowerCase().includes(lowerSearchTerm)) });
+                    if (square.enemies && square.enemies.some(enemy => hiraganaToKatakana(enemy.toLowerCase()).includes(katakanaSearchTerm))) {
+                        addResult(floorData.floor, squareId, 'square', { squareType: square.type, squareSubType: square.sub_type, squareStyle: square.style, enemyName: square.enemies.find(enemy => hiraganaToKatakana(enemy.toLowerCase()).includes(katakanaSearchTerm)) });
                     }
                     // ルール
-                    if (square.rules && square.rules.some(rule => rule.toLowerCase().includes(lowerSearchTerm))) {
-                        addResult(floorData.floor, squareId, 'square', { squareType: square.type, squareSubType: square.sub_type, squareStyle: square.style, rule: square.rules.find(rule => rule.toLowerCase().includes(lowerSearchTerm)) });
+                    if (square.rules && square.rules.some(rule => hiraganaToKatakana(rule.toLowerCase()).includes(katakanaSearchTerm))) {
+                        addResult(floorData.floor, squareId, 'square', { squareType: square.type, squareSubType: square.sub_type, squareStyle: square.style, rule: square.rules.find(rule => hiraganaToKatakana(rule.toLowerCase()).includes(katakanaSearchTerm)) });
                     }
                 });
             });
@@ -60,47 +60,43 @@ const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, for
             // 編成情報の検索
             Object.values(formations).forEach(form => {
                 // 編成名
-                if (form.name.toLowerCase().includes(lowerSearchTerm)) {
+                if (hiraganaToKatakana(form.name.toLowerCase()).includes(katakanaSearchTerm)) {
                     addResult(form.floor, form.enemyName, 'formation', { formationId: form.id, formationName: form.name, tags: form.tags, megidoNames: form.megidoSlots.map(m => m?.megidoName).filter(Boolean) });
                 }
                 // タグ
-                if (form.tags && form.tags.some(tag => tag.toLowerCase().includes(lowerSearchTerm))) {
+                if (form.tags && form.tags.some(tag => hiraganaToKatakana(tag.toLowerCase()).includes(katakanaSearchTerm))) {
                     addResult(form.floor, form.enemyName, 'formation', { formationId: form.id, formationName: form.name, tags: form.tags, megidoNames: form.megidoSlots.map(m => m?.megidoName).filter(Boolean) });
                 }
                 // メギド名
-                if (form.megidoSlots && form.megidoSlots.some(slot => slot?.megidoName.toLowerCase().includes(lowerSearchTerm))) {
+                if (form.megidoSlots && form.megidoSlots.some(slot => slot && slot.megidoName && hiraganaToKatakana(slot.megidoName.toLowerCase()).includes(katakanaSearchTerm))) {
                     addResult(form.floor, form.enemyName, 'formation', { formationId: form.id, formationName: form.name, tags: form.tags, megidoNames: form.megidoSlots.map(m => m?.megidoName).filter(Boolean) });
                 }
                 // エネミー名
-                if (form.enemyName && form.enemyName.toLowerCase().includes(lowerSearchTerm)) {
+                if (form.enemyName && hiraganaToKatakana(form.enemyName.toLowerCase()).includes(katakanaSearchTerm)) {
                     addResult(form.floor, form.enemyName, 'formation', { formationId: form.id, formationName: form.name, tags: form.tags, megidoNames: form.megidoSlots.map(m => m?.megidoName).filter(Boolean) });
                 }
             });
 
             // 計画モードの編成検索 (planState.assignments, planState.explorationAssignments)
-            // planState.assignments は { 'floor-squareId': { partyIndex: [megidoId, ...], ... } }
-            // planState.explorationAssignments は { 'squareId': { partyIndex: [megidoId, ...], ... } }
             Object.entries(planState.assignments).forEach(([squareKey, assignments]) => {
                 const [floorNumStr, squareId] = squareKey.split('-');
                 const floorNum = parseInt(floorNumStr, 10);
                 Object.values(assignments).forEach(party => {
                     party.forEach(megidoId => {
                         const megido = getMegidoInfo(megidoId);
-                        if (megido && megido.名前.toLowerCase().includes(lowerSearchTerm)) {
+                        if (megido && hiraganaToKatakana(megido.名前.toLowerCase()).includes(katakanaSearchTerm)) {
                             addResult(floorNum, squareId, 'plan_assignment', { megidoName: megido.名前 });
                         }
                     });
                 });
             });
             Object.entries(planState.explorationAssignments).forEach(([squareId, assignments]) => {
-                // explorationAssignments は squareId のみなので、floorNum は現在の activeFloor か、squareId から推測する必要がある
-                // ここでは簡易的に squareId が 'fX-Y' の形式と仮定
                 const [floorNumStr, actualSquareId] = squareId.split('-');
                 const floorNum = parseInt(floorNumStr, 10);
                 Object.values(assignments).forEach(party => {
                     party.forEach(megidoId => {
                         const megido = getMegidoInfo(megidoId);
-                        if (megido && megido.名前.toLowerCase().includes(lowerSearchTerm)) {
+                        if (megido && hiraganaToKatakana(megido.名前.toLowerCase()).includes(katakanaSearchTerm)) {
                             addResult(floorNum, actualSquareId, 'plan_assignment', { megidoName: megido.名前 });
                         }
                     });

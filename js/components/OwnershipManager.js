@@ -123,15 +123,15 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
     const filteredList = useMemo(() => {
         if (!sortedList.length) return [];
         return sortedList.filter(m => {
-            const searchText = filters.text.toLowerCase();
+            const searchText = hiraganaToKatakana(filters.text.toLowerCase());
             
             let searchMatch = true;
             if (filters.text) {
-                const name = m.名前.toLowerCase();
+                const name = hiraganaToKatakana(m.名前.toLowerCase());
                 if (filters.exactMatch) {
                     searchMatch = name === searchText;
                 } else {
-                    const trait = (m.汎用特性 || '').toLowerCase();
+                    const trait = hiraganaToKatakana((m.汎用特性 || '').toLowerCase());
                     searchMatch = name.includes(searchText) || trait.includes(searchText);
                 }
             }
