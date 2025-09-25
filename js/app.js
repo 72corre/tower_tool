@@ -801,46 +801,51 @@ const TowerTool = () => {
     useEffect(() => {
         if (isLoading || typeof MEGIDO_BIRTHDAY_DATA === 'undefined') return;
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const currentYear = today.getFullYear();
+        const localDate = new Date();
+        const today = new Date(Date.UTC(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()));
+        const currentYear = localDate.getFullYear();
         let todaysEvents = [];
 
         for (const event of MEGIDO_BIRTHDAY_DATA) {
             const [month, day] = event.date.replace('月', '-').replace('日', '').split('-').map(Number);
-            const eventDate = new Date(currentYear, month - 1, day);
+            const eventDate = new Date(Date.UTC(currentYear, month - 1, day));
             let eventToShow = null;
 
             if (event.countdown) {
                 const countdownDate = new Date(eventDate);
                 countdownDate.setDate(eventDate.getDate() - event.countdown);
                 if (countdownDate.getTime() === today.getTime()) {
-                    const storageKey = `seen_event_${currentYear}_${event.name}_countdown`;
-                    if (!localStorage.getItem(storageKey)) {
-                        let text = event.countdown_text;
-                        let anniversaryString = '';
-                        if (event.type === 'anniversary') {
-                            const year = currentYear + (today.getMonth() > month - 1 || (today.getMonth() === month - 1 && today.getDate() >= day) ? 1 : 0);
-                            let anniversaryYear = year - event.start_year;
-                            anniversaryString = anniversaryYear === 9 ? '７＋２周年' : `${anniversaryYear}周年`;
-                            text = event.countdown_text_template.replace('X周年', anniversaryString);
-                        }
-                        eventToShow = { ...event, isCountdown: true, text: text, storageKey, anniversaryString };
+                const storageKey = `seen_event_${currentYear}_${event.name}_countdown`;
+                if (!localStorage.getItem(storageKey)) {
+                    let text = '';
+                    let anniversaryString = '';
+                    //周年記念イベント（start_yearを持つ）かどうかで処理を分岐
+                    if (event.start_year) {
+                        const year = currentYear + (today.getMonth() > month - 1 || (today.getMonth() === month - 1 && today.getDate() >= day) ? 1 : 0);
+                        let anniversaryYear = year - event.start_year;
+                        anniversaryString = anniversaryYear === 9 ? '７＋２周年' : `${anniversaryYear}周年`;
+                        text = event.countdown_text_template.replace('X周年', anniversaryString);
+                    } else {
+                        text = event.countdown_text;
                     }
+                    eventToShow = { ...event, isCountdown: true, text: text, storageKey, anniversaryString };
+                }
                 }
             }
 
             if (!eventToShow && eventDate.getTime() === today.getTime()) {
                 const storageKey = `seen_event_${currentYear}_${event.name || event.base_name}`;
                 if (!localStorage.getItem(storageKey)) {
-                    let text = event.day_of_text;
+                    let text = '';
                     let anniversaryString = '';
-                    if (event.type === 'anniversary') {
+                    if (event.start_year) { //周年記念イベント（start_yearを持つ）かどうかで判定
                         let anniversaryYear = currentYear - event.start_year;
                         anniversaryString = anniversaryYear === 9 ? '７＋２周年' : `${anniversaryYear}周年`;
                         text = event.day_of_text_template.replace('X周年', anniversaryString);
                     } else if (event.type === 'birthday') {
                         text = `${event.date}は${event.base_name}${event.unit_name ? `（${event.unit_name}）` : ''}の${event.born_type}日です！`;
+                    } else {
+                        text = event.day_of_text;
                     }
                     eventToShow = { ...event, isCountdown: false, text: text, storageKey, anniversaryString };
                 }
@@ -1164,8 +1169,12 @@ const TowerTool = () => {
         let text = '';
         if (event.type === 'birthday') {
             text = `今日は${event.base_name}${event.unit_name ? `（${event.unit_name}）` : ''}の${event.born_type}日です！おメギド！！ #メギド72`;
-        } else if (event.type === 'anniversary') {
-            text = event.tweet_text_template.replace('X周年', event.anniversaryString);
+        } else if (event.start_year) {
+            if (event.isCountdown && event.countdown_tweet_text_template) {
+                text = event.countdown_tweet_text_template.replace('X周年', event.anniversaryString);
+            } else {
+                text = event.tweet_text_template.replace('X周年', event.anniversaryString);
+            }
         } else {
             text = event.tweet_text;
         }
