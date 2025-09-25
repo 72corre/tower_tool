@@ -266,15 +266,38 @@ const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, for
                                             }}
                                         >
                                             <div className="floor-info">{result.floor}F</div>
-                                            {result.type === 'square' && (
-                                                <>
-                                                    <div className="square-type">{result.squareType === 'explore' ? '探索' : result.squareType === 'battle' ? '戦闘' : result.squareType}マス</div>
-                                                    {result.squareSubType && <div className="square-details">({result.squareSubType})</div>}
-                                                    {result.squareStyle && <div className="square-details">({result.squareStyle})</div>}
-                                                    {result.enemyName && <div className="enemy-name">{result.enemyName}</div>}
-                                                    {result.rule && <div className="square-details">ルール: {result.rule}</div>}
-                                                </>
-                                            )}
+                                            {result.type === 'square' && (() => {
+                                                const translations = {
+                                                    'recovery': 'コンディション回復',
+                                                    'R': 'ラッシュ',
+                                                    'C': 'カウンター',
+                                                    'B': 'バースト',
+                                                    'RANDOM': 'ランダム'
+                                                };
+                                                const subTypeText = translations[result.squareSubType] || result.squareSubType;
+                                                const styleText = translations[result.squareStyle] || result.squareStyle;
+
+                                                if (result.squareSubType === 'recovery' && result.squareStyle) {
+                                                    return (
+                                                        <>
+                                                            <div className="square-type">{result.squareType === 'explore' ? '探索' : result.squareType === 'battle' ? '戦闘' : result.squareType}マス</div>
+                                                            <div className="square-details">{styleText} {subTypeText}</div>
+                                                            {result.enemyName && <div className="enemy-name">{result.enemyName}</div>}
+                                                            {result.rule && <div className="square-details">ルール: {result.rule}</div>}
+                                                        </>
+                                                    );
+                                                }
+
+                                                return (
+                                                    <>
+                                                        <div className="square-type">{result.squareType === 'explore' ? '探索' : result.squareType === 'battle' ? '戦闘' : result.squareType}マス</div>
+                                                        {result.squareSubType && <div className="square-details">({subTypeText})</div>}
+                                                        {result.squareStyle && <div className="square-details">({styleText})</div>}
+                                                        {result.enemyName && <div className="enemy-name">{result.enemyName}</div>}
+                                                        {result.rule && <div className="square-details">ルール: {result.rule}</div>}
+                                                    </>
+                                                );
+                                            })()}
                                             {result.type === 'formation' && (
                                                 <>
                                                     <div className="square-type">編成: {result.formationName}</div>
