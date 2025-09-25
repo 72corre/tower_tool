@@ -629,7 +629,8 @@ const MEGIDO_BIRTHDAY_DATA = [
     "countdown": 72,
     "day_of_text": "７月２日はメギドの日です！おメギド！",
     "countdown_text": "メギドの日まであと７２日です！",
-    "tweet_text": "今日はメギドの日です！おメギド！ #メギド72"
+    "tweet_text": "今日はメギドの日です！おメギド！ #メギド72",
+    "countdown_tweet_text": "メギドの日まであと７２日です！ #メギド72"
   },
   {
     "type": "event",

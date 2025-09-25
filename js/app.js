@@ -1176,7 +1176,11 @@ const TowerTool = () => {
                 text = event.tweet_text_template.replace('X周年', event.anniversaryString);
             }
         } else {
-            text = event.tweet_text;
+            if (event.isCountdown && event.countdown_tweet_text) {
+                text = event.countdown_tweet_text;
+            } else {
+                text = event.tweet_text;
+            }
         }
         return `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
     };
