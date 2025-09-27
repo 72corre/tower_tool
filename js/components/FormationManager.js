@@ -126,11 +126,11 @@ const FormationManager = ({
         if (!tagSearch.text) return formationList;
         return formationList.filter(f => {
             if (!f.tags || f.tags.length === 0) return false;
-            const searchText = tagSearch.text.toLowerCase();
+            const searchText = hiraganaToKatakana(tagSearch.text).toLowerCase();
             if (tagSearch.exactMatch) {
-                return f.tags.some(tag => tag.toLowerCase() === searchText);
+                return f.tags.some(tag => hiraganaToKatakana(tag).toLowerCase() === searchText);
             } else {
-                return f.tags.some(tag => tag.toLowerCase().includes(searchText));
+                return f.tags.some(tag => hiraganaToKatakana(tag).toLowerCase().includes(searchText));
             }
         });
     }, [tagSearch, formationList]);

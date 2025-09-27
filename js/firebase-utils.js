@@ -223,18 +223,14 @@ async function getCommunityFormations(filters = {}) {
         if (filters.floor) {
             query = query.where('floor', '==', parseInt(filters.floor, 10));
         }
-        if (filters.enemyName) {
-            const enemy = filters.enemyName;
-            query = query.where('enemyName', '>=', enemy).where('enemyName', '<', enemy + '\uf8ff');
-        }
-        if (filters.megidoName) {
-            query = query.where('megidoNames', 'array-contains', filters.megidoName);
+        if (filters.searchTerm) {
+            query = query.where('searchText', 'array-contains', filters.searchTerm);
         }
 
         // orderBy のロジックを修正
-        if (filters.enemyName) {
-            // enemyNameで検索した場合、orderByの第一引数はenemyNameにする必要がある
-            query = query.orderBy('enemyName').orderBy('createdAt', 'desc');
+        if (filters.searchTerm) {
+            // searchTermで検索した場合、並び順はデフォルト(createdAt)にする
+            query = query.orderBy('createdAt', 'desc');
         } else {
             // それ以外の場合はcreatedAtでソート
             query = query.orderBy('createdAt', 'desc');

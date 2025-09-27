@@ -32,11 +32,11 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
         const fetchFormations = async () => {
             setIsLoading(true);
             try {
-                // Step 1: Fetch the base community formations
+                const searchTerm = hiraganaToKatakana(filters.megidoName || filters.enemy || '').toLowerCase();
+
                 const baseFormations = await getCommunityFormations({
                     floor: filters.floor,
-                    enemyName: filters.enemy,
-                    megidoName: filters.megidoName
+                    searchTerm: searchTerm
                 });
 
                 if (baseFormations.length > 0) {

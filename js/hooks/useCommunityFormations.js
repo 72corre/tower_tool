@@ -170,6 +170,15 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
                 return megidoMaster ? megidoMaster.名前 : '';
             });
 
+            const decodedTags = decodeFormationTags(tags);
+            const searchableContent = [
+                ...megidoNames,
+                formation.enemyName,
+                comment,
+                ...decodedTags
+            ].filter(Boolean);
+            const searchText = searchableContent.map(text => hiraganaToKatakana(String(text)).toLowerCase());
+
             const dataToPost = {
                 qrString: qrString,
                 tagValue: tags,
@@ -181,6 +190,7 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
                 authorId: currentUser.uid,
                 authorName: currentUser.displayName,
                 authorPhotoURL: currentUser.photoURL,
+                searchText: searchText, // 検索用フィールド
             };
 
             const newDocId = await postCommunityFormation(dataToPost);

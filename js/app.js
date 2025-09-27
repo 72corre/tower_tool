@@ -196,6 +196,34 @@ const TowerTool = () => {
     });
     const [isMapSearchModalOpen, setIsMapSearchModalOpen] = useState(false);
 
+    const [megidoList, setMegidoList] = useState(null);
+
+    useEffect(() => {
+        Promise.all([
+            fetch('data/megido.json').then(res => res.json()),
+            fetch('data/orbs.json').then(res => res.json()),
+            fetch('data/reishou.json').then(res => res.json()),
+            fetch('data/birthday.json').then(res => res.json()),
+            fetch('data/tower.json').then(res => res.json()),
+            fetch('js/enemy_all_data.js').then(res => res.text())
+        ]).then(([megidoData, orbsData, reishouData, birthdayData, towerData, enemyText]) => {
+            window.COMPLETE_MEGIDO_LIST = megidoData;
+            setMegidoList(megidoData);
+
+            window.COMPLETE_ORB_LIST = orbsData;
+            window.COMPLETE_REISHOU_LIST = reishouData;
+            window.MEGIDO_BIRTHDAY_DATA = birthdayData;
+            window.TOWER_MAP_DATA = towerData;
+
+            const enemyObjectString = enemyText.substring(enemyText.indexOf('{'));
+            window.ENEMY_ALL_DATA = new Function(`return ${enemyObjectString}`)();
+
+            setIsLoading(false);
+        }).catch(error => {
+            console.error('Error loading master data:', error);
+        });
+    }, []);
+
     const handleOpenMapSearch = () => setIsMapSearchModalOpen(true);
     const handleCloseMapSearch = () => setIsMapSearchModalOpen(false);
     
@@ -759,20 +787,7 @@ const TowerTool = () => {
 
     
 
-    useEffect(() => {
-        const dataCheckInterval = setInterval(() => {
-            if (typeof COMPLETE_MEGIDO_LIST !== 'undefined' &&
-                typeof ENEMY_ALL_DATA !== 'undefined' &&
-                typeof COMPLETE_ORB_LIST !== 'undefined' &&
-                typeof COMPLETE_REISHOU_LIST !== 'undefined' &&
-                typeof TOWER_MAP_DATA !== 'undefined' &&
-                typeof MEGIDO_BIRTHDAY_DATA !== 'undefined') {
-                setIsLoading(false);
-                clearInterval(dataCheckInterval);
-            }
-        }, 100);
-        return () => clearInterval(dataCheckInterval);
-    }, []);
+
 
     useEffect(() => {
         if (isLoading) return;
@@ -1737,7 +1752,7 @@ const TowerTool = () => {
                 isOpen={isMapSearchModalOpen}
                 onClose={handleCloseMapSearch}
                 towerData={typeof TOWER_MAP_DATA !== 'undefined' ? TOWER_MAP_DATA : []}
-                megidoData={typeof COMPLETE_MEGIDO_LIST !== 'undefined' ? COMPLETE_MEGIDO_LIST : []}
+                megidoData={megidoList || []}
                 enemyData={typeof ENEMY_ALL_DATA !== 'undefined' ? ENEMY_ALL_DATA : []}
                 formations={formations}
                 planState={planState}
