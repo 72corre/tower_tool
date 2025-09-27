@@ -55,7 +55,8 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
     );
 };
 
-const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, title, onOpenSettings, currentUser, onSignIn, onSignOut, onOpenMapSearch }) => {
+const DesktopHeader = () => {
+    const { mode, onModeChange, targetFloor, onTargetFloorChange, title, onOpenSettings, currentUser, onSignIn, onSignOut, onOpenMapSearch } = useAppContext();
     const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
@@ -145,7 +146,8 @@ const DesktopHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, t
     );
 };
 
-const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, onTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, onSignIn, onSignOut, onOpenMapSearch }) => {
+const MobileHeader = () => {
+    const { mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, handleTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, onSignIn, onSignOut, onOpenMapSearch } = useAppContext();
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
     const [isModeModalOpen, setIsModeModalOpen] = useState(false);
@@ -264,25 +266,25 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
             <div className="mobile-header-tabs">
                  {mode !== 'log' ? (
                     <>
-                        <button onClick={() => onTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
+                        <button onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
                             <span>マップ</span>
                         </button>
-                        <button onClick={() => onTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
+                        <button onClick={() => handleTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
                             <span>所持メギド</span>
                         </button>
-                        <button onClick={() => onTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
+                        <button onClick={() => handleTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
                             <span>編成</span>
                         </button>
                     </>
                  ) : (
                     <>
-                        <button onClick={() => onTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
+                        <button onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
                             <span>マップ</span>
                         </button>
-                        <button onClick={() => onTabClick('summary')} disabled={!selectedLog} className={`mobile-tab-button ${activeTab === 'summary' ? 'active' : ''}`}>
+                        <button onClick={() => handleTabClick('summary')} disabled={!selectedLog} className={`mobile-tab-button ${activeTab === 'summary' ? 'active' : ''}`}>
                             <span>シーズンサマリー</span>
                         </button>
-                        <button onClick={() => onTabClick('all_summary')} className={`mobile-tab-button ${activeTab === 'all_summary' ? 'active' : ''}`}>
+                        <button onClick={() => handleTabClick('all_summary')} className={`mobile-tab-button ${activeTab === 'all_summary' ? 'active' : ''}`}>
                             <span>通算サマリー</span>
                         </button>
                     </>
@@ -364,9 +366,10 @@ const MobileHeader = ({ mode, onModeChange, targetFloor, onTargetFloorChange, ac
     );
 };
 
-const Header = (props) => {
-    if (props.isMobileView) {
-        return <MobileHeader {...props} />;
+const Header = () => {
+    const { isMobileView } = useAppContext();
+    if (isMobileView) {
+        return <MobileHeader />;
     }
-    return <DesktopHeader {...props} />;
+    return <DesktopHeader />;
 };

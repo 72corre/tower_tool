@@ -1,4 +1,5 @@
-const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isCollapsed, onToggleCollapse }) => {
+const ResourceDashboard = () => {
+    const { runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS } = useAppContext();
 
     const normalizeStyleKey = (style) => {
         if (!style) return null;
@@ -175,8 +176,8 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
     };
 
     return (
-        <div className={`resource-dashboard ${isCollapsed ? 'is-collapsed' : ''}`}>
-            <div className="dashboard-header" onClick={onToggleCollapse}>
+        <div className={`resource-dashboard ${isFooterCollapsed ? 'is-collapsed' : ''}`}>
+            <div className="dashboard-header" onClick={handleToggleFooter}>
                 <div className="dashboard-summary-info">
                     <span>塔破力: <span style={{ fontWeight: 700, color: 'var(--danger-color)' }}>{runState.towerPower || 30}</span></span>
                     <div className="fatigue-summary">
@@ -186,9 +187,9 @@ const ResourceDashboard = ({ runState, megidoConditions, ownedMegidoIds, planSta
                         <span className="summary-style-b">B: {fatiguedMegido.B.length}</span>
                     </div>
                 </div>
-                <div className="dashboard-toggle">{isCollapsed ? '∨' : '∧'}</div>
+                <div className="dashboard-toggle">{isFooterCollapsed ? '∨' : '∧'}</div>
             </div>
-            {!isCollapsed && (
+            {!isFooterCollapsed && (
                 <div className="dashboard-content">
                     {mode === 'practice' && renderPracticeMode()}
                     {mode === 'plan' && renderPlanMode()}

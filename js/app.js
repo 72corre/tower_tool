@@ -1,4 +1,6 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
+const AppContext = React.createContext();
+const useAppContext = () => React.useContext(AppContext);
 
 const LogSummary = ({ selectedLog }) => {
     if (!selectedLog) {
@@ -1480,8 +1482,40 @@ const TowerTool = () => {
         </>
     );
 
+    const contextValue = {
+        currentUser, handleSignIn, handleSignOut,
+        showSettings, setShowSettings, handleOpenSettings, handleCloseSettings,
+        unlockedAchievements, setUnlockedAchievements, winStreak, setWinStreak, floorClearCounts, setFloorClearCounts, themeToggleCount, setThemeToggleCount, dataManagementCount, setDataManagementCount,
+        isLoading, setIsLoading, activeTab, setActiveTab, selectedSquare, setSelectedSquare, mode, setMode,
+        memos, setMemos, seasonLogs, setSeasonLogs, selectedLog, setSelectedLog, selectedLogSquare, setSelectedLogSquare, logActionModal, setLogActionModal,
+        practiceView, setPracticeView, modalState, setModalState, recoveryModalState, setRecoveryModalState, choiceModalState, setChoiceModalState, statusBuffModalState, setStatusBuffModalState,
+        toastMessage, setToastMessage, showToast, setShowToast, achievementToast, setAchievementToast, targetFloor, setTargetFloor, displayedEnemy, setDisplayedEnemy,
+        eventToast, setEventToast, eventQueue, setEventQueue, shouldShowBetaModal, setShouldShowBetaModal, isBirthdayButtonHovered, setIsBirthdayButtonHovered, dontShowAgain, setDontShowAgain,
+        guidance, setGuidance, partyConditionRisk, setPartyConditionRisk, isRecoveryRecommended, setIsRecoveryRecommended, isRouteObvious, setIsRouteObvious,
+        targetEnemies, setTargetEnemies, viewMode, setViewMode, showBetaModal, setShowBetaModal, showUpdateModal, setShowUpdateModal, isFooterCollapsed, setIsFooterCollapsed,
+        isMapSearchModalOpen, setIsMapSearchModalOpen, handleOpenMapSearch, handleCloseMapSearch,
+        isMobileView, isTabletView, floorRefs, handleToggleFooter, showToastMessage, unlockAchievement, logAction, handleSelectLog, handleSquareClick,
+        megidoDetails, setMegidoDetails, handleMegidoDetailChange, handleMegidoDetailChangeWrapper, handleCheckDistributedMegido, ownedMegidoIds,
+        manualExplorationPowers, setManualExplorationPowers, handleSetManualPower, handleOpenManualPowerInput,
+        runState, setRunState, megidoConditions, setMegidoConditions, manualRecovery, setManualRecovery, handleResolveSquare, handleResetRun, handleManualRecovery, handleConditionRecovery, handleUndo,
+        planState, setPlanState, planConditions, onPlanExplorationParty, handlePlanCombatParty,
+        idMaps, formations, setFormations, editingFormation, setEditingFormation, initialTagTarget, setInitialTagTarget, previousScreen, setPreviousScreen, handleSaveFormation, handleSaveFormationMemo, handleDeleteFormation, handleCopyFormation, handleCreateFormationFromEnemy, handleGenerateShareImage, generatedImageData, showShareModal, setShowShareModal, tweetUrl, setTweetUrl,
+        communityFormationsState, handleOpenCommunityFormations, handleCloseCommunityFormations, handleCopyCommunityFormation, handlePostFormation, handleDeleteCommunityFormation, isPosting,
+        handleImportFormation, isQriousLoaded, isHtml5QrLoaded, checkAllAchievements, handleExportData, handleImportData, handleResetAllData, handleToggleTheme, handleViewModeChange,
+        handleModeChange, handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo,
+        generateEventTweetUrl, handleCloseEventToast, towerConnections, handleCancelFormationEdit, RightPanelContent, MapContent,
+        COMPLETE_MEGIDO_LIST: megidoList,
+        getStyleClass, getNextCondition, // Add utility functions
+        TOWER_MAP_DATA: window.TOWER_MAP_DATA, // Add other master data to context
+        COMPLETE_ORB_LIST: window.COMPLETE_ORB_LIST,
+        COMPLETE_REISHOU_LIST: window.COMPLETE_REISHOU_LIST,
+        MEGIDO_BIRTHDAY_DATA: window.MEGIDO_BIRTHDAY_DATA,
+        ENEMY_ALL_DATA: window.ENEMY_ALL_DATA
+    };
+
     return (
-        <div className="app-container">
+        <AppContext.Provider value={contextValue}>
+            <div className="app-container">
             {eventToast && (
                 <div style={eventModalOverlayStyle} onClick={handleCloseEventToast}>
                     <div style={eventModalContentStyle} onClick={(e) => e.stopPropagation()}>
@@ -1545,29 +1579,7 @@ const TowerTool = () => {
                 </InfoModal>
             )}
 
-            <Header 
-                mode={mode} 
-                onModeChange={handleModeChange}
-                targetFloor={targetFloor}
-                onTargetFloorChange={handleTargetFloorChange}
-                title="星間の塔 攻略支援ツール"
-                activeTab={activeTab}
-                onTabClick={handleTabClick}
-                selectedSquare={selectedSquare}
-                onSaveLog={handleSaveLog}
-                onResetRun={handleResetRun}
-                onUndo={handleUndo}
-                onOpenSettings={handleOpenSettings}
-                isMobileView={isMobileView}
-                runState={runState}
-                seasonLogs={seasonLogs}
-                selectedLog={selectedLog}
-                onSelectLog={handleSelectLog}
-                currentUser={currentUser}
-                onSignIn={handleSignIn}
-                onSignOut={handleSignOut}
-                onOpenMapSearch={handleOpenMapSearch}
-            />
+            <Header />
                         {!isMobileView && (
                 <nav className="desktop-nav">
                     <div className="desktop-nav-tabs">
@@ -1663,21 +1675,7 @@ const TowerTool = () => {
                 <div className="desktop-dashboard-footer">
                     {mode === 'plan' ? 
                         <PlanModeDashboard planConditions={planConditions} planState={planState} isMobileView={isMobileView} /> :
-                        <ResourceDashboard 
-                            runState={runState}
-                            megidoConditions={megidoConditions}
-                            ownedMegidoIds={ownedMegidoIds}
-                            planState={planState}
-                            formations={formations}
-                            mode={mode}
-                            megidoDetails={megidoDetails}
-                            manualRecovery={manualRecovery}
-                            onManualRecover={handleManualRecovery}
-                            isMobileView={isMobileView}
-                            isCollapsed={isFooterCollapsed}
-                            onToggleCollapse={handleToggleFooter}
-                            planConditions={planConditions}
-                        />
+                        <ResourceDashboard />
                     }
                 </div>
             )}
@@ -1805,6 +1803,7 @@ const TowerTool = () => {
                 </div>
             )}
         </div>
+        </AppContext.Provider>
     );
 };
 
