@@ -786,11 +786,7 @@ const TowerTool = () => {
             clearTimeout(timeout);
         }
     }, []);
-
     
-
-
-
     useEffect(() => {
         if (isLoading) return;
 
