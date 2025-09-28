@@ -56,7 +56,7 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
 };
 
 const DesktopHeader = () => {
-    const { mode, onModeChange, targetFloor, onTargetFloorChange, title, onOpenSettings, currentUser, onSignIn, onSignOut, onOpenMapSearch } = useAppContext();
+    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch } = useAppContext();
     const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
@@ -100,7 +100,7 @@ const DesktopHeader = () => {
                     </button>
                 </div>
                 
-                <h1>{title}</h1>
+                <h1>星間の塔 攻略支援ツール</h1>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     <button className="btn btn-ghost" onClick={() => setIsModeModalOpen(true)}>
@@ -147,7 +147,7 @@ const DesktopHeader = () => {
 };
 
 const MobileHeader = () => {
-    const { mode, onModeChange, targetFloor, onTargetFloorChange, activeTab, handleTabClick, onSaveLog, onResetRun, onUndo, onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, onSignIn, onSignOut, onOpenMapSearch } = useAppContext();
+    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, onSaveLog, onResetRun, onUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch } = useAppContext();
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
     const [isModeModalOpen, setIsModeModalOpen] = useState(false);
