@@ -8,6 +8,74 @@ const getSquareTypeName = (type) => {
     return map[type] || type;
 };
 
+const RecommendedMegidoList = ({ enemyName, ownedMegidoIds }) => {
+    if (!enemyName || !window.ENEMY_ALL_DATA || !window.COMPLETE_MEGIDO_LIST) {
+        return null;
+    }
+
+    const partyData = window.ENEMY_ALL_DATA[enemyName];
+    if (!partyData || !partyData.party) {
+        return null;
+    }
+
+    const enemyUnitData = partyData.party.find(member => member && member.name === enemyName);
+
+    if (!enemyUnitData || !enemyUnitData.recommendedMegido || enemyUnitData.recommendedMegido.length === 0) {
+        return null;
+    }
+
+    const megidoIdMap = useMemo(() => {
+        const map = new Map();
+        window.COMPLETE_MEGIDO_LIST.forEach(m => map.set(m.名前, m.id));
+        return map;
+    }, []);
+
+    return (
+        <div style={{ marginTop: '12px', padding: '12px', backgroundColor: 'var(--bg-deep)', borderRadius: '4px' }}>
+            <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--text-subtle)', fontWeight: 'bold' }}>おすすめメギド</h5>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {enemyUnitData.recommendedMegido.map((rec, index) => {
+                    const megidoId = megidoIdMap.get(rec.name);
+                    const isOwned = megidoId ? ownedMegidoIds.has(megidoId) : false;
+                    const megidoMaster = megidoId ? window.COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId) : null;
+                    const iconFileName = megidoMaster ? megidoMaster.id.replace(/_/g, '-') : 'no-image';
+                    const iconUrl = `https://storage.googleapis.com/megido72-portal/megido_icons/${iconFileName}.png`;
+
+                    const cardStyle = {
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '8px',
+                        backgroundColor: isOwned ? 'var(--bg-main)' : 'transparent',
+                        borderRadius: '4px',
+                        border: isOwned ? '1px solid var(--border-color-light)' : '1px solid transparent',
+                        opacity: isOwned ? 1 : 0.6
+                    };
+
+                    const iconStyle = {
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        border: '1px solid var(--border-color)',
+                        filter: isOwned ? 'none' : 'grayscale(100%)'
+                    };
+
+                    return (
+                        <div key={index} style={cardStyle}>
+                            <img src={iconUrl} style={iconStyle} alt={rec.name} />
+                            <div style={{ flex: 1 }}>
+                                <p style={{ margin: 0, fontWeight: 'bold', fontSize: '14px' }}>{rec.name}</p>
+                                <p style={{ margin: '4px 0 0 0', fontSize: '12px', color: 'var(--text-subtle)' }}>{rec.reason}</p>
+                            </div>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
+    );
+};
+
+
 const PracticeActionPanel = ({
     square, // This is selectedSquare = { floor, square, id }
     formations,
@@ -222,29 +290,36 @@ const PracticeActionPanel = ({
                 {squareData.enemies && squareData.enemies.map(enemy => {
                     const isTargeted = targetEnemy === enemy;
                     return (
-                        <div key={enemy} style={{
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center', 
-                            padding: '8px', 
-                            backgroundColor: isTargeted ? 'var(--primary-accent-dark)' : 'var(--bg-main)', 
-                            borderRadius: '4px', 
-                            marginBottom: '8px',
-                            border: isTargeted ? '2px solid var(--primary-accent)' : '2px solid transparent',
-                            transition: 'all 0.2s ease'
-                        }}>
-                            <div onClick={() => onTargetEnemyChange(enemy)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', flexGrow: 1}}>
-                                {isTargeted && <span style={{color: '#70F0E0', fontWeight: 'bold', fontSize: '20px'}}>&gt;</span>}
-                                <span style={{ fontWeight: 'bold', color: isTargeted ? '#70F0E0' : 'var(--text-main)' }}>{enemy}</span>
+                        <div key={enemy} style={{ marginBottom: '8px' }}>
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '8px',
+                                backgroundColor: isTargeted ? 'var(--primary-accent-dark)' : 'var(--bg-main)',
+                                borderRadius: '4px',
+                                border: isTargeted ? '2px solid var(--primary-accent)' : '2px solid transparent',
+                                transition: 'all 0.2s ease'
+                            }}>
+                                <div onClick={() => onTargetEnemyChange(enemy)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', flexGrow: 1}}>
+                                    {isTargeted && <span style={{color: '#70F0E0', fontWeight: 'bold', fontSize: '20px'}}>&gt;</span>}
+                                    <span style={{ fontWeight: 'bold', color: isTargeted ? '#70F0E0' : 'var(--text-main)' }}>{enemy}</span>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button onClick={() => onCreateFormation(enemy, floorData.floor)} className="btn btn-ghost p-1" title="新規編成">
+                                        <img src="asset/create.webp" alt="新規編成" style={{width: '24px', height: '24px'}} />
+                                    </button>
+                                    <button onClick={() => onOpenCommunityFormations(floorData.floor, enemy)} className="btn btn-ghost p-1" title="みんなの編成">
+                                        <img src="asset/community.webp" alt="みんなの編成" style={{width: '24px', height: '24px'}} />
+                                    </button>
+                                </div>
                             </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button onClick={() => onCreateFormation(enemy, floorData.floor)} className="btn btn-ghost p-1" title="新規編成">
-                                    <img src="asset/create.webp" alt="新規編成" style={{width: '24px', height: '24px'}} />
-                                </button>
-                                <button onClick={() => onOpenCommunityFormations(floorData.floor, enemy)} className="btn btn-ghost p-1" title="みんなの編成">
-                                    <img src="asset/community.webp" alt="みんなの編成" style={{width: '24px', height: '24px'}} />
-                                </button>
-                            </div>
+                            {isTargeted && (
+                                <RecommendedMegidoList
+                                    enemyName={enemy}
+                                    ownedMegidoIds={ownedMegidoIds}
+                                />
+                            )}
                         </div>
                     )
                 })}
@@ -301,7 +376,7 @@ const PracticeActionPanel = ({
                 isFormationSearch={true}
             />
             <div style={{marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--border-color)', display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px'}}>
-                <button onClick={() => onResolve('win', rehydratedSelectedFormation, square)} disabled={!selectedFormationId || isFormationDisabled || !isResolvable} className="btn btn-ghost-win">勝利</button>
+                <button id="win-button" onClick={() => onResolve('win', rehydratedSelectedFormation, square)} disabled={!selectedFormationId || isFormationDisabled || !isResolvable} className="btn btn-ghost-win">勝利</button>
                 <button onClick={() => onResolve('lose', rehydratedSelectedFormation, square)} disabled={!selectedFormationId || isFormationDisabled || !isResolvable} className="btn btn-ghost-lose">敗北</button>
                 <button onClick={() => onResolve('retreat', rehydratedSelectedFormation, square)} disabled={!selectedFormationId || !isResolvable} className="btn btn-ghost-retire">リタイア</button>
             </div>

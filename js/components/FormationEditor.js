@@ -246,7 +246,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                 </div>
                 <div>
                     <h4 className="label">メギド構成</h4>
-                    <div style={{display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '8px', marginTop: '8px'}}>
+                    <div id="formation-slots-container" style={{display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '8px', marginTop: '8px'}}>
                         {[0, 1, 2, 3, 4].map(index => (
                             <div key={index} className="megido-slot-editor-desktop">
                                 <MegidoSlotEditor 

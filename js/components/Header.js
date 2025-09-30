@@ -56,12 +56,21 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
 };
 
 const DesktopHeader = () => {
-    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch } = useAppContext();
+    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode } = useAppContext();
     const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
+    const processedFloorMenuItems = useMemo(() => {
+        return floorMenuItems.map(item => {
+            if (item.key <= 20) {
+                return { ...item, title: `${item.title}（ガイド付き）` };
+            }
+            return item;
+        });
+    }, []);
+
     const currentModeInfo = modeMenuItems.find(item => item.key === mode) || modeMenuItems[0];
-    const currentFloorInfo = floorMenuItems.find(item => item.key === targetFloor) || { key: targetFloor, title: `${targetFloor}F` };
+    const currentFloorInfo = processedFloorMenuItems.find(item => item.key === targetFloor) || { key: targetFloor, title: `${targetFloor}F` };
 
     const FloorSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }) => {
         if (!isOpen) return null;
@@ -103,9 +112,11 @@ const DesktopHeader = () => {
                 <h1>星間の塔 攻略支援ツール</h1>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <button className="btn btn-ghost" onClick={() => setIsModeModalOpen(true)}>
-                        モード: {currentModeInfo.title}
-                    </button>
+                    {!isGuideMode && (
+                        <button className="btn btn-ghost" onClick={() => setIsModeModalOpen(true)}>
+                            モード: {currentModeInfo.title}
+                        </button>
+                    )}
                     <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
                         目標: {currentFloorInfo.title}
                     </button>
@@ -138,7 +149,7 @@ const DesktopHeader = () => {
                         onClose={() => setIsFloorModalOpen(false)}
                         onSelect={onTargetFloorChange}
                         currentKey={targetFloor}
-                        menuItems={floorMenuItems}
+                        menuItems={processedFloorMenuItems}
                     />
                 </div>
             </div>
@@ -147,12 +158,21 @@ const DesktopHeader = () => {
 };
 
 const MobileHeader = () => {
-    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, onSaveLog, onResetRun, onUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch } = useAppContext();
+    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, onSaveLog, onResetRun, onUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode } = useAppContext();
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
     const [isModeModalOpen, setIsModeModalOpen] = useState(false);
     const [isLogSelectionOpen, setIsLogSelectionOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+    const processedFloorMenuItems = useMemo(() => {
+        return floorMenuItems.map(item => {
+            if (item.key <= 20) {
+                return { ...item, title: `${item.title}（ガイド付き）` };
+            }
+            return item;
+        });
+    }, []);
 
     const currentModeInfo = modeMenuItems.find(item => item.key === mode) || modeMenuItems[0];
 
@@ -216,11 +236,13 @@ const MobileHeader = () => {
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
                         <img src="asset/settings.webp" alt="設定" style={{width: '24px', height: '24px'}} />
                     </button>
-                    <div className="mode-selector-wrapper">
-                        <button className="btn-icon" onClick={() => setIsModeModalOpen(true)} title={currentModeInfo.title}>
-                            <img src="asset/plan.webp" alt="" style={{width: '24px', height: '24px'}} />
-                        </button>
-                    </div>
+                    {!isGuideMode && (
+                        <div className="mode-selector-wrapper">
+                            <button className="btn-icon" onClick={() => setIsModeModalOpen(true)} title={currentModeInfo.title}>
+                                <img src="asset/plan.webp" alt="" style={{width: '24px', height: '24px'}} />
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 <div style={{ flex: '0 1 auto', textAlign: 'center' }}>
@@ -269,13 +291,12 @@ const MobileHeader = () => {
                         <button onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
                             <span>マップ</span>
                         </button>
-                        <button onClick={() => handleTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
+                                                <button id="mobile-ownership-tab-button" onClick={() => handleTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
                             <span>所持メギド</span>
                         </button>
-                        <button onClick={() => handleTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
+                        <button id="mobile-formation-tab-button" onClick={() => handleTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
                             <span>編成</span>
-                        </button>
-                    </>
+                        </button>                    </>
                  ) : (
                     <>
                         <button onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
@@ -343,7 +364,7 @@ const MobileHeader = () => {
                             <h3 style={{marginTop: 0, textAlign: 'center'}}>目標階層を選択</h3>
                         </div>
                         <div className="floor-selection-list" style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
-                            {floorMenuItems.map(item => (
+                            {processedFloorMenuItems.map(item => (
                                 <button
                                     key={item.key}
                                     className={`modal-item-btn ${targetFloor === item.key ? 'selected' : ''}`}

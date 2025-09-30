@@ -33,7 +33,7 @@ const ENEMY_ALL_DATA = {
         "square_type": "battle",
         "rules": ["ルール: 全能力+20%（幻獣）"]
       }
-    ]
+    ],
   },
   "ベインチェイサー": {
     QRid:'002',
@@ -55,6 +55,9 @@ const ENEMY_ALL_DATA = {
           "awakened": "毒蠍の爪： 敵単体に攻撃力1.05倍倍の2連続ダメージ。80%の確率で、フォトンを1つ破壊。",
           "ultimate": "ヴェノムバスター： 敵単体に攻撃力1.8倍のダメージ。敵が毒状態の場合、ダメージが3.75倍。"
         },
+        "recommendedMegido": [
+            { "name": "バルバトス", "reason": "MEで毒を無効にできる" },
+        ],
         "leader": true
       },
       null,
@@ -150,7 +153,10 @@ const ENEMY_ALL_DATA = {
           "skill": "二連斧撃：　敵単体に攻撃力0.9倍の2連続ダメージ",
           "awakened": "雑草魂：　自身のHPを20％回復する さらに2ターンの間、自身の攻撃力を30%上昇する",
           "ultimate": "四連斧撃：　敵単体に攻撃力0.75倍の2連続ダメージ この行動を2回行う"
-        }
+        },
+        "recommendedMegido": [
+            { "name": "バルバトス", "reason": "MEで毒を無効にできる" },
+        ],
       },
 	    null,
 	    {

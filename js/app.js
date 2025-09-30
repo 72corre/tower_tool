@@ -174,7 +174,14 @@ const TowerTool = () => {
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [achievementToast, setAchievementToast] = useState(null);
-    const [targetFloor, setTargetFloor] = useState(35);
+    const [targetFloor, setTargetFloor] = useState(() => {
+        const saved = localStorage.getItem('ui_targetFloor');
+        return saved ? parseInt(saved, 10) : 35;
+    });
+
+    useEffect(() => {
+        localStorage.setItem('ui_targetFloor', targetFloor);
+    }, [targetFloor]);
     const [displayedEnemy, setDisplayedEnemy] = useState(null);
     const [eventToast, setEventToast] = useState(null);
     const [eventQueue, setEventQueue] = useState([]);
@@ -197,6 +204,8 @@ const TowerTool = () => {
         return saved ? JSON.parse(saved) : true; // Default to collapsed
     });
     const [isMapSearchModalOpen, setIsMapSearchModalOpen] = useState(false);
+    const [guideStep, setGuideStep] = useState(0); // ガイドのステップを管理
+    const [completedGuideSteps, setCompletedGuideSteps] = useState(() => new Set(JSON.parse(localStorage.getItem('completedGuideSteps')) || []));
 
     const [megidoList, setMegidoList] = useState(null);
 
@@ -207,7 +216,7 @@ const TowerTool = () => {
             fetch('data/reishou.json').then(res => res.json()),
             fetch('data/birthday.json').then(res => res.json()),
             fetch('data/tower.json').then(res => res.json()),
-            fetch('js/enemy_all_data.js').then(res => res.text())
+            fetch(`js/enemy_all_data.js?v=${Date.now()}`).then(res => res.text())
         ]).then(([megidoData, orbsData, reishouData, birthdayData, towerData, enemyText]) => {
             window.COMPLETE_MEGIDO_LIST = megidoData;
             setMegidoList(megidoData);
@@ -643,6 +652,35 @@ const TowerTool = () => {
     useEffect(() => { localStorage.setItem('floorClearCounts', JSON.stringify(floorClearCounts)); }, [floorClearCounts]);
     useEffect(() => { localStorage.setItem('themeToggleCount', themeToggleCount); }, [themeToggleCount]);
     useEffect(() => { localStorage.setItem('dataManagementCount', dataManagementCount); }, [dataManagementCount]);
+
+    useEffect(() => {
+        localStorage.setItem('completedGuideSteps', JSON.stringify(Array.from(completedGuideSteps)));
+    }, [completedGuideSteps]);
+
+    useEffect(() => {
+        // Guide Step 3 -> 4: Advance after first formation is created
+        if (isGuideMode && guideStep === 3 && Object.keys(formations).length > 0) {
+            setGuideStep(4);
+        }
+    }, [formations, isGuideMode, guideStep]);
+
+    useEffect(() => {
+        // Guide Step 4 -> 5: Advance after selecting the first battle square
+        if (isGuideMode && guideStep === 4 && selectedSquare?.floor.floor === 1 && selectedSquare?.id === 'b1') {
+            setGuideStep(5);
+        }
+    }, [selectedSquare, isGuideMode, guideStep]);
+
+    useEffect(() => {
+        // Guide Step 5 -> 6 (End of first part): Advance after winning the first battle
+        if (isGuideMode && guideStep === 5 && runState.history.length > 0) {
+            const lastAction = runState.history[runState.history.length - 1];
+            if (lastAction.type === 'battle' && lastAction.result === 'win' && lastAction.floor === 1 && lastAction.squareId === 'b1') {
+                setGuideStep(6); // ステップを完了状態に進める
+                showToastMessage('最初の戦闘、勝利おめでとうございます！');
+            }
+        }
+    }, [runState.history, isGuideMode, guideStep]);
 
     const handleExportData = () => {
         setDataManagementCount(c => c + 1);
@@ -1143,9 +1181,53 @@ const TowerTool = () => {
         console.log('Target selected:', target, screen);
     };
 
+    const [isGuideMode, setIsGuideMode] = useState(() => localStorage.getItem('isGuideMode') === 'true');
+    const [hasSeenGuideIntro, setHasSeenGuideIntro] = useState(() => localStorage.getItem('hasSeenGuideIntro') === 'true');
+
     const handleTargetFloorChange = (floor) => {
-        setTargetFloor(floor);
+        if (floor <= 20 && !isGuideMode) {
+            setChoiceModalState({
+                isOpen: true,
+                title: 'ガイドモードを利用しますか？',
+                message: '目標階20階以下では、初心者向けの「ガイドモード」が利用できます。UIを簡略化し、操作を案内する機能です。有効にしますか？',
+                options: [
+                    { label: 'はい、有効にする', value: 'yes', className: 'btn-primary' },
+                    { label: 'いいえ、利用しない', value: 'no', className: 'btn-secondary' },
+                ],
+                onConfirm: (value) => {
+                    if (value === 'yes') {
+                        setIsGuideMode(true);
+                        setMode('practice');
+                        showToastMessage('ガイドモードを有効にしました。');
+                    }
+                    setTargetFloor(floor);
+                    setChoiceModalState({ isOpen: false });
+                }
+            });
+        } else {
+            if (floor >= 25 && isGuideMode) {
+                setIsGuideMode(false);
+                showToastMessage('ガイドモードを終了しました。');
+            }
+            setTargetFloor(floor);
+        }
     };
+
+    useEffect(() => {
+        localStorage.setItem('isGuideMode', isGuideMode);
+        if (isGuideMode && !hasSeenGuideIntro) {
+            setModalState({
+                isOpen: true,
+                title: 'ガイドモードへようこそ！',
+                message: 'ガイドモードが有効になりました。このモードは、目標階を25階以上に設定するか、目標を達成すると自動で終了します。',
+                onConfirm: () => {
+                    setHasSeenGuideIntro(true);
+                    localStorage.setItem('hasSeenGuideIntro', 'true');
+                    setModalState(s => ({ ...s, isOpen: false }));
+                }
+            });
+        }
+    }, [isGuideMode, hasSeenGuideIntro]);
 
     const onRecommendationChange = (squareId, recommendation) => {
         const newRecs = { ...runState.recommendations, [squareId]: recommendation };
@@ -1488,6 +1570,7 @@ const TowerTool = () => {
         toastMessage, setToastMessage, showToast, setShowToast, achievementToast, setAchievementToast, targetFloor, setTargetFloor, displayedEnemy, setDisplayedEnemy,
         eventToast, setEventToast, eventQueue, setEventQueue, shouldShowBetaModal, setShouldShowBetaModal, isBirthdayButtonHovered, setIsBirthdayButtonHovered, dontShowAgain, setDontShowAgain,
         guidance, setGuidance, partyConditionRisk, setPartyConditionRisk, isRecoveryRecommended, setIsRecoveryRecommended, isRouteObvious, setIsRouteObvious,
+        isGuideMode, completedGuideSteps, setCompletedGuideSteps, // Add this line
         targetEnemies, setTargetEnemies, viewMode, setViewMode, showBetaModal, setShowBetaModal, showUpdateModal, setShowUpdateModal, isFooterCollapsed, setIsFooterCollapsed,
         isMapSearchModalOpen, setIsMapSearchModalOpen, handleOpenMapSearch, handleCloseMapSearch,
         isMobileView, isTabletView, floorRefs, handleToggleFooter, showToastMessage, unlockAchievement, logAction, handleSelectLog, handleSquareClick,
@@ -1501,7 +1584,7 @@ const TowerTool = () => {
         handleModeChange, handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo,
         generateEventTweetUrl, handleCloseEventToast, towerConnections, handleCancelFormationEdit, RightPanelContent, MapContent,
         COMPLETE_MEGIDO_LIST: megidoList,
-        getStyleClass, getNextCondition, // Add utility functions
+        getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, // Add utility functions
         TOWER_MAP_DATA: window.TOWER_MAP_DATA, // Add other master data to context
         COMPLETE_ORB_LIST: window.COMPLETE_ORB_LIST,
         COMPLETE_REISHOU_LIST: window.COMPLETE_REISHOU_LIST,
@@ -1576,6 +1659,15 @@ const TowerTool = () => {
             )}
 
             <Header />
+            <GuidanceManager
+                isGuideMode={isGuideMode}
+                activeTab={activeTab}
+                ownedMegidoIds={ownedMegidoIds}
+                guideStep={guideStep}
+                setGuideStep={setGuideStep}
+                completedSteps={completedGuideSteps}
+                onStepComplete={(step) => setCompletedGuideSteps(prev => new Set(prev).add(step))}
+            />
                         {!isMobileView && (
                 <nav className="desktop-nav">
                     <div className="desktop-nav-tabs">
