@@ -16,7 +16,7 @@ const decodeFormationTags = (tagValue) => {
     return tags;
 };
 
-const useCommunityFormations = ({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser }) => {
+const useCommunityFormations = ({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser, generateTagsForFormation }) => {
     const [communityFormationsState, setCommunityFormationsState] = useState({ isOpen: false, floor: null, enemy: null, highlightId: null });
     const [isPosting, setIsPosting] = useState(false);
 
@@ -134,6 +134,8 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
             communityId: formationToCopy.id,
             qrString: formationToCopy.qrString, // QR文字列も保存しておく
         };
+
+        newFormation.tags = generateTagsForFormation(newFormation);
         
         const newFormations = { ...formations, [newId]: newFormation };
         setFormations(newFormations);

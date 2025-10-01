@@ -440,7 +440,8 @@ const TowerTool = () => {
         showShareModal, 
         setShowShareModal, 
         tweetUrl, 
-        setTweetUrl 
+        setTweetUrl, 
+        generateTagsForFormation
     } = useFormations({
         showToastMessage,
         idMaps,
@@ -460,7 +461,7 @@ const TowerTool = () => {
         handlePostFormation,
         handleDeleteCommunityFormation,
         isPosting,
-    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser });
+    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser, generateTagsForFormation });
 
     const handleImportFormation = () => {
         if (!idMaps) {
@@ -559,6 +560,8 @@ const TowerTool = () => {
                             enemyName: enemyName || null,
                             floor: floor || null
                         };
+
+                        newFormation.tags = generateTagsForFormation(newFormation);
                         
                         const newFormations = { ...formations, [newFormation.id]: newFormation };
                         setFormations(newFormations);

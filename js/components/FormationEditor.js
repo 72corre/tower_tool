@@ -2,7 +2,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
     const { useState, useMemo, useEffect } = React;
     const [formation, setFormation] = useState(initialFormation);
     const [modalState, setModalState] = useState({ type: null, isOpen: false, slotIndex: null });
-    const [selectedFloor, setSelectedFloor] = useState(null);
+    const [selectedFloors, setSelectedFloors] = useState([]);
     const [selectedEnemy, setSelectedEnemy] = useState('');
     const [isEnemyModalOpen, setIsEnemyModalOpen] = useState(false);
 
@@ -32,23 +32,25 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
 
 
     useEffect(() => {
-        let floor = null;
+        let floors = [];
         let enemy = '';
 
         if (initialTagTarget && initialTagTarget.enemy) {
-            floor = initialTagTarget.floor;
+            // initialTagTarget.floorが単一の値か配列かをチェック
+            floors = Array.isArray(initialTagTarget.floor) ? initialTagTarget.floor : (initialTagTarget.floor ? [initialTagTarget.floor] : []);
             enemy = initialTagTarget.enemy;
         } else if (formation.enemyName && formation.floor) {
-            floor = formation.floor;
+            // formation.floorが単一の値か配列かをチェック
+            floors = Array.isArray(formation.floor) ? formation.floor : (formation.floor ? [formation.floor] : []);
             enemy = formation.enemyName;
         }
 
         setSelectedEnemy(enemy);
-        setSelectedFloor(floor);
+        setSelectedFloors(floors);
 
         return () => {
             setSelectedEnemy('');
-            setSelectedFloor(null);
+            setSelectedFloors([]);
         }
     }, [initialTagTarget, formation.id]);
 
@@ -115,36 +117,31 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
         if (isSaveDisabled) return;
         let finalFormation = { ...formation };
 
-        if (selectedEnemy && selectedFloor) {
+        if (selectedEnemy && selectedFloors.length > 0) {
             finalFormation.enemyName = selectedEnemy;
-            finalFormation.floor = selectedFloor;
+            finalFormation.floor = selectedFloors; // 配列をそのまま保存
         }
 
         if (!finalFormation.name) {
-            if (selectedEnemy && selectedFloor) {
-                finalFormation.name = `${selectedFloor}F ${selectedEnemy}用編成`;
+            if (selectedEnemy && selectedFloors.length > 0) {
+                finalFormation.name = `${selectedFloors.join(',')}F ${selectedEnemy}用編成`;
             } else if (finalFormation.megido[2]) {
                 finalFormation.name = `${finalFormation.megido[2].名前}編成`;
             }
         }
-        
-        const newTags = new Set(finalFormation.tags || []);
-        (finalFormation.megido || []).forEach(m => { if(m) newTags.add(m.名前) });
-
-        if (selectedEnemy && selectedFloor) {
-            const enemyData = ENEMY_ALL_DATA[selectedEnemy];
-            const location = enemyData.locations.find(loc => loc && loc.floor === selectedFloor);
-            if (location) {
-                newTags.add(`${location.floor}F`);
-                newTags.add(selectedEnemy);
-                (location.rules || []).forEach(rule => newTags.add(rule));
-            }
-        }
-
-        finalFormation.tags = Array.from(newTags);
 
         onSave(finalFormation, previousScreen);
         showToastMessage("編成を保存しました");
+    };
+
+    const handleFloorChange = (floor, isChecked) => {
+        setSelectedFloors(prevFloors => {
+            if (isChecked) {
+                return [...prevFloors, floor].sort((a, b) => a - b);
+            } else {
+                return prevFloors.filter(f => f !== floor);
+            }
+        });
     };
 
     const getModalConfig = () => {
@@ -179,7 +176,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                 onClose={() => setIsEnemyModalOpen(false)} 
                 onSelect={(item) => {
                     setSelectedEnemy(item.name);
-                    setSelectedFloor(null); // Reset floor when enemy changes
+                    setSelectedFloors([]); // Reset floors when enemy changes
                     setIsEnemyModalOpen(false);
                 }}
                 items={allEnemies}
@@ -203,20 +200,18 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                         <button onClick={() => setIsEnemyModalOpen(true)} className="btn btn-secondary">
                             {selectedEnemy || 'エネミーを選択...'}
                         </button>
-                        <select 
-                            value={selectedFloor || ''} 
-                            onChange={e => {
-                                const floorValue = e.target.value ? Number(e.target.value) : null;
-                                setSelectedFloor(floorValue);
-                            }}
-                            className="select-css"
-                            disabled={!selectedEnemy}
-                        >
-                            <option value="">階数を選択...</option>
-                            {floorsForSelectedEnemy.map(floor => (
-                                <option key={floor} value={floor}>{floor}F</option>
-                            ))}
-                        </select>
+                        <div className="floor-checkbox-group" style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px', borderRadius: '4px' }}>
+                            {floorsForSelectedEnemy.length > 0 ? floorsForSelectedEnemy.map(floor => (
+                                <label key={floor} className="floor-checkbox-label">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={selectedFloors.includes(floor)}
+                                        onChange={(e) => handleFloorChange(floor, e.target.checked)}
+                                    />
+                                    {floor}F
+                                </label>
+                            )) : <p>エネミーを選択してください</p>}
+                        </div>
                     </div>
                 </div>
                 <div className="form-section">
