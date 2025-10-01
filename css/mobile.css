@@ -424,3 +424,12 @@ body.mobile-view .predefined-search .btn {
     font-size: 12px;
     padding: 4px 8px;
 }
+
+/* iOSでの入力時自動ズームを防止 */
+body.mobile-view input[type="text"],
+body.mobile-view input[type="number"],
+body.mobile-view input[type="search"],
+body.mobile-view textarea,
+body.mobile-view select {
+    font-size: 16px;
+}

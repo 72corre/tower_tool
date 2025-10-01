@@ -199,6 +199,7 @@ const TowerTool = () => {
     const [viewMode, setViewMode] = useState(() => localStorage.getItem('viewMode') || 'auto');
     const [showBetaModal, setShowBetaModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
+    const [showGuideIntroModal, setShowGuideIntroModal] = useState(false);
     const [isFooterCollapsed, setIsFooterCollapsed] = useState(() => {
         const saved = localStorage.getItem('isFooterCollapsed');
         return saved ? JSON.parse(saved) : true; // Default to collapsed
@@ -1219,16 +1220,7 @@ const TowerTool = () => {
     useEffect(() => {
         localStorage.setItem('isGuideMode', isGuideMode);
         if (isGuideMode && !hasSeenGuideIntro) {
-            setModalState({
-                isOpen: true,
-                title: 'ガイドモードへようこそ！',
-                message: 'ガイドモードが有効になりました。このモードは、目標階を25階以上に設定するか、目標を達成すると自動で終了します。',
-                onConfirm: () => {
-                    setHasSeenGuideIntro(true);
-                    localStorage.setItem('hasSeenGuideIntro', 'true');
-                    setModalState(s => ({ ...s, isOpen: false }));
-                }
-            });
+            setShowGuideIntroModal(true);
         }
     }, [isGuideMode, hasSeenGuideIntro]);
 
@@ -1654,6 +1646,20 @@ const TowerTool = () => {
 　　とりあえず現在は実装可能なのかをチェックしている段階です
 　　ガイダンスモード時は各エネミー毎にオススメメギドが表示される予定です
 `}
+                </InfoModal>
+            )}
+
+            {showGuideIntroModal && (
+                <InfoModal
+                    isOpen={true}
+                    onClose={() => {
+                        setShowGuideIntroModal(false);
+                        setHasSeenGuideIntro(true);
+                        localStorage.setItem('hasSeenGuideIntro', 'true');
+                    }}
+                    title="ガイドモードへようこそ！"
+                >
+                    {`ガイドモードが有効になりました。\nこのモードは、目標階を25階以上に設定するか、目標を達成すると自動で終了します。`}
                 </InfoModal>
             )}
 
