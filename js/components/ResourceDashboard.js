@@ -18,7 +18,7 @@ const ResourceDashboard = () => {
 
         Object.keys(megidoConditions).forEach(id => {
             const cond = megidoConditions[id];
-            if (cond !== "絶好調" && ownedMegidoIds?.has(String(id))) {
+            if (cond && cond !== "絶好調" && ownedMegidoIds?.has(String(id))) {
                 const m = COMPLETE_MEGIDO_LIST.find(x => String(x.id) === String(id));
                 if (m) {
                     const styleKey = normalizeStyleKey(m.style ?? m.スタイル);

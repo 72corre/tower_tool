@@ -20,6 +20,8 @@ const LEVEL_BONUSES = {
     79: { hp: 510, atk: 59, def: 59, spd: 0 },
     80: { hp: 600, atk: 70, def: 70, spd: 0 },
 };
+const CONDITION_LEVELS = ['絶好調', '好調', '普通', '不調', '絶不調', '気絶'];
+const CONDITION_ORDER = ['気絶', '絶不調', '不調', '普通', '好調', '絶好調'];
 const RECOMMENDATION_TYPES = ['ラッシュ', 'カウンター', 'バースト', 'ファイター', 'トルーパー', 'スナイパー'];
 const EXPLORATION_REWARDS = {
     3500: {

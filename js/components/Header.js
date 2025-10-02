@@ -158,7 +158,7 @@ const DesktopHeader = () => {
 };
 
 const MobileHeader = () => {
-    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, onSaveLog, onResetRun, onUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode } = useAppContext();
+    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, handleSaveLog, handleResetRun, handleUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode } = useAppContext();
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
     const [isModeModalOpen, setIsModeModalOpen] = useState(false);
@@ -276,9 +276,9 @@ const MobileHeader = () => {
                             )}
                             {isActionsMenuOpen && (
                                 <div className="mobile-actions-menu">
-                                    <button onClick={() => { onSaveLog(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">挑戦ログを保存</button>
-                                    <button onClick={() => { onUndo(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">アンドゥ</button>
-                                    <button onClick={() => { onResetRun(false); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item danger">挑戦をリタイア</button>
+                                    <button onClick={() => { handleSaveLog(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">挑戦ログを保存</button>
+                                    <button onClick={() => { handleUndo(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">アンドゥ</button>
+                                    <button onClick={() => { handleResetRun(false); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item danger">挑戦をリタイア</button>
                                 </div>
                             )}
                         </>

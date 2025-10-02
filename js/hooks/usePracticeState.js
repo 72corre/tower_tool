@@ -35,8 +35,7 @@ const usePracticeState = ({
     const [manualRecovery, setManualRecovery] = useState(null);
     const [historyStack, setHistoryStack] = useState([]);
 
-    const CONDITION_LEVELS = ['絶好調', '好調', '普通', '不調', '絶不調', '気絶'];
-    const CONDITION_ORDER = ['気絶', '絶不調', '不調', '普通', '好調', '絶好調'];
+
 
     const updateMegidoConditions = useCallback((megidoIds, change) => {
         setMegidoConditions(prevConditions => {
@@ -152,6 +151,7 @@ const usePracticeState = ({
                     totalPower: data.totalPower,
                     requiredPower: data.requiredPower,
                     expectationLevel: data.expectationLevel,
+                    exploreResult: data.result,
                     timestamp: new Date().toISOString()
                 }];
                 showToastMessage('探索完了');

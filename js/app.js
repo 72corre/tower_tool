@@ -1016,7 +1016,7 @@ const TowerTool = () => {
         }
     }, [runState, isLoading, megidoConditions, targetEnemies]);
 
-    const CONDITION_LEVELS = ['絶好調', '好調', '普通', '不調', '絶不調', '気絶'];
+
 
     useEffect(() => {
         if (!ownedMegidoIds || ownedMegidoIds.size === 0) {
@@ -1577,6 +1577,7 @@ const TowerTool = () => {
         communityFormationsState, handleOpenCommunityFormations, handleCloseCommunityFormations, handleCopyCommunityFormation, handlePostFormation, handleDeleteCommunityFormation, isPosting,
         handleImportFormation, isQriousLoaded, isHtml5QrLoaded, checkAllAchievements, handleExportData, handleImportData, handleResetAllData, handleToggleTheme, handleViewModeChange,
         handleModeChange, handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo,
+        handleSaveLog, handleResetRun, handleUndo,
         generateEventTweetUrl, handleCloseEventToast, towerConnections, handleCancelFormationEdit, RightPanelContent, MapContent,
         COMPLETE_MEGIDO_LIST: megidoList,
         getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, // Add utility functions
@@ -1584,7 +1585,9 @@ const TowerTool = () => {
         COMPLETE_ORB_LIST: window.COMPLETE_ORB_LIST,
         COMPLETE_REISHOU_LIST: window.COMPLETE_REISHOU_LIST,
         MEGIDO_BIRTHDAY_DATA: window.MEGIDO_BIRTHDAY_DATA,
-        ENEMY_ALL_DATA: window.ENEMY_ALL_DATA
+        ENEMY_ALL_DATA: window.ENEMY_ALL_DATA,
+        CONDITION_ORDER: (typeof CONDITION_ORDER !== 'undefined') ? CONDITION_ORDER : [],
+        CONDITION_LEVELS: (typeof CONDITION_LEVELS !== 'undefined') ? CONDITION_LEVELS : []
     };
 
     return (
