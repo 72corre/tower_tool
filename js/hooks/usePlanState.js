@@ -48,15 +48,16 @@ const usePlanState = ({ formations, megidoDetails, mode, showToastMessage }) => 
                 }
             }
         }
-        for (const [squareId, explorationParties] of Object.entries(planState.explorationAssignments || {})) {
-            const floor = parseInt(squareId.split('-')[0].replace('f', ''));
+        for (const [fullSquareId, explorationParties] of Object.entries(planState.explorationAssignments || {})) {
+            const floor = parseInt(fullSquareId.split('-')[0], 10);
+            const squareId = fullSquareId.split('-').slice(1).join('-');
             for (const party of Object.values(explorationParties)) {
                 if (party && Array.isArray(party)) {
                     party.forEach(megidoId => {
                         if (megidoId) {
                             const id = String(megidoId);
                             if (!megidoUsage[id]) megidoUsage[id] = [];
-                            if (!megidoUsage[id].some(u => u.squareId === squareId && u.type === 'explore')) {
+                            if (!megidoUsage[id].some(u => u.squareId === squareId && u.floor === floor && u.type === 'explore')) {
                                 megidoUsage[id].push({ floor, squareId, type: 'explore' });
                             }
                         }

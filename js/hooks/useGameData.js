@@ -31,12 +31,13 @@ const useGameData = ({ showToastMessage, runState, megidoConditions, planState }
         }
     }, [runState, megidoConditions, targetEnemies, planState, seasonLogs, showToastMessage]);
 
-    const handleDeleteLog = useCallback((logNameToDelete) => {
-        if (window.confirm(`本当にログ「${logNameToDelete}」を削除しますか？この操作は元に戻せません。`)) {
-            const newLogs = seasonLogs.filter(log => log.name !== logNameToDelete);
+    const handleDeleteLog = useCallback((logToDelete) => {
+        if (!logToDelete) return;
+        if (window.confirm(`本当にログ「${logToDelete.name}」を削除しますか？この操作は元に戻せません。`)) {
+            const newLogs = seasonLogs.filter(log => log.date !== logToDelete.date);
             setSeasonLogs(newLogs);
             localStorage.setItem('seasonLogs', JSON.stringify(newLogs));
-            if (selectedLog && selectedLog.name === logNameToDelete) {
+            if (selectedLog && selectedLog.date === logToDelete.date) {
                 setSelectedLog(null);
             }
             showToastMessage("ログを削除しました。");

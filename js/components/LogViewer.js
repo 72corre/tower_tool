@@ -181,13 +181,13 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = {}, selectedLo
     }, [selectedLog, selectedLogSquare]);
 
     const handleSelectLog = (e) => {
-        const selectedLogName = e.target.value;
-        if (!selectedLogName) {
+        const selectedLogDate = e.target.value;
+        if (!selectedLogDate) {
             onSelectLog(null);
             setLogTab('all_summary');
             return;
         }
-        const log = logs.find(l => l.name === selectedLogName);
+        const log = logs.find(l => l.date === selectedLogDate);
         onSelectLog(log || null);
         if(onSelectLogSquare) onSelectLogSquare(null);
         setLogTab('summary');
@@ -205,11 +205,11 @@ const LogViewer = ({ logs, onSelectLog, selectedLog, formations = {}, selectedLo
                 <>
                     <h2 className="card-header">シーズンログ閲覧</h2>
                     <div style={{display: 'flex', gap: '8px', marginBottom: '16px'}}>
-                        <select onChange={handleSelectLog} className="select-field" style={{flexGrow: 1}} value={selectedLog ? selectedLog.name : ""}>
+                        <select onChange={handleSelectLog} className="select-field" style={{flexGrow: 1}} value={selectedLog ? selectedLog.date : ""}>
                             <option value="">ログを選択...</option>
-                            {logs.map(log => <option key={log.date} value={log.name}>{log.name}</option>)}
+                            {logs.map(log => <option key={log.date} value={log.date}>{log.name}</option>)}
                         </select>
-                        <button onClick={() => onDeleteLog(selectedLog.name)} disabled={!selectedLog} className="btn btn-danger">削除</button>
+                        <button onClick={() => onDeleteLog(selectedLog)} disabled={!selectedLog} className="btn btn-danger">削除</button>
                     </div>
                 </>
             )}

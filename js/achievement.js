@@ -27,7 +27,7 @@ const ACHIEVEMENTS = {
         description: 'すべてのマスを計画モードで計画した状態にする。',
         type: 'secret',
         condition: (data) => {
-            if (!data.planState || typeof TOWER_MAP_DATA === 'undefined') return false;
+            if (!data.planState || typeof TOWER_MAP_DATA === 'undefined' || TOWER_MAP_DATA.length === 0) return false;
             const allSquares = new Set();
             TOWER_MAP_DATA.forEach(floor => {
                 Object.keys(floor.squares).forEach(squareId => {
@@ -37,16 +37,28 @@ const ACHIEVEMENTS = {
                 });
             });
 
-            const plannedCombat = Object.keys(data.planState.assignments || {});
-            const plannedExplore = Object.keys(data.planState.explorationAssignments || {}).map(sid => `${sid.split('-')[0].replace('f','')}-${sid}`);
+            const plannedCombat = Object.keys(data.planState.assignments || {}).filter(key => {
+                const assignmentsForSquare = data.planState.assignments[key];
+                return Object.values(assignmentsForSquare).some(enemySlots => 
+                    Object.values(enemySlots).some(slots => slots.some(slot => slot !== null))
+                );
+            });
+
+            const plannedExplore = Object.keys(data.planState.explorationAssignments || {}).filter(key => {
+                const assignmentsForSquare = data.planState.explorationAssignments[key];
+                return Object.values(assignmentsForSquare).some(party => party.some(megidoId => megidoId !== null));
+            });
 
             const allPlanned = new Set([...plannedCombat, ...plannedExplore]);
+
+            if (allSquares.size === 0) return false;
 
             for (const square of allSquares) {
                 if (!allPlanned.has(square)) {
                     return false;
                 }
             }
+            
             return true;
         }
     },

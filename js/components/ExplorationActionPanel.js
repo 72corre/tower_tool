@@ -128,7 +128,8 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
         }
 
         const selectedIds = new Set(practiceParty.filter(m => m).map(m => m.id));
-        const plannedPartyIds = new Set(planState.explorationAssignments?.[square.id]?.[recommendation] || []);
+        const fullSquareId = `${square.floor.floor}-${square.id}`;
+        const plannedPartyIds = new Set(planState.explorationAssignments?.[fullSquareId]?.[recommendation] || []);
 
         const allOwnedMegido = COMPLETE_MEGIDO_LIST.filter(m => ownedMegidoIds.has(String(m.id)));
 
@@ -160,28 +161,31 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
     
     const handlePlanMegidoSelect = (megido) => {
         const { recType, slotIndex } = modalState;
-        const currentPartyIds = planState.explorationAssignments?.[square.id]?.[recType] || [null, null, null];
+        const fullSquareId = `${square.floor.floor}-${square.id}`;
+        const currentPartyIds = planState.explorationAssignments?.[fullSquareId]?.[recType] || [null, null, null];
         const newPartyIds = [...currentPartyIds];
         newPartyIds[slotIndex] = megido.id;
-        onPlanExplorationParty(square.id, recType, newPartyIds);
+        onPlanExplorationParty(fullSquareId, recType, newPartyIds);
         setModalState({ isOpen: false, slotIndex: null, recType: null });
     };
 
     const handlePlanMegidoRemove = (recType, slotIndex) => {
-        const currentPartyIds = planState.explorationAssignments?.[square.id]?.[recType] || [null, null, null];
+        const fullSquareId = `${square.floor.floor}-${square.id}`;
+        const currentPartyIds = planState.explorationAssignments?.[fullSquareId]?.[recType] || [null, null, null];
         const newPartyIds = [...currentPartyIds];
         newPartyIds[slotIndex] = null;
-        onPlanExplorationParty(square.id, recType, newPartyIds);
+        onPlanExplorationParty(fullSquareId, recType, newPartyIds);
     };
 
     const availablePlanMegido = useMemo(() => {
-        if (!isPlanMode) return [];
+        if (!isPlanMode || !square) return [];
         const { recType } = modalState;
-        const plannedPartyIds = planState.explorationAssignments?.[square.id]?.[recType] || [];
+        const fullSquareId = `${square.floor.floor}-${square.id}`;
+        const plannedPartyIds = planState.explorationAssignments?.[fullSquareId]?.[recType] || [];
         return (typeof COMPLETE_MEGIDO_LIST !== 'undefined' ? COMPLETE_MEGIDO_LIST : []).filter(m => 
             ownedMegidoIds.has(String(m.id)) && !plannedPartyIds.includes(m.id)
         );
-    }, [modalState.recType, ownedMegidoIds, planState.explorationAssignments, square.id]);
+    }, [modalState.recType, ownedMegidoIds, planState.explorationAssignments, square]);
 
     if (isPlanMode) {
         // ... (plan mode JSX remains the same)
@@ -207,7 +211,8 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                 <h4 className="card-header">探索パーティ計画</h4>
                 <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                     {RECOMMENDATION_TYPES.map(recType => {
-                        const plannedPartyIds = planState.explorationAssignments?.[square.id]?.[recType] || [null, null, null];
+                        const fullSquareId = `${square.floor.floor}-${square.id}`;
+                        const plannedPartyIds = planState.explorationAssignments?.[fullSquareId]?.[recType] || [null, null, null];
                         const plannedParty = plannedPartyIds.map(id => id ? (typeof COMPLETE_MEGIDO_LIST !== 'undefined' ? COMPLETE_MEGIDO_LIST : []).find(m => m.id === id) : null);
                         return (
                             <div key={recType} className="card">
