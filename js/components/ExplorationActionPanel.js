@@ -390,7 +390,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                 </select>
             </div>
             <div className="card" style={{marginTop: '16px', padding: '16px'}}>
-                <h4 className="label" style={{marginTop: 0}}>探索おまかせ編成</h4>
+                <h4 className="label" style={{marginTop: 0}}>おまかせ探索</h4>
                 <div style={{display: 'flex', alignItems: 'center', gap: '16px'}}>
                     <div style={{flex: 1}}>
                         <label className="label" style={{fontSize: '12px'}}>目標期待度</label>
@@ -409,7 +409,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                         className="btn btn-primary"
                         style={{height: 'fit-content', alignSelf: 'flex-end'}}
                     >
-                        おまかせ編成
+                        おまかせ探索
                     </button>
                 </div>
             </div>

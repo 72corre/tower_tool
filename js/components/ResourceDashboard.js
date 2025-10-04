@@ -1,7 +1,7 @@
 const ResourceDashboard = () => {
-    const { runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS } = useAppContext();
+    const { runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, targetFloor } = useAppContext();
+    const { useMemo } = React;
 
-    // 正規化関数を先に定義
     const normalizeStyleKey = (style) => {
         if (!style) return null;
         const s = String(style).toLowerCase();
@@ -11,39 +11,91 @@ const ResourceDashboard = () => {
         return null;
     };
 
-    // 予測到達階層（1回のみ定義）
-    const predictedReachableFloor = useMemo(() => {
-        if (!runState?.currentPosition || typeof AVERAGE_POWER_CONSUMPTION === 'undefined') {
-            return '--';
+    const { extendedReachableFloor, allowedRetries } = useMemo(() => {
+        if (!runState?.currentPosition || !TOWER_MAP_DATA || typeof AVERAGE_POWER_CONSUMPTION === 'undefined') {
+            return { extendedReachableFloor: '--', allowedRetries: '--' };
         }
 
+        const RECOVERY_FLOORS = new Set([3, 8, 13, 14, 15, 20, 23, 25, 26]);
+        const getRecoveryAmount = (floor) => {
+            if (floor <= 10) return 13;
+            if (floor <= 20) return 15;
+            if (floor <= 35) return 16;
+            return 0;
+        };
         const savedStatsRaw = localStorage.getItem('towerPowerStats');
         const savedStats = savedStatsRaw ? JSON.parse(savedStatsRaw) : { floorAverages: {} };
 
-        let currentPower = runState.towerPower;
-        let floor = runState.currentPosition.floor;
-        let reachableFloor = floor > 0 ? floor - 1 : 0;
+        const runOptimisticSimulation = (initialPower) => {
+            let power = initialPower;
+            let searchStartFloor = runState.currentPosition.floor;
+            let maxReachable = searchStartFloor > 0 ? searchStartFloor - 1 : 0;
+            const usedRecoveryFloors = new Set();
 
-        while (floor <= 35) {
-            const floorStats = savedStats.floorAverages[floor];
-            let cost = AVERAGE_POWER_CONSUMPTION[floor] || 8;
+            for (let i = 0; i < 15; i++) { // Loop breaker to prevent infinite loops
+                let currentMax = 0;
+                let tempPower = power;
+                let tempFloor = searchStartFloor;
+                
+                while(tempFloor <= 35) {
+                    let cost = AVERAGE_POWER_CONSUMPTION[tempFloor] || 8;
+                    const floorStats = savedStats.floorAverages[tempFloor];
+                    if (floorStats && floorStats.count > 0) { cost = floorStats.totalConsumed / floorStats.count; }
 
-            if (floorStats && floorStats.count > 0) {
-                cost = floorStats.totalConsumed / floorStats.count;
+                    if (tempPower >= cost) {
+                        tempPower -= cost;
+                        currentMax = tempFloor;
+                    } else {
+                        break;
+                    }
+                    tempFloor++;
+                }
+                maxReachable = currentMax;
+
+                let recovered = false;
+                for (let f = searchStartFloor; f <= maxReachable; f++) {
+                    if (RECOVERY_FLOORS.has(f) && !usedRecoveryFloors.has(f)) {
+                        power += getRecoveryAmount(f);
+                        usedRecoveryFloors.add(f);
+                        searchStartFloor = f + 1;
+                        recovered = true;
+                        break;
+                    }
+                }
+                if (!recovered) break;
             }
+            return maxReachable;
+        };
 
-            if (currentPower >= cost) {
-                currentPower -= cost;
-                reachableFloor = floor;
-                floor++;
+        const extendedReachableFloor = runOptimisticSimulation(runState.towerPower);
+
+        let retries = 0;
+        const target = parseInt(targetFloor, 10);
+        if (target && target >= runState.currentPosition.floor && target <= 35) {
+            if (target > extendedReachableFloor) {
+                retries = 0;
             } else {
-                break;
+                for (let n = 0; n < runState.towerPower; n++) {
+                    const newReachable = runOptimisticSimulation(runState.towerPower - n);
+                    if (newReachable < target) {
+                        retries = n > 0 ? n - 1 : 0;
+                        break;
+                    }
+                    if (runState.towerPower - n <= 1) {
+                        retries = n;
+                        break;
+                    }
+                }
             }
+        } else {
+            retries = '--';
         }
-        return reachableFloor;
-    }, [runState?.currentPosition, runState?.towerPower]);
 
-    // 疲労メギド（1回のみ定義）
+        return { extendedReachableFloor, allowedRetries: retries };
+
+    }, [runState, targetFloor, TOWER_MAP_DATA]);
+
+
     const fatiguedMegido = useMemo(() => {
         const fatigued = { R: [], C: [], B: [] };
         if (mode !== 'practice' || !megidoConditions || !COMPLETE_MEGIDO_LIST) {
@@ -71,7 +123,6 @@ const ResourceDashboard = () => {
         return fatigued;
     }, [megidoConditions, ownedMegidoIds, mode, COMPLETE_MEGIDO_LIST, CONDITION_ORDER]);
 
-    // 回復情報（1回のみ定義）
     const recoveryInfo = useMemo(() => {
         const result = { random: { floor: '---', distance: Infinity }, styled: { floor: '---', style: '---', distance: Infinity, capacity: 0 } };
         if (mode !== 'practice' || typeof TOWER_MAP_DATA === 'undefined' || !runState) return result;
@@ -213,10 +264,11 @@ const ResourceDashboard = () => {
     return (
         <div className={`resource-dashboard ${isFooterCollapsed ? 'is-collapsed' : ''}`}>
             <div className="dashboard-header" onClick={handleToggleFooter}>
-                <div className="dashboard-summary-info">
+                 <div className="dashboard-summary-info" style={{ display: 'flex', flexWrap: 'wrap', gap: '0 16px', alignItems: 'center' }}>
                     <span>塔破力: <span style={{ fontWeight: 700, color: 'var(--danger-color)' }}>{runState.towerPower || 30}</span></span>
-                    <span style={{ marginLeft: '16px' }}>予測到達: <span style={{ fontWeight: 700 }}>{predictedReachableFloor}F</span></span>
-                    <div className="fatigue-summary">
+                    <span>回復込予測: <span style={{ fontWeight: 700, color: 'var(--primary-accent)' }}>{extendedReachableFloor}F</span></span>
+                    <span>許容リタイア: <span style={{ fontWeight: 700 }}>{allowedRetries}</span>回</span>
+                    <div className="fatigue-summary" style={{ display: 'flex', gap: '8px' }}>
                         <span>疲労:</span>
                         <span className="summary-style-r">R: {fatiguedMegido.R.length}</span>
                         <span className="summary-style-c">C: {fatiguedMegido.C.length}</span>
@@ -233,22 +285,4 @@ const ResourceDashboard = () => {
             )}
         </div>
     );
-};
-
-const EXPLORATION_REWARDS = {
-    3500: {
-        1: { stat: '1%', condition: '5体', power: '-6' },
-        2: { stat: '3%', condition: '15体', power: '-8' },
-        3: { stat: '5%', condition: '20体', power: '-13' }
-    },
-    4500: {
-        1: { stat: '-', condition: '5体', power: '-6' },
-        2: { stat: '-', condition: '15体', power: '-10' },
-        3: { stat: '-', condition: '20体', power: '-15' }
-    },
-    5500: {
-        1: { stat: '-', condition: '5体 1段階', power: '-6' },
-        2: { stat: '-', condition: '10体 2段階', power: '-11' },
-        3: { stat: '-', condition: '15体 2段階', power: '-16' }
-    }
 };

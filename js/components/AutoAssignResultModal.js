@@ -31,7 +31,7 @@ const AutoAssignResultModal = ({ isOpen, onClose, result, onSelectParty, onRetry
     return (
         <div style={backdropStyle} onClick={onClose}>
             <div className="card" style={dialogStyle} onClick={e => e.stopPropagation()}>
-                <h3 className="card-header">おまかせ編成 結果</h3>
+                <h3 className="card-header">おまかせ探索 結果</h3>
                 {result.success ? (
                     <div>
                         <p>以下の組み合わせが見つかりました。クリックで選択できます。</p>

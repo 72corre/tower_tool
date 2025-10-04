@@ -27,7 +27,7 @@ const EXPLORATION_REWARDS = {
     3500: {
         1: { stat: "1%", condition: "5体", power: "6以下" },
         2: { stat: "3%", condition: "15体", power: "8以下" },
-        3: { stat: "5%", condition: "20体＋", power: "13↑" }
+        3: { stat: "5%", condition: "20体＋", power: "13以上" }
     },
     4500: {
         1: { stat: "-", condition: "5体", power: "6以下" },

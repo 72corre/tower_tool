@@ -32,26 +32,44 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
         const fetchFormations = async () => {
             setIsLoading(true);
             try {
-                const searchTerm = hiraganaToKatakana(filters.megidoName || filters.enemy || '').toLowerCase();
+                const filterTerm = filters.megidoName || filters.enemy || '';
+                const katakanaTerm = hiraganaToKatakana(filterTerm).toLowerCase();
+                const hiraganaTerm = katakanaToHiragana(filterTerm).toLowerCase();
+                
+                const termsToSearch = [...new Set([katakanaTerm, hiraganaTerm])].filter(Boolean);
 
-                const baseFormations = await getCommunityFormations({
-                    floor: filters.floor,
-                    searchTerm: searchTerm
-                });
+                let allFormations = [];
+                if (termsToSearch.length > 0) {
+                    const promises = termsToSearch.map(term => getCommunityFormations({
+                        floor: filters.floor,
+                        searchTerm: term
+                    }));
+                    const results = await Promise.all(promises);
+                    const flattenedResults = results.flat();
+                    // Merge and remove duplicates
+                    const uniqueIds = new Set();
+                    allFormations = flattenedResults.filter(f => {
+                        if (uniqueIds.has(f.id)) {
+                            return false;
+                        } else {
+                            uniqueIds.add(f.id);
+                            return true;
+                        }
+                    });
+                } else {
+                    allFormations = await getCommunityFormations({ floor: filters.floor });
+                }
 
-                if (baseFormations.length > 0) {
-                    // Step 2: Get all ratings for the fetched formations in one batch
-                    const formationIds = baseFormations.map(f => f.id);
+                if (allFormations.length > 0) {
+                    const formationIds = allFormations.map(f => f.id);
                     const ratings = await getRatingsForFormations(formationIds);
-
-                    // Step 3: Merge the ratings data into the formation data
-                    const mergedFormations = baseFormations.map(formation => ({
+                    const mergedFormations = allFormations.map(formation => ({
                         ...formation,
-                        ...ratings[formation.id] // Add total_rating and rating_count
+                        ...ratings[formation.id]
                     }));
                     setFormations(mergedFormations);
                 } else {
-                    setFormations([]); // No formations found
+                    setFormations([]);
                 }
 
                 setError(null);

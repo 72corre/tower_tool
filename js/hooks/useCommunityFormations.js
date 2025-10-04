@@ -179,7 +179,11 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
                 comment,
                 ...decodedTags
             ].filter(Boolean);
-            const searchText = searchableContent.map(text => hiraganaToKatakana(String(text)).toLowerCase());
+            const searchText = searchableContent.flatMap(text => {
+                const katakanaText = hiraganaToKatakana(String(text)).toLowerCase();
+                const hiraganaText = katakanaToHiragana(String(text)).toLowerCase();
+                return [...new Set([katakanaText, hiraganaText])];
+            });
 
             const dataToPost = {
                 qrString: qrString,

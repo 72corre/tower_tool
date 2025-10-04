@@ -225,3 +225,11 @@ const hiraganaToKatakana = (str) => {
   });
 };
 
+const katakanaToHiragana = (str) => {
+  if (!str) return '';
+  return str.replace(/[\u30A1-\u30F6]/g, (match) => {
+    const charCode = match.charCodeAt(0) - 0x60;
+    return String.fromCharCode(charCode);
+  });
+};
+
