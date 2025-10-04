@@ -1,6 +1,7 @@
 const ResourceDashboard = () => {
     const { runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS } = useAppContext();
 
+    // 正規化関数を先に定義
     const normalizeStyleKey = (style) => {
         if (!style) return null;
         const s = String(style).toLowerCase();
@@ -10,9 +11,42 @@ const ResourceDashboard = () => {
         return null;
     };
 
+    // 予測到達階層（1回のみ定義）
+    const predictedReachableFloor = useMemo(() => {
+        if (!runState?.currentPosition || typeof AVERAGE_POWER_CONSUMPTION === 'undefined') {
+            return '--';
+        }
+
+        const savedStatsRaw = localStorage.getItem('towerPowerStats');
+        const savedStats = savedStatsRaw ? JSON.parse(savedStatsRaw) : { floorAverages: {} };
+
+        let currentPower = runState.towerPower;
+        let floor = runState.currentPosition.floor;
+        let reachableFloor = floor > 0 ? floor - 1 : 0;
+
+        while (floor <= 35) {
+            const floorStats = savedStats.floorAverages[floor];
+            let cost = AVERAGE_POWER_CONSUMPTION[floor] || 8;
+
+            if (floorStats && floorStats.count > 0) {
+                cost = floorStats.totalConsumed / floorStats.count;
+            }
+
+            if (currentPower >= cost) {
+                currentPower -= cost;
+                reachableFloor = floor;
+                floor++;
+            } else {
+                break;
+            }
+        }
+        return reachableFloor;
+    }, [runState?.currentPosition, runState?.towerPower]);
+
+    // 疲労メギド（1回のみ定義）
     const fatiguedMegido = useMemo(() => {
         const fatigued = { R: [], C: [], B: [] };
-        if (mode !== 'practice' || !megidoConditions) {
+        if (mode !== 'practice' || !megidoConditions || !COMPLETE_MEGIDO_LIST) {
             return fatigued;
         }
 
@@ -35,8 +69,9 @@ const ResourceDashboard = () => {
         fatigued.B.sort((a, b) => condIndex(b.condition) - condIndex(a.condition));
         
         return fatigued;
-    }, [megidoConditions, ownedMegidoIds, mode]);
+    }, [megidoConditions, ownedMegidoIds, mode, COMPLETE_MEGIDO_LIST, CONDITION_ORDER]);
 
+    // 回復情報（1回のみ定義）
     const recoveryInfo = useMemo(() => {
         const result = { random: { floor: '---', distance: Infinity }, styled: { floor: '---', style: '---', distance: Infinity, capacity: 0 } };
         if (mode !== 'practice' || typeof TOWER_MAP_DATA === 'undefined' || !runState) return result;
@@ -45,6 +80,7 @@ const ResourceDashboard = () => {
         for (let i = currentFloor - 1; i < TOWER_MAP_DATA.length; i++) {
             if (foundRandom && foundStyled) break;
             const floorData = TOWER_MAP_DATA[i];
+            if (!floorData) continue;
             const clearedInFloor = runState.cleared[String(i + 1)] || [];
             for (const [squareId, square] of Object.entries(floorData.squares)) {
                 if (square.type === 'explore' && square.sub_type === 'recovery' && !clearedInFloor.includes(squareId)) {
@@ -63,10 +99,10 @@ const ResourceDashboard = () => {
             }
         }
         return result;
-    }, [runState, mode]);
+    }, [runState, mode, TOWER_MAP_DATA]);
 
     if ((mode === 'practice' && !runState) || (mode === 'plan' && !planConditions)) {
-        return null; // or a loading indicator
+        return null;
     }
 
     const styleMap = { "ラッシュ": "R", "カウンター": "C", "バースト": "B" };
@@ -134,7 +170,6 @@ const ResourceDashboard = () => {
         const styleNameMap = { rush: 'ラッシュ', counter: 'カウンター', burst: 'バースト' };
         if (!planConditions || !planConditions.fatigueByGroup || !planConditions.megidoConditionsBySection) return null;
 
-        // isMobileView に応じてスタイルを動的に変更
         const cardPadding = isMobileView ? '4px' : '8px';
         const titleFontSize = isMobileView ? '0.9rem' : '1.1rem';
         const pFontSize = isMobileView ? '10px' : '12px';
@@ -180,6 +215,7 @@ const ResourceDashboard = () => {
             <div className="dashboard-header" onClick={handleToggleFooter}>
                 <div className="dashboard-summary-info">
                     <span>塔破力: <span style={{ fontWeight: 700, color: 'var(--danger-color)' }}>{runState.towerPower || 30}</span></span>
+                    <span style={{ marginLeft: '16px' }}>予測到達: <span style={{ fontWeight: 700 }}>{predictedReachableFloor}F</span></span>
                     <div className="fatigue-summary">
                         <span>疲労:</span>
                         <span className="summary-style-r">R: {fatiguedMegido.R.length}</span>
@@ -198,10 +234,6 @@ const ResourceDashboard = () => {
         </div>
     );
 };
-
-
-
-
 
 const EXPLORATION_REWARDS = {
     3500: {
