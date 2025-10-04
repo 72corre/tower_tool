@@ -18,9 +18,9 @@ const ResourceDashboard = () => {
 
         const RECOVERY_FLOORS = new Set([3, 8, 13, 14, 15, 20, 23, 25, 26]);
         const getRecoveryAmount = (floor) => {
-            if (floor <= 10) return 13;
-            if (floor <= 20) return 15;
-            if (floor <= 35) return 16;
+            if (floor <= 10) return 12;
+            if (floor <= 20) return 14;
+            if (floor <= 35) return 15;
             return 0;
         };
         const savedStatsRaw = localStorage.getItem('towerPowerStats');
@@ -165,6 +165,7 @@ const ResourceDashboard = () => {
             <>
                 <div className="card" style={{ gridColumn: '1 / -1' }}>
                     <span style={{ marginLeft: '16px' }}>次のランダム回復: <span style={{ fontWeight: 700 }}>{recoveryInfo.random.floor}F</span> (あと{isFinite(recoveryInfo.random.distance) ? recoveryInfo.random.distance : '?'}F)</span>
+                    <br />
                     <span style={{ marginLeft: '16px' }}>次のスタイル回復: <span style={{ fontWeight: 700 }}>{recoveryInfo.styled.floor}F ({closestStyledRecoveryStyle})</span> (あと{isFinite(recoveryInfo.styled.distance) ? recoveryInfo.styled.distance : '?'}F)</span>
                 </div>
                 <div className="fatigue-container" style={{ gridColumn: '1 / -1' }}>

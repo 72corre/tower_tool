@@ -32,9 +32,9 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
         const fetchFormations = async () => {
             setIsLoading(true);
             try {
-                const filterTerm = filters.megidoName || filters.enemy || '';
-                const katakanaTerm = hiraganaToKatakana(filterTerm).toLowerCase();
-                const hiraganaTerm = katakanaToHiragana(filterTerm).toLowerCase();
+                const filterTerm = (filters.megidoName || filters.enemy || '').trim();
+                const katakanaTerm = hiraganaToKatakana(filterTerm);
+                const hiraganaTerm = katakanaToHiragana(filterTerm);
                 
                 const termsToSearch = [...new Set([katakanaTerm, hiraganaTerm])].filter(Boolean);
 

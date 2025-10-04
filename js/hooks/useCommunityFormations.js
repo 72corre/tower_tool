@@ -180,9 +180,10 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
                 ...decodedTags
             ].filter(Boolean);
             const searchText = searchableContent.flatMap(text => {
-                const katakanaText = hiraganaToKatakana(String(text)).toLowerCase();
-                const hiraganaText = katakanaToHiragana(String(text)).toLowerCase();
-                return [...new Set([katakanaText, hiraganaText])];
+                const cleanText = String(text).trim();
+                const katakanaText = hiraganaToKatakana(cleanText);
+                const hiraganaText = katakanaToHiragana(cleanText);
+                return [...new Set([katakanaText, hiraganaText])].filter(Boolean);
             });
 
             const dataToPost = {
