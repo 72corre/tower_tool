@@ -39,11 +39,13 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                 const termsToSearch = [...new Set([katakanaTerm, hiraganaTerm])].filter(Boolean);
 
                 let allFormations = [];
+                const query = {};
+                if (filters.floor) {
+                    query.floor = filters.floor;
+                }
+
                 if (termsToSearch.length > 0) {
-                    const promises = termsToSearch.map(term => getCommunityFormations({
-                        floor: filters.floor,
-                        searchTerm: term
-                    }));
+                    const promises = termsToSearch.map(term => getCommunityFormations({ ...query, searchTerm: term }));
                     const results = await Promise.all(promises);
                     const flattenedResults = results.flat();
                     // Merge and remove duplicates
@@ -56,8 +58,8 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                             return true;
                         }
                     });
-                } else {
-                    allFormations = await getCommunityFormations({ floor: filters.floor });
+                } else if (Object.keys(query).length > 0) {
+                    allFormations = await getCommunityFormations(query);
                 }
 
                 if (allFormations.length > 0) {
