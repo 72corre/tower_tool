@@ -6,6 +6,7 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isFilterVisible, setIsFilterVisible] = useState(true);
+    const [ratedInSession, setRatedInSession] = useState(new Set()); // 評価済みかをセッション内で管理
 
     // フィルタ条件を一つのstateで管理
     const [filters, setFilters] = useState({
@@ -151,6 +152,11 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
     }, [formations]);
 
     const handleRate = async (formationId, rating) => {
+        if (ratedInSession.has(formationId)) {
+            showToastMessage('この編成は既に評価済みです。', 'info');
+            return;
+        }
+
         // ユーザーがこの編成をコピーしたことがあるかチェック
         const hasUsedFormation = Object.values(userFormations).some(f => f.communityId === formationId);
 
@@ -161,6 +167,8 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
 
         await submitRating(formationId, rating);
         showToastMessage(`${rating}点で評価しました！`);
+
+        setRatedInSession(prev => new Set(prev).add(formationId));
 
         // 楽観的更新: UIに即時反映させる
         setFormations(currentFormations => 

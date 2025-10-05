@@ -56,7 +56,7 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
 };
 
 const DesktopHeader = () => {
-    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode } = useAppContext();
+    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, runState, handleScrollToFloor } = useAppContext();
     const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
@@ -117,6 +117,11 @@ const DesktopHeader = () => {
                             モード: {currentModeInfo.title}
                         </button>
                     )}
+                    {mode === 'practice' && runState?.currentPosition?.floor && (
+                        <button className="btn btn-ghost" onClick={() => handleScrollToFloor(runState.currentPosition.floor)}>
+                            現在: {runState.currentPosition.floor}F
+                        </button>
+                    )}
                     <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
                         目標: {currentFloorInfo.title}
                     </button>
@@ -158,7 +163,7 @@ const DesktopHeader = () => {
 };
 
 const MobileHeader = () => {
-    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, handleSaveLog, handleResetRun, handleUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode } = useAppContext();
+    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, handleSaveLog, handleResetRun, handleUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, handleScrollToFloor } = useAppContext();
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
     const [isModeModalOpen, setIsModeModalOpen] = useState(false);
@@ -185,7 +190,10 @@ const MobileHeader = () => {
                 const currentFloor = runState?.currentPosition?.floor || '-';
                 return (
                     <>
-                        <span>{currentFloor}F / </span>
+                        <button className="header-current-floor-btn" onClick={() => handleScrollToFloor(currentFloor)}>
+                            {currentFloor}F
+                        </button>
+                        <span style={{ margin: '0 4px' }}> / </span>
                         <button className="header-target-floor-btn" onClick={() => setIsFloorModalOpen(true)}>
                             目標:{targetFloor}F
                         </button>

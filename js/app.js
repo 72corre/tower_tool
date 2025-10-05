@@ -1103,6 +1103,13 @@ const TowerTool = () => {
         localStorage.removeItem('ui_selectedSquareKey');
     };
 
+    const handleScrollToFloor = (floorNum) => {
+        if (floorRefs.current[floorNum]) {
+            floorRefs.current[floorNum].scrollIntoView({ behavior: 'smooth', block: 'start' });
+            showToastMessage(`${floorNum}階へ移動しました。`);
+        }
+    };
+
     const getSquareStyle = useCallback((square, floorData, squareId) => {
         let classes = '';
         if (selectedSquare && selectedSquare.floor.floor === floorData.floor && selectedSquare.id === squareId) {
@@ -1531,7 +1538,7 @@ const TowerTool = () => {
     }
 
     const MapContent = () => (
-        <>
+        <div style={{ overflowX: 'auto', overflowY: 'hidden', padding: '2px' }}>
             {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
                 <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
                     <FloorGrid
@@ -1552,7 +1559,7 @@ const TowerTool = () => {
                     />
                 </div>
             ))}
-        </>
+        </div>
     );
 
     const contextValue = {
@@ -1576,7 +1583,7 @@ const TowerTool = () => {
         idMaps, formations, setFormations, editingFormation, setEditingFormation, initialTagTarget, setInitialTagTarget, previousScreen, setPreviousScreen, handleSaveFormation, handleSaveFormationMemo, handleDeleteFormation, handleCopyFormation, handleCreateFormationFromEnemy, handleGenerateShareImage, generatedImageData, showShareModal, setShowShareModal, tweetUrl, setTweetUrl,
         communityFormationsState, handleOpenCommunityFormations, handleCloseCommunityFormations, handleCopyCommunityFormation, handlePostFormation, handleDeleteCommunityFormation, isPosting,
         handleImportFormation, isQriousLoaded, isHtml5QrLoaded, checkAllAchievements, handleExportData, handleImportData, handleResetAllData, handleToggleTheme, handleViewModeChange,
-        handleModeChange, handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo,
+        handleModeChange, handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo, handleScrollToFloor,
         handleSaveLog, handleResetRun, handleUndo,
         generateEventTweetUrl, handleCloseEventToast, towerConnections, handleCancelFormationEdit, RightPanelContent, MapContent,
         COMPLETE_MEGIDO_LIST: megidoList,
