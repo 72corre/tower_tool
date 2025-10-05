@@ -388,7 +388,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         
         const qrCanvas = document.createElement('canvas');
         // encodeFormationToQrString は utils.js にあると仮定
-        const qrString = encodeFormationToQrString(form, megidoDetails, idMaps);
+        const qrString = encodeFormationToQrString(rehydratedForm, megidoDetails, idMaps);
         if (!qrString) {
             showToastMessage('QRコードの生成に失敗');
             return;

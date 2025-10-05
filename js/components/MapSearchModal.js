@@ -1,7 +1,7 @@
 
 const { useState, useEffect, useCallback, useMemo } = React;
 
-const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, formations, planState, megidoDetails, idMaps, onSelectSquare, onGenerateShareImage }) => {
+const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, formations, planState, runState, megidoDetails, idMaps, onSelectSquare, onGenerateShareImage }) => {
     if (!isOpen) return null;
 
     const [searchTerm, setSearchTerm] = useState('');
@@ -141,12 +141,20 @@ const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, for
                 });
             });
         } else if (type === 'megido_in_formation') {
-            const targetStyle = params.style.toUpperCase();
+            const styleMap = {
+                RUSH: 'ラッシュ',
+                COUNTER: 'カウンター',
+                BURST: 'バースト'
+            };
+            const targetStyleJP = styleMap[params.style.toUpperCase()];
+
+            if (!targetStyleJP) return; // Mapにない場合は何もしない
+
             // 編成データから検索
             Object.values(formations).forEach(form => {
                 if (form.megidoSlots.some(slot => {
                     const megido = getMegidoInfo(slot?.megidoId);
-                    return megido && (megido.スタイル?.toUpperCase() === targetStyle || megido.style?.toUpperCase() === targetStyle);
+                    return megido && megido.スタイル === targetStyleJP;
                 })) {
                     addResult(form.floor, form.enemyName, 'formation', { formationId: form.id, formationName: form.name, tags: form.tags, megidoNames: form.megidoSlots.map(m => m?.megidoName).filter(Boolean) });
                 }
@@ -158,8 +166,8 @@ const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, for
                 Object.values(assignments).forEach(party => {
                     party.forEach(megidoId => {
                         const megido = getMegidoInfo(megidoId);
-                        if (megido && (megido.スタイル?.toUpperCase() === targetStyle || megido.style?.toUpperCase() === targetStyle)) {
-                            addResult(floorNum, squareId, 'plan_assignment', { megidoName: megido.名前, megidoStyle: megido.スタイル || megido.style });
+                        if (megido && megido.スタイル === targetStyleJP) {
+                            addResult(floorNum, squareId, 'plan_assignment', { megidoName: megido.名前, megidoStyle: megido.スタイル });
                         }
                     });
                 });
@@ -170,18 +178,33 @@ const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, for
                 Object.values(assignments).forEach(party => {
                     party.forEach(megidoId => {
                         const megido = getMegidoInfo(megidoId);
-                        if (megido && (megido.スタイル?.toUpperCase() === targetStyle || megido.style?.toUpperCase() === targetStyle)) {
-                            addResult(floorNum, actualSquareId, 'plan_assignment', { megidoName: megido.名前, megidoStyle: megido.スタイル || megido.style });
+                        if (megido && megido.スタイル === targetStyleJP) {
+                            addResult(floorNum, actualSquareId, 'plan_assignment', { megidoName: megido.名前, megidoStyle: megido.スタイル });
                         }
                     });
                 });
             });
+
+            // 実践モードの探索履歴から検索
+            if (runState && runState.history) {
+                runState.history.forEach(action => {
+                    if (action.type === 'explore' && action.megido) {
+                        action.megido.forEach(megidoId => {
+                            const megido = getMegidoInfo(megidoId);
+                            if (megido && megido.スタイル === targetStyleJP) {
+                                addResult(parseInt(action.floor, 10), action.squareId, 'plan_assignment', { megidoName: megido.名前, megidoStyle: megido.スタイル });
+                            }
+                        });
+                    }
+                });
+            }
         }
 
         // 階層でソートし、重複を排除
         results.sort((a, b) => a.floor - b.floor);
-        setSearchResults(results);
-    }, [searchTerm, towerData, formations, planState, getMegidoInfo, getSquareInfo]);
+        const finalResults = results.filter(r => r.floor != null);
+        setSearchResults(finalResults);
+    }, [searchTerm, towerData, formations, planState, getMegidoInfo, getSquareInfo, runState]);
 
     const predefinedSearches = [
         { label: '次のコンディション回復マス', type: 'next_recovery' },

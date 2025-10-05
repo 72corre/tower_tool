@@ -84,10 +84,6 @@ const FormationManager = ({
     handlePostFormation,
     isPosting,
     handleGenerateShareImage,
-    generatedImageData,
-    showShareModal,
-    setShowShareModal,
-    tweetUrl,
 }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [tagSearch, setTagSearch] = useState({ text: '', exactMatch: false });
@@ -201,19 +197,7 @@ const FormationManager = ({
                     </div>
                 </div>
             )}
-            {showShareModal && generatedImageData && (
-                <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200}} onClick={() => setShowShareModal(false)}>
-                    <div className="card" style={{textAlign: 'center', padding: '20px', maxWidth: '90vw', maxHeight: '90vh'}} onClick={(e) => e.stopPropagation()}>
-                        <h3 style={{marginTop: 0}}>共有用画像</h3>
-                        <img src={generatedImageData} style={{maxWidth: '100%', maxHeight: 'calc(90vh - 150px)', margin: 'auto'}} />
-                        <div style={{display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '24px'}}>
-                            <a href={generatedImageData} download={`tower-formation-${Date.now()}.png`} className="btn btn-primary">ダウンロード</a>
-                            <a href={tweetUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">ツイート</a>
-                            <button onClick={() => setShowShareModal(false)} className="btn btn-ghost">閉じる</button>
-                        </div>
-                    </div>
-                </div>
-            )}
+
             {postModalState.isOpen && (
                 <PostFormationModal 
                     isOpen={postModalState.isOpen}

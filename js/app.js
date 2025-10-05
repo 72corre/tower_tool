@@ -1722,36 +1722,30 @@ const TowerTool = () => {
                                     onTargetSelect={onTargetSelect}
                                 />
                             ) : (
-                                <FormationManager 
-                                    formations={formations} 
-                                    onSave={handleSaveFormation} 
-                                    onDelete={handleDeleteFormation} 
-                                    onCopy={handleCopyFormation} 
-                                    ownedMegidoIds={ownedMegidoIds} 
-                                    megidoDetails={megidoDetails}
-                                    initialTagTarget={initialTagTarget}
-                                    setInitialTagTarget={setInitialTagTarget}
-                                    showToastMessage={showToastMessage}
-                                    setPreviousScreen={setPreviousScreen}
-                                    previousScreen={previousScreen}
-                                    onTargetSelect={onTargetSelect}
-                                    onCancel={onCancel}
-                                    isQriousLoaded={isQriousLoaded}
-                                    isHtml5QrLoaded={isHtml5QrLoaded}
-                                    onImport={handleImportFormation}
-                                    idMaps={idMaps}
-                                    editingFormation={editingFormation}
-                                    onEditingFormationChange={setEditingFormation}
-                                    onOpenCommunityFormations={handleOpenCommunityFormations}
-                                    handlePostFormation={handlePostFormation}
-                                    isPosting={isPosting}
-                                    handleGenerateShareImage={handleGenerateShareImage}
-                                    generatedImageData={generatedImageData}
-                                    showShareModal={showShareModal}
-                                    setShowShareModal={setShowShareModal}
-                                    tweetUrl={tweetUrl}
-                                />
-                            )}
+                                                                <FormationManager 
+                                                                    formations={formations} 
+                                                                    onSave={handleSaveFormation} 
+                                                                    onDelete={handleDeleteFormation} 
+                                                                    onCopy={handleCopyFormation} 
+                                                                    ownedMegidoIds={ownedMegidoIds} 
+                                                                    megidoDetails={megidoDetails}
+                                                                    initialTagTarget={initialTagTarget}
+                                                                    setInitialTagTarget={setInitialTagTarget}
+                                                                    showToastMessage={showToastMessage}
+                                                                    setPreviousScreen={setPreviousScreen}
+                                                                    previousScreen={previousScreen}
+                                                                    onTargetSelect={onTargetSelect}
+                                                                    onCancel={onCancel}
+                                                                    isQriousLoaded={isQriousLoaded}
+                                                                    isHtml5QrLoaded={isHtml5QrLoaded}
+                                                                    onImport={handleImportFormation}
+                                                                    idMaps={idMaps}
+                                                                    editingFormation={editingFormation}
+                                                                    onEditingFormationChange={setEditingFormation}
+                                                                    onOpenCommunityFormations={handleOpenCommunityFormations}
+                                                                    handlePostFormation={handlePostFormation}
+                                                                    isPosting={isPosting}
+                                                                />                            )}
                         </div>
                     </div>
                 ) : (
@@ -1854,7 +1848,22 @@ const TowerTool = () => {
                 idMaps={idMaps}
                 onSelectSquare={handleSquareClick}
                 onGenerateShareImage={handleGenerateShareImage}
+                runState={runState}
             />
+            {showShareModal && generatedImageData && (
+                <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200}} onClick={() => setShowShareModal(false)}>
+                    <div className="card" style={{textAlign: 'center', padding: '20px', maxWidth: '90vw', maxHeight: '90vh'}} onClick={(e) => e.stopPropagation()}>
+                        <h3 style={{marginTop: 0}}>共有用画像</h3>
+                        <img src={generatedImageData} style={{maxWidth: '100%', maxHeight: 'calc(90vh - 150px)', margin: 'auto'}} />
+                        <div style={{display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '24px'}}>
+                            <a href={generatedImageData} download={`tower-formation-${Date.now()}.png`} className="btn btn-primary">ダウンロード</a>
+                            <a href={tweetUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">ツイート</a>
+                            <button onClick={() => setShowShareModal(false)} className="btn btn-ghost">閉じる</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {communityFormationsState.isOpen && (
                 <CommunityFormations
                     onClose={handleCloseCommunityFormations}
