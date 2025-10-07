@@ -948,7 +948,7 @@ const TowerTool = () => {
                 setShowBetaModal(true);
                 setShouldShowBetaModal(false); // Prevent re-showing
             } else {
-                const updateModalShown = localStorage.getItem('updateModalShown_20250911_final');
+                const updateModalShown = localStorage.getItem('updateModalShown_20251007_ui_unify');
                 if (!updateModalShown) {
                     setShowUpdateModal(true);
                 }
@@ -1669,13 +1669,15 @@ const TowerTool = () => {
                     isOpen={true}
                     onClose={() => {
                         setShowUpdateModal(false);
-                        localStorage.setItem('updateModalShown_20250918_community', 'true');
+                        localStorage.setItem('updateModalShown_20251007_ui_unify', 'true');
                     }}
-                    title="機能改善と不具合修正のお知らせ (2025/09/30)"
+                    title="UIの変更と機能改善のお知らせ (2025/10/07)"
                 >
-                    {`【新機能】\n・目標階機能を拡張して、ガイダンスモードを試験的に導入しました!\n\t\t今後ガイダンス内容を拡充していく予定です！\n\t\tガイダンスモードの目的はどんな人でも20階まで登れるようにする事です\n\t\tとりあえず現在は実装可能なのかをチェックしている段階です\n\t\tガイダンスモード時は各エネミー毎にオススメメギドが表示される予定です\n`}
+                    {`【UIの変更と機能改善のお知らせ】\n\nこの度のアップデートで、PC版の表示においても、スマートフォン版のUIに統一いたしました。\n\n■ UIの変更について\n背景としまして、従来のPC版UIの「所持メギド管理」画面において、チェックボックスを操作するとスクロールが先頭に戻ってしまうという不具合がございました。\nこの問題の根本的な解決が難しく、皆様の操作性を損なっている状況を鑑み、より安定して動作しているスマートフォン版のUIに一本化する判断をいたしました。\nPCでご利用の皆様には、レイアウトの変更によりご不便をおかけする点もあるかと存じますが、何卒ご理解いただけますと幸いです。\n\n■ その他の改善\n・Android端末など一部環境で、マップのマスをタップしても詳細画面が表示されにくい問題を修正しました。\n・霊宝「水心の霊宝」が一部表示されない問題を修正しました。\n・ヘッダーがスクロールに追従して表示されるように修正しました。\n\n今後とも、より使いやすいツールを目指して改善を続けてまいります。`}
                 </InfoModal>
             )}
+
+
 
             {showGuideIntroModal && (
                 <InfoModal
