@@ -162,7 +162,13 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                 }
             };
             case 'orb': return { title: 'オーブ選択', showFilters: true, filterType: 'orb', items: megido ? (typeof COMPLETE_ORB_LIST !== 'undefined' ? COMPLETE_ORB_LIST : []).filter(o => { const cond = o.conditions; if (!cond) return true; if (cond === megido.スタイル || cond === megido.クラス) { return true; } const GENERAL_CONDITIONS = ['ラッシュ', 'カウンター', 'バースト', 'ファイター', 'トルーパー', 'スナイパー']; if (GENERAL_CONDITIONS.includes(cond)) { return false; } const isCondForReArmed = /[RCB]$/.test(cond); if (isCondForReArmed) { return cond === megido.名前; } else { return cond.startsWith(getBaseMegidoName(megido.名前)); } }) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name} <span style={{color: 'var(--text-subtle)'}}>({item.race})</span></p><p style={{fontSize: '12px'}}>{item.trait}</p></button>) };
-            case 'reishou': return { title: '霊宝選択', showFilters: true, filterType: 'reishou', items: megido ? (typeof COMPLETE_REISHOU_LIST !== 'undefined' ? COMPLETE_REISHOU_LIST : []).filter(r => { const style = r.conditions?.style; return style === megido.スタイル || style === '複数' || !style; }) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name}</p><p style={{fontSize: '12px'}}>{item.effects}</p></button>) };
+            case 'reishou': return { title: '霊宝選択', showFilters: true, filterType: 'reishou', items: megido ? (typeof COMPLETE_REISHOU_LIST !== 'undefined' ? COMPLETE_REISHOU_LIST : []).filter(r => { 
+                const style = r.conditions?.style;
+                if (Array.isArray(style)) {
+                    return style.includes(megido.スタイル);
+                }
+                return style === megido.スタイル || !style;
+            }) : [], renderItem: (item, onSelect) => (<button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn"><p style={{fontWeight: 500}}>{item.name}</p><p style={{fontSize: '12px'}}>{item.effects}</p></button>) };
             default: return { title: '', items: [], renderItem: () => null };
         }
     };

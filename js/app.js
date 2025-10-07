@@ -196,7 +196,7 @@ const TowerTool = () => {
         const saved = localStorage.getItem('targetEnemies');
         return saved ? JSON.parse(saved) : {};
     });
-    const [viewMode, setViewMode] = useState(() => localStorage.getItem('viewMode') || 'auto');
+
     const [showBetaModal, setShowBetaModal] = useState(false);
     const [showUpdateModal, setShowUpdateModal] = useState(false);
     const [showGuideIntroModal, setShowGuideIntroModal] = useState(false);
@@ -205,6 +205,10 @@ const TowerTool = () => {
         return saved ? JSON.parse(saved) : true; // Default to collapsed
     });
     const [isMapSearchModalOpen, setIsMapSearchModalOpen] = useState(false);
+    const [activePreviewId, setActivePreviewId] = useState(null);
+
+    const floorRefs = useRef({});
+
     const [guideStep, setGuideStep] = useState(0); // ガイドのステップを管理
     const [completedGuideSteps, setCompletedGuideSteps] = useState(() => new Set(JSON.parse(localStorage.getItem('completedGuideSteps')) || []));
 
@@ -238,15 +242,15 @@ const TowerTool = () => {
 
     const handleOpenMapSearch = () => setIsMapSearchModalOpen(true);
     const handleCloseMapSearch = () => setIsMapSearchModalOpen(false);
+
     
     
 
     const isMobileSize = useMediaQuery('(max-width: 768px)');
     const isTabletSize = useMediaQuery('(min-width: 769px) and (max-width: 1180px)');
+    const [viewMode, setViewMode] = useState('mobile');
     const isMobileView = viewMode === 'mobile' || (viewMode === 'auto' && isMobileSize);
     const isTabletView = viewMode === 'tablet' || (viewMode === 'auto' && isTabletSize);
-
-    const floorRefs = useRef({});
 
     useEffect(() => {
         document.body.classList.toggle('mobile-view', isMobileView);
@@ -478,7 +482,7 @@ const TowerTool = () => {
             const file = e.target.files[0];
             if (!file) return;
             const formationName = file.name.replace(/\.[^/.]+$/, "");
-            html5QrCode.scanFile(file)
+            html5QrCode.scanFile(file) 
                 .then(decodedText => {
                     try {
                         if (!/^[0-9]+$/.test(decodedText) || decodedText.length < 100) {
@@ -800,6 +804,10 @@ const TowerTool = () => {
         localStorage.setItem('theme', newTheme);
     };
 
+    const handleViewModeChange = (newMode) => {
+        setViewMode(newMode);
+    };
+
     // Also need to load the theme on boot
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
@@ -808,10 +816,7 @@ const TowerTool = () => {
         }
     }, []);
 
-    const handleViewModeChange = (newMode) => {
-        setViewMode(newMode);
-        localStorage.setItem('viewMode', newMode);
-    };
+
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -1420,7 +1425,7 @@ const TowerTool = () => {
                             }
 
                             if (selectedSquare.square.type === 'start') {
-                                return <StartSquarePanel square={selectedSquare} isLocked={isLocked} lockText={lockText} onCreateFormation={handleCreateFormationFromEnemy} />;
+                                return <StartSquarePanel square={selectedSquare} isLocked={isLocked} lockText={lockText} onCreateFormation={handleCreateFormationFromEnemy} />; 
                             } else if (selectedSquare.square.type === 'explore') {
                                 return <ExplorationActionPanel 
                                     square={selectedSquare}
@@ -1545,6 +1550,8 @@ const TowerTool = () => {
                         key={floor.floor}
                         floorData={floor}
                         handleSquareClick={handleSquareClick}
+                        activePreviewId={activePreviewId}
+                        setActivePreviewId={setActivePreviewId}
                         getSquareStyle={getSquareStyle}
                         getSquareColorClass={getSquareColorClass}
                         getSquareColorRgbVarName={getSquareColorRgbVarName}
@@ -1575,6 +1582,7 @@ const TowerTool = () => {
         isGuideMode, completedGuideSteps, setCompletedGuideSteps, // Add this line
         targetEnemies, setTargetEnemies, viewMode, setViewMode, showBetaModal, setShowBetaModal, showUpdateModal, setShowUpdateModal, isFooterCollapsed, setIsFooterCollapsed,
         isMapSearchModalOpen, setIsMapSearchModalOpen, handleOpenMapSearch, handleCloseMapSearch,
+        activePreviewId, setActivePreviewId,
         isMobileView, isTabletView, floorRefs, handleToggleFooter, showToastMessage, unlockAchievement, logAction, handleSelectLog, handleSquareClick,
         megidoDetails, setMegidoDetails, handleMegidoDetailChange, handleMegidoDetailChangeWrapper, handleCheckDistributedMegido, ownedMegidoIds,
         manualExplorationPowers, setManualExplorationPowers, handleSetManualPower, handleOpenManualPowerInput,
@@ -1595,6 +1603,22 @@ const TowerTool = () => {
         ENEMY_ALL_DATA: window.ENEMY_ALL_DATA,
         CONDITION_ORDER: (typeof CONDITION_ORDER !== 'undefined') ? CONDITION_ORDER : [],
         CONDITION_LEVELS: (typeof CONDITION_LEVELS !== 'undefined') ? CONDITION_LEVELS : []
+    };
+
+    const getAnimationDuration = (risk) => {
+        if (risk === 1) return 5;
+        if (risk === 2) return 3;
+        if (risk === 3) return 1.5;
+        return 0; // No animation for risk 0
+    };
+
+    const animationDuration = getAnimationDuration(partyConditionRisk);
+
+    const footerStyle = {
+        textAlign: 'center', 
+        padding: '1rem', 
+        borderTop: '1px solid #ccc',
+        ...(animationDuration > 0 && { '--animation-duration': `${animationDuration}s` })
     };
 
     return (
@@ -1649,13 +1673,7 @@ const TowerTool = () => {
                     }}
                     title="機能改善と不具合修正のお知らせ (2025/09/30)"
                 >
-                    {`【新機能】
-・目標階機能を拡張して、ガイダンスモードを試験的に導入しました!
-　　今後ガイダンス内容を拡充していく予定です！
-　　ガイダンスモードの目的はどんな人でも20階まで登れるようにする事です
-　　とりあえず現在は実装可能なのかをチェックしている段階です
-　　ガイダンスモード時は各エネミー毎にオススメメギドが表示される予定です
-`}
+                    {`【新機能】\n・目標階機能を拡張して、ガイダンスモードを試験的に導入しました!\n\t\t今後ガイダンス内容を拡充していく予定です！\n\t\tガイダンスモードの目的はどんな人でも20階まで登れるようにする事です\n\t\tとりあえず現在は実装可能なのかをチェックしている段階です\n\t\tガイダンスモード時は各エネミー毎にオススメメギドが表示される予定です\n`}
                 </InfoModal>
             )}
 
@@ -1776,7 +1794,7 @@ const TowerTool = () => {
                     }
                 </div>
             )}
-            <footer className={`footer-glow-${partyConditionRisk} ${isRecoveryRecommended ? 'footer-recovery-glow' : ''}`} style={{ textAlign: 'center', padding: '1rem', borderTop: '1px solid #ccc' }}>
+            <footer className={`${animationDuration > 0 ? 'footer-glow' : ''} ${isRecoveryRecommended ? 'footer-recovery-glow' : ''}`} style={footerStyle}>
                 <p>星間の塔 攻略支援ツール</p>
             </footer>
             <InputModal
@@ -1837,8 +1855,6 @@ const TowerTool = () => {
                 onImportData={handleImportData}
                 onResetAllData={handleResetAllData}
                 onToggleTheme={handleToggleTheme}
-                viewMode={viewMode}
-                onViewModeChange={handleViewModeChange}
                 isMobileView={isMobileView}
                 isTabletView={isTabletView}
                 onUnlockAchievement={unlockAchievement}
@@ -1851,12 +1867,13 @@ const TowerTool = () => {
                 enemyData={typeof ENEMY_ALL_DATA !== 'undefined' ? ENEMY_ALL_DATA : []}
                 formations={formations}
                 planState={planState}
+                runState={runState}
                 megidoDetails={megidoDetails}
                 idMaps={idMaps}
                 onSelectSquare={handleSquareClick}
                 onGenerateShareImage={handleGenerateShareImage}
-                runState={runState}
             />
+
             {showShareModal && generatedImageData && (
                 <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200}} onClick={() => setShowShareModal(false)}>
                     <div className="card" style={{textAlign: 'center', padding: '20px', maxWidth: '90vw', maxHeight: '90vh'}} onClick={(e) => e.stopPropagation()}>

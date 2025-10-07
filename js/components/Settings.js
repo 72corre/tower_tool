@@ -179,15 +179,7 @@ const Settings = ({
                                         <label htmlFor="theme-toggle">テーマ</label>
                                         <button id="theme-toggle" onClick={onToggleTheme} className="btn btn-secondary">ライト/ダークモード切替</button>
                                     </div>
-                                    <div className="setting-item" style={settingItemStyle}>
-                                        <label htmlFor="view-mode-select">表示モード</label>
-                                        <select id="view-mode-select" value={viewMode} onChange={(e) => onViewModeChange(e.target.value)} className="select-css">
-                                            <option value="auto">自動</option>
-                                            <option value="pc">PC</option>
-                                            <option value="tablet">タブレット</option>
-                                            <option value="mobile">モバイル</option>
-                                        </select>
-                                    </div>
+
                                 </div>
                             </div>
                         )}

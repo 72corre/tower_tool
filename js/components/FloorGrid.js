@@ -9,7 +9,7 @@ const getSquareIcon = (square) => {
     return `${basePath}${iconName}.webp`;
 };
 
-const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, runState, mode }) => {
+const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, runState, mode }) => {
     if (!squareId) return <div style={{ height: '48px' }}></div>;
     const square = floorData.squares[squareId];
     if (!square) return <div style={{ height: '48px', border: '1px solid red' }}>?</div>;
@@ -22,11 +22,14 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, get
         nodeClasses += ' current-position';
     }
 
+    const handleClick = (e) => {
+        e.stopPropagation();
+        handleSquareClick(floorData, square, squareId, index);
+    };
+
     return (
-        <div className="map-node-container" data-square-id={squareId}>
+        <div className={`map-node-container ${activePreviewId === squareId ? 'long-press-hover' : ''}`} data-square-id={squareId} onClick={handleClick}>
             <div 
-                onClick={() => handleSquareClick(floorData, square, squareId, index)} 
-                // The background is now part of the SVG, so the node itself is transparent
                 className={`map-node transparent-node ${nodeClasses}`}
             >
                 <div 
@@ -82,7 +85,7 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, get
     );
 });
 
-const FloorGrid = React.memo(({ floorData, handleSquareClick, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance }) => {
+const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance }) => {
     const containerRef = React.useRef(null);
 
     const isGreyedOut = floorData.floor > targetFloor;
@@ -129,6 +132,8 @@ const FloorGrid = React.memo(({ floorData, handleSquareClick, getSquareStyle, ge
                             index={index}
                             floorData={floorData}
                             handleSquareClick={handleSquareClick}
+                            activePreviewId={activePreviewId}
+                            setActivePreviewId={setActivePreviewId}
                             getSquareStyle={getSquareStyle}
                             getSquareColorClass={getSquareColorClass}
                             getSquareColorRgbVarName={getSquareColorRgbVarName}

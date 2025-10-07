@@ -36,6 +36,30 @@ const Row = React.memo(({ megido, detail, onDetailChange, isMobileView, setModal
     const { useCallback } = React;
     const details = { owned: false, level: 70, ougiLevel: 3, special_reishou: megido.専用霊宝 || false, bond_reishou: 0, singularity_level: 0, ...detail };
     
+    const handleOwnedChange = useCallback((e) => {
+        onDetailChange(megido.id, 'owned', e.target.checked);
+    }, [onDetailChange, megido.id]);
+
+    const handleNameClick = useCallback(() => {
+        onDetailChange(megido.id, 'owned', !details.owned);
+    }, [onDetailChange, megido.id, details.owned]);
+
+    const handleSingularityChange = useCallback((e) => {
+        onDetailChange(megido.id, 'singularity_level', parseInt(e.target.value, 10));
+    }, [onDetailChange, megido.id]);
+
+    const handleLevelChange = useCallback((e) => {
+        onDetailChange(megido.id, 'level', parseInt(e.target.value, 10));
+    }, [onDetailChange, megido.id]);
+
+    const handleSpecialReishouChange = useCallback((e) => {
+        onDetailChange(megido.id, 'special_reishou', e.target.checked);
+    }, [onDetailChange, megido.id]);
+
+    const handleBondReishouChange = useCallback((e) => {
+        onDetailChange(megido.id, 'bond_reishou', parseInt(e.target.value, 10));
+    }, [onDetailChange, megido.id]);
+
     const handleOugiConfirm = useCallback((value) => {
         const val = parseInt(value, 10);
         if (isNaN(val) || val < 1) {
@@ -55,21 +79,21 @@ const Row = React.memo(({ megido, detail, onDetailChange, isMobileView, setModal
             onConfirm: handleOugiConfirm,
             inputValue: details.ougiLevel
         });
-    }, [megido.名前, details.ougiLevel, handleOugiConfirm, setModalState]);
+    }, [megido.名前, details.ougiLevel, handleOugiConfirm]);
 
     return (
         <tr>
-            <td><input type="checkbox" checked={details.owned} onChange={(e) => onDetailChange(megido.id, 'owned', e.target.checked)} /></td>
-            <td className={getStyleClass(megido.スタイル)} onClick={() => onDetailChange(megido.id, 'owned', !details.owned)} style={{ cursor: 'pointer' }}>{megido.名前}</td>
+            <td><input type="checkbox" checked={details.owned} onChange={handleOwnedChange} /></td>
+            <td className={getStyleClass(megido.スタイル)} onClick={handleNameClick} style={{ cursor: 'pointer' }}>{megido.名前}</td>
             <td>
                 {megido.Singularity && (
-                    <select value={details.singularity_level} onChange={e => onDetailChange(megido.id, 'singularity_level', parseInt(e.target.value, 10))} className="select-field">
+                    <select value={details.singularity_level} onChange={handleSingularityChange} className="select-field">
                         {[0, 1, 2, 3, 4].map(lv => <option key={lv} value={lv}>{lv}</option>)}
                     </select>
                 )}
             </td>
             <td>
-                <select value={details.level} onChange={e => onDetailChange(megido.id, 'level', parseInt(e.target.value, 10))} className="select-field">
+                <select value={details.level} onChange={handleLevelChange} className="select-field">
                     {[70, 75, 77, 79, 80].map(lv => <option key={lv} value={lv}>{lv}</option>)}
                 </select>
             </td>
@@ -79,23 +103,66 @@ const Row = React.memo(({ megido, detail, onDetailChange, isMobileView, setModal
                 </button>
             </td>
             <td>
-                {megido.専用霊宝 && <input type="checkbox" checked={details.special_reishou} onChange={(e) => onDetailChange(megido.id, 'special_reishou', e.target.checked)} />}
+                {megido.専用霊宝 && <input type="checkbox" checked={details.special_reishou} onChange={handleSpecialReishouChange} />}
             </td>
             <td>
                 {megido.絆霊宝 && 
-                    <select value={details.bond_reishou} onChange={e => onDetailChange(megido.id, 'bond_reishou', parseInt(e.target.value, 10))} className="select-field">
+                    <select value={details.bond_reishou} onChange={handleBondReishouChange} className="select-field">
                         {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>{getBondReishouTierName(tier)}</option>)}
                     </select>
                 }
             </td>
         </tr>
     );
+}, (prevProps, nextProps) => {
+    // Custom comparison function: re-render only if the detail content changes.
+    if (prevProps.megido.id !== nextProps.megido.id) return false;
+    
+    const prevDetail = prevProps.detail || {};
+    const nextDetail = nextProps.detail || {};
+    
+    // This prevents re-renders caused by unstable function props (onDetailChange, setModalState)
+    // by only comparing the data that affects the visual output of the row.
+    return (
+        prevDetail.owned === nextDetail.owned &&
+        prevDetail.level === nextDetail.level &&
+        prevDetail.ougiLevel === nextDetail.ougiLevel &&
+        prevDetail.special_reishou === nextDetail.special_reishou &&
+        prevDetail.bond_reishou === nextDetail.bond_reishou &&
+        prevDetail.singularity_level === nextDetail.singularity_level
+    );
 });
 
 const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, isMobileView, setModalState }) => {
-    const { useState, useMemo } = React;
+    const { useState, useMemo, useRef, useEffect } = React;
     const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', exactMatch: false });
+    const scrollContainerRef = useRef(null);
+    const scrollPositionRef = useRef(0);
+
+    // Save scroll position continuously
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        
+        const handleScroll = () => {
+            scrollPositionRef.current = container.scrollTop;
+        };
+        
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, []);
     
+    // After megidoDetails changes, restore the scroll position
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (container) {
+            // Use requestAnimationFrame to restore after the DOM has been updated
+            requestAnimationFrame(() => {
+                container.scrollTop = scrollPositionRef.current;
+            });
+        }
+    }, [megidoDetails]);
+
     const sortedList = useMemo(() => {
         if (typeof COMPLETE_MEGIDO_LIST === 'undefined') return [];
         
@@ -105,7 +172,7 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
             const clockTypeA = a.時計.substring(0, 1);
             const clockTypeB = b.時計.substring(0, 1);
             const numA = parseInt(a.時計.substring(1), 10);
-            const numB = parseInt(b.時計.substring(1), 10);
+            const numB = parseInt(a.時計.substring(1), 10);
 
             const orderA = clockOrder[clockTypeA] || 99;
             const orderB = clockOrder[clockTypeB] || 99;
@@ -167,7 +234,7 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
                 filterType="megido"
                 uniquePrefix="ownership"
             />
-            <div className="table-container">
+            <div className="table-container" ref={scrollContainerRef}>
                 <table className="ownership-table">
                     <thead>
                         <tr>

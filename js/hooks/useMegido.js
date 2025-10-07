@@ -42,30 +42,39 @@ const useMegido = ({ showToastMessage }) => {
         } else {
             handleMegidoDetailChange(arg1, key, value);
         }
-    }, [handleMegidoDetailChange, showToastMessage]);
+    }, [handleMegidoDetailChange]);
 
     const handleCheckDistributedMegido = useCallback(() => {
         if (typeof COMPLETE_MEGIDO_LIST === 'undefined') {
             alert('メギドデータが読み込まれていません。');
             return;
         }
-        const newDetails = { ...megidoDetails };
-        let checkedCount = 0;
-        COMPLETE_MEGIDO_LIST.forEach(megido => {
-            if (megido.入手方法 && megido.入手方法.includes('配布')) {
-                if (!newDetails[megido.id] || !newDetails[megido.id].owned) {
-                    if (!newDetails[megido.id]) {
-                        newDetails[megido.id] = { owned: true, level: 70, ougiLevel: 3, special_reishou: megido.専用霊宝 || false, bond_reishou: 0, reishou: [] };
-                    } else {
-                        newDetails[megido.id].owned = true;
+
+        setMegidoDetails(prevDetails => {
+            const newDetails = { ...prevDetails };
+            let checkedCount = 0;
+            COMPLETE_MEGIDO_LIST.forEach(megido => {
+                if (megido.入手方法 && megido.入手方法.includes('配布')) {
+                    if (!newDetails[megido.id] || !newDetails[megido.id].owned) {
+                        if (!newDetails[megido.id]) {
+                            newDetails[megido.id] = { owned: true, level: 70, ougiLevel: 3, special_reishou: megido.専用霊宝 || false, bond_reishou: 0, reishou: [] };
+                        } else {
+                            newDetails[megido.id].owned = true;
+                        }
+                        checkedCount++;
                     }
-                    checkedCount++;
                 }
+            });
+
+            if (checkedCount > 0) {
+                localStorage.setItem('megidoDetails', JSON.stringify(newDetails));
+                showToastMessage(`${checkedCount}体の配布メギドを所持チェックしました。`);
+            } else {
+                showToastMessage('チェック済みの配布メギドはありませんでした。');
             }
+            return newDetails;
         });
-        handleMegidoDetailChangeWrapper(newDetails);
-        showToastMessage(`${checkedCount}体の配布メギドを所持チェックしました。`);
-    }, [megidoDetails, handleMegidoDetailChangeWrapper, showToastMessage]);
+    }, [showToastMessage]);
 
     return {
         megidoDetails,
