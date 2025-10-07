@@ -75,12 +75,15 @@
             margin: 0;
         }
         .main-content {
+            overflow-y: auto; /* スクロールは維持 */
+            box-sizing: border-box;
             padding: 1rem;
-            flex-grow: 1;
-            overflow: hidden;
-        }
-
-        .desktop-grid-container {
+            /* padding-top は削除 */
+            padding-bottom: 70px; /* フッター分の内部余白は残す */
+        
+            margin-top: 101px; /* ヘッダーを避けるための外側余白 */
+            height: calc(100vh - 101px); /* ヘッダー分を引いた高さを設定 */
+        }        .desktop-grid-container {
             display: grid;
             grid-template-columns: 400px 1fr;
             gap: 1rem;
@@ -719,6 +722,10 @@ body.mobile-view .mobile-tab-button.active {
 }
 
 /* Mobile Header Override */
+body.mobile-view .main-content {
+    padding-top: 150px !important;
+}
+
 body.mobile-view .mobile-header-container {
     position: fixed;
     top: 0;
@@ -1677,7 +1684,6 @@ body.mobile-view .mobile-header-container {
         /* PCでは横並びのレイアウトを、スマホでは縦積みに変更 */
         flex-direction: column !important;
         /* スマホでは不要な余白を削除 */
-        padding-top: 101px !important; /* Offset for fixed header */
         gap: 0 !important;
     }
 
