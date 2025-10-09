@@ -298,7 +298,7 @@ body.mobile-view .ownership-table .input-field {
 .header-target-floor-btn {
     background: none;
     border: none;
-    color: var(--primary-color);
+    color: var(--primary-accent);
     font-weight: 600;
     text-decoration: underline;
     cursor: pointer;
@@ -377,8 +377,8 @@ body.mobile-view .ownership-table .input-field {
 }
 
 .mobile-tab-button.active {
-    color: var(--primary-color);
-    border-bottom-color: var(--primary-color);
+    color: var(--primary-accent);
+    border-bottom-color: var(--primary-accent);
 }
 
 .floor-selection-list {

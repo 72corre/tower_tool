@@ -799,9 +799,8 @@ const TowerTool = () => {
 
     const handleToggleTheme = () => {
         setThemeToggleCount(c => c + 1);
-        const newTheme = document.body.className === 'light-mode' ? '' : 'light-mode';
-        document.body.className = newTheme;
-        localStorage.setItem('theme', newTheme);
+        document.body.classList.toggle('light-mode');
+        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light-mode' : '');
     };
 
     const handleViewModeChange = (newMode) => {
@@ -811,8 +810,8 @@ const TowerTool = () => {
     // Also need to load the theme on boot
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            document.body.className = savedTheme;
+        if (savedTheme === 'light-mode') {
+            document.body.classList.add('light-mode');
         }
     }, []);
 
@@ -1617,7 +1616,7 @@ const TowerTool = () => {
     const footerStyle = {
         textAlign: 'center', 
         padding: '1rem', 
-        borderTop: '1px solid #ccc',
+        borderTop: '1px solid var(--border-color)',
         ...(animationDuration > 0 && { '--animation-duration': `${animationDuration}s` })
     };
 

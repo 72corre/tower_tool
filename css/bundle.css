@@ -37,6 +37,7 @@
             --node-color-recovery-c-rgb: 243, 108, 33;
             --node-color-recovery-b: #5BC0DE;
             --node-color-recovery-b-rgb: 91, 192, 222;
+            --bg-footer: rgba(45, 45, 45, 0.9);
         }
         *, *::before, *::after { box-sizing: border-box; }
         html { color-scheme: dark; }
@@ -417,7 +418,7 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background-color: rgba(45, 45, 45, 0.9);
+            background-color: var(--bg-footer);
             backdrop-filter: blur(5px);
             border-top: 1px solid var(--border-color);
             border-radius: 8px 8px 0 0;
@@ -1124,20 +1125,22 @@ body.mobile-view .mobile-header-container {
 }
 
 .light-mode {
-    --bg-main: #F0F0F0; /* Adjusted as requested */
-    --bg-panel: #F8F8F8; /* Slightly lighter for panels */
+    --bg-main: #F5F5F5;
+    --bg-panel: #FFFFFF;
     --bg-panel-light: #FFFFFF;
     --bg-hover: #E9ECEF;
-    --border-color: #DCDCDC; /* Adjusted for new background */
-    --border-color-light: #EAEAEA;
+    --border-color: #E0E0E0;
+    --border-color-light: #EEEEEE;
     --primary-accent: #007BFF;
     --primary-accent-dark: #0056b3;
     --text-main: #212529;
     --text-subtle: #6C757D;
     --text-disabled: #ADB5BD;
+    --bg-footer: rgba(255, 255, 255, 0.9);
 }
 
-.light-mode .btn-icon img {
+.light-mode .btn-icon img,
+.light-mode .btn-ghost img {
     filter: invert(1); /* Invert icon in light mode */
 }
 
@@ -1966,7 +1969,7 @@ body.mobile-view .mobile-header-container {
     .header-target-floor-btn {
         background: none;
         border: none;
-        color: var(--primary-color);
+        color: var(--primary-accent);
         font-weight: 600;
         text-decoration: underline;
         cursor: pointer;
@@ -2045,8 +2048,8 @@ body.mobile-view .mobile-header-container {
     }
 
     .mobile-tab-button.active {
-        color: var(--primary-color);
-        border-bottom-color: var(--primary-color);
+        color: var(--primary-accent);
+        border-bottom-color: var(--primary-accent);
     }
 
     .floor-selection-list {
