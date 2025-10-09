@@ -42,7 +42,7 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                 let allFormations = [];
                 const query = {};
                 if (filters.floor) {
-                    query.floor = filters.floor;
+                    query.floors_contains = parseInt(filters.floor, 10);
                 }
 
                 if (termsToSearch.length > 0) {

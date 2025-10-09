@@ -5,7 +5,7 @@ const FormationCard = ({
     isInvalid,
     nameStyle,
     cardStyle,
-    onGenerateShareImage,
+    onGenerateShareImage = () => {},
     onCopy,
     onExport,
     onEdit,
@@ -60,31 +60,33 @@ const FormationCard = ({
     );
 };
 
-const FormationManager = ({
-    ownedMegidoIds,
-    formations,
-    onSave,
-    onDelete,
-    onCopy,
-    onImport,
-    isHtml5QrLoaded,
-    megidoDetails,
-    initialTagTarget,
-    setInitialTagTarget,
-    showToastMessage,
-    setPreviousScreen,
-    previousScreen,
-    onTargetSelect,
-    onCancel,
-    isQriousLoaded,
-    idMaps,
-    editingFormation,
-    onEditingFormationChange,
-    onOpenCommunityFormations,
-    handlePostFormation,
-    isPosting,
-    handleGenerateShareImage,
-}) => {
+const FormationManager = (props) => {
+    console.log('FormationManager props:', props); // DEBUG LINE
+    const {
+        ownedMegidoIds,
+        formations,
+        onSave,
+        onDelete,
+        onCopy,
+        onImport,
+        isHtml5QrLoaded,
+        megidoDetails,
+        initialTagTarget,
+        setInitialTagTarget,
+        showToastMessage,
+        setPreviousScreen,
+        previousScreen,
+        onTargetSelect,
+        onCancel,
+        isQriousLoaded,
+        idMaps,
+        editingFormation,
+        onEditingFormationChange,
+        onOpenCommunityFormations,
+        handlePostFormation,
+        isPosting,
+        onGenerateShareImage,
+    } = props;
     const { useState, useEffect, useMemo, useCallback } = React;
     const [tagSearch, setTagSearch] = useState({ text: '', exactMatch: false });
     const [qrCodeData, setQrCodeData] = useState(null);
@@ -259,7 +261,7 @@ const FormationManager = ({
                             isInvalid={isInvalid}
                             nameStyle={nameStyle}
                             cardStyle={cardStyle}
-                            onGenerateShareImage={handleGenerateShareImage}
+                            onGenerateShareImage={onGenerateShareImage}
                             onCopy={onCopy}
                             onExport={handleExportClick}
                             onEdit={(f) => onEditingFormationChange(f)}

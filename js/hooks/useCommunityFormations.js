@@ -43,80 +43,65 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
 
         const decodedTags = decodeFormationTags(formationToCopy.tagValue);
 
-        // QR文字列をデコードしてmegidoSlotsを再構築
         let megidoSlots = [];
+        let floors = [];
         try {
             const decodedText = formationToCopy.qrString;
-            if (!decodedText || !/^[0-9]+$/.test(decodedText) || decodedText.length < 125) { // 5 + 24*5 = 125
-                throw new Error('無効なQRコード形式です。');
+            if (!decodedText) {
+                throw new Error('QRコード文字列がありません。');
             }
 
-            let pointer = 5; // enemyQRID(3) + floor(2)
-            const slotLength = 24;
+            let pointer = 0;
+            if (decodedText.startsWith('2') && decodedText.length > 125) { // V2 format
+                pointer = 1; // Skip version '2'
+                const enemyQRID = decodedText.substring(pointer, pointer += 3);
+                const floorCount = parseInt(decodedText.substring(pointer, pointer += 1), 10);
+                for (let i = 0; i < floorCount; i++) {
+                    floors.push(parseInt(decodedText.substring(pointer, pointer += 2), 10));
+                }
+            } else { // V1 format
+                const enemyQRID = decodedText.substring(pointer, pointer += 3);
+                const floor = parseInt(decodedText.substring(pointer, pointer += 2), 10);
+                if (!isNaN(floor)) floors.push(floor);
+            }
 
+            // Shared party data parsing logic
             for (let i = 0; i < 5; i++) {
-                if (pointer + slotLength > decodedText.length) break;
-
-                const slotText = decodedText.substring(pointer, pointer + slotLength);
-                const megidoQRID = slotText.substring(0, 3);
-
+                const megidoQRID = decodedText.substring(pointer, pointer += 3);
                 if (megidoQRID === '999') {
                     megidoSlots.push(null);
-                } else {
-                    const ougiLevel = parseInt(slotText.substring(3, 5), 10);
-                    const singularityLevel = parseInt(slotText.substring(5, 6), 10);
-                    const levelChar = slotText.substring(6, 7);
-                    const reishouQRIDs = [
-                        slotText.substring(7, 10),
-                        slotText.substring(10, 13),
-                        slotText.substring(13, 16),
-                        slotText.substring(16, 19)
-                    ];
-                    const specialReishou = slotText.substring(19, 20) === '1';
-                    const bondReishou = parseInt(slotText.substring(20, 21), 10);
-                    const orbQRID = slotText.substring(21, 24);
-
-                    const megidoId = idMaps.megido.newToOriginal.get(String(megidoQRID));
-                    if (!megidoId) {
-                        megidoSlots.push(null);
-                        pointer += slotLength;
-                        continue;
-                    };
-
-                    const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId);
-                    if (!megidoMaster) {
-                        megidoSlots.push(null);
-                        pointer += slotLength;
-                        continue;
-                    };
-
-                    const levelMap = {'0': 70, '1': 72, '2': 74, '3': 76, '4': 80};
-                    const level = levelMap[levelChar] || 70;
-                    
-                    const orbId = idMaps.orb.newToOriginal.get(orbQRID);
-                    const orbMaster = orbId ? COMPLETE_ORB_LIST.find(o => o.id === orbId) : null;
-
-                    const reishouIds = reishouQRIDs
-                        .map(rqid => (rqid === '999') ? null : idMaps.reishou.newToOriginal.get(rqid))
-                        .filter(Boolean);
-
-                    megidoSlots.push({
-                        megidoId: megidoId,
-                        orbId: orbId,
-                        reishouIds: reishouIds,
-                        megidoName: megidoMaster.名前,
-                        megidoStyle: megidoMaster.スタイル || megidoMaster.style,
-                        leaderSkill: megidoMaster.LS,
-                        orbName: orbMaster ? orbMaster.name : '',
-                        level: level,
-                        ougiLevel: ougiLevel,
-                        special_reishou: specialReishou,
-                        bond_reishou: bondReishou,
-                        singularity_level: singularityLevel,
-                    });
+                    pointer += 21; // Skip the rest of the empty slot data
+                    continue;
                 }
-                pointer += slotLength;
+                const ougiLevel = parseInt(decodedText.substring(pointer, pointer += 2), 10);
+                const singularityLevel = parseInt(decodedText.substring(pointer, pointer += 1), 10);
+                const levelChar = decodedText.substring(pointer, pointer += 1);
+                const reishouQRIDs = [
+                    decodedText.substring(pointer, pointer += 3),
+                    decodedText.substring(pointer, pointer += 3),
+                    decodedText.substring(pointer, pointer += 3),
+                    decodedText.substring(pointer, pointer += 3)
+                ];
+                const specialReishou = decodedText.substring(pointer, pointer += 1) === '1';
+                const bondReishou = parseInt(decodedText.substring(pointer, pointer += 1), 10);
+                const orbQRID = decodedText.substring(pointer, pointer += 3);
+
+                const megidoId = idMaps.megido.newToOriginal.get(String(megidoQRID));
+                const megidoMaster = megidoId ? COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId) : null;
+                if (!megidoMaster) { megidoSlots.push(null); continue; }
+
+                const levelMap = {'0': 70, '1': 72, '2': 74, '3': 76, '4': 80};
+                const orbId = idMaps.orb.newToOriginal.get(orbQRID);
+                const orbMaster = orbId ? COMPLETE_ORB_LIST.find(o => o.id === orbId) : null;
+                const reishouIds = reishouQRIDs.map(rqid => (rqid === '999') ? null : idMaps.reishou.newToOriginal.get(rqid)).filter(Boolean);
+
+                megidoSlots.push({
+                    megidoId, orbId, reishouIds,
+                    megidoName: megidoMaster.名前, megidoStyle: megidoMaster.スタイル || megidoMaster.style, leaderSkill: megidoMaster.LS,
+                    orbName: orbMaster ? orbMaster.name : '', level: levelMap[levelChar] || 70, ougiLevel, special_reishou: specialReishou, bond_reishou: bondReishou, singularity_level: singularityLevel,
+                });
             }
+
         } catch (error) {
             console.error("QRコードの解析または編成の復元に失敗しました:", error);
             showToastMessage('編成のコピーに失敗しました。QRコードの解析エラー。', 'error');
@@ -126,23 +111,24 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
         const newFormation = {
             id: newId,
             name: finalName,
-            megidoSlots: megidoSlots, // デコードしたmegidoSlotsを使用
+            megidoSlots: megidoSlots,
             tags: [...new Set([...(formationToCopy.tags || []), ...decodedTags])],
-            notes: formationToCopy.comment || '', // コメントをnotesとして引き継ぐ
+            notes: formationToCopy.comment || '',
             enemyName: formationToCopy.enemyName || null,
-            floor: formationToCopy.floor || null,
+            floors: floors.length > 0 ? floors : (formationToCopy.floor ? [formationToCopy.floor] : null),
+            floor: floors.length > 0 ? floors[0] : (formationToCopy.floor || null),
             communityId: formationToCopy.id,
-            qrString: formationToCopy.qrString, // QR文字列も保存しておく
+            qrString: formationToCopy.qrString,
         };
 
         newFormation.tags = generateTagsForFormation(newFormation);
         
         const newFormations = { ...formations, [newId]: newFormation };
         setFormations(newFormations);
-        localStorage.setItem('formations', JSON.stringify(newFormations)); // ★ この行を追加して保存
+        localStorage.setItem('formations', JSON.stringify(newFormations));
         showToastMessage('編成を自分のリストにコピーしました。');
         handleCloseCommunityFormations();
-    }, [formations, setFormations, showToastMessage, handleCloseCommunityFormations, idMaps]);
+    }, [formations, setFormations, showToastMessage, handleCloseCommunityFormations, idMaps, generateTagsForFormation]);
 
     // --- 編成投稿ハンドラ ---
     const handlePostFormation = useCallback(async ({ formation, tags, comment }) => {
@@ -190,7 +176,8 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
                 qrString: qrString,
                 tagValue: tags,
                 comment: comment,
-                floor: formation.floor,
+                floor: Array.isArray(formation.floors) ? formation.floors[0] : formation.floor,
+                floors: formation.floors || (formation.floor ? (Array.isArray(formation.floor) ? formation.floor : [formation.floor]) : []),
                 enemyName: formation.enemyName,
                 megidoIds: megidoIds,
                 megidoNames: megidoNames,

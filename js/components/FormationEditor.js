@@ -36,12 +36,17 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
         let enemy = '';
 
         if (initialTagTarget && initialTagTarget.enemy) {
-            // initialTagTarget.floorが単一の値か配列かをチェック
             floors = Array.isArray(initialTagTarget.floor) ? initialTagTarget.floor : (initialTagTarget.floor ? [initialTagTarget.floor] : []);
             enemy = initialTagTarget.enemy;
-        } else if (formation.enemyName && formation.floor) {
-            // formation.floorが単一の値か配列かをチェック
-            floors = Array.isArray(formation.floor) ? formation.floor : (formation.floor ? [formation.floor] : []);
+        } else if (formation.enemyName) {
+            // Prioritize the new 'floors' array property
+            if (Array.isArray(formation.floors) && formation.floors.length > 0) {
+                floors = formation.floors;
+            } else if (formation.floor) { // Fallback to old 'floor' property
+                // Handle both array (from old logic) and single value
+                const floorOrFloors = Array.isArray(formation.floor) ? formation.floor : [formation.floor];
+                floors = floorOrFloors.flatMap(f => String(f).split(',').map(s => parseInt(s.trim(), 10)).filter(n => !isNaN(n)));
+            }
             enemy = formation.enemyName;
         }
 
@@ -52,7 +57,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
             setSelectedEnemy('');
             setSelectedFloors([]);
         }
-    }, [initialTagTarget, formation.id]);
+    }, [initialTagTarget, formation.id, formation.enemyName, formation.floor, formation.floors]);
 
     const allEnemies = useMemo(() => {
         if (typeof ENEMY_ALL_DATA === 'undefined') return [];
@@ -119,7 +124,8 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
 
         if (selectedEnemy && selectedFloors.length > 0) {
             finalFormation.enemyName = selectedEnemy;
-            finalFormation.floor = selectedFloors; // 配列をそのまま保存
+            finalFormation.floors = selectedFloors; // Save to 'floors' (plural)
+            finalFormation.floor = selectedFloors.length === 1 ? selectedFloors[0] : selectedFloors.join(','); // Keep for compatibility
         }
 
         if (!finalFormation.name) {

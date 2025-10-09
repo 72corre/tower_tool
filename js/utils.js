@@ -118,34 +118,38 @@ const calculateShortestPath = (floorData, connections) => {
 };
 
 const encodeFormationToQrString = (formation, megidoDetails, idMaps) => {
-    console.log('--- Encoding Formation Start ---');
-    console.log('Input Formation:', JSON.parse(JSON.stringify(formation)));
-    console.log('Inspecting megidoSlots:', JSON.stringify(formation.megidoSlots, null, 2)); // ★ 詳細ログを追加
-    console.log('Megido Details:', JSON.parse(JSON.stringify(megidoDetails)));
-
     if (!formation || !idMaps) return '';
 
-    let qrString = '';
-
     const enemyId = formation.enemyName ? (idMaps.enemy.originalToNew.get(formation.enemyName) || '000') : '000';
-    const floor = formation.floor ? formation.floor.toString().padStart(2, '0') : '00';
 
-    qrString += enemyId;
-    qrString += floor;
+    // Handle both comma-separated string and array/number for floors
+    const floorsRaw = formation.floors || formation.floor || [];
+    const floors = (Array.isArray(floorsRaw) ? floorsRaw : floorsRaw.toString().split(',')).map(f => String(f).trim()).filter(f => f && !isNaN(f));
 
+    let header = '';
+    // V2 format for multiple floors, prefixed with '2'
+    if (floors.length > 1) {
+        const floorList = floors.map(f => f.toString().padStart(2, '0')).join('');
+        header = `2${enemyId}${floors.length}${floorList}`;
+    } else {
+        // V1 format for single or no floor
+        const floor = floors.length > 0 ? floors[0].toString().padStart(2, '0') : '00';
+        header = `${enemyId}${floor}`;
+    }
+
+    let partyData = '';
     for (let i = 0; i < 5; i++) {
         const megidoSlot = formation.megidoSlots[i];
         if (megidoSlot && megidoSlot.megidoId) {
             const megidoId = megidoSlot.megidoId;
-            // 投稿時は、その編成に保存されている情報ではなく、ユーザーが所持している最新のメギド情報を参照する
             const details = megidoDetails[megidoId] || {};
 
-            qrString += idMaps.megido.originalToNew.get(String(megidoId)) || '999';
-            qrString += (details.ougiLevel || 1).toString().padStart(2, '0');
+            partyData += idMaps.megido.originalToNew.get(String(megidoId)) || '999';
+            partyData += (details.ougiLevel || 1).toString().padStart(2, '0');
             
             const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId);
             const singularityLevel = megidoMaster && megidoMaster.Singularity ? (details.singularity_level || 0).toString() : '0';
-            qrString += singularityLevel;
+            partyData += singularityLevel;
 
             const level = details.level || 70;
             let levelChar = '0';
@@ -153,27 +157,27 @@ const encodeFormationToQrString = (formation, megidoDetails, idMaps) => {
             else if (level >= 76) levelChar = '3';
             else if (level >= 74) levelChar = '2';
             else if (level >= 72) levelChar = '1';
-            qrString += levelChar;
+            partyData += levelChar;
 
             const reishouIds = (megidoSlot.reishouIds || []).map(rId => idMaps.reishou.originalToNew.get(rId) || '999').slice(0, 4);
             while (reishouIds.length < 4) {
                 reishouIds.push('999');
             }
-            qrString += reishouIds.join('');
+            partyData += reishouIds.join('');
 
-            qrString += details.special_reishou ? '1' : '0';
-            qrString += (details.bond_reishou || 0).toString();
+            partyData += details.special_reishou ? '1' : '0';
+            partyData += (details.bond_reishou || 0).toString();
 
             const orbId = megidoSlot.orbId ? (idMaps.orb.originalToNew.get(String(megidoSlot.orbId)) || '999') : '999';
-            qrString += orbId;
+            partyData += orbId;
         } else {
-            qrString += '999010099999999999900999'; // Empty slot data
+            partyData += '999010099999999999900999'; // Empty slot data
         }
     }
-    console.log('Output QR String:', qrString);
-    console.log('QR String Length:', qrString.length);
-    console.log('--- Encoding Formation End ---');
-    return qrString;
+    
+    const finalQrString = header + partyData;
+    console.log('Final QR String:', finalQrString);
+    return finalQrString;
 };
 
 const rehydrateFormation = (formation, megidoDetails) => {

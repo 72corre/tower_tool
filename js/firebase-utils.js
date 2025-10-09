@@ -220,9 +220,12 @@ async function getCommunityFormations(filters = {}) {
         let query = db.collection('communityFormations');
 
         // フィルタを適用
-        if (filters.floor) {
+        if (filters.floors_contains) {
+            query = query.where('floors', 'array-contains', parseInt(filters.floors_contains, 10));
+        } else if (filters.floor) { // 後方互換性のためのフォールバック
             query = query.where('floor', '==', parseInt(filters.floor, 10));
         }
+
         if (filters.searchTerm) {
             query = query.where('searchText', 'array-contains', filters.searchTerm);
         }

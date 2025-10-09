@@ -73,7 +73,10 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         });
     
         // 階層、敵名、ルールをタグに追加
-        const floors = Array.isArray(formation.floor) ? formation.floor : (formation.floor ? [formation.floor] : []);
+        const floors = Array.isArray(formation.floors) && formation.floors.length > 0 
+            ? formation.floors 
+            : (formation.floor ? [formation.floor] : []);
+
         if (formation.enemyName && floors.length > 0) {
             const enemyData = (typeof ENEMY_ALL_DATA !== 'undefined') ? ENEMY_ALL_DATA[formation.enemyName] : undefined;
             if (enemyData && enemyData.locations) {

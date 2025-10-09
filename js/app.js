@@ -478,83 +478,103 @@ const TowerTool = () => {
         fileInput.accept = 'image/*';
         fileInput.style.display = 'none';
         const html5QrCode = new Html5Qrcode("qr-reader-div", { verbose: true });
+
+        const parsePartyData = (qrString, startPointer) => {
+            let pointer = startPointer;
+            const megidoSlots = [];
+            for (let i = 0; i < 5; i++) {
+                const megidoQRID = qrString.substring(pointer, pointer += 3);
+                if (megidoQRID === '999') {
+                    megidoSlots.push(null);
+                    pointer += 21; // Skip the rest of the empty slot
+                    continue;
+                }
+                const ougiLevel = parseInt(qrString.substring(pointer, pointer += 2), 10);
+                const singularityLevel = parseInt(qrString.substring(pointer, pointer += 1), 10);
+                const levelChar = qrString.substring(pointer, pointer += 1);
+                const reishouQRIDs = [];
+                for(let j=0; j<4; j++) {
+                    reishouQRIDs.push(qrString.substring(pointer, pointer += 3));
+                }
+                const specialReishou = qrString.substring(pointer, pointer += 1) === '1';
+                const bondReishou = parseInt(qrString.substring(pointer, pointer += 1), 10);
+                const orbQRID = qrString.substring(pointer, pointer += 3);
+
+                const megidoId = idMaps.megido.newToOriginal.get(String(megidoQRID));
+                if (!megidoId) {
+                    megidoSlots.push(null);
+                    continue;
+                };
+
+                const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId);
+                if (!megidoMaster) {
+                    megidoSlots.push(null);
+                    continue;
+                };
+
+                const levelMap = {'0': 70, '1': 72, '2': 74, '3': 76, '4': 80};
+                const level = levelMap[levelChar] || 70;
+                
+                const orbId = idMaps.orb.newToOriginal.get(orbQRID);
+                const orbMaster = orbId ? COMPLETE_ORB_LIST.find(o => o.id === orbId) : null;
+
+                const reishouIds = reishouQRIDs
+                    .map(rqid => (rqid === '999') ? null : idMaps.reishou.newToOriginal.get(rqid))
+                    .filter(Boolean);
+
+                megidoSlots.push({
+                    megidoId: megidoId,
+                    orbId: orbId,
+                    reishouIds: reishouIds,
+                    megidoName: megidoMaster.名前,
+                    megidoStyle: megidoMaster.スタイル || megidoMaster.style,
+                    leaderSkill: megidoMaster.LS,
+                    orbName: orbMaster ? orbMaster.name : '',
+                });
+
+                handleMegidoDetailChange(megidoId, 'level', level);
+                handleMegidoDetailChange(megidoId, 'ougiLevel', ougiLevel || 1);
+                handleMegidoDetailChange(megidoId, 'special_reishou', specialReishou);
+                handleMegidoDetailChange(megidoId, 'bond_reishou', bondReishou || 0);
+                if (megidoMaster.Singularity) {
+                    handleMegidoDetailChange(megidoId, 'singularity_level', singularityLevel || 0);
+                }
+            }
+            return megidoSlots;
+        };
+
         fileInput.onchange = e => {
             const file = e.target.files[0];
             if (!file) return;
             const formationName = file.name.replace(/\.[^/.]+$/, "");
+
             html5QrCode.scanFile(file) 
                 .then(decodedText => {
                     try {
-                        if (!/^[0-9]+$/.test(decodedText) || decodedText.length < 100) {
-                            throw new Error('無効なQRコード形式です。');
-                        }
                         let pointer = 0;
-                        const enemyQRID = decodedText.substring(pointer, pointer += 3);
-                        const floor = parseInt(decodedText.substring(pointer, pointer += 2), 10);
-                        
-                        const megidoSlots = [];
+                        let enemyQRID = '';
+                        let floors = [];
+                        let megidoSlots = [];
 
-                        for (let i = 0; i < 5; i++) {
-                            const megidoQRID = decodedText.substring(pointer, pointer += 3);
-                            if (megidoQRID === '999') {
-                                megidoSlots.push(null);
-                                pointer += 21; // Skip the rest of the empty slot
-                                continue;
+                        if (decodedText.startsWith('2') && decodedText.length > 125) { // V2 format check
+                            pointer = 1; // Skip version '2'
+                            enemyQRID = decodedText.substring(pointer, pointer += 3);
+                            const floorCount = parseInt(decodedText.substring(pointer, pointer += 1), 10);
+                            for (let i = 0; i < floorCount; i++) {
+                                floors.push(parseInt(decodedText.substring(pointer, pointer += 2), 10));
                             }
-                            const ougiLevel = parseInt(decodedText.substring(pointer, pointer += 2), 10);
-                            const singularityLevel = parseInt(decodedText.substring(pointer, pointer += 1), 10);
-                            const levelChar = decodedText.substring(pointer, pointer += 1);
-                            const reishouQRIDs = [];
-                            for(let j=0; j<4; j++) {
-                                reishouQRIDs.push(decodedText.substring(pointer, pointer += 3));
+                            megidoSlots = parsePartyData(decodedText, pointer);
+                        } else {
+                            // V1 Format
+                            if (decodedText.length < 100) { // Basic length check
+                                throw new Error('無効なQRコード形式です。');
                             }
-                            const specialReishou = decodedText.substring(pointer, pointer += 1) === '1';
-                            const bondReishou = parseInt(decodedText.substring(pointer, pointer += 1), 10);
-                            const orbQRID = decodedText.substring(pointer, pointer += 3);
-
-                            console.log("megidoQRID:", megidoQRID);
-                            const megidoId = idMaps.megido.newToOriginal.get(String(megidoQRID));
-                            console.log("megidoId:", megidoId);
-                            if (!megidoId) {
-                                megidoSlots.push(null);
-                                continue;
-                            };
-
-                            const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId);
-                            if (!megidoMaster) {
-                                megidoSlots.push(null);
-                                continue;
-                            };
-
-                            const levelMap = {'0': 70, '1': 72, '2': 74, '3': 76, '4': 80};
-                            const level = levelMap[levelChar] || 70;
-                            
-                            const orbId = idMaps.orb.newToOriginal.get(orbQRID);
-                            const orbMaster = orbId ? COMPLETE_ORB_LIST.find(o => o.id === orbId) : null;
-
-                            const reishouIds = reishouQRIDs
-                                .map(rqid => (rqid === '999') ? null : idMaps.reishou.newToOriginal.get(rqid))
-                                .filter(Boolean);
-
-                            megidoSlots.push({
-                                megidoId: megidoId,
-                                orbId: orbId,
-                                reishouIds: reishouIds,
-                                megidoName: megidoMaster.名前,
-                                megidoStyle: megidoMaster.スタイル || megidoMaster.style,
-                                leaderSkill: megidoMaster.LS,
-                                orbName: orbMaster ? orbMaster.name : '',
-                            });
-
-                            // Update global details
-                            handleMegidoDetailChange(megidoId, 'level', level);
-                            handleMegidoDetailChange(megidoId, 'ougiLevel', ougiLevel || 1);
-                            handleMegidoDetailChange(megidoId, 'special_reishou', specialReishou);
-                            handleMegidoDetailChange(megidoId, 'bond_reishou', bondReishou || 0);
-                            if (megidoMaster.Singularity) {
-                                handleMegidoDetailChange(megidoId, 'singularity_level', singularityLevel || 0);
-                            }
+                            enemyQRID = decodedText.substring(pointer, pointer += 3);
+                            const floor = parseInt(decodedText.substring(pointer, pointer += 2), 10);
+                            if (!isNaN(floor)) floors.push(floor);
+                            megidoSlots = parsePartyData(decodedText, pointer);
                         }
+
                         const enemyName = idMaps.enemy.newToOriginal.get(enemyQRID);
                         const newFormation = {
                             id: `f${Date.now()}`,
@@ -563,7 +583,8 @@ const TowerTool = () => {
                             tags: [],
                             notes: '',
                             enemyName: enemyName || null,
-                            floor: floor || null
+                            floors: floors.length > 0 ? floors : null,
+                            floor: floors.length > 0 ? floors[0] : null
                         };
 
                         newFormation.tags = generateTagsForFormation(newFormation);
@@ -799,8 +820,9 @@ const TowerTool = () => {
 
     const handleToggleTheme = () => {
         setThemeToggleCount(c => c + 1);
-        document.body.classList.toggle('light-mode');
-        localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light-mode' : '');
+        const newTheme = document.body.className === 'light-mode' ? '' : 'light-mode';
+        document.body.className = newTheme;
+        localStorage.setItem('theme', newTheme);
     };
 
     const handleViewModeChange = (newMode) => {
@@ -810,8 +832,8 @@ const TowerTool = () => {
     // Also need to load the theme on boot
     useEffect(() => {
         const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light-mode') {
-            document.body.classList.add('light-mode');
+        if (savedTheme) {
+            document.body.className = savedTheme;
         }
     }, []);
 
@@ -1524,7 +1546,7 @@ const TowerTool = () => {
                                 onOpenCommunityFormations={handleOpenCommunityFormations}
                                 handlePostFormation={handlePostFormation} 
                                 isPosting={isPosting}
-                                handleGenerateShareImage={handleGenerateShareImage}
+                                onGenerateShareImage={handleGenerateShareImage}
                                 generatedImageData={generatedImageData}
                                 showShareModal={showShareModal}
                                 setShowShareModal={setShowShareModal}
@@ -1616,7 +1638,7 @@ const TowerTool = () => {
     const footerStyle = {
         textAlign: 'center', 
         padding: '1rem', 
-        borderTop: '1px solid var(--border-color)',
+        borderTop: '1px solid #ccc',
         ...(animationDuration > 0 && { '--animation-duration': `${animationDuration}s` })
     };
 
