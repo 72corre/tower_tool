@@ -61,7 +61,6 @@ const FormationCard = ({
 };
 
 const FormationManager = (props) => {
-    console.log('FormationManager props:', props); // DEBUG LINE
     const {
         ownedMegidoIds,
         formations,
@@ -261,7 +260,6 @@ const FormationManager = (props) => {
                             isInvalid={isInvalid}
                             nameStyle={nameStyle}
                             cardStyle={cardStyle}
-                            onGenerateShareImage={onGenerateShareImage}
                             onCopy={onCopy}
                             onExport={handleExportClick}
                             onEdit={(f) => onEditingFormationChange(f)}
