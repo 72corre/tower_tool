@@ -24,8 +24,8 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
     if (!isOpen) return null;
 
     return (
-        <div className="mobile-modal-overlay" onClick={onClose}>
-            <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0, width: 'min(500px, 90vw)'}}>
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0, width: 'min(500px, 90vw)'}}>
                 <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
                     <h3 style={{marginTop: 0, textAlign: 'center'}}>モードを選択</h3>
                 </div>
@@ -75,8 +75,8 @@ const DesktopHeader = () => {
     const FloorSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }) => {
         if (!isOpen) return null;
         return (
-            <div className="mobile-modal-overlay" onClick={onClose}>
-                <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0, width: 'min(500px, 90vw)'}}>
+            <div className="modal-overlay" onClick={onClose}>
+                <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0, width: 'min(500px, 90vw)'}}>
                     <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
                         <h3 style={{marginTop: 0, textAlign: 'center'}}>目標階層を選択</h3>
                     </div>
@@ -329,16 +329,16 @@ const MobileHeader = () => {
             />
 
             {isAuthModalOpen && (
-                <div className="mobile-modal-overlay" onClick={() => setIsAuthModalOpen(false)}>
-                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-overlay" onClick={() => setIsAuthModalOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
                         <AuthContent />
                     </div>
                 </div>
             )}
 
             {isLogSelectionOpen && (
-                 <div className="mobile-modal-overlay" onClick={() => setIsLogSelectionOpen(false)}>
-                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
+                 <div className="modal-overlay" onClick={() => setIsLogSelectionOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
                         <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
                             <h3 style={{marginTop: 0, textAlign: 'center'}}>ログを選択</h3>
                         </div>
@@ -366,8 +366,8 @@ const MobileHeader = () => {
             )}
 
             {isFloorModalOpen && (
-                <div className="mobile-modal-overlay" onClick={() => setIsFloorModalOpen(false)}>
-                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
+                <div className="modal-overlay" onClick={() => setIsFloorModalOpen(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
                         <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
                             <h3 style={{marginTop: 0, textAlign: 'center'}}>目標階層を選択</h3>
                         </div>
