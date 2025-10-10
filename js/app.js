@@ -206,6 +206,9 @@ const TowerTool = () => {
     });
     const [isMapSearchModalOpen, setIsMapSearchModalOpen] = useState(false);
     const [activePreviewId, setActivePreviewId] = useState(null);
+    const [showTutorial, setShowTutorial] = useState(false);
+    const [isFirstEverLaunch, setIsFirstEverLaunch] = useState(false);
+    const [introQueue, setIntroQueue] = useState([]);
 
     const floorRefs = useRef({});
 
@@ -263,9 +266,50 @@ const TowerTool = () => {
         localStorage.setItem('isFooterCollapsed', JSON.stringify(newCollapsedState));
     };
 
+    const handleTutorialComplete = () => {
+        setShowTutorial(false);
+        setIntroQueue(q => q.filter(item => item !== 'tutorial'));
+        setChoiceModalState({
+            isOpen: true,
+            title: 'ガイドモードを開始しますか？',
+            message: '続けて、あなたの戦力に合わせた攻略目標を提示する「ガイダンスモード」を開始しますか？\nこのモードは、より具体的な次のステップを示し、あなたの攻略をサポートします。',
+            options: [
+                { label: 'はい、開始する', value: 'yes', className: 'btn-primary' },
+                { label: 'いいえ、結構です', value: 'no', className: 'btn-secondary' },
+            ],
+            onConfirm: (value) => {
+                if (value === 'yes') {
+                    setIsGuideMode(true);
+                    showToastMessage('ガイダンスモードを開始しました。');
+                }
+                setChoiceModalState({ isOpen: false });
+            }
+        });
+    };
+
+    const onSuggestTargetFloor = (suggestedFloor) => {
+        setChoiceModalState({
+            isOpen: true,
+            title: '目標階を設定しますか？',
+            message: `あなたの戦力から、目標として ${suggestedFloor} 階の攻略をおすすめします。この階を目標に設定しますか？`,
+            options: [
+                { label: 'はい、設定する', value: 'yes', className: 'btn-primary' },
+                { label: 'いいえ、やめておく', value: 'no', className: 'btn-secondary' },
+            ],
+            onConfirm: (value) => {
+                if (value === 'yes') {
+                    setTargetFloor(suggestedFloor);
+                    showToastMessage(`目標を ${suggestedFloor} 階に設定しました。`);
+                }
+                setChoiceModalState({ isOpen: false });
+            }
+        });
+    };
+
     useEffect(() => {
         const isFirstLaunch = !localStorage.getItem('hasLaunched');
         if (isFirstLaunch) {
+            setIsFirstEverLaunch(true);
             localStorage.setItem('hasLaunched', 'true');
             setMode('plan');
             setActiveTab('ownership');
@@ -977,6 +1021,53 @@ const TowerTool = () => {
         }
     }, [eventQueue, shouldShowBetaModal]);
 
+    // --- Intro Modal Queue Logic ---
+    // 1. Build the queue on initial load
+    useEffect(() => {
+        if (isLoading || introQueue.length > 0) return;
+
+        const queue = [];
+        const betaModalShown = localStorage.getItem('betaModalShown');
+        const updateModalShown = localStorage.getItem('updateModalShown_20251007_ui_unify');
+
+        const today = new Date();
+        const betaStartDate = new Date('2025-09-09');
+        const betaEndDate = new Date('2025-09-17');
+        betaStartDate.setHours(0, 0, 0, 0);
+        betaEndDate.setHours(0, 0, 0, 0);
+
+        if (!betaModalShown && (today >= betaStartDate && today < betaEndDate)) {
+            queue.push('beta');
+        }
+
+        if (!updateModalShown) {
+            queue.push('update');
+        }
+
+        if (isFirstEverLaunch) {
+            queue.push('tutorial');
+        }
+        
+        if (queue.length > 0) {
+            setIntroQueue(queue);
+        }
+    }, [isLoading, isFirstEverLaunch]);
+
+    // 2. Process the queue
+    useEffect(() => {
+        if (introQueue.length === 0) return;
+        if (showBetaModal || showUpdateModal || showTutorial || eventToast) return; // A modal is already showing
+
+        const nextItem = introQueue[0];
+        if (nextItem === 'beta') {
+            setShowBetaModal(true);
+        } else if (nextItem === 'update') {
+            setShowUpdateModal(true);
+        } else if (nextItem === 'tutorial') {
+            setShowTutorial(true);
+        }
+    }, [introQueue, showBetaModal, showUpdateModal, showTutorial, eventToast]);
+
     const handleCloseEventToast = () => {
         if (dontShowAgain && eventToast) {
             localStorage.setItem(eventToast.storageKey, 'true');
@@ -1678,6 +1769,7 @@ const TowerTool = () => {
                     onClose={() => {
                         setShowBetaModal(false);
                         localStorage.setItem('betaModalShown', 'true');
+                        setIntroQueue(q => q.filter(item => item !== 'beta'));
                     }}
                     title="オープンβテストへようこそ！"
                 >
@@ -1691,6 +1783,7 @@ const TowerTool = () => {
                     onClose={() => {
                         setShowUpdateModal(false);
                         localStorage.setItem('updateModalShown_20251007_ui_unify', 'true');
+                        setIntroQueue(q => q.filter(item => item !== 'update'));
                     }}
                     title="UIの変更と機能改善のお知らせ (2025/10/07)"
                 >
@@ -1723,6 +1816,7 @@ const TowerTool = () => {
                 setGuideStep={setGuideStep}
                 completedSteps={completedGuideSteps}
                 onStepComplete={(step) => setCompletedGuideSteps(prev => new Set(prev).add(step))}
+                onSuggestTargetFloor={onSuggestTargetFloor}
             />
                         {!isMobileView && (
                 <nav className="desktop-nav">
@@ -1882,6 +1976,13 @@ const TowerTool = () => {
                 isTabletView={isTabletView}
                 onUnlockAchievement={unlockAchievement}
             />
+            {showTutorial && (
+                <Tutorial
+                    onComplete={handleTutorialComplete}
+                    onClose={() => setShowTutorial(false) }
+                    setActiveTab={setActiveTab}
+                />
+            )}
             <MapSearchModal
                 isOpen={isMapSearchModalOpen}
                 onClose={handleCloseMapSearch}
