@@ -8,6 +8,108 @@ const getSquareTypeName = (type) => {
     return map[type] || type;
 };
 
+// おすすめメギド表示用の新しいコンポーネント
+const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) => {
+    const { useState } = React;
+    const [openCategory, setOpenCategory] = useState(null);
+
+    const toggleCategory = (category) => {
+        setOpenCategory(openCategory === category ? null : category);
+    };
+
+    const getStyleClass = (style) => {
+        if (style === 'ラッシュ') return 'style-rush';
+        if (style === 'カウンター') return 'style-counter';
+        if (style === 'バースト') return 'style-burst';
+        return '';
+    };
+
+    const renderRecommendationCard = (rec) => {
+        const { megido, orb, reason } = rec;
+
+        // 推奨理由で使われた能力(subCategory)を特定
+        const reasonSubCategories = new Set();
+        megido.tags.forEach(tag => {
+            if (reason.includes(tag.method) && reason.includes(tag.subCategory)) {
+                reasonSubCategories.add(tag.subCategory);
+            }
+        });
+
+        const otherRoles = megido.tags
+            .map(t => t.subCategory)
+            .filter(sub => !reasonSubCategories.has(sub))
+            .filter((v, i, a) => a.indexOf(v) === i) // 重複削除
+            .slice(0, 2)
+            .map((role, index) => <span key={index}><span className="highlight">{role}</span>{index < 1 ? ', ' : ''}</span>);
+
+        const reasonHtml = reason.replace(/【(.*?)】/, `<span class="highlight">【$1】</span>`);
+
+        return (
+            <div key={megido.id + (orb ? orb.id : '')} className="rec-card">
+                <div className="rec-card-left">
+                    <img src={`asset/メギド/${megido.名前}.png`} alt={megido.名前} className={`rec-megido-icon ${getStyleClass(megido.スタイル)}`} />
+                </div>
+                <div className="rec-card-main">
+                    <h5 className="rec-megido-name" onClick={() => onOpenCommunityFormations(null, null, null, megido.名前)}>{megido.名前}</h5>
+                    <p className="rec-reason" dangerouslySetInnerHTML={{ __html: reasonHtml }}></p>
+                    {otherRoles.length > 0 && <p className="rec-other-roles">その他の役割: {otherRoles}</p>}
+                </div>
+                <div className="rec-card-right">
+                    <button className="rec-add-btn" title="編成に追加（機能は将来実装予定）">+</button>
+                </div>
+            </div>
+        );
+    };
+
+    const renderCategory = (title, category, icon) => {
+        if (!recommendations[category] || recommendations[category].length === 0) {
+            return null;
+        }
+        const isOpen = openCategory === category;
+        return (
+            <div className="rec-category">
+                <div className="rec-category-header" onClick={() => toggleCategory(category)}>
+                    <span>{isOpen ? '▼' : '▶'} {icon} {title} ({recommendations[category].length})</span>
+                </div>
+                {isOpen && (
+                    <div className="rec-category-content">
+                        {recommendations[category].map(renderRecommendationCard)}
+                    </div>
+                )}
+            </div>
+        );
+    };
+
+    return (
+        <div className="recommended-megido-panel">
+            <style>{`
+                .recommended-megido-panel { margin: 12px 0; padding: 12px; background-color: #1f2937; border-radius: 8px; border: 1px solid #374151; }
+                .rec-category-header { cursor: pointer; padding: 8px 0; font-weight: bold; color: #d1d5db; }
+                .rec-category-content { padding-top: 8px; }
+                .rec-card { display: flex; align-items: center; gap: 12px; background-color: #374151; padding: 12px; border-radius: 6px; margin-bottom: 8px; }
+                .rec-card-left { flex-shrink: 0; position: relative; }
+                .rec-megido-icon { width: 50px; height: 50px; border-radius: 50%; border: 3px solid #4b5563; }
+                .style-rush { border-color: var(--rush-color, #e11d48); }
+                .style-counter { border-color: var(--counter-color, #f97316); }
+                .style-burst { border-color: var(--burst-color, #2563eb); }
+                .rec-card-main { flex-grow: 1; }
+                .rec-megido-name { margin: 0; font-size: 1rem; color: white; cursor: pointer; }
+                .rec-megido-name:hover { text-decoration: underline; }
+                .rec-reason { margin: 4px 0; font-size: 0.875rem; color: #d1d5db; }
+                .rec-reason .highlight, .rec-other-roles .highlight { color: var(--primary-accent, #70F0E0); font-weight: bold; }
+                .rec-other-roles { margin: 4px 0 0; font-size: 0.75rem; color: #9ca3af; }
+                .rec-card-right { flex-shrink: 0; }
+                .rec-add-btn { width: 30px; height: 30px; border-radius: 50%; background-color: #4b5563; color: white; border: none; font-size: 1.2rem; cursor: pointer; }
+                .rec-add-btn:hover { background-color: #6b7280; }
+            `}</style>
+            <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#9ca3af', fontWeight: 'bold', textTransform: 'uppercase' }}>おすすめメギド</h5>
+            {renderCategory('アタッカー候補', 'attackers', '🗡️')}
+            {renderCategory('ジャマー候補', 'jammers', '🌀')}
+            {renderCategory('サポーター候補', 'supporters', '🛡️')}
+        </div>
+    );
+};
+
 const PracticeActionPanel = ({
     square, // This is selectedSquare = { floor, square, id }
     formations,
@@ -257,41 +359,7 @@ const PracticeActionPanel = ({
                         </div>
                     )
                 })}
-                {isGuideMode && recommendations && (
-                    <div style={{ marginTop: '12px', padding: '12px', backgroundColor: 'var(--bg-deep)', borderRadius: '4px' }}>
-                        <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', color: 'var(--text-subtle)', fontWeight: 'bold' }}>おすすめメギド</h5>
-                        
-                        <h6 style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '12px' }}>アタッカー候補</h6>
-                        {recommendations.attackers.length > 0 ? (
-                            recommendations.attackers.map(({ megido, reason }) => (
-                                <div key={megido.id} style={{ marginBottom: '8px', fontSize: '12px' }}>
-                                    <p style={{ margin: 0, fontWeight: 'bold' }}>{megido.名前}</p>
-                                    <p style={{ margin: '2px 0 0', color: 'var(--text-subtle)' }}>{reason}</p>
-                                </div>
-                            ))
-                        ) : <p style={{color: 'var(--text-subtle)', fontSize: '12px'}}>該当なし</p>}
-
-                        <h6 style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '12px' }}>ジャマー候補</h6>
-                        {recommendations.jammers.length > 0 ? (
-                            recommendations.jammers.map(({ megido, reason }) => (
-                                <div key={megido.id} style={{ marginBottom: '8px', fontSize: '12px' }}>
-                                    <p style={{ margin: 0, fontWeight: 'bold' }}>{megido.名前}</p>
-                                    <p style={{ margin: '2px 0 0', color: 'var(--text-subtle)' }}>{reason}</p>
-                                </div>
-                            ))
-                        ) : <p style={{color: 'var(--text-subtle)', fontSize: '12px'}}>該当なし</p>}
-
-                        <h6 style={{ marginTop: '1rem', marginBottom: '0.5rem', fontSize: '12px' }}>サポーター候補</h6>
-                        {recommendations.supporters.length > 0 ? (
-                            recommendations.supporters.map(({ megido, reason }) => (
-                                <div key={megido.id} style={{ marginBottom: '8px', fontSize: '12px' }}>
-                                    <p style={{ margin: 0, fontWeight: 'bold' }}>{megido.名前}</p>
-                                    <p style={{ margin: '2px 0 0', color: 'var(--text-subtle)' }}>{reason}</p>
-                                </div>
-                            ))
-                        ) : <p style={{color: 'var(--text-subtle)', fontSize: '12px'}}>該当なし</p>}
-                    </div>
-                )}
+                {isGuideMode && recommendations && <RecommendedMegidoPanel recommendations={recommendations} onOpenCommunityFormations={onOpenCommunityFormations} />}
                 {squareData.rules && squareData.rules.length > 0 && <p style={{marginTop: '12px'}}><strong>ルール:</strong> {squareData.rules.join(', ')}</p>}
             </div>
             <div className="form-section">

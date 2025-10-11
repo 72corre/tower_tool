@@ -2043,6 +2043,7 @@ const TowerTool = () => {
                     initialFloor={communityFormationsState.floor}
                     initialEnemy={communityFormationsState.enemy}
                     initialHighlightId={communityFormationsState.highlightId}
+                    initialMegidoName={communityFormationsState.initialFilter} // ★ この行を追加
                     userFormations={formations} // ユーザーの編成一覧
                     runHistory={runState.history} // 勝利履歴
                                         megidoDetails={megidoDetails} // メギド詳細データ

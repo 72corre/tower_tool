@@ -1,18 +1,18 @@
 const { useState, useEffect, useMemo } = React;
 
-const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, currentUser, ownedMegidoIds, showToastMessage, initialFloor, initialEnemy, initialHighlightId, userFormations, runHistory, megidoDetails, idMaps }) => {
+const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, currentUser, ownedMegidoIds, showToastMessage, initialFloor, initialEnemy, initialHighlightId, initialMegidoName, userFormations, runHistory, megidoDetails, idMaps }) => {
     
     const [formations, setFormations] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [isFilterVisible, setIsFilterVisible] = useState(true);
+    const [isFilterVisible, setIsFilterVisible] = useState(!initialMegidoName);
     const [ratedInSession, setRatedInSession] = useState(new Set()); // 評価済みかをセッション内で管理
 
     // フィルタ条件を一つのstateで管理
     const [filters, setFilters] = useState({
         floor: initialFloor || '',
         enemy: initialEnemy || '',
-        megidoName: '',
+        megidoName: initialMegidoName || '',
         hideNotOwned: true, // 未所持メギドを隠す
         excludeTags: { // 除外するタグ
             reishou: false,

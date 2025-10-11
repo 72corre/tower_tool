@@ -17,16 +17,16 @@ const decodeFormationTags = (tagValue) => {
 };
 
 const useCommunityFormations = ({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser, generateTagsForFormation }) => {
-    const [communityFormationsState, setCommunityFormationsState] = useState({ isOpen: false, floor: null, enemy: null, highlightId: null });
+    const [communityFormationsState, setCommunityFormationsState] = useState({ isOpen: false, floor: null, enemy: null, highlightId: null, initialFilter: '' });
     const [isPosting, setIsPosting] = useState(false);
 
     // --- モーダル開閉ハンドラ ---
-    const handleOpenCommunityFormations = useCallback((floor = null, enemy = null, highlightId = null) => {
-        setCommunityFormationsState({ isOpen: true, floor, enemy, highlightId });
+    const handleOpenCommunityFormations = useCallback((floor = null, enemy = null, highlightId = null, initialFilter = '') => {
+        setCommunityFormationsState({ isOpen: true, floor, enemy, highlightId, initialFilter });
     }, []);
 
     const handleCloseCommunityFormations = useCallback(() => {
-        setCommunityFormationsState({ isOpen: false, floor: null, enemy: null, highlightId: null });
+        setCommunityFormationsState({ isOpen: false, floor: null, enemy: null, highlightId: null, initialFilter: '' });
     }, []);
 
     // --- 編成コピーハンドラ ---
@@ -232,6 +232,6 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
         handleCloseCommunityFormations,
         handleCopyCommunityFormation,
         handlePostFormation,
-        handleDeleteCommunityFormation, // ★ 追加
+        handleDeleteCommunityFormation,
     };
 };
