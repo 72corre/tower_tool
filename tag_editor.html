@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星間の塔 タグ付け支援ツール</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #111827; color: #d1d5db; }
+        .tab-button.active { background-color: #374151; }
+        .modal { background-color: rgba(0, 0, 0, 0.5); }
+        .modal-content { background-color: #1f2937; }
+        .btn-primary { background-color: #3b82f6; }
+        .btn-secondary { background-color: #4b5563; }
+        .btn-danger { background-color: #ef4444; }
+        input, select, textarea { background-color: #374151; border-color: #4b5563; }
+    </style>
+</head>
+<body class="p-4">
+
+    <div id="app">
+        <h1 class="text-2xl font-bold mb-4">星間の塔 タグ付け支援ツール</h1>
+
+        <!-- Section for managing categories -->
+        <div class="mb-8 p-4 border border-gray-700 rounded">
+            <h2 class="text-xl font-semibold mb-2">タグ分類管理</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <h3 class="font-bold mb-1">大区分 (Category)</h3>
+                    <div id="category-list" class="mb-2 p-2 border border-gray-600 rounded h-32 overflow-y-auto"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-category" placeholder="新しい大区分" class="w-full p-2 rounded">
+                        <button id="add-category-btn" class="btn-primary p-2 rounded">追加</button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-1">小区分 (SubCategory)</h3>
+                    <div id="subcategory-list" class="mb-2 p-2 border border-gray-600 rounded h-32 overflow-y-auto"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-subcategory" placeholder="新しい小区分" class="w-full p-2 rounded">
+                        <button id="add-subcategory-btn" class="btn-primary p-2 rounded">追加</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div>
+            <div class="flex border-b border-gray-700">
+                <button id="floor-tab" class="tab-button py-2 px-4 active">フロア</button>
+                <button id="megido-tab" class="tab-button py-2 px-4">メギド</button>
+                <button id="orb-tab" class="tab-button py-2 px-4">オーブ</button>
+            </div>
+
+            <div id="floor-content" class="mt-4">
+                <div class="flex items-center gap-4 mb-4">
+                    <label for="floor-select" class="font-bold">フロア選択:</label>
+                    <select id="floor-select" class="p-2 rounded bg-gray-700"></select>
+                </div>
+                <div id="squares-list"></div>
+            </div>
+
+            <div id="megido-content" class="mt-4 hidden">
+                <input type="text" id="megido-search" placeholder="メギドを検索..." class="w-full p-2 mb-4 rounded">
+                <div id="megido-list" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+            </div>
+
+            <div id="orb-content" class="mt-4 hidden">
+                <input type="text" id="orb-search" placeholder="オーブを検索..." class="w-full p-2 mb-4 rounded">
+                <div id="orb-list" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+            </div>
+        </div>
+
+        <!-- Tag Edit Modal -->
+        <div id="tag-edit-modal" class="fixed inset-0 modal items-center justify-center hidden">
+            <div class="modal-content p-6 rounded-lg shadow-lg w-full max-w-lg">
+                <h2 class="text-xl font-bold mb-4" id="modal-title">タグ編集</h2>
+                <div id="current-tags" class="mb-4"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
+                    <select id="category-select" class="p-2 rounded"></select>
+                    <div class="relative">
+                        <input type="text" id="subcategory-input" placeholder="小区分を検索..." class="p-2 rounded w-full">
+                        <div id="subcategory-options" class="absolute z-10 w-full bg-gray-700 rounded max-h-48 overflow-y-auto hidden"></div>
+                    </div>
+                    <input type="text" id="method-input" placeholder="手段 (例: スキル)" class="p-2 rounded">
+                    <input type="text" id="condition-input" placeholder="条件 (任意)" class="p-2 rounded">
+                </div>
+                <button id="add-tag-btn" class="btn-primary p-2 rounded w-full mb-4">タグを追加</button>
+                <button id="copy-item-btn" class="btn-secondary p-2 rounded w-full mb-2">このマスのデータのみコピー</button>
+                <button id="close-modal-btn" class="btn-secondary p-2 rounded w-full">閉じる</button>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-2">tower.json 全体出力</h2>
+            <button id="generate-output-btn" class="btn-primary p-2 rounded mb-2">更新用データを生成</button>
+            <textarea id="output-textarea" class="w-full h-64 p-2 rounded" readonly></textarea>
+            <button id="copy-output-btn" class="btn-secondary p-2 rounded mt-2">クリップボードにコピー</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- STATE ---
+            let towerData = [];
+            let megidoData = [];
+            let orbData = [];
+            let categories = [];
+            let subcategories = [];
+            let currentEditing = { type: null, id: null, tagType: 'gimmicks' };
+
+            const defaultCategories = ['状態異常', '弱体', '妨害', '強化', '補助', '回復', '特殊状態', 'トランス', '地形', '攻撃手段', '耐性', 'その他'];
+            const defaultSubcategories = ['毒', 'めまい', '感電', '呪い', '暗闇', '睡眠', '凍結', '混乱', '束縛', '病気', 'ノックバック', '引き寄せ', '煉獄の炎', 'ねずみ化', 'ゾンビ', '悪夢', '即死', '完殺', '執心', '味方状態異常', '攻撃力低下', '防御力低下', '素早さ低下', 'フォトン容量低下', 'アタック劣化', 'スキル劣化', 'チャージ劣化', '火耐性低下', '雷耐性低下', '覚醒増加量低下', 'フォトン破壊', 'フォトン奪取', '覚醒ゲージ減少', '強化解除', 'フォトン転換', 'ペインフォトン追加', '攻撃力上昇', '防御力上昇', '素早さ上昇', 'ダメージ軽減', '自然回復', '反撃', '状態変化耐性', 'かばう', 'フォトン容量上昇', 'アタック強化', 'スキル強化', 'チャージ強化', '回数バリア', 'ダメージブロック', 'アタックバリア', 'スキルバリア', '追加ダメージ', '列化', '全体化', '無敵', '魅了', '追撃', '自動蘇生', '状態異常命中上昇', '回避', '火ダメージ上昇', '雷ダメージ上昇', '覚醒増加量上昇', '覚醒ゲージ増加', 'アタック追加', 'スキル追加', 'チャージ追加', 'フォトン変化', 'HP回復', '蘇生', '状態異常治癒', '弱体解除', 'バーサーク', '点穴', 'ハイドロボム', '錬ボム', 'エレキ', '封印', 'アーマー', 'デスギフト', 'レイズギフト', '覚醒コスト減少', 'オーラ', '誘雷', '魂衣', '強化解除無効', 'オーバーチャージ', '協奏', '重奏', '怒闘', 'バレット', 'ネクロ', 'Fインパルス', 'コロッセオ', '炎上', '狂炎', '滞水', '突風', '地割れ', '氷結', '凍土', '帯電', '浸食', '強染', '夢幻', '地形延長', '防御無視', '特効', '火ダメージ', '雷ダメージ', '破断', '響撃', '光子ダメージ', '固定ダメージ', '防御力依存ダメージ', '素早さ依存ダメージ', 'HP依存ダメージ', '連続攻撃', '列攻撃', '全体攻撃', '状態異常無効', '全状態異常耐性', '飛行', '地形無効', '反動ダメージ', 'チェイン', 'ブレイク', '戦旗'];
+
+            // --- DOM ELEMENTS ---
+            const floorTab = document.getElementById('floor-tab');
+            const megidoTab = document.getElementById('megido-tab');
+            const orbTab = document.getElementById('orb-tab');
+            const floorContent = document.getElementById('floor-content');
+            const megidoContent = document.getElementById('megido-content');
+            const orbContent = document.getElementById('orb-content');
+            const floorSelect = document.getElementById('floor-select');
+            const squaresList = document.getElementById('squares-list');
+            const megidoSearch = document.getElementById('megido-search');
+            const orbSearch = document.getElementById('orb-search');
+            const megidoListEl = document.getElementById('megido-list');
+            const orbListEl = document.getElementById('orb-list');
+            const modal = document.getElementById('tag-edit-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const currentTagsEl = document.getElementById('current-tags');
+            const categorySelect = document.getElementById('category-select');
+            const subcategoryInput = document.getElementById('subcategory-input');
+            const subcategoryOptions = document.getElementById('subcategory-options');
+            const methodInput = document.getElementById('method-input');
+            const addTagBtn = document.getElementById('add-tag-btn');
+            const copyItemBtn = document.getElementById('copy-item-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+            const generateOutputBtn = document.getElementById('generate-output-btn');
+            const outputTextarea = document.getElementById('output-textarea');
+            const copyOutputBtn = document.getElementById('copy-output-btn');
+
+            // --- INITIALIZATION ---
+            const init = async () => {
+                // Category management is omitted for brevity
+                categories = defaultCategories;
+                subcategories = defaultSubcategories;
+                updateCategorySelect();
+
+                await loadData();
+                populateFloorSelect();
+                renderSquaresForFloor(towerData[0].floor);
+                renderMegidoList();
+                renderOrbList();
+                setupEventListeners();
+            };
+
+            const loadData = async () => {
+                try {
+                    const [towerRes, megidoRes, orbRes] = await Promise.all([
+                        fetch('data/tower.json'),
+                        fetch('data/megido.json'),
+                        fetch('data/orbs.json')
+                    ]);
+                    towerData = await towerRes.json();
+                    megidoData = await megidoRes.json();
+                    orbData = await orbRes.json();
+
+                    megidoData.forEach(m => { if (!m.tags) m.tags = []; });
+                    orbData.forEach(o => { if (!o.tags) o.tags = []; });
+
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    alert('データの読み込みに失敗しました。');
+                }
+            };
+
+            const populateFloorSelect = () => {
+                towerData.forEach(floor => {
+                    const option = document.createElement('option');
+                    option.value = floor.floor;
+                    option.textContent = `Floor ${floor.floor}`;
+                    floorSelect.appendChild(option);
+                });
+            };
+
+            const renderSquaresForFloor = (floorNum) => {
+                squaresList.innerHTML = '';
+                const floor = towerData.find(f => f.floor == floorNum);
+                if (!floor) return;
+
+                Object.entries(floor.squares).forEach(([squareId, square]) => {
+                    if (!square.enemies || square.enemies.length === 0) return;
+
+                    const squareEl = document.createElement('div');
+                    squareEl.className = 'p-4 border border-gray-700 rounded shadow mb-4';
+                    let enemiesHTML = '<ul class="mt-2 list-disc list-inside">';
+                    square.enemies.forEach((enemy, index) => {
+                        const enemyName = typeof enemy === 'string' ? enemy : enemy.name;
+                        const tags = (typeof enemy === 'object' && enemy.tags) ? (enemy.tags.gimmicks?.length || 0) + (enemy.tags.weaknesses?.length || 0) : 0;
+                        enemiesHTML += `
+                            <li class="flex justify-between items-center mt-2">
+                                <span>${enemyName} - Tags: ${tags}</span>
+                                <button class="edit-btn btn-secondary text-white p-1 px-2 text-sm rounded" data-type="floor-enemy" data-floor="${floorNum}" data-square="${squareId}" data-enemy-index="${index}">編集</button>
+                            </li>
+                        `;
+                    });
+                    enemiesHTML += '</ul>';
+                    squareEl.innerHTML = `<h3 class="font-bold">${squareId} (${square.type})</h3>${enemiesHTML}`;
+                    squaresList.appendChild(squareEl);
+                });
+
+                document.querySelectorAll('.edit-btn[data-type="floor-enemy"').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        const { floor, square, enemyIndex } = e.target.dataset;
+                        openModal('floor-enemy', { floor: parseInt(floor), squareId: square, enemyIndex: parseInt(enemyIndex) });
+                    });
+                });
+            };
+
+            const renderMegidoList = (filter = '') => {
+                megidoListEl.innerHTML = '';
+                megidoData
+                    .filter(m => m.名前.toLowerCase().includes(filter.toLowerCase()))
+                    .forEach(m => {
+                        const card = createCard(m, 'megido');
+                        megidoListEl.appendChild(card);
+                    });
+            };
+
+            const renderOrbList = (filter = '') => {
+                orbListEl.innerHTML = '';
+                orbData
+                    .filter(o => o.name.toLowerCase().includes(filter.toLowerCase()))
+                    .forEach(o => {
+                        const card = createCard(o, 'orb');
+                        orbListEl.appendChild(card);
+                    });
+            };
+
+            const createCard = (item, type) => {
+                const card = document.createElement('div');
+                card.className = 'p-4 border border-gray-700 rounded shadow';
+                const name = item.名前 || item.name;
+                card.innerHTML = `
+                    <h3 class="font-bold">${name}</h3>
+                    <p class="text-sm text-gray-400">Tags: ${item.tags ? item.tags.length : 0}</p>
+                    <button class="edit-btn mt-2 btn-secondary text-white p-1 px-2 text-sm rounded" data-type="${type}" data-id="${item.id}">編集</button>
+                `;
+                card.querySelector('.edit-btn').addEventListener('click', e => {
+                    const { type, id } = e.target.dataset;
+                    openModal(type, id);
+                });
+                return card;
+            };
+
+            const updateCategorySelect = () => {
+                categorySelect.innerHTML = '<option value="">大区分を選択</option>';
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat;
+                    option.textContent = cat;
+                    categorySelect.appendChild(option);
+                });
+            };
+
+            // --- MODAL LOGIC ---
+            const openModal = (type, id) => {
+                currentEditing = { type, id, tagType: 'gimmicks' };
+                let item, title;
+                if (type === 'megido') {
+                    item = megidoData.find(m => m.id === id);
+                    title = `${item.名前} のタグ編集`;
+                } else if (type === 'orb') {
+                    item = orbData.find(o => o.id === id);
+                    title = `${item.name} のタグ編集`;
+                } else if (type === 'floor-enemy') {
+                    const { floor, squareId, enemyIndex } = id;
+                    const enemy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
+                    const enemyName = typeof enemy === 'string' ? enemy : enemy.name;
+                    title = `${enemyName} (${floor}F ${squareId}) のタグ編集`;
+                }
+                modalTitle.textContent = title;
+                renderCurrentTags();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            };
+
+            const closeModal = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            };
+
+            const conditionInput = document.getElementById('condition-input');
+
+            // ... (rest of the DOM elements)
+
+            const renderCurrentTags = () => {
+                const { type, id, tagType } = currentEditing;
+                let tags;
+                if (type === 'megido') {
+                    tags = megidoData.find(m => m.id === id).tags;
+                } else if (type === 'orb') {
+                    tags = orbData.find(o => o.id === id).tags;
+                } else if (type === 'floor-enemy') {
+                    const { floor, squareId, enemyIndex } = id;
+                    const enemy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
+                    tags = (typeof enemy === 'object' && enemy.tags) ? enemy.tags : { gimmicks: [], weaknesses: [] };
+                }
+
+                currentTagsEl.innerHTML = '';
+                if (type === 'megido' || type === 'orb') {
+                    (tags || []).forEach((tag, index) => {
+                        const tagEl = document.createElement('div');
+                        tagEl.className = 'flex justify-between items-center p-2 bg-gray-800 rounded mb-1';
+                        tagEl.innerHTML = `
+                            <span>${tag.category} > ${tag.subCategory} > ${tag.method || ''} ${tag.condition ? `(${tag.condition})` : ''}</span>
+                            <button data-index="${index}" class="delete-tag-btn btn-danger text-white p-1 rounded text-xs">削除</button>
+                        `;
+                        currentTagsEl.appendChild(tagEl);
+                    });
+                } else { // floor-enemy
+                    const buttons = `
+                        <div class="flex gap-2 mb-2">
+                            <button class="tag-type-btn py-1 px-3 rounded ${tagType === 'gimmicks' ? 'btn-primary' : 'btn-secondary'}" data-tag-type="gimmicks">ギミック</button>
+                            <button class="tag-type-btn py-1 px-3 rounded ${tagType === 'weaknesses' ? 'btn-primary' : 'btn-secondary'}" data-tag-type="weaknesses">弱点</button>
+                        </div>
+                    `;
+                    currentTagsEl.innerHTML = buttons;
+
+                    const tagList = tags[tagType] || [];
+                    tagList.forEach((tag, index) => {
+                        const tagEl = document.createElement('div');
+                        tagEl.className = 'flex justify-between items-center p-2 bg-gray-800 rounded mb-1';
+                        tagEl.innerHTML = `
+                            <span>${tag.category} > ${tag.subCategory} > ${tag.method || ''} ${tag.condition ? `(${tag.condition})` : ''}</span>
+                            <button data-index="${index}" class="delete-tag-btn btn-danger text-white p-1 rounded text-xs">削除</button>
+                        `;
+                        currentTagsEl.appendChild(tagEl);
+                    });
+
+                    document.querySelectorAll('.tag-type-btn').forEach(btn => {
+                        btn.addEventListener('click', e => {
+                            currentEditing.tagType = e.target.dataset.tagType;
+                            renderCurrentTags();
+                        });
+                    });
+                }
+                document.querySelectorAll('.delete-tag-btn').forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        deleteTag(parseInt(e.target.dataset.index, 10));
+                    });
+                });
+            };
+
+            const addTag = () => {
+                const { type, id, tagType } = currentEditing;
+                const category = categorySelect.value;
+                const subCategory = subcategoryInput.value;
+                const method = methodInput.value.trim();
+                const condition = conditionInput.value.trim();
+
+                if (!category || !subCategory) {
+                    alert('大区分と小区分を選択・入力してください。');
+                    return;
+                }
+
+                const newTag = { category, subCategory, method, condition };
+
+                if (type === 'megido') {
+                    const item = megidoData.find(m => m.id === id);
+                    if (!item.tags) item.tags = [];
+                    item.tags.push(newTag);
+                } else if (type === 'orb') {
+                    const item = orbData.find(o => o.id === id);
+                    if (!item.tags) item.tags = [];
+                    item.tags.push(newTag);
+                } else if (type === 'floor-enemy') {
+                    const { floor, squareId, enemyIndex } = id;
+                    let enemy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
+                    if (typeof enemy === 'string') {
+                        enemy = { name: enemy, tags: { gimmicks: [], weaknesses: [] } };
+                        towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex] = enemy;
+                    }
+                    if (!enemy.tags) enemy.tags = { gimmicks: [], weaknesses: [] };
+                    if (!enemy.tags[tagType]) enemy.tags[tagType] = [];
+                    enemy.tags[tagType].push({ category, subCategory, method, condition });
+                }
+                
+                renderCurrentTags();
+                subcategoryInput.value = '';
+                methodInput.value = '';
+                conditionInput.value = '';
+            };
+
+            const deleteTag = (index) => {
+                const { type, id, tagType } = currentEditing;
+                if (type === 'megido') {
+                    megidoData.find(m => m.id === id).tags.splice(index, 1);
+                } else if (type === 'orb') {
+                    orbData.find(o => o.id === id).tags.splice(index, 1);
+                } else if (type === 'floor-enemy') {
+                    const { floor, squareId, enemyIndex } = id;
+                    const enemy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
+                    if (enemy && typeof enemy === 'object' && enemy.tags && enemy.tags[tagType]) {
+                        enemy.tags[tagType].splice(index, 1);
+                    }
+                }
+                renderCurrentTags();
+            };
+
+            // --- EVENT LISTENERS ---
+            const setupEventListeners = () => {
+                const tabs = { 
+                    floor: { tab: floorTab, content: floorContent },
+                    megido: { tab: megidoTab, content: megidoContent },
+                    orb: { tab: orbTab, content: orbContent },
+                };
+                const switchTab = (activeTabId) => {
+                    Object.keys(tabs).forEach(id => {
+                        const isActive = id === activeTabId;
+                        tabs[id].tab.classList.toggle('active', isActive);
+                        tabs[id].content.classList.toggle('hidden', !isActive);
+                    });
+                };
+                floorTab.addEventListener('click', () => switchTab('floor'));
+                megidoTab.addEventListener('click', () => switchTab('megido'));
+                orbTab.addEventListener('click', () => switchTab('orb'));
+
+                floorSelect.addEventListener('change', e => renderSquaresForFloor(e.target.value));
+                megidoSearch.addEventListener('input', e => renderMegidoList(e.target.value));
+                orbSearch.addEventListener('input', e => renderOrbList(e.target.value));
+                
+                addTagBtn.addEventListener('click', addTag);
+                closeModalBtn.addEventListener('click', closeModal);
+                generateOutputBtn.addEventListener('click', generateOutput);
+                copyOutputBtn.addEventListener('click', copyOutput);
+                copyItemBtn.addEventListener('click', copyItem);
+
+                // Filterable subcategory input
+                const renderSubcategoryOptions = (filter = '') => {
+                    subcategoryOptions.innerHTML = '';
+                    const filtered = subcategories.filter(s => s.toLowerCase().includes(filter.toLowerCase()));
+                    filtered.forEach(sub => {
+                        const optionEl = document.createElement('div');
+                        optionEl.className = 'p-2 cursor-pointer hover:bg-gray-600';
+                        optionEl.textContent = sub;
+                        optionEl.addEventListener('click', () => {
+                            subcategoryInput.value = sub;
+                            subcategoryOptions.classList.add('hidden');
+                        });
+                        subcategoryOptions.appendChild(optionEl);
+                    });
+                    subcategoryOptions.classList.toggle('hidden', filtered.length === 0 && document.activeElement !== subcategoryInput);
+                };
+                subcategoryInput.addEventListener('focus', () => renderSubcategoryOptions(subcategoryInput.value));
+                subcategoryInput.addEventListener('input', () => renderSubcategoryOptions(subcategoryInput.value));
+                document.addEventListener('click', e => {
+                    if (!e.target.closest('.relative')) {
+                        subcategoryOptions.classList.add('hidden');
+                    }
+                });
+            };
+
+            // --- OUTPUT ---
+            const generateOutput = () => {
+                let output = '';
+                if (floorTab.classList.contains('active')) {
+                    output = JSON.stringify(towerData, null, 2);
+                } else if (megidoTab.classList.contains('active')) {
+                    output = JSON.stringify(megidoData, null, 2);
+                } else if (orbTab.classList.contains('active')) {
+                    output = JSON.stringify(orbData, null, 2);
+                }
+                outputTextarea.value = output;
+            };
+
+            const copyOutput = () => {
+                outputTextarea.select();
+                document.execCommand('copy');
+                alert('クリップボードにコピーしました。');
+            };
+
+            const copyItem = () => {
+                const { type, id } = currentEditing;
+                let itemToCopy;
+                if (type === 'floor-enemy') {
+                    const { floor, squareId, enemyIndex } = id;
+                    itemToCopy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
+                } else if (type === 'megido') {
+                    itemToCopy = megidoData.find(m => m.id === id);
+                } else if (type === 'orb') {
+                    itemToCopy = orbData.find(o => o.id === id);
+                }
+                navigator.clipboard.writeText(JSON.stringify(itemToCopy, null, 2)).then(() => {
+                    alert('このアイテムのデータをコピーしました。');
+                });
+            };
+
+            // --- START ---
+            init();
+        });
+    </script>
+
+</body>
+</html>

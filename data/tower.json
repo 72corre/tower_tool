@@ -14,7 +14,8 @@
         "squares": {
             "f1-s": { "type": "start" },
             "f1-e1": { "type": "explore", "sub_type": "attack_buff", "style": "R" },
-            "f1-b1": { "type": "battle", "enemies": [{ "name": "死をあやす者", "tags": { "gimmicks": ["めまい", "即死"], "weaknesses": ["死者特効"] } }], "rules": ["全能力+20%（幻獣）"] },
+            "f1-b1": { "type": "battle", "enemies": [{"name": "死をあやす者","tags": {"gimmicks": [{"category": "状態異常","subCategory": "めまい","method": "スキル","condition": ""},{"category": "状態異常","subCategory": "即死","method": "奥義","condition": ""}],
+                  "weaknesses": [{"category": "攻撃手段","subCategory": "死者特効","method": "","condition": ""}]}}], "rules": ["全能力+20%（幻獣）"] },
             "f1-b2": { "type": "battle", "enemies": [{ "name":"ベインチェイサー", "tags": { "gimmicks": ["毒"], "weaknesses": ["高倍率攻撃有効", "固定ダメージ有効"] } }],"rules": ["全能力+20%（幻獣）"] },
             "f1-e2": { "type": "explore", "sub_type": "recovery", "style": "RANDOM" },
             "f1-e3": { "type": "explore", "sub_type": "tower_power" },

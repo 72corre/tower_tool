@@ -6,8 +6,9 @@ const counterMap = {
     '状態異常-即死': [
         // このギミックに有効な対策を優先度順に定義
         { category: '耐性', subCategory: '即死', priority: 'high', reason: 'で「即死」を直接無効化できます。' },
-        { category: '状態異常', subCategory: '無効', priority: 'medium', reason: 'で「即死」を含む状態異常を予防できます。' },
-        { category: '防御', subCategory: '無敵', priority: 'low', reason: 'で「即死」ダメージを無効化できますが、タイミングがシビアです。' },
+        { category: '耐性', subCategory: '全状態異常耐性', priority: 'high', reason: 'で「即死」を含む状態異常を無効化できます。' },
+        { category: '強化', subCategory: '状態異常無効', priority: 'medium', reason: 'で「即死」を含む状態異常を予防できます。' },
+        { category: '強化', subCategory: '自動蘇生', priority: 'low', reason: 'で「即死」した後に「自動創生」可能ですが、タイミングがシビアです。' },
     ],
     '防御-高防御': [
         { category: 'ダメージ', subCategory: '固定', priority: 'high', reason: 'で敵の防御力を無視してダメージを与えられます。' },
