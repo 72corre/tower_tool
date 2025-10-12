@@ -1311,17 +1311,29 @@ const TowerTool = () => {
 
     const [isGuideMode, setIsGuideMode] = useState(() => localStorage.getItem('isGuideMode') === 'true');
     const [hasSeenGuideIntro, setHasSeenGuideIntro] = useState(() => localStorage.getItem('hasSeenGuideIntro') === 'true');
+    const [targetedEnemy, setTargetedEnemy] = useState(null);
+
+    useEffect(() => {
+        if (selectedSquare && selectedSquare.square.enemies && selectedSquare.square.enemies.length > 0) {
+            setTargetedEnemy(selectedSquare.square.enemies[0]);
+        } else {
+            setTargetedEnemy(null);
+        }
+    }, [selectedSquare]);
 
     const recommendations = useMemo(() => {
-        if (!megidoList) return null; // Make sure data is loaded
-        if (selectedSquare && (selectedSquare.square.type === 'battle' || selectedSquare.square.type === 'boss') && ownedMegidoIds.size > 0) {
-            const enemy = selectedSquare.square.enemies && selectedSquare.square.enemies[0];
+        if (!megidoList || !targetedEnemy || !selectedSquare) return null; 
+        if ((selectedSquare.square.type === 'battle' || selectedSquare.square.type === 'boss') && ownedMegidoIds.size > 0) {
+            const enemy = targetedEnemy;
             if (enemy && typeof enemy !== 'string' && enemy.tags) {
                 const result = findRecommendedMegido({
                     enemy: enemy,
                     floorRules: selectedSquare.square.rules || [],
                     ownedMegido: ownedMegidoIds,
-                    allMegidoMaster: megidoList
+                    allMegidoMaster: megidoList,
+                    ownedOrbs: ownedOrbIds,
+                    allOrbsMaster: orbList,
+                    megidoConditions: megidoConditions
                 });
                 if (result.success) {
                     return result.recommendations;
@@ -1329,7 +1341,7 @@ const TowerTool = () => {
             }
         }
         return null;
-    }, [selectedSquare, ownedMegidoIds, megidoList]);
+    }, [targetedEnemy, ownedMegidoIds, megidoList, orbList, megidoConditions, selectedSquare]);
 
     const handleTargetFloorChange = (floor) => {
         if (floor <= 20 && !isGuideMode) {
