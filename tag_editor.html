@@ -3,504 +3,470 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>星間の塔 タグ付け支援ツール</title>
+    <title>タグ付け支援ツール v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { background-color: #111827; color: #d1d5db; }
-        .tab-button.active { background-color: #374151; }
-        .modal { background-color: rgba(0, 0, 0, 0.5); }
+        .tab-button.active { background-color: #3b82f6; color: white; }
+        .modal { background-color: rgba(0, 0, 0, 0.7); }
         .modal-content { background-color: #1f2937; }
-        .btn-primary { background-color: #3b82f6; }
-        .btn-secondary { background-color: #4b5563; }
-        .btn-danger { background-color: #ef4444; }
-        input, select, textarea { background-color: #374151; border-color: #4b5563; }
+        input, select, textarea { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+        input:focus, select:focus, textarea:focus { border-color: #3b82f6; outline: none; }
+        .tag { background-color: #374151; }
+        .tag-delete, .list-delete { cursor: pointer; color: #f87171; }
+        .list-item:hover { background-color: #374151; }
     </style>
 </head>
-<body class="p-4">
+<body class="p-6">
 
-    <div id="app">
-        <h1 class="text-2xl font-bold mb-4">星間の塔 タグ付け支援ツール</h1>
+    <div id="app" class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-white">タグ付け支援ツール v3</h1>
 
-        <!-- Section for managing categories -->
-        <div class="mb-8 p-4 border border-gray-700 rounded">
-            <h2 class="text-xl font-semibold mb-2">タグ分類管理</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Tag Map Management -->
+        <div class="mb-8 p-6 bg-gray-900/50 rounded-lg border border-gray-700">
+            <h2 class="text-xl font-semibold mb-4 text-white">タグ分類管理</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <h3 class="font-bold mb-1">大区分 (Category)</h3>
-                    <div id="category-list" class="mb-2 p-2 border border-gray-600 rounded h-32 overflow-y-auto"></div>
+                    <h3 class="font-bold mb-2">大区分 (Category)</h3>
+                    <div id="category-list" class="mb-2 p-2 border border-gray-600 rounded h-48 overflow-y-auto"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="new-category" placeholder="新しい大区分" class="w-full p-2 rounded">
-                        <button id="add-category-btn" class="btn-primary p-2 rounded">追加</button>
+                        <input type="text" id="new-category-input" placeholder="新しい大区分" class="w-full p-2 rounded-md">
+                        <button id="add-category-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">追加</button>
                     </div>
                 </div>
                 <div>
-                    <h3 class="font-bold mb-1">小区分 (SubCategory)</h3>
-                    <div id="subcategory-list" class="mb-2 p-2 border border-gray-600 rounded h-32 overflow-y-auto"></div>
+                    <h3 class="font-bold mb-2">小区分 (SubCategory) - <span id="selected-category-label"></span></h3>
+                    <div id="subcategory-list" class="mb-2 p-2 border border-gray-600 rounded h-48 overflow-y-auto"></div>
                     <div class="flex gap-2">
-                        <input type="text" id="new-subcategory" placeholder="新しい小区分" class="w-full p-2 rounded">
-                        <button id="add-subcategory-btn" class="btn-primary p-2 rounded">追加</button>
+                        <input type="text" id="new-subcategory-input" placeholder="新しい小区分" class="w-full p-2 rounded-md">
+                        <button id="add-subcategory-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">追加</button>
                     </div>
                 </div>
+            </div>
+             <div class="mt-4 text-right">
+                <button id="copy-tag-map-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">分類データをコピー</button>
             </div>
         </div>
 
-        <!-- Main content -->
-        <div>
-            <div class="flex border-b border-gray-700">
-                <button id="floor-tab" class="tab-button py-2 px-4 active">フロア</button>
-                <button id="megido-tab" class="tab-button py-2 px-4">メギド</button>
-                <button id="orb-tab" class="tab-button py-2 px-4">オーブ</button>
-            </div>
+        <!-- Data Source Tabs -->
+        <div class="flex border-b border-gray-700 mb-6">
+            <button data-tab="megido" class="tab-button py-2 px-4 rounded-t-lg font-semibold">メギド</button>
+            <button data-tab="orbs" class="tab-button py-2 px-4 rounded-t-lg font-semibold">オーブ</button>
+            <button data-tab="tower" class="tab-button py-2 px-4 rounded-t-lg font-semibold">塔（エネミー）</button>
+        </div>
 
-            <div id="floor-content" class="mt-4">
-                <div class="flex items-center gap-4 mb-4">
-                    <label for="floor-select" class="font-bold">フロア選択:</label>
-                    <select id="floor-select" class="p-2 rounded bg-gray-700"></select>
-                </div>
-                <div id="squares-list"></div>
-            </div>
+        <!-- Search & List Area -->
+        <div class="mb-6">
+            <input type="text" id="search-input" placeholder="名前で検索..." class="w-full p-2 rounded-md mb-4">
+            <div id="item-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </div>
 
-            <div id="megido-content" class="mt-4 hidden">
-                <input type="text" id="megido-search" placeholder="メギドを検索..." class="w-full p-2 mb-4 rounded">
-                <div id="megido-list" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-            </div>
-
-            <div id="orb-content" class="mt-4 hidden">
-                <input type="text" id="orb-search" placeholder="オーブを検索..." class="w-full p-2 mb-4 rounded">
-                <div id="orb-list" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
-            </div>
+        <!-- Output Area -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-2 text-white">アイテムデータ全体出力</h2>
+            <p class="text-gray-400 mb-4">編集が完了したら、下の「コピー」ボタンを押して、対応するJSONファイルに内容を貼り付けてください。</p>
+            <textarea id="output-textarea" class="w-full h-96 p-3 rounded-md font-mono text-sm" readonly></textarea>
+            <button id="copy-output-btn" class="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">全体データをコピー</button>
         </div>
 
         <!-- Tag Edit Modal -->
-        <div id="tag-edit-modal" class="fixed inset-0 modal items-center justify-center hidden">
-            <div class="modal-content p-6 rounded-lg shadow-lg w-full max-w-lg">
-                <h2 class="text-xl font-bold mb-4" id="modal-title">タグ編集</h2>
-                <div id="current-tags" class="mb-4"></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-4">
-                    <select id="category-select" class="p-2 rounded"></select>
-                    <div class="relative">
-                        <input type="text" id="subcategory-input" placeholder="小区分を検索..." class="p-2 rounded w-full">
-                        <div id="subcategory-options" class="absolute z-10 w-full bg-gray-700 rounded max-h-48 overflow-y-auto hidden"></div>
-                    </div>
-                    <input type="text" id="method-input" placeholder="手段 (例: スキル)" class="p-2 rounded">
-                    <input type="text" id="condition-input" placeholder="条件 (任意)" class="p-2 rounded">
+        <div id="tag-edit-modal" class="fixed inset-0 modal items-center justify-center hidden z-50">
+            <div class="modal-content p-6 rounded-lg shadow-lg w-full max-w-2xl">
+                <h2 class="text-2xl font-bold mb-4" id="modal-title">タグ編集</h2>
+                <div id="current-tags-container" class="mb-4 p-3 bg-gray-900/50 rounded-md min-h-[80px]"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-gray-700 rounded-md">
+                    <div class="col-span-1 md:col-span-2 font-semibold text-lg">新規タグ追加</div>
+                    <div><label for="category-select" class="block text-sm font-medium text-gray-400">大区分</label><select id="category-select" class="w-full p-2 mt-1 rounded-md"></select></div>
+                    <div><label for="subcategory-select" class="block text-sm font-medium text-gray-400">小区分</label><select id="subcategory-select" class="w-full p-2 mt-1 rounded-md"></select></div>
+                    <div><label for="method-input" class="block text-sm font-medium text-gray-400">手段</label><input type="text" id="method-input" placeholder="例: スキル, 特性" class="w-full p-2 mt-1 rounded-md"></div>
+                    <div><label for="condition-input" class="block text-sm font-medium text-gray-400">値 (任意)</label><input type="text" id="condition-input" placeholder="例: 100, 3ターン" class="w-full p-2 mt-1 rounded-md"></div>
+                    <div class="col-span-1 md:col-span-2"><button id="add-tag-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">タグを追加</button></div>
                 </div>
-                <button id="add-tag-btn" class="btn-primary p-2 rounded w-full mb-4">タグを追加</button>
-                <button id="copy-item-btn" class="btn-secondary p-2 rounded w-full mb-2">このマスのデータのみコピー</button>
-                <button id="close-modal-btn" class="btn-secondary p-2 rounded w-full">閉じる</button>
+                <div class="mt-6 flex justify-between items-center">
+                    <button id="copy-item-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">このアイテムのデータをコピー</button>
+                    <button id="close-modal-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">閉じる</button>
+                </div>
             </div>
-        </div>
-
-        <!-- Output Section -->
-        <div class="mt-8">
-            <h2 class="text-xl font-semibold mb-2">tower.json 全体出力</h2>
-            <button id="generate-output-btn" class="btn-primary p-2 rounded mb-2">更新用データを生成</button>
-            <textarea id="output-textarea" class="w-full h-64 p-2 rounded" readonly></textarea>
-            <button id="copy-output-btn" class="btn-secondary p-2 rounded mt-2">クリップボードにコピー</button>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- STATE ---
-            let towerData = [];
-            let megidoData = [];
-            let orbData = [];
-            let categories = [];
-            let subcategories = [];
-            let currentEditing = { type: null, id: null, tagType: 'gimmicks' };
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DATA ---
+    let TAG_MAP = {
+        "状態異常": ["毒", "めまい", "感電", "呪い", "暗闇", "睡眠", "凍結", "混乱", "束縛", "病気", "ノックバック", "引き寄せ", "煉獄の炎", "ねずみ化", "ゾンビ", "悪夢", "即死", "完殺", "執心", "味方状態異常"],
+        "弱体": ["攻撃力低下", "防御力低下", "素早さ低下", "フォトン容量低下", "アタック劣化", "スキル劣化", "チャージ劣化", "火耐性低下", "雷耐性低下", "覚醒増加量低下"],
+        "妨害": ["フォトン破壊", "フォトン奪取", "覚醒ゲージ減少", "強化解除", "フォトン転換", "ペインフォトン追加"],
+        "強化": ["他者攻撃力上昇", "防御力上昇", "素早さ上昇", "ダメージ軽減", "自然回復", "カウンター（反撃付与）", "状態変化耐性", "かばう", "フォトン容量上昇", "アタック強化", "スキル強化", "チャージ強化", "回数バリア", "ダメージブロック", "アタックバリア", "スキルバリア", "追加ダメージ", "列化", "全体化", "無敵", "魅了", "追撃", "自動蘇生", "状態異常命中", "回避", "火ダメージ上昇", "雷ダメージ上昇", "覚醒増加量上昇"],
+        "補助": ["覚醒ゲージ増加", "アタック追加", "スキル追加", "チャージ追加", "フォトン変化"],
+        "回復・蘇生・治癒": ["回復", "蘇生", "状態異常治癒", "弱体解除"],
+        "特殊状態": ["バーサーク", "点穴付与", "点穴", "ライブ", "ハイドロボム", "錬ボム", "ダメージ表", "エレキ", "封印", "アーマー", "デスギフト", "レイズギフト", "覚醒コスト減少", "オーラ", "オーラ消費", "誘雷", "魂衣", "強化解除無効", "オーバーチャージ"],
+        "トランス": ["協奏", "重奏", "音符発生", "怒闘", "バレット作成", "バレット消費", "ネクロ", "ソウル消費", "Fインパルス", "リリース効果付与", "コロッセオ"],
+        "地形": ["炎上", "狂炎", "滞水", "突風", "地割れ", "氷結", "凍土", "帯電", "浸食", "強染", "夢幻", "味方地形", "列地形", "全体地形", "地形延長"],
+        "攻撃手段": ["防御無視", "火ダメージ", "雷ダメージ", "破断ダメージ", "響撃ダメージ", "光子ダメージ", "固定ダメージ", "防御力依存ダメージ", "素早さ依存ダメージ", "HP依存ダメージ", "連続攻撃", "列攻撃", "全体攻撃", "獣人特効", "虫特効", "獣特効", "植物特効", "死者特効", "精霊特効", "飛行特効", "悪魔特効", "大幻獣特効", "古代生物特攻", "神特効", "爬虫類特効", "物体特効", "不定形特効", "多足類特効", "海洋生物特効", "龍特効"],
+        "耐性": ["状態異常無効", "状態異常耐性"],
+        "その他": ["飛行・地形無効", "反動・味方へのダメージ", "チェイン発生", "ブレイク", "戦旗"]
+    };
 
-            const defaultCategories = ['状態異常', '弱体', '妨害', '強化', '補助', '回復', '特殊状態', 'トランス', '地形', '攻撃手段', '耐性', 'その他'];
-            const defaultSubcategories = ['毒', 'めまい', '感電', '呪い', '暗闇', '睡眠', '凍結', '混乱', '束縛', '病気', 'ノックバック', '引き寄せ', '煉獄の炎', 'ねずみ化', 'ゾンビ', '悪夢', '即死', '完殺', '執心', '味方状態異常', '攻撃力低下', '防御力低下', '素早さ低下', 'フォトン容量低下', 'アタック劣化', 'スキル劣化', 'チャージ劣化', '火耐性低下', '雷耐性低下', '覚醒増加量低下', 'フォトン破壊', 'フォトン奪取', '覚醒ゲージ減少', '強化解除', 'フォトン転換', 'ペインフォトン追加', '攻撃力上昇', '防御力上昇', '素早さ上昇', 'ダメージ軽減', '自然回復', '反撃', '状態変化耐性', 'かばう', 'フォトン容量上昇', 'アタック強化', 'スキル強化', 'チャージ強化', '回数バリア', 'ダメージブロック', 'アタックバリア', 'スキルバリア', '追加ダメージ', '列化', '全体化', '無敵', '魅了', '追撃', '自動蘇生', '状態異常命中上昇', '回避', '火ダメージ上昇', '雷ダメージ上昇', '覚醒増加量上昇', '覚醒ゲージ増加', 'アタック追加', 'スキル追加', 'チャージ追加', 'フォトン変化', 'HP回復', '蘇生', '状態異常治癒', '弱体解除', 'バーサーク', '点穴', 'ハイドロボム', '錬ボム', 'エレキ', '封印', 'アーマー', 'デスギフト', 'レイズギフト', '覚醒コスト減少', 'オーラ', '誘雷', '魂衣', '強化解除無効', 'オーバーチャージ', '協奏', '重奏', '怒闘', 'バレット', 'ネクロ', 'Fインパルス', 'コロッセオ', '炎上', '狂炎', '滞水', '突風', '地割れ', '氷結', '凍土', '帯電', '浸食', '強染', '夢幻', '地形延長', '防御無視', '特効', '火ダメージ', '雷ダメージ', '破断', '響撃', '光子ダメージ', '固定ダメージ', '防御力依存ダメージ', '素早さ依存ダメージ', 'HP依存ダメージ', '連続攻撃', '列攻撃', '全体攻撃', '状態異常無効', '全状態異常耐性', '飛行', '地形無効', '反動ダメージ', 'チェイン', 'ブレイク', '戦旗'];
+    // --- STATE ---
+    let masterData = { megido: [], orbs: [], tower: [] };
+    let activeTab = 'megido';
+    let currentEditingItem = null;
+    let selectedCategoryForManagement = Object.keys(TAG_MAP)[0];
 
-            // --- DOM ELEMENTS ---
-            const floorTab = document.getElementById('floor-tab');
-            const megidoTab = document.getElementById('megido-tab');
-            const orbTab = document.getElementById('orb-tab');
-            const floorContent = document.getElementById('floor-content');
-            const megidoContent = document.getElementById('megido-content');
-            const orbContent = document.getElementById('orb-content');
-            const floorSelect = document.getElementById('floor-select');
-            const squaresList = document.getElementById('squares-list');
-            const megidoSearch = document.getElementById('megido-search');
-            const orbSearch = document.getElementById('orb-search');
-            const megidoListEl = document.getElementById('megido-list');
-            const orbListEl = document.getElementById('orb-list');
-            const modal = document.getElementById('tag-edit-modal');
-            const modalTitle = document.getElementById('modal-title');
-            const currentTagsEl = document.getElementById('current-tags');
-            const categorySelect = document.getElementById('category-select');
-            const subcategoryInput = document.getElementById('subcategory-input');
-            const subcategoryOptions = document.getElementById('subcategory-options');
-            const methodInput = document.getElementById('method-input');
-            const addTagBtn = document.getElementById('add-tag-btn');
-            const copyItemBtn = document.getElementById('copy-item-btn');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-            const generateOutputBtn = document.getElementById('generate-output-btn');
-            const outputTextarea = document.getElementById('output-textarea');
-            const copyOutputBtn = document.getElementById('copy-output-btn');
+    // --- DOM ELEMENTS ---
+    const copyItemBtn = document.getElementById('copy-item-btn');
+    const categoryListEl = document.getElementById('category-list');
+    const subcategoryListEl = document.getElementById('subcategory-list');
+    const selectedCategoryLabel = document.getElementById('selected-category-label');
+    const newCategoryInput = document.getElementById('new-category-input');
+    const newSubcategoryInput = document.getElementById('new-subcategory-input');
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    const addSubcategoryBtn = document.getElementById('add-subcategory-btn');
+    const copyTagMapBtn = document.getElementById('copy-tag-map-btn');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const searchInput = document.getElementById('search-input');
+    const itemListEl = document.getElementById('item-list');
+    const outputTextarea = document.getElementById('output-textarea');
+    const copyOutputBtn = document.getElementById('copy-output-btn');
+    const modal = document.getElementById('tag-edit-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const currentTagsContainer = document.getElementById('current-tags-container');
+    const categorySelect = document.getElementById('category-select');
+    const subcategorySelect = document.getElementById('subcategory-select');
+    const methodInput = document.getElementById('method-input');
+    const conditionInput = document.getElementById('condition-input');
+    const addTagBtn = document.getElementById('add-tag-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
 
-            // --- INITIALIZATION ---
-            const init = async () => {
-                // Category management is omitted for brevity
-                categories = defaultCategories;
-                subcategories = defaultSubcategories;
-                updateCategorySelect();
+    // --- FUNCTIONS ---
+    const fetchData = async () => {
+        try {
+            const [megidoRes, orbsRes, towerRes] = await Promise.all([
+                fetch('data/megido.json'),
+                fetch('data/orbs.json'),
+                fetch('data/tower.json')
+            ]);
+            masterData.megido = await megidoRes.json();
+            masterData.orbs = await orbsRes.json();
+            masterData.tower = await towerRes.json();
+        } catch (e) {
+            console.error("Data loading failed:", e);
+            alert("データファイルの読み込みに失敗しました。");
+        }
+    };
 
-                await loadData();
-                populateFloorSelect();
-                renderSquaresForFloor(towerData[0].floor);
-                renderMegidoList();
-                renderOrbList();
-                setupEventListeners();
+    const renderCategoryManagement = () => {
+        categoryListEl.innerHTML = '';
+        Object.keys(TAG_MAP).forEach(cat => {
+            const itemEl = document.createElement('div');
+            itemEl.className = `list-item p-2 rounded-md cursor-pointer flex justify-between items-center ${selectedCategoryForManagement === cat ? 'bg-blue-600 text-white' : ''}`;
+            itemEl.textContent = cat;
+            itemEl.onclick = () => {
+                selectedCategoryForManagement = cat;
+                renderCategoryManagement();
             };
-
-            const loadData = async () => {
-                try {
-                    const [towerRes, megidoRes, orbRes] = await Promise.all([
-                        fetch('data/tower.json'),
-                        fetch('data/megido.json'),
-                        fetch('data/orbs.json')
-                    ]);
-                    towerData = await towerRes.json();
-                    megidoData = await megidoRes.json();
-                    orbData = await orbRes.json();
-
-                    megidoData.forEach(m => { if (!m.tags) m.tags = []; });
-                    orbData.forEach(o => { if (!o.tags) o.tags = []; });
-
-                } catch (error) {
-                    console.error('Error loading data:', error);
-                    alert('データの読み込みに失敗しました。');
-                }
-            };
-
-            const populateFloorSelect = () => {
-                towerData.forEach(floor => {
-                    const option = document.createElement('option');
-                    option.value = floor.floor;
-                    option.textContent = `Floor ${floor.floor}`;
-                    floorSelect.appendChild(option);
-                });
-            };
-
-            const renderSquaresForFloor = (floorNum) => {
-                squaresList.innerHTML = '';
-                const floor = towerData.find(f => f.floor == floorNum);
-                if (!floor) return;
-
-                Object.entries(floor.squares).forEach(([squareId, square]) => {
-                    if (!square.enemies || square.enemies.length === 0) return;
-
-                    const squareEl = document.createElement('div');
-                    squareEl.className = 'p-4 border border-gray-700 rounded shadow mb-4';
-                    let enemiesHTML = '<ul class="mt-2 list-disc list-inside">';
-                    square.enemies.forEach((enemy, index) => {
-                        const enemyName = typeof enemy === 'string' ? enemy : enemy.name;
-                        const tags = (typeof enemy === 'object' && enemy.tags) ? (enemy.tags.gimmicks?.length || 0) + (enemy.tags.weaknesses?.length || 0) : 0;
-                        enemiesHTML += `
-                            <li class="flex justify-between items-center mt-2">
-                                <span>${enemyName} - Tags: ${tags}</span>
-                                <button class="edit-btn btn-secondary text-white p-1 px-2 text-sm rounded" data-type="floor-enemy" data-floor="${floorNum}" data-square="${squareId}" data-enemy-index="${index}">編集</button>
-                            </li>
-                        `;
-                    });
-                    enemiesHTML += '</ul>';
-                    squareEl.innerHTML = `<h3 class="font-bold">${squareId} (${square.type})</h3>${enemiesHTML}`;
-                    squaresList.appendChild(squareEl);
-                });
-
-                document.querySelectorAll('.edit-btn[data-type="floor-enemy"').forEach(btn => {
-                    btn.addEventListener('click', e => {
-                        const { floor, square, enemyIndex } = e.target.dataset;
-                        openModal('floor-enemy', { floor: parseInt(floor), squareId: square, enemyIndex: parseInt(enemyIndex) });
-                    });
-                });
-            };
-
-            const renderMegidoList = (filter = '') => {
-                megidoListEl.innerHTML = '';
-                megidoData
-                    .filter(m => m.名前.toLowerCase().includes(filter.toLowerCase()))
-                    .forEach(m => {
-                        const card = createCard(m, 'megido');
-                        megidoListEl.appendChild(card);
-                    });
-            };
-
-            const renderOrbList = (filter = '') => {
-                orbListEl.innerHTML = '';
-                orbData
-                    .filter(o => o.name.toLowerCase().includes(filter.toLowerCase()))
-                    .forEach(o => {
-                        const card = createCard(o, 'orb');
-                        orbListEl.appendChild(card);
-                    });
-            };
-
-            const createCard = (item, type) => {
-                const card = document.createElement('div');
-                card.className = 'p-4 border border-gray-700 rounded shadow';
-                const name = item.名前 || item.name;
-                card.innerHTML = `
-                    <h3 class="font-bold">${name}</h3>
-                    <p class="text-sm text-gray-400">Tags: ${item.tags ? item.tags.length : 0}</p>
-                    <button class="edit-btn mt-2 btn-secondary text-white p-1 px-2 text-sm rounded" data-type="${type}" data-id="${item.id}">編集</button>
-                `;
-                card.querySelector('.edit-btn').addEventListener('click', e => {
-                    const { type, id } = e.target.dataset;
-                    openModal(type, id);
-                });
-                return card;
-            };
-
-            const updateCategorySelect = () => {
-                categorySelect.innerHTML = '<option value="">大区分を選択</option>';
-                categories.forEach(cat => {
-                    const option = document.createElement('option');
-                    option.value = cat;
-                    option.textContent = cat;
-                    categorySelect.appendChild(option);
-                });
-            };
-
-            // --- MODAL LOGIC ---
-            const openModal = (type, id) => {
-                currentEditing = { type, id, tagType: 'gimmicks' };
-                let item, title;
-                if (type === 'megido') {
-                    item = megidoData.find(m => m.id === id);
-                    title = `${item.名前} のタグ編集`;
-                } else if (type === 'orb') {
-                    item = orbData.find(o => o.id === id);
-                    title = `${item.name} のタグ編集`;
-                } else if (type === 'floor-enemy') {
-                    const { floor, squareId, enemyIndex } = id;
-                    const enemy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
-                    const enemyName = typeof enemy === 'string' ? enemy : enemy.name;
-                    title = `${enemyName} (${floor}F ${squareId}) のタグ編集`;
-                }
-                modalTitle.textContent = title;
-                renderCurrentTags();
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            };
-
-            const closeModal = () => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-            };
-
-            const conditionInput = document.getElementById('condition-input');
-
-            // ... (rest of the DOM elements)
-
-            const renderCurrentTags = () => {
-                const { type, id, tagType } = currentEditing;
-                let tags;
-                if (type === 'megido') {
-                    tags = megidoData.find(m => m.id === id).tags;
-                } else if (type === 'orb') {
-                    tags = orbData.find(o => o.id === id).tags;
-                } else if (type === 'floor-enemy') {
-                    const { floor, squareId, enemyIndex } = id;
-                    const enemy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
-                    tags = (typeof enemy === 'object' && enemy.tags) ? enemy.tags : { gimmicks: [], weaknesses: [] };
-                }
-
-                currentTagsEl.innerHTML = '';
-                if (type === 'megido' || type === 'orb') {
-                    (tags || []).forEach((tag, index) => {
-                        const tagEl = document.createElement('div');
-                        tagEl.className = 'flex justify-between items-center p-2 bg-gray-800 rounded mb-1';
-                        tagEl.innerHTML = `
-                            <span>${tag.category} > ${tag.subCategory} > ${tag.method || ''} ${tag.condition ? `(${tag.condition})` : ''}</span>
-                            <button data-index="${index}" class="delete-tag-btn btn-danger text-white p-1 rounded text-xs">削除</button>
-                        `;
-                        currentTagsEl.appendChild(tagEl);
-                    });
-                } else { // floor-enemy
-                    const buttons = `
-                        <div class="flex gap-2 mb-2">
-                            <button class="tag-type-btn py-1 px-3 rounded ${tagType === 'gimmicks' ? 'btn-primary' : 'btn-secondary'}" data-tag-type="gimmicks">ギミック</button>
-                            <button class="tag-type-btn py-1 px-3 rounded ${tagType === 'weaknesses' ? 'btn-primary' : 'btn-secondary'}" data-tag-type="weaknesses">弱点</button>
-                        </div>
-                    `;
-                    currentTagsEl.innerHTML = buttons;
-
-                    const tagList = tags[tagType] || [];
-                    tagList.forEach((tag, index) => {
-                        const tagEl = document.createElement('div');
-                        tagEl.className = 'flex justify-between items-center p-2 bg-gray-800 rounded mb-1';
-                        tagEl.innerHTML = `
-                            <span>${tag.category} > ${tag.subCategory} > ${tag.method || ''} ${tag.condition ? `(${tag.condition})` : ''}</span>
-                            <button data-index="${index}" class="delete-tag-btn btn-danger text-white p-1 rounded text-xs">削除</button>
-                        `;
-                        currentTagsEl.appendChild(tagEl);
-                    });
-
-                    document.querySelectorAll('.tag-type-btn').forEach(btn => {
-                        btn.addEventListener('click', e => {
-                            currentEditing.tagType = e.target.dataset.tagType;
-                            renderCurrentTags();
-                        });
-                    });
-                }
-                document.querySelectorAll('.delete-tag-btn').forEach(btn => {
-                    btn.addEventListener('click', e => {
-                        deleteTag(parseInt(e.target.dataset.index, 10));
-                    });
-                });
-            };
-
-            const addTag = () => {
-                const { type, id, tagType } = currentEditing;
-                const category = categorySelect.value;
-                const subCategory = subcategoryInput.value;
-                const method = methodInput.value.trim();
-                const condition = conditionInput.value.trim();
-
-                if (!category || !subCategory) {
-                    alert('大区分と小区分を選択・入力してください。');
-                    return;
-                }
-
-                const newTag = { category, subCategory, method, condition };
-
-                if (type === 'megido') {
-                    const item = megidoData.find(m => m.id === id);
-                    if (!item.tags) item.tags = [];
-                    item.tags.push(newTag);
-                } else if (type === 'orb') {
-                    const item = orbData.find(o => o.id === id);
-                    if (!item.tags) item.tags = [];
-                    item.tags.push(newTag);
-                } else if (type === 'floor-enemy') {
-                    const { floor, squareId, enemyIndex } = id;
-                    let enemy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
-                    if (typeof enemy === 'string') {
-                        enemy = { name: enemy, tags: { gimmicks: [], weaknesses: [] } };
-                        towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex] = enemy;
-                    }
-                    if (!enemy.tags) enemy.tags = { gimmicks: [], weaknesses: [] };
-                    if (!enemy.tags[tagType]) enemy.tags[tagType] = [];
-                    enemy.tags[tagType].push({ category, subCategory, method, condition });
-                }
-                
-                renderCurrentTags();
-                subcategoryInput.value = '';
-                methodInput.value = '';
-                conditionInput.value = '';
-            };
-
-            const deleteTag = (index) => {
-                const { type, id, tagType } = currentEditing;
-                if (type === 'megido') {
-                    megidoData.find(m => m.id === id).tags.splice(index, 1);
-                } else if (type === 'orb') {
-                    orbData.find(o => o.id === id).tags.splice(index, 1);
-                } else if (type === 'floor-enemy') {
-                    const { floor, squareId, enemyIndex } = id;
-                    const enemy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
-                    if (enemy && typeof enemy === 'object' && enemy.tags && enemy.tags[tagType]) {
-                        enemy.tags[tagType].splice(index, 1);
-                    }
-                }
-                renderCurrentTags();
-            };
-
-            // --- EVENT LISTENERS ---
-            const setupEventListeners = () => {
-                const tabs = { 
-                    floor: { tab: floorTab, content: floorContent },
-                    megido: { tab: megidoTab, content: megidoContent },
-                    orb: { tab: orbTab, content: orbContent },
-                };
-                const switchTab = (activeTabId) => {
-                    Object.keys(tabs).forEach(id => {
-                        const isActive = id === activeTabId;
-                        tabs[id].tab.classList.toggle('active', isActive);
-                        tabs[id].content.classList.toggle('hidden', !isActive);
-                    });
-                };
-                floorTab.addEventListener('click', () => switchTab('floor'));
-                megidoTab.addEventListener('click', () => switchTab('megido'));
-                orbTab.addEventListener('click', () => switchTab('orb'));
-
-                floorSelect.addEventListener('change', e => renderSquaresForFloor(e.target.value));
-                megidoSearch.addEventListener('input', e => renderMegidoList(e.target.value));
-                orbSearch.addEventListener('input', e => renderOrbList(e.target.value));
-                
-                addTagBtn.addEventListener('click', addTag);
-                closeModalBtn.addEventListener('click', closeModal);
-                generateOutputBtn.addEventListener('click', generateOutput);
-                copyOutputBtn.addEventListener('click', copyOutput);
-                copyItemBtn.addEventListener('click', copyItem);
-
-                // Filterable subcategory input
-                const renderSubcategoryOptions = (filter = '') => {
-                    subcategoryOptions.innerHTML = '';
-                    const filtered = subcategories.filter(s => s.toLowerCase().includes(filter.toLowerCase()));
-                    filtered.forEach(sub => {
-                        const optionEl = document.createElement('div');
-                        optionEl.className = 'p-2 cursor-pointer hover:bg-gray-600';
-                        optionEl.textContent = sub;
-                        optionEl.addEventListener('click', () => {
-                            subcategoryInput.value = sub;
-                            subcategoryOptions.classList.add('hidden');
-                        });
-                        subcategoryOptions.appendChild(optionEl);
-                    });
-                    subcategoryOptions.classList.toggle('hidden', filtered.length === 0 && document.activeElement !== subcategoryInput);
-                };
-                subcategoryInput.addEventListener('focus', () => renderSubcategoryOptions(subcategoryInput.value));
-                subcategoryInput.addEventListener('input', () => renderSubcategoryOptions(subcategoryInput.value));
-                document.addEventListener('click', e => {
-                    if (!e.target.closest('.relative')) {
-                        subcategoryOptions.classList.add('hidden');
-                    }
-                });
-            };
-
-            // --- OUTPUT ---
-            const generateOutput = () => {
-                let output = '';
-                if (floorTab.classList.contains('active')) {
-                    output = JSON.stringify(towerData, null, 2);
-                } else if (megidoTab.classList.contains('active')) {
-                    output = JSON.stringify(megidoData, null, 2);
-                } else if (orbTab.classList.contains('active')) {
-                    output = JSON.stringify(orbData, null, 2);
-                }
-                outputTextarea.value = output;
-            };
-
-            const copyOutput = () => {
-                outputTextarea.select();
-                document.execCommand('copy');
-                alert('クリップボードにコピーしました。');
-            };
-
-            const copyItem = () => {
-                const { type, id } = currentEditing;
-                let itemToCopy;
-                if (type === 'floor-enemy') {
-                    const { floor, squareId, enemyIndex } = id;
-                    itemToCopy = towerData.find(f => f.floor === floor).squares[squareId].enemies[enemyIndex];
-                } else if (type === 'megido') {
-                    itemToCopy = megidoData.find(m => m.id === id);
-                } else if (type === 'orb') {
-                    itemToCopy = orbData.find(o => o.id === id);
-                }
-                navigator.clipboard.writeText(JSON.stringify(itemToCopy, null, 2)).then(() => {
-                    alert('このアイテムのデータをコピーしました。');
-                });
-            };
-
-            // --- START ---
-            init();
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'list-delete font-bold';
+            deleteBtn.textContent = '×';
+            deleteBtn.onclick = (e) => { e.stopPropagation(); deleteCategory(cat); };
+            itemEl.appendChild(deleteBtn);
+            categoryListEl.appendChild(itemEl);
         });
-    </script>
+        renderSubcategoryManagement();
+    };
 
+    const renderSubcategoryManagement = () => {
+        subcategoryListEl.innerHTML = '';
+        selectedCategoryLabel.textContent = selectedCategoryForManagement;
+        if (selectedCategoryForManagement && TAG_MAP[selectedCategoryForManagement]) {
+            TAG_MAP[selectedCategoryForManagement].forEach(sub => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'list-item p-2 rounded-md flex justify-between items-center';
+                itemEl.textContent = sub;
+                const deleteBtn = document.createElement('span');
+                deleteBtn.className = 'list-delete font-bold';
+                deleteBtn.textContent = '×';
+                deleteBtn.onclick = (e) => { e.stopPropagation(); deleteSubcategory(sub); };
+                itemEl.appendChild(deleteBtn);
+                subcategoryListEl.appendChild(itemEl);
+            });
+        }
+    };
+
+    const renderItemList = () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const data = masterData[activeTab];
+        itemListEl.innerHTML = '';
+
+        if (activeTab === 'tower') {
+            const towerArray = data;
+            if (!Array.isArray(towerArray)) { return; }
+
+            towerArray.forEach(floorData => {
+                const enemiesInFloor = [];
+                if (floorData.squares) {
+                    Object.entries(floorData.squares).forEach(([squareId, squareData]) => {
+                        if (!squareData.enemies) return;
+                        squareData.enemies.forEach((enemy, index) => {
+                            const enemyName = typeof enemy === 'string' ? enemy : enemy.name;
+                            if (!searchTerm || enemyName.toLowerCase().includes(searchTerm)) {
+                                const compositeId = `${floorData.floor}|${squareId}|${index}`;
+                                const item = { id: compositeId, name: `${enemyName} (${squareId})` };
+                                enemiesInFloor.push(item);
+                            }
+                        });
+                    });
+                }
+
+                if (enemiesInFloor.length > 0) {
+                    const floorHeader = document.createElement('h2');
+                    floorHeader.className = 'text-2xl font-bold text-white mt-8 mb-4 col-span-full';
+                    floorHeader.textContent = `${floorData.floor}階`;
+                    itemListEl.appendChild(floorHeader);
+
+                    enemiesInFloor.forEach(item => {
+                        const card = createItemCard(item, 'enemy');
+                        itemListEl.appendChild(card);
+                    });
+                }
+            });
+        } else {
+            data.filter(item => (item.name || item.名前).toLowerCase().includes(searchTerm))
+               .forEach(item => {
+                    const card = createItemCard(item, activeTab);
+                    itemListEl.appendChild(card);
+               });
+        }
+        updateOutput();
+    };
+
+    const createItemCard = (item, type) => {
+        const card = document.createElement('div');
+        card.className = 'p-4 border border-gray-700 rounded-lg shadow-md flex flex-col justify-between';
+        const name = item.name || item.名前;
+        const tags = getItemTags(item, type);
+        card.innerHTML = `
+            <div>
+                <h3 class="font-bold text-white">${name}</h3>
+                <p class="text-sm text-gray-400">タグ数: ${tags.length}</p>
+            </div>
+            <button class="edit-btn mt-2 bg-gray-600 hover:bg-gray-700 text-white text-sm py-1 px-3 rounded-md w-full">編集</button>
+        `;
+        card.querySelector('.edit-btn').addEventListener('click', () => openModal(item, type));
+        return card;
+    };
+
+    const getItemTags = (item, type) => {
+        if (type === 'enemy') {
+            const [floorNum, squareId, enemyIndex] = item.id.split('|');
+            const floorData = masterData.tower.find(f => String(f.floor) === floorNum);
+            const enemyData = floorData?.squares[squareId]?.enemies[enemyIndex];
+            if (enemyData && typeof enemyData === 'object' && enemyData.tags) {
+                return [ ...(enemyData.tags.gimmicks || []), ...(enemyData.tags.weaknesses || []) ];
+            }
+            return [];
+        } else {
+            return item.tags || [];
+        }
+    };
+
+    const openModal = (item, type) => {
+        currentEditingItem = { item, type };
+        modalTitle.textContent = `タグ編集: ${(item.name || item.名前)}`;
+        renderCurrentTags();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    const closeModal = () => {
+        currentEditingItem = null;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    };
+
+    const renderCurrentTags = () => {
+        if (!currentEditingItem) return;
+        currentTagsContainer.innerHTML = '';
+        const tags = getItemTags(currentEditingItem.item, currentEditingItem.type);
+        if (tags.length === 0) {
+            currentTagsContainer.innerHTML = '<p class="text-gray-500">現在タグはありません。</p>';
+            return;
+        }
+        tags.forEach((tag, index) => {
+            const tagEl = document.createElement('div');
+            tagEl.className = 'tag inline-flex items-center gap-2 text-sm px-2 py-1 rounded-full mr-2 mb-2';
+            tagEl.innerHTML = `
+                <span>${tag.category} > <strong>${tag.subCategory}</strong> ${tag.method ? `(${tag.method})` : ''} ${tag.condition ? `[${tag.condition}]` : ''}</span>
+                <span class="tag-delete text-red-400 hover:text-red-200" data-index="${index}">&times;</span>
+            `;
+            tagEl.querySelector('.tag-delete').addEventListener('click', () => deleteTag(index));
+            currentTagsContainer.appendChild(tagEl);
+        });
+    };
+
+    const addCategory = () => {
+        const newCat = newCategoryInput.value.trim();
+        if (newCat && !TAG_MAP[newCat]) {
+            TAG_MAP[newCat] = [];
+            selectedCategoryForManagement = newCat;
+            newCategoryInput.value = '';
+            renderCategoryManagement();
+            populateCategorySelect();
+        }
+    };
+
+    const deleteCategory = (catToDelete) => {
+        if (confirm(`大区分「${catToDelete}」を削除しますか？関連する小区分もすべて削除されます。`)) {
+            delete TAG_MAP[catToDelete];
+            if (selectedCategoryForManagement === catToDelete) {
+                selectedCategoryForManagement = Object.keys(TAG_MAP)[0];
+            }
+            renderCategoryManagement();
+            populateCategorySelect();
+        }
+    };
+
+    const addSubcategory = () => {
+        const newSub = newSubcategoryInput.value.trim();
+        if (newSub && selectedCategoryForManagement && !TAG_MAP[selectedCategoryForManagement].includes(newSub)) {
+            TAG_MAP[selectedCategoryForManagement].push(newSub);
+            newSubcategoryInput.value = '';
+            renderSubcategoryManagement();
+        }
+    };
+
+    const deleteSubcategory = (subToDelete) => {
+        if (confirm(`小区分「${subToDelete}」を削除しますか？`)) {
+            const subcategories = TAG_MAP[selectedCategoryForManagement];
+            const index = subcategories.indexOf(subToDelete);
+            if (index > -1) {
+                subcategories.splice(index, 1);
+            }
+            renderSubcategoryManagement();
+        }
+    };
+
+    const addTag = () => {
+        const newTag = { category: categorySelect.value, subCategory: subcategorySelect.value, method: methodInput.value.trim(), condition: conditionInput.value.trim() };
+        if (!newTag.category || !newTag.subCategory) { alert('大区分と小区分を選択してください。'); return; }
+        const { item, type } = currentEditingItem;
+        if (type === 'enemy') {
+            const [floorNum, squareId, enemyIndex] = item.id.split('|');
+            let floorData = masterData.tower.find(f => String(f.floor) === floorNum);
+            let enemyData = floorData?.squares[squareId]?.enemies[enemyIndex];
+            if (typeof enemyData === 'string') { 
+                enemyData = { name: enemyData, tags: { gimmicks: [], weaknesses: [] } };
+                floorData.squares[squareId].enemies[enemyIndex] = enemyData;
+            }
+            if (!enemyData.tags) enemyData.tags = { gimmicks: [], weaknesses: [] };
+            if (!enemyData.tags.gimmicks) enemyData.tags.gimmicks = [];
+            enemyData.tags.gimmicks.push(newTag);
+        } else {
+            if (!item.tags) item.tags = [];
+            item.tags.push(newTag);
+        }
+        renderCurrentTags();
+        updateOutput();
+    };
+
+    const deleteTag = (index) => {
+        const { item, type } = currentEditingItem;
+        if (type === 'enemy') {
+            alert('エネミータグの削除は現在サポートされていません。'); return;
+        } else {
+            item.tags.splice(index, 1);
+        }
+        renderCurrentTags();
+        updateOutput();
+    };
+
+    const copyItem = () => {
+        if (!currentEditingItem) return;
+        const { item, type } = currentEditingItem;
+        let itemToCopy;
+
+        if (type === 'enemy') {
+            const [floorNum, squareId, enemyIndex] = item.id.split('|');
+            const floorData = masterData.tower.find(f => String(f.floor) === floorNum);
+            itemToCopy = floorData?.squares[squareId]?.enemies[enemyIndex];
+        } else {
+            itemToCopy = masterData[type].find(i => i.id === item.id);
+        }
+
+        if (itemToCopy) {
+            navigator.clipboard.writeText(JSON.stringify(itemToCopy, null, 2))
+                .then(() => alert('このアイテムのデータをクリップボードにコピーしました。'))
+                .catch(err => alert('コピーに失敗しました。'));
+        }
+    };
+
+    const populateCategorySelect = () => {
+        categorySelect.innerHTML = '';
+        Object.keys(TAG_MAP).forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            categorySelect.appendChild(option);
+        });
+        populateSubcategorySelect();
+    };
+
+    const populateSubcategorySelect = () => {
+        const selectedCategory = categorySelect.value;
+        subcategorySelect.innerHTML = '';
+        if (selectedCategory && TAG_MAP[selectedCategory]) {
+            TAG_MAP[selectedCategory].forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub;
+                option.textContent = sub;
+                subcategorySelect.appendChild(option);
+            });
+        }
+    };
+
+    const updateOutput = () => {
+        outputTextarea.value = JSON.stringify(masterData[activeTab], null, 2);
+    };
+
+    const switchTab = (tabName) => {
+        activeTab = tabName;
+        tabButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+        searchInput.value = '';
+        renderItemList();
+    };
+
+    const setupEventListeners = () => {
+        tabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+        searchInput.addEventListener('input', renderItemList);
+        categorySelect.addEventListener('change', populateSubcategorySelect);
+        addTagBtn.addEventListener('click', addTag);
+        closeModalBtn.addEventListener('click', closeModal);
+        copyOutputBtn.addEventListener('click', () => {
+            if (!outputTextarea.value) { alert('出力データがありません。'); return; }
+            navigator.clipboard.writeText(outputTextarea.value).then(() => alert('アイテムデータをコピーしました。')).catch(err => alert('コピーに失敗しました。'));
+        });
+        addCategoryBtn.addEventListener('click', addCategory);
+        addSubcategoryBtn.addEventListener('click', addSubcategory);
+        copyTagMapBtn.addEventListener('click', () => {
+            const outputString = `const TAG_MAP = ${JSON.stringify(TAG_MAP, null, 4)};`;
+            navigator.clipboard.writeText(outputString).then(() => alert('タグ分類データをコピーしました。')).catch(err => alert('コピーに失敗しました。'));
+        });
+        copyItemBtn.addEventListener('click', copyItem);
+    };
+
+    const init = async () => {
+        await fetchData();
+        switchTab('megido');
+        populateCategorySelect();
+        renderCategoryManagement();
+        setupEventListeners();
+    };
+
+    init();
+});
+</script>
 </body>
 </html>
