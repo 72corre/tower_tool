@@ -63,10 +63,16 @@
                             "gimmicks": 
                                 [],
                             "weaknesses": 
-                                [{"category": "攻撃手段","subCategory": "獣人特効","method": "","condition": ""}]}
+                                [{"category": "攻撃手段","subCategory": "獣人特効","method": "","condition": ""}]
+                        }
                     },
-                    {"name":"ドラゴニュート"
-
+                    {"name":"ドラゴニュート",
+                        "tags": {
+                            "gimmicks": [
+                                 {"category": "状態異常", "subCategory": "即死","method": "覚醒スキル","condition": ""}],
+                            "weaknesses": [
+                                 {"category": "攻撃手段","subCategory": "悪魔特効","method": "","condition": ""}]
+                         }
                     }, 
                     {"name":"輝竜アシュトレト"
                     }
