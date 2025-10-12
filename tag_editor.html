@@ -97,6 +97,7 @@
                     </div>
                      <div class="col-span-1 md:col-span-2 mt-4 flex gap-2">
                         <button id="add-tag-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">タグを追加</button>
+                        <button id="bulk-add-tag-btn" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded hidden">同名エネミーに一括追加</button>
                         <button id="cancel-edit-btn" class="w-1/3 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded hidden">キャンセル</button>
                     </div>
                 </div>
@@ -161,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orbCastImpossibleCheckbox = document.getElementById('orb-cast-impossible-checkbox');
     const tagFormTitle = document.getElementById('tag-form-title');
     const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const bulkAddTagBtn = document.getElementById('bulk-add-tag-btn');
 
     // --- FUNCTIONS ---
     const fetchData = async () => {
@@ -341,6 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         enemyTagTypeSelector.classList.toggle('hidden', type !== 'enemy');
         orbCastTypeSelector.classList.toggle('hidden', type !== 'orbs');
+        bulkAddTagBtn.classList.toggle('hidden', type !== 'enemy');
         
         if (type === 'orbs') {
             const hasTag = item.tags?.some(t => t.subCategory === 'オーブキャスト不可');
@@ -519,6 +522,49 @@ document.addEventListener('DOMContentLoaded', () => {
         resetForm();
     };
 
+    const bulkAddTag = () => {
+        const newTag = { category: categorySelect.value, subCategory: subcategorySelect.value, method: methodInput.value.trim(), condition: conditionInput.value.trim() };
+        if (!newTag.category || !newTag.subCategory) {
+            alert('大区分と小区分を選択してください。');
+            return;
+        }
+
+        const { item } = currentEditingItem;
+        const enemyName = item.name;
+        const tagType = document.querySelector('input[name="enemy-tag-type"]:checked').value;
+
+        if (!confirm(`「${enemyName}」という名前のすべてのエネミーにこのタグを【${tagType}】として追加します。よろしいですか？`)) {
+            return;
+        }
+
+        let count = 0;
+        masterData.tower.forEach(floor => {
+            if (!floor.squares) return;
+            Object.values(floor.squares).forEach(square => {
+                if (!square.enemies) return;
+                square.enemies.forEach(enemy => {
+                    if (enemy.name === enemyName) {
+                        const tagExists = enemy.tags[tagType]?.some(t => 
+                            t.category === newTag.category && 
+                            t.subCategory === newTag.subCategory &&
+                            t.method === newTag.method &&
+                            t.condition === newTag.condition
+                        );
+
+                        if (!tagExists) {
+                            enemy.tags[tagType].push(JSON.parse(JSON.stringify(newTag))); // Add a deep copy
+                            count++;
+                        }
+                    }
+                });
+            });
+        });
+
+        alert(`${count}体の「${enemyName}」にタグを追加しました。`);
+        updateOutput();
+        renderCurrentTags();
+    };
+
     const deleteTag = (index, tagType) => {
         const { item, type } = currentEditingItem;
         if (type === 'enemy') {
@@ -632,6 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
         copyItemBtn.addEventListener('click', copyItem);
         orbCastImpossibleCheckbox.addEventListener('change', handleOrbCastCheckbox);
         cancelEditBtn.addEventListener('click', resetForm);
+        bulkAddTagBtn.addEventListener('click', bulkAddTag);
     };
 
     const init = async () => {
