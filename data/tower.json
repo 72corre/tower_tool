@@ -23,8 +23,8 @@
                     {"category": "攻撃手段","subCategory": "死者特効","method": "","condition": ""}]}}],
                 "rules": ["全能力+20%（幻獣）"] },
             "f1-b2": { "type": "battle", "enemies": [{ "name":"ベインチェイサー", "tags": { 
-                "gimmicks": {
-                    "category": "状態異常","subCategory": "毒","method": "スキル","condition": "50"}, 
+                "gimmicks": [{
+                    "category": "状態異常","subCategory": "毒","method": "スキル","condition": "50"}], 
                 "weaknesses": [
                     {"category": "攻撃手段","subCategory": "大幻獣特効","method": "","condition": ""}, 
                     {"category": "攻撃手段","subCategory": "防御無視","method": "","condition": ""}, 
@@ -57,9 +57,9 @@
         "squares": {
             "f2-e1": { "type": "explore", "sub_type": "status_buff", "style": "R" },
             "f2-s": { "type": "start" },
-            "f2-b1": { "type": "battle", "enemies": ["赤月の残党兵長", "ドラゴニュート", "輝竜アシュトレト"], "rules": ["防+50%（幻獣）"] },
-            "f2-b2": { "type": "battle", "enemies": ["守護竜ネイロード", "デクリオンオーク", "ゴウケツ"], "rules": ["防+50%（幻獣）"] },
-            "f2-o": { "type": "boss", "enemies": ["バラム"], "rules": ["全能力+20%"] }
+            "f2-b1": { "type": "battle", "enemies": [{"name":"赤月の残党兵長"}, {"name":"ドラゴニュート"}, {"name":"輝竜アシュトレト"}], "rules": ["防+50%（幻獣）"] },
+            "f2-b2": { "type": "battle", "enemies": [{"name":"守護竜ネイロード"}, {"name":"デクリオンオーク"}, {"name":"ゴウケツ"}], "rules": ["防+50%（幻獣）"] },
+            "f2-o": { "type": "boss", "enemies": [{"name":"バラム"}], "rules": ["全能力+20%"] }
         }
     },
     {

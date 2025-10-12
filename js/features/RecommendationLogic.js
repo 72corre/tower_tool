@@ -3,6 +3,7 @@
 // =================================================================
 const PRIORITY = { HIGH: 'high', MEDIUM: 'medium', LOW: 'low' };
 const PRIORITY_ORDER = { [PRIORITY.HIGH]: 1, [PRIORITY.MEDIUM]: 2, [PRIORITY.LOW]: 3 };
+const STATUS_AILMENT_DISPLAY_ORDER = { '即死': 1, 'めまい': 2, '呪い': 3 };
 
 // =================================================================
 // 1. 対策・役割定義マップ
@@ -205,8 +206,11 @@ const addOrUpdateRecommendation = (list, newItem) => {
 const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs = new Set(), allOrbsMaster = [] }) => {
     if (!enemy || !enemy.tags) return { success: false, reason: 'NO_ENEMY_DATA' };
 
-    const gimmicks = Array.isArray(enemy.tags.gimmicks) ? enemy.tags.gimmicks : [];
-    const weaknesses = Array.isArray(enemy.tags.weaknesses) ? enemy.tags.weaknesses : [];
+    const rawGimmicks = enemy.tags.gimmicks;
+    const gimmicks = Array.isArray(rawGimmicks) ? rawGimmicks : (rawGimmicks && typeof rawGimmicks === 'object' ? [rawGimmicks] : []);
+    const rawWeaknesses = enemy.tags.weaknesses;
+    const weaknesses = Array.isArray(rawWeaknesses) ? rawWeaknesses : (rawWeaknesses && typeof rawWeaknesses === 'object' ? [rawWeaknesses] : []);
+
     const ownedMegidoDetails = allMegidoMaster.filter(m => ownedMegido.has(m.id));
     const ownedOrbDetails = allOrbsMaster.filter(o => ownedOrbs.has(o.id));
 
@@ -218,6 +222,7 @@ const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs 
 
     // --- 1. アタッカー & ジャマーの推奨 ---
     const findAttackersAndJammers = () => {
+        const jammersMap = new Map();
         const enemyTags = [
             ...weaknesses.map(t => ({ ...t, type: 'weakness' })),
             ...gimmicks.map(t => ({ ...t, type: 'gimmick' }))
@@ -235,9 +240,22 @@ const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs 
                     const foundTag = megido.tags?.find(t => t.category === counter.category && t.subCategory === counter.subCategory);
                     if (foundTag) {
                         const priority = evaluatePriority(counter.priorityRule, foundTag.condition);
-                        const reason = `【${foundTag.method}】${counter.reason}`;
-                        const list = tag.type === 'weakness' ? recommendations.attackers : recommendations.jammers;
-                        addOrUpdateRecommendation(list, { megido, reason, priority, role: tag.type });
+                        if (tag.type === 'weakness') {
+                            const reason = `【${foundTag.method}】${counter.reason}`;
+                            addOrUpdateRecommendation(recommendations.attackers, { megido, reason, priority, role: tag.type });
+                        } else { // Jammer
+                            const jammerKey = megido.id;
+                            let entry = jammersMap.get(jammerKey);
+                            if (!entry) {
+                                entry = { megido, key: jammerKey, methods: new Set(), counteredGimmicks: new Map(), highestPriority: PRIORITY.LOW };
+                            }
+                            entry.methods.add(foundTag.method);
+                            entry.counteredGimmicks.set(tag.subCategory, counter.reason);
+                            if (PRIORITY_ORDER[priority] < PRIORITY_ORDER[entry.highestPriority]) {
+                                entry.highestPriority = priority;
+                            }
+                            jammersMap.set(jammerKey, entry);
+                        }
                     }
                 }
                 // 所持オーブのチェック
@@ -247,20 +265,59 @@ const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs 
                         const equippableMegido = ownedMegidoDetails.filter(m => m.style === orb.conditions);
                         for (const megido of equippableMegido) {
                             let priority = evaluatePriority(counter.priorityRule, foundTag.condition);
-                            let reason = `【${orb.name}の${foundTag.method}】${counter.reason}`;
-                            const list = tag.type === 'weakness' ? recommendations.attackers : recommendations.jammers;
-
-                            if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
-                                priority = PRIORITY.LOW;
-                                reason += ' (※入手難易度が高いオーブです)';
+                            if (tag.type === 'weakness') {
+                                let reason = `【${orb.name}の${foundTag.method}】${counter.reason}`;
+                                if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
+                                    priority = PRIORITY.LOW;
+                                    reason += ' (※入手難易度が高いオーブです)';
+                                }
+                                addOrUpdateRecommendation(recommendations.attackers, { megido, orb, reason, priority, role: tag.type });
+                            } else { // Jammer
+                                const jammerKey = `${megido.id}-${orb.id}`;
+                                let entry = jammersMap.get(jammerKey);
+                                if (!entry) {
+                                    entry = { megido, orb, key: jammerKey, methods: new Set(), counteredGimmicks: new Map(), highestPriority: PRIORITY.LOW };
+                                }
+                                let methodText = `${orb.name}の${foundTag.method}`;
+                                if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
+                                    priority = PRIORITY.LOW;
+                                }
+                                entry.methods.add(methodText);
+                                entry.counteredGimmicks.set(tag.subCategory, counter.reason);
+                                if (PRIORITY_ORDER[priority] < PRIORITY_ORDER[entry.highestPriority]) {
+                                    entry.highestPriority = priority;
+                                }
+                                jammersMap.set(jammerKey, entry);
                             }
-
-                            addOrUpdateRecommendation(list, { megido, orb, reason, priority, role: tag.type });
                         }
                     }
                 }
             }
         }
+        
+        const finalJammers = Array.from(jammersMap.values());
+        finalJammers.forEach(jammer => {
+            const methodStr = Array.from(jammer.methods).join('、');
+            let reason = '';
+
+            if (jammer.counteredGimmicks.size > 1) {
+                const sortedGimmickNames = Array.from(jammer.counteredGimmicks.keys()).sort((a, b) => (STATUS_AILMENT_DISPLAY_ORDER[a] || 99) - (STATUS_AILMENT_DISPLAY_ORDER[b] || 99));
+                const gimmickStr = '「' + sortedGimmickNames.join('」「') + '」';
+                reason = `【${methodStr}】で${gimmickStr}をまとめて対策できます。`;
+            } else if (jammer.counteredGimmicks.size === 1) {
+                const originalReason = Array.from(jammer.counteredGimmicks.values())[0];
+                reason = `【${methodStr}】${originalReason}`;
+            }
+
+            if (jammer.orb && jammer.orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
+                reason += ' (※入手難易度が高いオーブです)';
+            }
+
+            jammer.reason = reason;
+            jammer.priority = jammer.highestPriority;
+            jammer.role = 'jammer';
+        });
+        recommendations.jammers = finalJammers;
     };
 
     // --- 2. サポーターの推奨 ---

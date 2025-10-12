@@ -74,13 +74,31 @@
             <div class="modal-content p-6 rounded-lg shadow-lg w-full max-w-2xl">
                 <h2 class="text-2xl font-bold mb-4" id="modal-title">タグ編集</h2>
                 <div id="current-tags-container" class="mb-4 p-3 bg-gray-900/50 rounded-md min-h-[80px]"></div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-gray-700 rounded-md">
-                    <div class="col-span-1 md:col-span-2 font-semibold text-lg">新規タグ追加</div>
-                    <div><label for="category-select" class="block text-sm font-medium text-gray-400">大区分</label><select id="category-select" class="w-full p-2 mt-1 rounded-md"></select></div>
-                    <div><label for="subcategory-select" class="block text-sm font-medium text-gray-400">小区分</label><select id="subcategory-select" class="w-full p-2 mt-1 rounded-md"></select></div>
-                    <div><label for="method-input" class="block text-sm font-medium text-gray-400">手段</label><input type="text" id="method-input" placeholder="例: スキル, 特性" class="w-full p-2 mt-1 rounded-md"></div>
-                    <div><label for="condition-input" class="block text-sm font-medium text-gray-400">値 (任意)</label><input type="text" id="condition-input" placeholder="例: 100, 3ターン" class="w-full p-2 mt-1 rounded-md"></div>
-                    <div class="col-span-1 md:col-span-2"><button id="add-tag-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">タグを追加</button></div>
+
+                <!-- Enemy Tag Type Selector -->
+                <div id="enemy-tag-type-selector" class="hidden mb-4 p-3 bg-gray-900/50 rounded-md">
+                    <span class="font-semibold mr-4">タグ種別:</span>
+                    <label class="mr-4 cursor-pointer"><input type="radio" name="enemy-tag-type" value="gimmicks" class="mr-1" checked> ギミック</label>
+                    <label class="cursor-pointer"><input type="radio" name="enemy-tag-type" value="weaknesses" class="mr-1"> 弱点</label>
+                </div>
+
+                <!-- Orb Castable Selector -->
+                <div id="orb-cast-type-selector" class="hidden mb-4 p-3 bg-gray-900/50 rounded-md">
+                     <label class="cursor-pointer"><input type="checkbox" id="orb-cast-impossible-checkbox" class="mr-2"> オーブキャスト不可としてタグ付けする</label>
+                </div>
+
+                <div class="p-4 border border-gray-700 rounded-md">
+                    <h3 class="font-semibold text-lg mb-4" id="tag-form-title">新規タグ追加</h3>
+                    <div id="tag-form-inputs" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><label for="category-select" class="block text-sm font-medium text-gray-400">大区分</label><select id="category-select" class="w-full p-2 mt-1 rounded-md"></select></div>
+                        <div><label for="subcategory-select" class="block text-sm font-medium text-gray-400">小区分</label><select id="subcategory-select" class="w-full p-2 mt-1 rounded-md"></select></div>
+                        <div><label for="method-input" class="block text-sm font-medium text-gray-400">手段</label><input type="text" id="method-input" placeholder="例: スキル, 特性" class="w-full p-2 mt-1 rounded-md"></div>
+                        <div><label for="condition-input" class="block text-sm font-medium text-gray-400">値 (任意)</label><input type="text" id="condition-input" placeholder="例: 100, 3ターン" class="w-full p-2 mt-1 rounded-md"></div>
+                    </div>
+                     <div class="col-span-1 md:col-span-2 mt-4 flex gap-2">
+                        <button id="add-tag-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">タグを追加</button>
+                        <button id="cancel-edit-btn" class="w-1/3 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded hidden">キャンセル</button>
+                    </div>
                 </div>
                 <div class="mt-6 flex justify-between items-center">
                     <button id="copy-item-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">このアイテムのデータをコピー</button>
@@ -138,6 +156,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const conditionInput = document.getElementById('condition-input');
     const addTagBtn = document.getElementById('add-tag-btn');
     const closeModalBtn = document.getElementById('close-modal-btn');
+    const enemyTagTypeSelector = document.getElementById('enemy-tag-type-selector');
+    const orbCastTypeSelector = document.getElementById('orb-cast-type-selector');
+    const orbCastImpossibleCheckbox = document.getElementById('orb-cast-impossible-checkbox');
+    const tagFormTitle = document.getElementById('tag-form-title');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
 
     // --- FUNCTIONS ---
     const fetchData = async () => {
@@ -149,7 +172,34 @@ document.addEventListener('DOMContentLoaded', () => {
             ]);
             masterData.megido = await megidoRes.json();
             masterData.orbs = await orbsRes.json();
-            masterData.tower = await towerRes.json();
+            const towerData = await towerRes.json();
+
+            // Normalize tower data
+            towerData.forEach(floor => {
+                if (!floor.squares) return;
+                Object.values(floor.squares).forEach(square => {
+                    if (!square.enemies || !Array.isArray(square.enemies)) return;
+                    square.enemies = square.enemies.map(enemy => {
+                        if (typeof enemy === 'string') {
+                            return { name: enemy, tags: { gimmicks: [], weaknesses: [] } };
+                        }
+                        if (typeof enemy === 'object' && enemy !== null) {
+                            if (!enemy.tags) {
+                                enemy.tags = { gimmicks: [], weaknesses: [] };
+                            }
+                            if (!Array.isArray(enemy.tags.gimmicks)) {
+                                enemy.tags.gimmicks = enemy.tags.gimmicks ? [enemy.tags.gimmicks] : [];
+                            }
+                            if (!Array.isArray(enemy.tags.weaknesses)) {
+                                enemy.tags.weaknesses = enemy.tags.weaknesses ? [enemy.tags.weaknesses] : [];
+                            }
+                        }
+                        return enemy;
+                    });
+                });
+            });
+            masterData.tower = towerData;
+
         } catch (e) {
             console.error("Data loading failed:", e);
             alert("データファイルの読み込みに失敗しました。");
@@ -271,10 +321,34 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const resetForm = () => {
+        tagFormTitle.textContent = '新規タグ追加';
+        addTagBtn.textContent = 'タグを追加';
+        methodInput.value = '';
+        conditionInput.value = '';
+        if (categorySelect.options.length > 0) categorySelect.selectedIndex = 0;
+        populateSubcategorySelect();
+        cancelEditBtn.classList.add('hidden');
+        if(currentEditingItem) {
+            currentEditingItem.editTagIndex = null;
+            currentEditingItem.editTagType = null;
+        }
+    };
+
     const openModal = (item, type) => {
-        currentEditingItem = { item, type };
+        currentEditingItem = { item, type, editTagIndex: null, editTagType: null };
         modalTitle.textContent = `タグ編集: ${(item.name || item.名前)}`;
+
+        enemyTagTypeSelector.classList.toggle('hidden', type !== 'enemy');
+        orbCastTypeSelector.classList.toggle('hidden', type !== 'orbs');
+        
+        if (type === 'orbs') {
+            const hasTag = item.tags?.some(t => t.subCategory === 'オーブキャスト不可');
+            orbCastImpossibleCheckbox.checked = hasTag;
+        }
+
         renderCurrentTags();
+        resetForm();
         modal.classList.remove('hidden');
         modal.classList.add('flex');
     };
@@ -285,24 +359,65 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.classList.remove('flex');
     };
 
+    const createTagElement = (tag, index, tagType) => {
+        const tagEl = document.createElement('div');
+        tagEl.className = 'tag inline-flex items-center gap-2 text-sm px-2 py-1 rounded-full mr-2 mb-2 cursor-pointer hover:bg-gray-500';
+        tagEl.innerHTML = `
+            <span>${tag.category} > <strong>${tag.subCategory}</strong> ${tag.method ? `(${tag.method})` : ''} ${tag.condition ? `[${tag.condition}]` : ''}</span>
+            <span class="tag-delete text-red-400 hover:text-red-200" data-index="${index}">&times;</span>
+        `;
+        tagEl.addEventListener('click', () => startEditTag(tag, index, tagType));
+        tagEl.querySelector('.tag-delete').addEventListener('click', (e) => {
+            e.stopPropagation();
+            deleteTag(index, tagType);
+        });
+        return tagEl;
+    };
+
     const renderCurrentTags = () => {
         if (!currentEditingItem) return;
         currentTagsContainer.innerHTML = '';
-        const tags = getItemTags(currentEditingItem.item, currentEditingItem.type);
-        if (tags.length === 0) {
-            currentTagsContainer.innerHTML = '<p class="text-gray-500">現在タグはありません。</p>';
-            return;
+        const { item, type } = currentEditingItem;
+
+        if (type === 'enemy') {
+            const [floorNum, squareId, enemyIndex] = item.id.split('|');
+            const enemyData = masterData.tower.find(f => String(f.floor) === floorNum)?.squares[squareId]?.enemies[enemyIndex];
+            
+            const renderTagsForType = (tags, tagType, title) => {
+                const header = document.createElement('h4');
+                header.className = 'text-lg font-semibold w-full text-left mb-2';
+                header.textContent = title;
+                if (tagType === 'gimmicks') header.classList.add('text-blue-300');
+                if (tagType === 'weaknesses') header.classList.add('text-yellow-300');
+                currentTagsContainer.appendChild(header);
+
+                if (!tags || tags.length === 0) {
+                    const noTagsEl = document.createElement('p');
+                    noTagsEl.className = 'text-gray-500 text-sm mb-2';
+                    noTagsEl.textContent = 'タグはありません。';
+                    currentTagsContainer.appendChild(noTagsEl);
+                    return;
+                }
+                tags.forEach((tag, index) => {
+                    const tagEl = createTagElement(tag, index, tagType);
+                    currentTagsContainer.appendChild(tagEl);
+                });
+            };
+
+            renderTagsForType(enemyData.tags.gimmicks, 'gimmicks', 'ギミック');
+            renderTagsForType(enemyData.tags.weaknesses, 'weaknesses', '弱点');
+
+        } else { // Megido and Orbs
+            const tags = item.tags || [];
+            if (tags.length === 0) {
+                currentTagsContainer.innerHTML = '<p class="text-gray-500">現在タグはありません。</p>';
+                return;
+            }
+            tags.forEach((tag, index) => {
+                const tagEl = createTagElement(tag, index, null);
+                currentTagsContainer.appendChild(tagEl);
+            });
         }
-        tags.forEach((tag, index) => {
-            const tagEl = document.createElement('div');
-            tagEl.className = 'tag inline-flex items-center gap-2 text-sm px-2 py-1 rounded-full mr-2 mb-2';
-            tagEl.innerHTML = `
-                <span>${tag.category} > <strong>${tag.subCategory}</strong> ${tag.method ? `(${tag.method})` : ''} ${tag.condition ? `[${tag.condition}]` : ''}</span>
-                <span class="tag-delete text-red-400 hover:text-red-200" data-index="${index}">&times;</span>
-            `;
-            tagEl.querySelector('.tag-delete').addEventListener('click', () => deleteTag(index));
-            currentTagsContainer.appendChild(tagEl);
-        });
     };
 
     const addCategory = () => {
@@ -336,6 +451,25 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const startEditTag = (tag, index, tagType) => {
+        currentEditingItem.editTagIndex = index;
+        currentEditingItem.editTagType = tagType; // 'gimmicks' or 'weaknesses' or null
+
+        categorySelect.value = tag.category;
+        populateSubcategorySelect();
+        subcategorySelect.value = tag.subCategory;
+        methodInput.value = tag.method || '';
+        conditionInput.value = tag.condition || '';
+
+        tagFormTitle.textContent = 'タグを編集';
+        addTagBtn.textContent = 'タグを更新';
+        cancelEditBtn.classList.remove('hidden');
+
+        if (tagType) { // For enemies, select the correct radio
+            document.querySelector(`input[name="enemy-tag-type"][value="${tagType}"]`).checked = true;
+        }
+    };
+
     const deleteSubcategory = (subToDelete) => {
         if (confirm(`小区分「${subToDelete}」を削除しますか？`)) {
             const subcategories = TAG_MAP[selectedCategoryForManagement];
@@ -350,32 +484,73 @@ document.addEventListener('DOMContentLoaded', () => {
     const addTag = () => {
         const newTag = { category: categorySelect.value, subCategory: subcategorySelect.value, method: methodInput.value.trim(), condition: conditionInput.value.trim() };
         if (!newTag.category || !newTag.subCategory) { alert('大区分と小区分を選択してください。'); return; }
+        
+        const { item, type, editTagIndex, editTagType } = currentEditingItem;
+
+        if (editTagIndex !== null) { // UPDATE MODE
+            if (type === 'enemy') {
+                const [floorNum, squareId, enemyIndex] = item.id.split('|');
+                const enemyData = masterData.tower.find(f => String(f.floor) === floorNum)?.squares[squareId]?.enemies[enemyIndex];
+                
+                const newTagType = document.querySelector('input[name="enemy-tag-type"]:checked').value;
+                if (editTagType !== newTagType) {
+                    enemyData.tags[editTagType].splice(editTagIndex, 1);
+                    enemyData.tags[newTagType].push(newTag);
+                } else {
+                    enemyData.tags[editTagType][editTagIndex] = newTag;
+                }
+            } else {
+                item.tags[editTagIndex] = newTag;
+            }
+        } else { // ADD MODE
+            if (type === 'enemy') {
+                const [floorNum, squareId, enemyIndex] = item.id.split('|');
+                const enemyData = masterData.tower.find(f => String(f.floor) === floorNum)?.squares[squareId]?.enemies[enemyIndex];
+                const tagType = document.querySelector('input[name="enemy-tag-type"]:checked').value;
+                enemyData.tags[tagType].push(newTag);
+            } else {
+                if (!item.tags) item.tags = [];
+                item.tags.push(newTag);
+            }
+        }
+        
+        renderCurrentTags();
+        updateOutput();
+        resetForm();
+    };
+
+    const deleteTag = (index, tagType) => {
         const { item, type } = currentEditingItem;
         if (type === 'enemy') {
             const [floorNum, squareId, enemyIndex] = item.id.split('|');
-            let floorData = masterData.tower.find(f => String(f.floor) === floorNum);
-            let enemyData = floorData?.squares[squareId]?.enemies[enemyIndex];
-            if (typeof enemyData === 'string') { 
-                enemyData = { name: enemyData, tags: { gimmicks: [], weaknesses: [] } };
-                floorData.squares[squareId].enemies[enemyIndex] = enemyData;
+            const enemyData = masterData.tower.find(f => String(f.floor) === floorNum)?.squares[squareId]?.enemies[enemyIndex];
+            if (enemyData && enemyData.tags && enemyData.tags[tagType]) {
+                enemyData.tags[tagType].splice(index, 1);
             }
-            if (!enemyData.tags) enemyData.tags = { gimmicks: [], weaknesses: [] };
-            if (!enemyData.tags.gimmicks) enemyData.tags.gimmicks = [];
-            enemyData.tags.gimmicks.push(newTag);
         } else {
-            if (!item.tags) item.tags = [];
-            item.tags.push(newTag);
+            item.tags.splice(index, 1);
         }
         renderCurrentTags();
         updateOutput();
     };
 
-    const deleteTag = (index) => {
-        const { item, type } = currentEditingItem;
-        if (type === 'enemy') {
-            alert('エネミータグの削除は現在サポートされていません。'); return;
+    const handleOrbCastCheckbox = () => {
+        if (!currentEditingItem || currentEditingItem.type !== 'orbs') return;
+        
+        const { item } = currentEditingItem;
+        if (!item.tags) item.tags = [];
+
+        const tagName = 'オーブキャスト不可';
+        const tagExists = item.tags.some(t => t.subCategory === tagName);
+        
+        if (orbCastImpossibleCheckbox.checked) {
+            if (!tagExists) {
+                item.tags.push({ category: 'その他', subCategory: tagName, method: '', condition: '' });
+            }
         } else {
-            item.tags.splice(index, 1);
+            if (tagExists) {
+                item.tags = item.tags.filter(t => t.subCategory !== tagName);
+            }
         }
         renderCurrentTags();
         updateOutput();
@@ -455,6 +630,8 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.clipboard.writeText(outputString).then(() => alert('タグ分類データをコピーしました。')).catch(err => alert('コピーに失敗しました。'));
         });
         copyItemBtn.addEventListener('click', copyItem);
+        orbCastImpossibleCheckbox.addEventListener('change', handleOrbCastCheckbox);
+        cancelEditBtn.addEventListener('click', resetForm);
     };
 
     const init = async () => {
