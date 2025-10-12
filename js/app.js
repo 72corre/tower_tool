@@ -1319,6 +1319,7 @@ const TowerTool = () => {
             if (enemy && typeof enemy !== 'string' && enemy.tags) {
                 const result = findRecommendedMegido({
                     enemy: enemy,
+                    floorRules: selectedSquare.square.rules || [],
                     ownedMegido: ownedMegidoIds,
                     allMegidoMaster: megidoList
                 });

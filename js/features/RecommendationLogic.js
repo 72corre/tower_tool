@@ -203,7 +203,7 @@ const addOrUpdateRecommendation = (list, newItem) => {
 // 3. メインロジック
 // =================================================================
 
-const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs = new Set(), allOrbsMaster = [] }) => {
+const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoMaster, ownedOrbs = new Set(), allOrbsMaster = [] }) => {
     if (!enemy || !enemy.tags) return { success: false, reason: 'NO_ENEMY_DATA' };
 
     const rawGimmicks = enemy.tags.gimmicks;
@@ -218,6 +218,97 @@ const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs 
         attackers: [],
         jammers: [],
         supporters: [],
+    };
+
+    // --- 戦術分析ロジック ---
+    const findStrategies = () => {
+        if (typeof ENEMY_ALL_DATA === 'undefined') return;
+        const enemyData = ENEMY_ALL_DATA[enemy.name];
+        if (!enemyData || !enemyData.party) return;
+
+        // --- HPとトリガーの計算 ---
+        let totalHP = enemyData.party.reduce((sum, unit) => sum + (unit ? unit.hp : 0), 0);
+        let finalHP = totalHP;
+        const hpRule = floorRules.find(rule => rule.includes('HP+'));
+        if (hpRule) {
+            try {
+                const percentage = parseInt(hpRule.match(/(\d+)/)[0]);
+                finalHP *= (1 + percentage / 100);
+            } catch (e) { /* HPルールのパース失敗 */ }
+        }
+        finalHP = Math.ceil(finalHP);
+
+        const triggerTags = ['防御-高防御', '防御-ダメージ軽減', '回復-HP回復'];
+        const hasTriggerTag = gimmicks.some(g => triggerTags.includes(`${g.category}-${g.subCategory}`));
+
+        // --- エレキ戦術 ---
+        if (hasTriggerTag && finalHP <= 70000) {
+            const elekiReleaser = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === 'エレキ'));
+            if (elekiReleaser) {
+                const requiredLevel = Math.ceil(finalHP / 1400);
+                const reason = `【エレキ戦術】 防御を無視するエレキダメージが有効です。\n*   **目標エレキレベル:** **${requiredLevel}** （敵HP ${finalHP} ÷ 1400）\n*   **役割:** エレキの付与と解除\n*補足: 雷ダメージを持つメギドと連携してレベルを上昇させてください。`;
+                addOrUpdateRecommendation(recommendations.attackers, { megido: elekiReleaser, reason, priority: PRIORITY.HIGH, role: 'attacker' });
+            }
+        }
+
+        // --- 点穴戦術 ---
+        if (hasTriggerTag) {
+            const requiredStandardLevel = Math.ceil(Math.sqrt(finalHP / 2));
+            const isStandardViable = requiredStandardLevel <= 100;
+
+            const belial = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === '固定砲台'));
+            const belialMaxDamage = 130000; // Lv120 cap
+            const isBelialViable = belial && finalHP <= belialMaxDamage;
+
+            if (isStandardViable) {
+                const accumulator = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === '点穴付与'));
+                if (accumulator) {
+                    const maxDamage = Math.floor(2 * (requiredStandardLevel * requiredStandardLevel));
+                    const reason = `【点穴戦術】 防御を無視する点穴ダメージが有効です。\n*   **目標点穴レベル:** **${requiredStandardLevel}** （敵HP ${finalHP} をワンパンするために必要）\n*   **最大ダメージ:** 約${maxDamage.toLocaleString()}\n*   **役割:** 点穴レベルの付与\n*補足: レベルを溜めた後、単発・単体攻撃を持つメギドで攻撃してください。`;
+                    addOrUpdateRecommendation(recommendations.attackers, { megido: accumulator, reason, priority: PRIORITY.HIGH, role: 'attacker' });
+                }
+            } else if (isBelialViable) {
+                const reason = `【点穴戦術 - 固定砲台】 敵HPが高いため、ベリアルの固定砲台による連続攻撃が有効です。\n*   **最大総ダメージ:** 約${belialMaxDamage.toLocaleString()}（Lv120から連射時）\n*   **役割:** 点穴の蓄積と、固定砲台による連続攻撃\n*補足: 点穴レベルを最大まで溜めてから「固定砲台」を使用してください。`;
+                addOrUpdateRecommendation(recommendations.attackers, { megido: belial, reason, priority: PRIORITY.HIGH, role: 'attacker' });
+            }
+        }
+
+        // --- ハイドロボム戦術 ---
+        const hBombForger = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === 'ハイドロボム錬'));
+        if (finalDef >= 1000 && hBombForger) {
+            const forgerLevel = 70; // Assume Lv70 for calculation
+            const calcForgedDamage = (bombMult, forgeBonusCount, totalBlasts, def) => {
+                const base = 100 + forgerLevel * 15;
+                const forgeBonus = (bombMult * 193) * forgeBonusCount; // Simplified formula based on user notes
+                const blastBonus = 1 + Math.max(0, totalBlasts - 1) * 0.1;
+                return Math.floor(((base * bombMult) + forgeBonus - def) * blastBonus);
+            };
+
+            // Scenarios based on a 6x bomb being the material
+            const s1Dmg = calcForgedDamage(12, 2, 2, finalDef); // 2x 6-bombs forged
+            const s2Dmg = calcForgedDamage(18, 3, 2, finalDef); // 3x 6-bombs forged
+            const s3Dmg = calcForgedDamage(18, 3, 6, finalDef); // 3x 6-bombs + 4 other bombs
+
+            if (s1Dmg > finalHP || s2Dmg > finalHP || s3Dmg > finalHP) {
+                 const reason = `【Hボム錬戦術】 敵の防御力が高いため、Hボムを**錬成**して大ダメージを狙う戦術が有効です。\n*   **役割:** Hボムの錬成と付与\n*   **ダメージ目安** (敵防御 ${finalDef}):\n    *   **12倍** 錬ボム + 起爆1個 (計2): 約 **${s1Dmg.toLocaleString()}** ダメージ\n    *   **18倍** 錬ボム + 起爆1個 (計2): 約 **${s2Dmg.toLocaleString()}** ダメージ\n    *   **18倍** 錬ボム + 他4個 (計6個): 約 **${s3Dmg.toLocaleString()}** ダメージ`;
+                addOrUpdateRecommendation(recommendations.attackers, { megido: hBombForger, reason, priority: PRIORITY.HIGH, role: 'attacker' });
+                return; // Prioritize Forged Bombs
+            }
+        }
+        
+        const hBombHeavyApplier = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === 'ハイドロボム重'));
+        if (hBombHeavyApplier) {
+            const calcStandardDamage = (level, bombMult, blastCount, def) => {
+                const base = 100 + level * 15;
+                const blastBonus = 1 + Math.max(0, blastCount - 1) * 0.1;
+                return Math.floor(((base * bombMult) - def) * blastBonus);
+            };
+            const damage = calcStandardDamage(70, 6, 2, finalDef); // 2x 6x bombs
+            if (damage > 0 && damage * 2 > finalHP * 0.5) { // Recommend if it can do meaningful damage
+                const reason = `【ハイドロボム戦術】 Hボムによるダメージが有効です。\n*   **役割:** Hボム重の付与\n*   **連携:** 複数のボムを付与して**同時爆破ボーナス**を狙ってください。\n*   **予想ダメージ:** Hボム重(6倍)x2を同時爆破で 約 **${(damage * 2).toLocaleString()}** ダメージ`;
+                addOrUpdateRecommendation(recommendations.attackers, { megido: hBombHeavyApplier, reason, priority: PRIORITY.MEDIUM, role: 'attacker' });
+            }
+        }
     };
 
     // --- 1. アタッカー & ジャマーの推奨 ---
@@ -374,6 +465,7 @@ const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs 
         }
     };
 
+    findStrategies();
     findAttackersAndJammers();
     findSupporters();
 
