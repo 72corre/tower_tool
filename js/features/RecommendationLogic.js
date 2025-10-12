@@ -10,24 +10,105 @@ const PRIORITY_ORDER = { [PRIORITY.HIGH]: 1, [PRIORITY.MEDIUM]: 2, [PRIORITY.LOW
 
 // 敵のギミックへの直接的な対策（ジャマー向け）
 const GIMMICK_COUNTER_MAP = {
+    '状態異常-毒': [
+        { category: '耐性', subCategory: '毒無効', reason: 'で「毒」を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '耐性', subCategory: '全状態異常耐性', reason: 'で「毒」を含む状態異常を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '強化', subCategory: '状態異常無効', reason: 'で「毒」を含む状態異常を予防できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
+    ],
+    '状態異常-めまい': [
+        { category: '耐性', subCategory: 'めまい無効', reason: 'で「めまい」を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '耐性', subCategory: '全状態異常耐性', reason: 'で「めまい」を含む状態異常を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '強化', subCategory: '状態異常無効', reason: 'で「めまい」を含む状態異常を予防できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
+    ],
+    '状態異常-感電': [
+        { category: '耐性', subCategory: '感電無効', reason: 'で「感電」を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '耐性', subCategory: '全状態異常耐性', reason: 'で「感電」を含む状態異常を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '強化', subCategory: '状態異常無効', reason: 'で「感電」を含む状態異常を予防できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
+    ],
+    '状態異常-呪い': [
+        { category: '耐性', subCategory: '呪い無効', reason: 'で「呪い」を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '耐性', subCategory: '全状態異常耐性', reason: 'で「呪い」を含む状態異常を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '強化', subCategory: '状態異常無効', reason: 'で「呪い」を含む状態異常を予防できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
+    ],
     '状態異常-即死': [
-        { category: '耐性', subCategory: '即死', reason: 'で「即死」を直接無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '耐性', subCategory: '即死無効', reason: 'で「即死」を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
         { category: '耐性', subCategory: '全状態異常耐性', reason: 'で「即死」を含む状態異常を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
         { category: '強化', subCategory: '状態異常無効', reason: 'で「即死」を含む状態異常を予防できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
         { category: '強化', subCategory: '自動蘇生', reason: 'で「即死」しても復帰可能です。', priorityRule: { type: 'fixed', priority: 'low' } },
     ],
     '防御-高防御': [
-        { category: 'ダメージ', subCategory: '固定', reason: 'で敵の防御力を無視してダメージを与えられます。', priorityRule: { type: 'fixed', priority: 'high' } },
-        { category: 'ダメージ', subCategory: '防御無視', reason: 'で敵の高い防御力を無視できます。', priorityRule: { type: 'fixed', priority: 'high' } },
-        { category: 'トランス', subCategory: '点穴', reason: 'の固定ダメージで防御力を無視できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
+        { category: '攻撃手段', subCategory: '固定ダメージ', reason: 'で敵の防御力を無視してダメージを与えられます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '攻撃手段', subCategory: '防御無視', reason: 'で敵の高い防御力を無視できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '特殊状態', subCategory: '点穴', reason: 'の固定ダメージで防御力を無視できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
+        { category: '特殊状態', subCategory: '点穴付与', reason: 'の固定ダメージで防御力を無視できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
+    ],
+    '状態異常-毒': [
+        { category: '耐性', subCategory: '毒無効', reason: 'で「毒」を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '耐性', subCategory: '全状態異常耐性', reason: 'で「毒」を含む状態異常を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '強化', subCategory: '状態異常無効', reason: 'で「毒」を含む状態異常を予防できます。', priorityRule: { type: 'fixed', priority: 'medium' } },
     ],
     // ... 他のギミック対策
 };
 
 // 敵の弱点を突く攻撃手段（アタッカー向け）
 const WEAKNESS_ATTACK_MAP = {
-    '特効-死者特効': [{
-        category: '特効', subCategory: '死者特効', reason: 'で大ダメージを与えられます。',
+    '攻撃手段-死者特効': [{
+        category: '攻撃手段', subCategory: '死者特効', reason: 'で大ダメージを与えられます。',
+        priorityRule: {
+            type: 'conditional',
+            rules: [
+                { operator: '>=', value: 100, priority: 'high' },
+                { operator: '>=', value: 50, priority: 'medium' }
+            ],
+            defaultPriority: 'low'
+        }
+    }],
+    '攻撃手段-獣人特効': [{
+        category: '攻撃手段', subCategory: '獣人特効', reason: 'で大ダメージを与えられます。',
+        priorityRule: {
+            type: 'conditional',
+            rules: [
+                { operator: '>=', value: 100, priority: 'high' },
+                { operator: '>=', value: 50, priority: 'medium' }
+            ],
+            defaultPriority: 'low'
+        }
+    }],
+    '攻撃手段-植物特効': [{
+        category: '攻撃手段', subCategory: '植物特効', reason: 'で大ダメージを与えられます。',
+        priorityRule: {
+            type: 'conditional',
+            rules: [
+                { operator: '>=', value: 100, priority: 'high' },
+                { operator: '>=', value: 50, priority: 'medium' }
+            ],
+            defaultPriority: 'low'
+        }
+    }],
+    '攻撃手段-防御無視': [{
+        category: '攻撃手段', subCategory: '防御無視', reason: 'で敵の高防御力を無視してダメージを与えられます。',
+        priorityRule: {
+            type: 'conditional',
+            rules: [
+                { operator: '>=', value: 100, priority: 'high' },
+                { operator: '>=', value: 50, priority: 'medium' }
+            ],
+            defaultPriority: 'low'
+        }
+    }],
+    '攻撃手段-固定ダメージ': [{
+        category: '攻撃手段', subCategory: '固定ダメージ', reason: 'で敵の高防御力を無視して固定のダメージを与えられます。',
+        priorityRule: {
+            type: 'conditional',
+            rules: [
+                { operator: '>=', value: 100, priority: 'high' },
+                { operator: '>=', value: 50, priority: 'medium' }
+            ],
+            defaultPriority: 'low'
+        }
+    }],
+    '特殊状態-エレキ': [{
+        category: '特殊状態', subCategory: 'エレキ', reason: 'で敵の高防御力を無視して固定のダメージを与えられます。',
         priorityRule: {
             type: 'conditional',
             rules: [

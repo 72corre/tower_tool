@@ -14,12 +14,32 @@
         "squares": {
             "f1-s": { "type": "start" },
             "f1-e1": { "type": "explore", "sub_type": "attack_buff", "style": "R" },
-            "f1-b1": { "type": "battle", "enemies": [{"name": "死をあやす者","tags": {"gimmicks": [{"category": "状態異常","subCategory": "めまい","method": "スキル","condition": ""},{"category": "状態異常","subCategory": "即死","method": "奥義","condition": "100"}],
-                  "weaknesses": [{"category": "攻撃手段","subCategory": "死者特効","method": "","condition": ""}]}}], "rules": ["全能力+20%（幻獣）"] },
-            "f1-b2": { "type": "battle", "enemies": [{ "name":"ベインチェイサー", "tags": { "gimmicks": {"category": "状態異常","subCategory": "毒","method": "スキル","condition": "5050"}, "weaknesses": [{"category": "攻撃手段","subCategory": "大幻獣特効","method": "","condition": ""}, {"category": "攻撃手段","subCategory": "防御無視","method": "","condition": ""}, {"category": "攻撃手段","subCategory": "固定ダメージ","method": "","condition": ""}] } }],"rules": ["全能力+20%（幻獣）"] },
+            "f1-b1": { "type": "battle", "enemies": [{"name": "死をあやす者","tags": {
+                "gimmicks": [
+                    {"category": "状態異常","subCategory": "めまい","method": "スキル","condition": "100"},
+                    {"category": "状態異常","subCategory": "呪い","method": "スキル","condition": "100"},
+                    {"category": "状態異常","subCategory": "即死","method": "奥義","condition": "100"}],
+                "weaknesses": [
+                    {"category": "攻撃手段","subCategory": "死者特効","method": "","condition": ""}]}}],
+                "rules": ["全能力+20%（幻獣）"] },
+            "f1-b2": { "type": "battle", "enemies": [{ "name":"ベインチェイサー", "tags": { 
+                "gimmicks": {
+                    "category": "状態異常","subCategory": "毒","method": "スキル","condition": "50"}, 
+                "weaknesses": [
+                    {"category": "攻撃手段","subCategory": "大幻獣特効","method": "","condition": ""}, 
+                    {"category": "攻撃手段","subCategory": "防御無視","method": "","condition": ""}, 
+                    {"category": "攻撃手段","subCategory": "固定ダメージ","method": "","condition": ""},
+                    {"category": "特殊状態","subCategory": "エレキ","method": "","condition": "25"}] } }],
+                "rules": ["全能力+20%（幻獣）"] },
             "f1-e2": { "type": "explore", "sub_type": "recovery", "style": "RANDOM" },
             "f1-e3": { "type": "explore", "sub_type": "tower_power" },
-            "f1-o": { "type": "boss", "enemies": [{ "name": "Ωアバドン", "tags": { "gimmicks": [ {"category": "攻撃手段","subCategory": "防御無視","method": "奥義","condition": ""}, {"category": "攻撃手段","subCategory": "連続攻撃","method": "アタック","condition": "10"}], "weaknesses": [{"category": "状態異常","subCategory": "睡眠","method": "","condition": ""}, {"category": "状態異常","subCategory": "めまい","method": "","condition": ""}, {"category": "状態異常","subCategory": "即死","method": "","condition": ""}, {"category": "弱体","subCategory": "攻撃力低下","method": "","condition": ""} ] } }], "rules": ["なし"] }
+            "f1-o": { "type": "boss", "enemies": [{ "name": "Ωアバドン", "tags": { 
+                "gimmicks": [ 
+                    {"category": "攻撃手段","subCategory": "防御無視","method": "奥義","condition": ""}, 
+                    {"category": "攻撃手段","subCategory": "連続攻撃","method": "アタック","condition": "10"}], 
+                "weaknesses": [
+                    {"category": "状態異常","subCategory": "睡眠","method": "","condition": ""}, {"category": "状態異常","subCategory": "めまい","method": "","condition": ""}, {"category": "状態異常","subCategory": "即死","method": "","condition": ""}, {"category": "弱体","subCategory": "攻撃力低下","method": "","condition": ""} ] } }], 
+                "rules": ["なし"] }
         }
     },
     {
