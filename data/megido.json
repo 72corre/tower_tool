@@ -429,9 +429,105 @@
         "condition": "ラッシュ"
       }
     ]},
-    { "QRID": "017", "id": "祖09_パイモン", "時計": "祖09", "名前": "パイモン", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "7172", "ATK": "1191", "DEF": "420", "SPD": "472", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": true , "Singularity": false },
-    { "QRID": "018", "id": "祖09_パイモンB", "時計": "祖09", "名前": "パイモンB", "スタイル": "バースト", "クラス": "ファイター", "HP": "7092", "ATK": "1194", "DEF": "381", "SPD": "610", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false },
-    { "QRID": "019", "id": "祖10_ブエル", "時計": "祖10", "名前": "ブエル", "スタイル": "バースト", "クラス": "スナイパー", "HP": "7275", "ATK": "642", "DEF": "477", "SPD": "716", "汎用特性": "", "入手方法": "その他", "絆霊宝": true, "専用霊宝": true , "Singularity": false },
+    { "QRID": "017", "id": "祖09_パイモン", "時計": "祖09", "名前": "パイモン", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "7172", "ATK": "1191", "DEF": "420", "SPD": "472", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "妨害",
+        "subCategory": "覚醒ゲージ減少",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "連続攻撃",
+        "method": "スキル",
+        "condition": "3"
+      },
+      {
+        "category": "補助",
+        "subCategory": "覚醒ゲージ増加",
+        "method": "マスエフェクト",
+        "condition": "ラッシュ"
+      }
+    ]},
+    { "QRID": "018", "id": "祖09_パイモンB", "時計": "祖09", "名前": "パイモンB", "スタイル": "バースト", "クラス": "ファイター", "HP": "7092", "ATK": "1194", "DEF": "381", "SPD": "610", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "補助",
+        "subCategory": "スキル追加",
+        "method": "スキル",
+        "condition": "自身"
+      },
+      {
+        "category": "特殊状態",
+        "subCategory": "オーバーチャージ",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "チャージ強化",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "防御無視",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "光子ダメージ",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "補助",
+        "subCategory": "覚醒ゲージ増加",
+        "method": "マスエフェクト",
+        "condition": "バースト・スナイパー"
+      }
+    ]},
+    { "QRID": "019", "id": "祖10_ブエル", "時計": "祖10", "名前": "ブエル", "スタイル": "バースト", "クラス": "スナイパー", "HP": "7275", "ATK": "642", "DEF": "477", "SPD": "716", "汎用特性": "", "入手方法": "その他", "絆霊宝": true, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "補助",
+        "subCategory": "覚醒ゲージ増加",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "チャージ強化",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "アタック強化",
+        "method": "",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "他者攻撃力上昇",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "他者攻撃力上昇",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "他者攻撃力上昇",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]},
     { "QRID": "020", "id": "祖10_ブエルR", "時計": "祖10", "名前": "ブエルR", "スタイル": "ラッシュ", "クラス": "スナイパー", "HP": "7733", "ATK": "640", "DEF": "523", "SPD": "648", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false },
     { "QRID": "021", "id": "祖11_グシオン", "時計": "祖11", "名前": "グシオン", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "7727", "ATK": "857", "DEF": "430", "SPD": "697", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false },
     { "QRID": "022", "id": "祖11_グシオンB", "時計": "祖11", "名前": "グシオンB", "スタイル": "バースト", "クラス": "スナイパー", "HP": "8586", "ATK": "1037", "DEF": "430", "SPD": "491", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false },

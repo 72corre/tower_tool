@@ -184,6 +184,7 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
 
         const hBombForger = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === 'ハイドロボム錬'));
         if (finalDef >= 1000 && hBombForger) {
+            const enemyCount = enemyData.party.filter(u => u).length;
             const findRequiredMultiplier = (targetHP, numBlasts, enemyDef, forgerLevel = 70) => {
                 for (let multiplier = 6; multiplier <= 50; multiplier += 6) {
                     const bombsUsed = multiplier / 6;
@@ -195,31 +196,73 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                 }
                 return null;
             };
-            const reqMult2 = findRequiredMultiplier(finalHP, 2, finalDef);
-            const reqMult5 = findRequiredMultiplier(finalHP, 5, finalDef);
-            const reqMult10 = findRequiredMultiplier(finalHP, 10, finalDef);
 
-            if (reqMult2 || reqMult5 || reqMult10) {
-                const reason = `<strong>【Hボム錬戦術】</strong> 敵HP <strong>${finalHP.toLocaleString()}</strong> を突破するために必要な錬ボムの倍率目安です。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>役割:</strong> Hボムの錬成と付与</p><p style="margin: 0.5rem 0 0;"><strong>必要倍率の目安</strong> (敵防御 ${finalDef}):</p><ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9em;">` +
-                (reqMult2 ? `<li>同時爆破 <strong>2個</strong> の場合: <strong>約 ${reqMult2} 倍</strong> の錬ボムが必要</li>` : '') +
-                (reqMult5 ? `<li>同時爆破 <strong>5個</strong> の場合: <strong>約 ${reqMult5} 倍</strong> の錬ボムが必要</li>` : '') +
-                (reqMult10 ? `<li>同時爆破 <strong>10個</strong> の場合: <strong>約 ${reqMult10} 倍</strong> の錬ボムが必要</li>` : '') +
-                `</ul></div>`;
-                addOrUpdateRecommendation(recommendations.attackers, { megido: hBombForger, reason, priority: PRIORITY.HIGH, role: 'attacker' });
+            let reason = '';
+            let priority = PRIORITY.LOW;
+            let multipliersText = '';
+            let blastCounts = [];
+            let introText = '';
+
+            if (enemyCount > 1) {
+                blastCounts = [2, 5, 10];
+                priority = PRIORITY.HIGH;
+                introText = `敵が複数体いるため、多数のHボムを付与して同時爆破ボーナスを狙う戦術が非常に有効です。`;
+            } else { // enemyCount <= 1
+                blastCounts = [2, 3];
+                priority = PRIORITY.MEDIUM;
+                introText = `敵が単体のため付与できるHボムは3つまでですが、高防御の敵に有効です。`;
+            }
+
+            const requiredMultipliers = blastCounts.map(count => ({
+                count,
+                multiplier: findRequiredMultiplier(finalHP, count, finalDef)
+            }));
+
+            requiredMultipliers.forEach(item => {
+                if (item.multiplier) {
+                    multipliersText += `<li>同時爆破 <strong>${item.count}個</strong> の場合: <strong>約 ${item.multiplier} 倍</strong> の錬ボムが必要</li>`;
+                }
+            });
+
+            if (multipliersText) {
+                reason = `<strong>【Hボム錬戦術】</strong> ${introText}敵HP <strong>${finalHP.toLocaleString()}</strong> を突破するために必要な錬ボムの倍率目安です。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>役割:</strong> Hボムの錬成と付与</p><p style="margin: 0.5rem 0 0;"><strong>必要倍率の目安</strong> (敵防御 ${finalDef}):</p><ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9em;">` +
+                         multipliersText +
+                         `</ul></div>`;
+                addOrUpdateRecommendation(recommendations.attackers, { megido: hBombForger, reason, priority, role: 'attacker' });
                 return;
             }
         }
+
         const hBombHeavyApplier = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === 'ハイドロボム重'));
         if (hBombHeavyApplier) {
+            const enemyCount = enemyData.party.filter(u => u).length;
             const calcStandardDamage = (level, bombMult, blastCount, def) => {
                 const base = 100 + level * 15;
                 const blastBonus = 1 + Math.max(0, blastCount - 1) * 0.1;
                 return Math.floor(((base * bombMult) - def) * blastBonus);
             };
-            const damage = calcStandardDamage(70, 6, 2, finalDef);
-            if (damage > 0 && damage * 2 > finalHP * 0.5) {
-                const reason = `<strong>【ハイドロボム戦術】</strong> Hボムによるダメージが有効です。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>役割:</strong> Hボム重の付与</p><p style="margin: 0.5rem 0 0;"><strong>連携:</strong> 複数のボムを付与して**同時爆破ボーナス**を狙ってください。</p><p style="margin: 0.5rem 0 0;"><strong>予想ダメージ:</strong> Hボム重(6倍)x2を同時爆破で 約 <strong>${(damage * 2).toLocaleString()}</strong> ダメージ</p></div>`;
-                addOrUpdateRecommendation(recommendations.attackers, { megido: hBombHeavyApplier, reason, priority: PRIORITY.MEDIUM, role: 'attacker' });
+
+            const damage2Blasts = calcStandardDamage(70, 6, 2, finalDef);
+            const damage3Blasts = calcStandardDamage(70, 6, 3, finalDef);
+            const damage5Blasts = calcStandardDamage(70, 6, 5, finalDef);
+
+            let reason = '';
+            let priority = PRIORITY.LOW;
+
+            if (enemyCount > 1) {
+                if (damage2Blasts > 0 && damage2Blasts * 2 > finalHP * 0.25) {
+                    priority = PRIORITY.MEDIUM;
+                    reason = `<strong>【ハイドロボム戦術】</strong> 敵が複数体いるため、Hボム重の同時爆破が有効です。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>役割:</strong> Hボム重の付与</p><p style="margin: 0.5rem 0 0;"><strong>連携:</strong> 複数のボムを付与して同時爆破ボーナスを狙ってください。</p><p style="margin: 0.5rem 0 0;"><strong>予想ダメージ(目安):</strong><br>・Hボム重(6倍)x2 同時爆破: 約 <strong>${(damage2Blasts * 2).toLocaleString()}</strong><br>・Hボム重(6倍)x5 同時爆破: 約 <strong>${(damage5Blasts * 5).toLocaleString()}</strong></p></div>`;
+                }
+            } else { // enemyCount <= 1
+                if (damage2Blasts > 0 && damage2Blasts * 2 > finalHP * 0.25) {
+                    priority = PRIORITY.LOW;
+                    reason = `<strong>【ハイドロボム戦術】</strong> Hボムによるダメージが有効です。敵が単体のため最大3つまで付与できます。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>役割:</strong> Hボム重の付与</p><p style="margin: 0.5rem 0 0;"><strong>予想ダメージ(目安):</strong><br>・Hボム重(6倍)x2 同時爆破: 約 <strong>${(damage2Blasts * 2).toLocaleString()}</strong><br>・Hボム重(6倍)x3 同時爆破: 約 <strong>${(damage3Blasts * 3).toLocaleString()}</strong></p></div>`;
+                }
+            }
+
+            if (reason) {
+                addOrUpdateRecommendation(recommendations.attackers, { megido: hBombHeavyApplier, reason, priority, role: 'attacker' });
             }
         }
     };
