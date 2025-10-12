@@ -56,11 +56,37 @@ const WEAKNESS_ATTACK_MAP = {
     '耐性-雷に弱い': [{ category: '攻撃手段', subCategory: '雷ダメージ', reason: 'の雷ダメージで弱点を突けます。', priorityRule: { type: 'fixed', priority: 'high' } }],
 };
 
-const SUPPORTER_ROLE_TAGS = [ 'HP回復', '蘇生', '状態異常治癒', '弱体解除', 'かばう', '執心', 'ダメージ軽減', '回数バリア', 'アタックバリア', 'スキルバリア', '無敵', '攻撃力上昇', 'アタック強化', 'スキル強化', 'チャージ強化', 'フォトン追加', '覚醒ゲージ増加', ];
-
-const SUPPORT_PRIORITY_MAP = {
-    'ギミック-かばう無効': [ { category: '補助', subCategory: '執心', adjustment: PRIORITY.HIGH, reason: '「かばう」が無効なため、「執心」によるターゲット変更が有効です。' }, { category: '強化', subCategory: 'かばう', adjustment: 'ignore', reason: '「かばう」が無効化されます。' } ],
-    'ギミック-高火力スキル': [ { category: '強化', subCategory: 'スキルダメージ軽減', adjustment: PRIORITY.HIGH, reason: '敵の高火力スキルダメージを軽減できます。' }, { category: '強化', subCategory: 'スキルバリア', adjustment: PRIORITY.HIGH, reason: '敵のスキル攻撃を無効化できます。' } ],
+const THREAT_SUPPORT_MAP = {
+    'ギミック-高火力スキル': [
+        { category: '強化', subCategory: 'スキルダメージ軽減', reason: 'で敵の高火力スキルから味方を守ります。', priority: PRIORITY.HIGH },
+        { category: '強化', subCategory: 'スキルバリア', reason: 'で敵のスキル攻撃を無効化できます。', priority: PRIORITY.HIGH },
+        { category: '補助', subCategory: 'かばう', reason: 'で単体高火力スキルから味方を守ります。', priority: PRIORITY.MEDIUM }
+    ],
+    'ギミック-高火力奥義': [
+        { category: '強化', subCategory: 'ダメージ軽減', reason: 'で敵の高火力な奥義から味方を守ります。', priority: PRIORITY.HIGH },
+        { category: '強化', subCategory: '無敵', reason: 'で敵の強力な奥義を完全に防ぎます。', priority: PRIORITY.HIGH },
+        { category: '補助', subCategory: 'かばう', reason: 'で単体高火力奥義から味方を守ります。', priority: PRIORITY.MEDIUM }
+    ],
+    'ギミック-全体攻撃': [
+        { category: '補助', subCategory: 'HP回復', reason: 'で全体攻撃を受けた後のHPを回復します。', priority: PRIORITY.MEDIUM },
+        { category: '強化', subCategory: 'ダメージ軽減', reason: 'で全体攻撃の被ダメージを抑えます。', priority: PRIORITY.MEDIUM },
+        { category: '強化', subCategory: '回数バリア', reason: 'で複数回ヒットする全体攻撃を軽減します。', priority: PRIORITY.MEDIUM },
+    ],
+    'ギミック-連続攻撃': [
+        { category: '強化', subCategory: '回数バリア', reason: 'で敵の連続攻撃を無効化します。', priority: PRIORITY.HIGH },
+        { category: '補助', subCategory: 'かばう', reason: 'で連続攻撃からアタッカーを守ります。', priority: PRIORITY.HIGH },
+    ],
+    'ギミック-かばう無効': [
+        { category: '補助', subCategory: '執心', reason: 'で「かばう」が効かない敵の攻撃を自身に引きつけます。', priority: PRIORITY.HIGH },
+    ],
+    '状態異常-毒': [{ category: '補助', subCategory: '状態異常治癒', reason: 'で味方の毒を治療できます。', priority: PRIORITY.MEDIUM }],
+    '状態異常-めまい': [{ category: '補助', subCategory: '状態異常治癒', reason: 'で味方のめまいを治療できます。', priority: PRIORITY.MEDIUM }],
+    '状態異常-感電': [{ category: '補助', subCategory: '状態異常治癒', reason: 'で味方の感電を治療できます。', priority: PRIORITY.MEDIUM }],
+    '状態異常-呪い': [{ category: '補助', subCategory: '状態異常治癒', reason: 'で味方の呪いを治療できます。', priority: PRIORITY.HIGH }],
+    '状態異常-即死': [{ category: '補助', subCategory: '蘇生', reason: 'で即死した味方を復活させます。', priority: PRIORITY.HIGH }],
+    '弱体-攻撃力低下': [{ category: '補助', subCategory: '弱体解除', reason: 'で味方にかかった攻撃力低下を解除できます。', priority: PRIORITY.MEDIUM }],
+    '弱体-防御力低下': [{ category: '補助', subCategory: '弱体解除', reason: 'で味方にかかった防御力低下を解除できます。', priority: PRIORITY.MEDIUM }],
+    '弱体-素早さ低下': [{ category: '補助', subCategory: '弱体解除', reason: 'で味方にかかった素早さ低下を解除できます。', priority: PRIORITY.MEDIUM }],
 };
 
 const evaluatePriority = (priorityRule, condition) => {
@@ -95,15 +121,13 @@ const addOrUpdateRecommendation = (list, newItem) => {
     }
 };
 
-const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoMaster, ownedOrbs = new Set(), allOrbsMaster = [] }) => {
+const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoMaster, ownedOrbs = new Set(), allOrbsMaster = [], megidoConditions = {} }) => {
     if (!enemy || !enemy.tags) return { success: false, reason: 'NO_ENEMY_DATA' };
 
-    const rawGimmicks = enemy.tags.gimmicks;
-    const gimmicks = Array.isArray(rawGimmicks) ? rawGimmicks : (rawGimmicks && typeof rawGimmicks === 'object' ? [rawGimmicks] : []);
-    const rawWeaknesses = enemy.tags.weaknesses;
-    const weaknesses = Array.isArray(rawWeaknesses) ? rawWeaknesses : (rawWeaknesses && typeof rawWeaknesses === 'object' ? [rawWeaknesses] : []);
+    const activeOwnedMegido = new Set(Array.from(ownedMegido).filter(id => megidoConditions[id] !== '気絶'));
+    if (activeOwnedMegido.size === 0) return { success: false, reason: 'NO_RECOMMENDED_MEGIDO_FOUND' };
 
-    const ownedMegidoDetails = allMegidoMaster.filter(m => ownedMegido.has(m.id));
+    const ownedMegidoDetails = allMegidoMaster.filter(m => activeOwnedMegido.has(m.id));
     const ownedOrbDetails = allOrbsMaster.filter(o => ownedOrbs.has(o.id));
 
     const recommendations = {
@@ -111,6 +135,45 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
         jammers: [],
         supporters: [],
     };
+
+    const addOrUpdateRecommendation = (list, newItem) => {
+        const condition = megidoConditions[newItem.megido.id] || '普通';
+        let { priority, reason } = { ...newItem };
+
+        switch (condition) {
+            case '不調':
+                priority = (priority === PRIORITY.HIGH) ? PRIORITY.MEDIUM : PRIORITY.LOW;
+                reason += ' <strong class="condition-warning">【不調】能力が低下しているため、本来の性能を発揮できない可能性があります。</strong>';
+                break;
+            case '絶不調':
+                priority = PRIORITY.LOW;
+                reason += ' <strong class="condition-warning">【絶不調】能力が大幅に低下しており、推奨度は低いですが、他に選択肢がない場合に。</strong>';
+                break;
+            case '好調':
+            case '絶好調':
+                if (newItem.role === 'attacker') {
+                    reason += ' <span class="condition-info">【好調以上】攻撃力+25%の恩恵を受けられます。</span>';
+                }
+                break;
+        }
+
+        const updatedItem = { ...newItem, priority, reason };
+        const uniqueKey = updatedItem.orb ? `${updatedItem.megido.id}-${updatedItem.orb.id}` : updatedItem.megido.id;
+        const existingIndex = list.findIndex(item => (item.orb ? `${item.megido.id}-${item.orb.id}` : item.megido.id) === uniqueKey);
+
+        if (existingIndex === -1) {
+            list.push(updatedItem);
+        } else {
+            if (PRIORITY_ORDER[updatedItem.priority] < PRIORITY_ORDER[list[existingIndex].priority]) {
+                list[existingIndex] = updatedItem;
+            }
+        }
+    };
+
+    const rawGimmicks = enemy.tags.gimmicks;
+    const gimmicks = Array.isArray(rawGimmicks) ? rawGimmicks : (rawGimmicks && typeof rawGimmicks === 'object' ? [rawGimmicks] : []);
+    const rawWeaknesses = enemy.tags.weaknesses;
+    const weaknesses = Array.isArray(rawWeaknesses) ? rawWeaknesses : (rawWeaknesses && typeof rawWeaknesses === 'object' ? [rawWeaknesses] : []);
 
     const findStrategies = () => {
         if (typeof ENEMY_ALL_DATA === 'undefined') return;
@@ -336,53 +399,86 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                 reason = `【${methodStr}】${originalReason}`;
             }
             if (jammer.orb && jammer.orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) reason += ' (※入手難易度が高いオーブです)';
-            jammer.reason = reason;
-            jammer.priority = jammer.highestPriority;
-            jammer.role = 'jammer';
+            
+            addOrUpdateRecommendation(recommendations.jammers, { 
+                megido: jammer.megido, 
+                orb: jammer.orb, 
+                reason, 
+                priority: jammer.highestPriority, 
+                role: 'jammer' 
+            });
         });
-        recommendations.jammers = finalJammers;
+
+        // **絶好調シナジー：状態異常耐性**
+        const statusAilmentGimmicks = gimmicks.filter(g => g.category === '状態異常').map(g => g.subCategory);
+        if (statusAilmentGimmicks.length > 0) {
+            for (const megido of ownedMegidoDetails) {
+                if (megidoConditions[megido.id] === '絶好調') {
+                    for (const ailment of statusAilmentGimmicks) {
+                        const resistanceTag = megido.tags?.find(t => t.category === '耐性' && t.subCategory === `${ailment}耐性`);
+                        const immunityTag = megido.tags?.find(t => t.category === '耐性' && t.subCategory === `${ailment}無効`);
+                        if (resistanceTag && !immunityTag) {
+                            const baseResistance = parseInt(resistanceTag.condition, 10) || 0;
+                            if (baseResistance > 0 && baseResistance < 100 && (baseResistance + 50) >= 100) {
+                                const reason = `【絶好調シナジー】特性の<strong>${ailment}耐性(${baseResistance}%)</strong>とコンディション効果(耐性+50%)が合わさり、<strong>「${ailment}」を完全に無効化できます。</strong>`;
+                                addOrUpdateRecommendation(recommendations.jammers, { megido, reason, priority: PRIORITY.HIGH, role: 'jammer' });
+                            }
+                        }
+                    }
+                }
+            }
+        }
     };
 
     const findSupporters = () => {
-        for (const megido of ownedMegidoDetails) {
-            const foundTag = megido.tags?.find(t => SUPPORTER_ROLE_TAGS.includes(t.subCategory));
-            if (foundTag) {
-                const reason = `【${foundTag.method}】で「${foundTag.subCategory}」の支援ができます。`;
-                addOrUpdateRecommendation(recommendations.supporters, { megido, reason, priority: PRIORITY.LOW, role: 'supporter' });
-            }
-        }
-        for (const orb of ownedOrbDetails) {
-            const foundTag = orb.tags?.find(t => SUPPORTER_ROLE_TAGS.includes(t.subCategory));
-            if (foundTag) {
-                const equippableMegido = ownedMegidoDetails.filter(m => m.style === orb.conditions);
-                for (const megido of equippableMegido) {
-                    let priority = PRIORITY.LOW;
-                    let reason = `【${orb.name}の${foundTag.method}】で「${foundTag.subCategory}」の支援ができます。`;
-                    if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
-                        priority = PRIORITY.LOW;
-                        reason += ' (※入手難易度が高いオーブです)';
-                    }
-                    addOrUpdateRecommendation(recommendations.supporters, { megido, orb, reason, priority, role: 'supporter' });
+        const allThreats = [...gimmicks, ...weaknesses];
+
+        for (const threat of allThreats) {
+            const key = `${threat.category}-${threat.subCategory}`;
+            const supportCounters = THREAT_SUPPORT_MAP[key];
+            if (!supportCounters) continue;
+
+            for (const counter of supportCounters) {
+                // 「かばう無効」ギミックがある場合、「かばう」は推奨しない
+                if (counter.subCategory === 'かばう' && gimmicks.some(g => g.subCategory === 'かばう無効')) {
+                    continue;
                 }
-            }
-        }
-        for (const gimmick of gimmicks) {
-            const key = `ギミック-${gimmick.subCategory}`;
-            const priorityRules = SUPPORT_PRIORITY_MAP[key];
-            if (!priorityRules) continue;
-            for (const rule of priorityRules) {
-                const updatedList = [];
-                for (const supporter of recommendations.supporters) {
-                    const target = supporter.orb || supporter.megido;
-                    const foundTag = target.tags?.find(t => t.category === rule.category && t.subCategory === rule.subCategory);
+
+                // Find matching Megido
+                for (const megido of ownedMegidoDetails) {
+                    const foundTag = megido.tags?.find(t => t.category === counter.category && t.subCategory === counter.subCategory);
                     if (foundTag) {
-                        if (rule.adjustment === 'ignore') continue;
-                        supporter.priority = rule.adjustment;
-                        supporter.reason = `【${foundTag.method}】${rule.reason}`;
+                        const reason = `【${foundTag.method}】${counter.reason}`;
+                        addOrUpdateRecommendation(recommendations.supporters, { megido, reason, priority: counter.priority, role: 'supporter' });
                     }
-                    updatedList.push(supporter);
                 }
-                recommendations.supporters = updatedList;
+                // Find matching Orbs
+                for (const orb of ownedOrbDetails) {
+                    const foundTag = orb.tags?.find(t => t.category === counter.category && t.subCategory === counter.subCategory);
+                    if (foundTag) {
+                        const equippableMegido = ownedMegidoDetails.filter(m => m.style === orb.conditions);
+                        for (const megido of equippableMegido) {
+                            let reason = `【${orb.name}の${foundTag.method}】${counter.reason}`;
+                            let priority = counter.priority;
+                            if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
+                                priority = PRIORITY.LOW;
+                                reason += ' (※入手難易度が高いオーブです)';
+                            }
+                            addOrUpdateRecommendation(recommendations.supporters, { megido, orb, reason, priority, role: 'supporter' });
+                        }
+                    }
+                }
+            }
+        }
+
+        // **絶好調シナジー：HP依存特性**
+        for (const megido of ownedMegidoDetails) {
+            if (megidoConditions[megido.id] === '絶好調') {
+                const damageBlockTag = megido.tags?.find(t => t.subCategory === 'ダメージブロック');
+                if (damageBlockTag) {
+                    const reason = `【絶好調シナジー】HP+15%の恩恵により、特性<strong>（${damageBlockTag.condition || '最大HP割合'}以下のダメージを無効化）</strong>がさらに活かされ、敵の攻撃を無効化しやすくなります。`;
+                    addOrUpdateRecommendation(recommendations.supporters, { megido, reason, priority: PRIORITY.MEDIUM, role: 'supporter' });
+                }
             }
         }
     };
@@ -391,10 +487,17 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
     findAttackersAndJammers();
     findSupporters();
 
+    const MAX_RECOMMENDATIONS_PER_ROLE = 5;
     const finalRecommendations = {
-        attackers: recommendations.attackers.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]),
-        jammers: recommendations.jammers.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]),
-        supporters: recommendations.supporters.sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]),
+        attackers: recommendations.attackers
+            .sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
+            .slice(0, MAX_RECOMMENDATIONS_PER_ROLE),
+        jammers: recommendations.jammers
+            .sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
+            .slice(0, MAX_RECOMMENDATIONS_PER_ROLE),
+        supporters: recommendations.supporters
+            .sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority])
+            .slice(0, MAX_RECOMMENDATIONS_PER_ROLE),
     };
 
     const totalRecommendations = finalRecommendations.attackers.length + finalRecommendations.jammers.length + finalRecommendations.supporters.length;
