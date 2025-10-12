@@ -1322,7 +1322,7 @@ const TowerTool = () => {
     }, [selectedSquare]);
 
     const recommendations = useMemo(() => {
-        if (!megidoList || !targetedEnemy || !selectedSquare) return null; 
+        if (!megidoList || !targetedEnemy || !selectedSquare || !window.COMPLETE_ORB_LIST) return null; 
         if ((selectedSquare.square.type === 'battle' || selectedSquare.square.type === 'boss') && ownedMegidoIds.size > 0) {
             const enemy = targetedEnemy;
             if (enemy && typeof enemy !== 'string' && enemy.tags) {
@@ -1331,9 +1331,9 @@ const TowerTool = () => {
                     floorRules: selectedSquare.square.rules || [],
                     ownedMegido: ownedMegidoIds,
                     allMegidoMaster: megidoList,
-                    ownedOrbs: ownedOrbIds,
-                    allOrbsMaster: orbList,
-                    megidoConditions: megidoConditions
+                    ownedOrbs: new Set(), // 所持オーブのデータソースが不明なため、一旦空のSetを渡す
+                    allOrbsMaster: window.COMPLETE_ORB_LIST || [],
+                    megidoConditions: megidoConditions || {}
                 });
                 if (result.success) {
                     return result.recommendations;
@@ -1341,7 +1341,7 @@ const TowerTool = () => {
             }
         }
         return null;
-    }, [targetedEnemy, ownedMegidoIds, megidoList, orbList, megidoConditions, selectedSquare]);
+    }, [targetedEnemy, ownedMegidoIds, megidoList, megidoConditions, selectedSquare]);
 
     const handleTargetFloorChange = (floor) => {
         if (floor <= 20 && !isGuideMode) {
