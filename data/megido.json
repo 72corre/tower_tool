@@ -5,18 +5,27 @@
       {
         "category": "攻撃手段",
         "subCategory": "海洋生物特効",
-        "method": "特性"
+        "method": "特性",
+        "condition": ""
       },
       {
         "category": "攻撃手段",
         "subCategory": "雷ダメージ",
-        "method": "奥義"
+        "method": "奥義",
+        "condition": ""
       },
       {
         "category": "強化",
         "subCategory": "チャージ強化",
-        "method": "スキル"
-      }
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "地形",
+        "subCategory": "帯電",
+        "method": "覚醒スキル",
+        "condition": ""
+      }  
     ]
  },
     { "QRID": "002", "id": "祖01_バエルC", "時計": "祖01", "名前": "バエルC", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "7000", "ATK": "1103", "DEF": "417", "SPD": "620", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false,
@@ -24,22 +33,26 @@
       {
         "category": "特殊状態",
         "subCategory": "誘雷",
-        "method": "スキル"
+        "method": "スキル",
+        "condition": ""
       },
       {
         "category": "補助",
         "subCategory": "覚醒ゲージ減少",
-        "method": "マスエフェクト"
+        "method": "マスエフェクト",
+        "condition": ""
       },
       {
         "category": "攻撃手段",
         "subCategory": "雷ダメージ",
-        "method": "奥義"
+        "method": "奥義",
+        "condition": ""
       },
       {
         "category": "攻撃手段",
         "subCategory": "全体攻撃",
-        "method": "奥義"
+        "method": "奥義",
+        "condition": ""
       }
     ],
 "recommended_reishou_sets": [
@@ -56,7 +69,26 @@
   ]
   },
     { "QRID": "003", "id": "祖02_アガレス", "時計": "祖02", "名前": "アガレス", "スタイル": "バースト", "クラス": "スナイパー", "HP": "10712", "ATK": "971", "DEF": "418", "SPD": "427", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false 
-    ,"tags": ["踏みとどまり", "防御無視", "感電無効"],
+    ,  "tags": [
+      {
+        "category": "攻撃手段",
+        "subCategory": "防御無視",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "耐性",
+        "subCategory": "感電無効",
+        "method": "マスエフェクト",
+        "condition": ""
+      },
+      {
+        "category": "防御",
+        "subCategory": "踏みとどまり",
+        "method": "特性",
+        "condition": ""
+      }
+    ],
     "recommended_reishou_sets": [
         {
           "setName": "轟雷セット",
@@ -69,16 +101,247 @@
           "reishou_ids": ["reishou_c042", "reishou_c042", "reishou_c042", "reishou_c042"]
         }
       ]},
-    { "QRID": "004", "id": "祖02_アガレスC", "時計": "祖02", "名前": "アガレスC", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "6106", "ATK": "1218", "DEF": "394", "SPD": "616", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false },
-    { "QRID": "005", "id": "祖03_ウァサゴ", "時計": "祖03", "名前": "ウァサゴ", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "5743", "ATK": "980", "DEF": "500", "SPD": "614", "汎用特性": "", "入手方法": "その他", "絆霊宝": true, "専用霊宝": true , "Singularity": false },
-    { "QRID": "006", "id": "祖03_ウァサゴB", "時計": "祖03", "名前": "ウァサゴB", "スタイル": "バースト", "クラス": "ファイター", "HP": "7736", "ATK": "935", "DEF": "538", "SPD": "460", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false },
-    { "QRID": "007", "id": "祖04_ガミジン", "時計": "祖04", "名前": "ガミジン", "スタイル": "カウンター", "クラス": "ファイター", "HP": "8729", "ATK": "1193", "DEF": "418", "SPD": "417", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false },
-    { "QRID": "008", "id": "祖04_ガミジンB", "時計": "祖04", "名前": "ガミジンB", "スタイル": "バースト", "クラス": "ファイター", "HP": "8467", "ATK": "1070", "DEF": "423", "SPD": "492", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false },
-    { "QRID": "009", "id": "祖05_マルバス", "時計": "祖05", "名前": "マルバス", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "7262", "ATK": "628", "DEF": "489", "SPD": "719", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false },
-    { "QRID": "010", "id": "祖05_マルバスR", "時計": "祖05", "名前": "マルバスR", "スタイル": "ラッシュ", "クラス": "スナイパー", "HP": "7730", "ATK": "597", "DEF": "586", "SPD": "657", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": true , "Singularity": false },
-    { "QRID": "011", "id": "祖06_ウァレフォル", "時計": "祖06", "名前": "ウァレフォル", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "5855", "ATK": "1150", "DEF": "287", "SPD": "678", "汎用特性": "通常アタック回数：2", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false },
-    { "QRID": "012", "id": "祖06_ウァレフォルC", "時計": "祖06", "名前": "ウァレフォルC", "スタイル": "カウンター", "クラス": "ファイター", "HP": "6806", "ATK": "1340", "DEF": "390", "SPD": "509", "汎用特性": "", "入手方法": "その他", "絆霊宝": true, "専用霊宝": false , "Singularity": false },
-    { "QRID": "013", "id": "祖07_アモン", "時計": "祖07", "名前": "アモン", "スタイル": "バースト", "クラス": "ファイター", "HP": "4598", "ATK": "1194", "DEF": "417", "SPD": "685", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false },
+    { "QRID": "004", "id": "祖02_アガレスC", "時計": "祖02", "名前": "アガレスC", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "6106", "ATK": "1218", "DEF": "394", "SPD": "616", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false ,
+  "tags": [
+    {
+      "category": "攻撃手段",
+      "subCategory": "防御無視",
+      "method": "スキル",
+      "condition": ""
+    },
+    {
+      "category": "攻撃手段",
+      "subCategory": "列攻撃",
+      "method": "スキル",
+      "condition": ""
+    },
+    {
+      "category": "攻撃手段",
+      "subCategory": "神特効",
+      "method": "特性",
+      "condition": ""
+    },
+    {
+      "category": "攻撃手段",
+      "subCategory": "神特効",
+      "method": "マスエフェクト",
+      "condition": ""
+    }] },
+    { "QRID": "005", "id": "祖03_ウァサゴ", "時計": "祖03", "名前": "ウァサゴ", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "5743", "ATK": "980", "DEF": "500", "SPD": "614", "汎用特性": "", "入手方法": "その他", "絆霊宝": true, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "耐性",
+        "subCategory": "ステータス弱体無効",
+        "method": "マスエフェクト",
+        "condition": ""
+      },
+      {
+        "category": "回復・蘇生・治癒",
+        "subCategory": "回復",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "補助",
+        "subCategory": "覚醒ゲージ増加",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]},
+    { "QRID": "006", "id": "祖03_ウァサゴB", "時計": "祖03", "名前": "ウァサゴB", "スタイル": "バースト", "クラス": "ファイター", "HP": "7736", "ATK": "935", "DEF": "538", "SPD": "460", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "強化",
+        "subCategory": "アタック強化",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "回復・蘇生・治癒",
+        "subCategory": "回復",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "他者攻撃力上昇",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "全体化",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]},
+    { "QRID": "007", "id": "祖04_ガミジン", "時計": "祖04", "名前": "ガミジン", "スタイル": "カウンター", "クラス": "ファイター", "HP": "8729", "ATK": "1193", "DEF": "418", "SPD": "417", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "攻撃手段",
+        "subCategory": "低防御力特効",
+        "method": "特性",
+        "condition": ""
+      },
+      {
+        "category": "状態異常",
+        "subCategory": "毒",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "防御無視",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "連続攻撃",
+        "method": "奥義",
+        "condition": "４"
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "列攻撃",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "防御無視",
+        "method": "マスエフェクト",
+        "condition": "カウンター-スナイパー"
+      }
+    ]},
+    { "QRID": "008", "id": "祖04_ガミジンB", "時計": "祖04", "名前": "ガミジンB", "スタイル": "バースト", "クラス": "ファイター", "HP": "8467", "ATK": "1070", "DEF": "423", "SPD": "492", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "妨害",
+        "subCategory": "ペインフォトン追加",
+        "method": "覚醒スキル",
+        "condition": ""
+      }
+    ]},
+    { "QRID": "009", "id": "祖05_マルバス", "時計": "祖05", "名前": "マルバス", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "7262", "ATK": "628", "DEF": "489", "SPD": "719", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "回復・蘇生・治癒",
+        "subCategory": "回復",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "回復・蘇生・治癒",
+        "subCategory": "回復",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "回復・蘇生・治癒",
+        "subCategory": "回復",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]},
+    { "QRID": "010", "id": "祖05_マルバスR", "時計": "祖05", "名前": "マルバスR", "スタイル": "ラッシュ", "クラス": "スナイパー", "HP": "7730", "ATK": "597", "DEF": "586", "SPD": "657", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "特殊状態",
+        "subCategory": "点穴付与",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "特殊状態",
+        "subCategory": "点穴付与",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "妨害",
+        "subCategory": "強化解除",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "特殊状態",
+        "subCategory": "アーマー",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]},
+    { "QRID": "011", "id": "祖06_ウァレフォル", "時計": "祖06", "名前": "ウァレフォル", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "5855", "ATK": "1150", "DEF": "287", "SPD": "678", "汎用特性": "通常アタック回数：2", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "攻撃手段",
+        "subCategory": "獣人特効",
+        "method": "特性",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "連続攻撃",
+        "method": "スキル",
+        "condition": "4"
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "連続攻撃",
+        "method": "アタック",
+        "condition": "2"
+      },
+      {
+        "category": "強化",
+        "subCategory": "追加ダメージ",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "獣人特効",
+        "method": "マスエフェクト",
+        "condition": ""
+      }
+    ]
+  },
+    { "QRID": "012", "id": "祖06_ウァレフォルC", "時計": "祖06", "名前": "ウァレフォルC", "スタイル": "カウンター", "クラス": "ファイター", "HP": "6806", "ATK": "1340", "DEF": "390", "SPD": "509", "汎用特性": "", "入手方法": "その他", "絆霊宝": true, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "攻撃手段",
+        "subCategory": "連続攻撃",
+        "method": "アタック",
+        "condition": "2"
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "雷ダメージ",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "誘雷特効",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "雷ダメージ",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]},
+    { "QRID": "013", "id": "祖07_アモン", "時計": "祖07", "名前": "アモン", "スタイル": "バースト", "クラス": "ファイター", "HP": "4598", "ATK": "1194", "DEF": "417", "SPD": "685", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "地形",
+        "subCategory": "炎上",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]
+  },
     { "QRID": "014", "id": "祖07_アモンR", "時計": "祖07", "名前": "アモンR", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "6039", "ATK": "1200", "DEF": "420", "SPD": "627", "汎用特性": "通常アタック回数：3", "入手方法": "その他", "絆霊宝": true, "専用霊宝": false , "Singularity": false },
     { "QRID": "015", "id": "祖08_バルバトス", "時計": "祖08", "名前": "バルバトス", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "7659", "ATK": "960", "DEF": "476", "SPD": "474", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": true , "Singularity": false },
     { "QRID": "016", "id": "祖08_バルバトスR", "時計": "祖08", "名前": "バルバトスR", "スタイル": "ラッシュ", "クラス": "スナイパー", "HP": "7713", "ATK": "1226", "DEF": "421", "SPD": "492", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false },
@@ -196,7 +459,7 @@
         "category": "耐性",
         "subCategory": "全状態異常耐性",
         "method": "マスエフェクト",
-        "condition": ""
+        "condition": "50"
       },
       {
         "category": "回復",
