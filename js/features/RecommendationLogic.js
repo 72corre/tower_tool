@@ -205,7 +205,8 @@ const addOrUpdateRecommendation = (list, newItem) => {
 const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs = new Set(), allOrbsMaster = [] }) => {
     if (!enemy || !enemy.tags) return { success: false, reason: 'NO_ENEMY_DATA' };
 
-    const { gimmicks = [], weaknesses = [] } = enemy.tags;
+    const gimmicks = Array.isArray(enemy.tags.gimmicks) ? enemy.tags.gimmicks : [];
+    const weaknesses = Array.isArray(enemy.tags.weaknesses) ? enemy.tags.weaknesses : [];
     const ownedMegidoDetails = allMegidoMaster.filter(m => ownedMegido.has(m.id));
     const ownedOrbDetails = allOrbsMaster.filter(o => ownedOrbs.has(o.id));
 
@@ -291,8 +292,8 @@ const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs 
         }
 
         // 2-2. 敵ギミックに応じた優先度調整
-        for (const gimmicks of gimmicks) {
-            const key = `ギミック-${gimmicks.subCategory}`;
+        for (const gimmick of gimmicks) {
+            const key = `ギミック-${gimmick.subCategory}`;
             const priorityRules = SUPPORT_PRIORITY_MAP[key];
             if (!priorityRules) continue;
 
