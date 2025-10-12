@@ -1,0 +1,435 @@
+/* for Mobile Layout */
+
+/* The mobile-view class is added to the body via JS */
+body.mobile-view .main-content {
+    /* PCでは横並びのレイアウトを、スマホでは縦積みに変更 */
+    flex-direction: column !important;
+    /* スマホでは不要な余白を削除 */
+    padding-top: 101px !important; /* Offset for fixed header */
+    gap: 0 !important;
+}
+
+body.mobile-view .left-panel {
+    /* 親要素いっぱいに広がるように設定 */
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    /* 高さはコンテンツに応じて自動調整 */
+    height: auto !important;
+    /* パネル内のスクロールではなく、ページ全体のスクロールを有効にする */
+    overflow-y: visible !important;
+}
+
+body.mobile-view .right-panel {
+    /* 右側の詳細パネルは非表示にする */
+    display: none;
+}
+
+/* --- Resource Dashboard (Mobile) --- */
+body.mobile-view .resource-dashboard {
+    border-bottom: 1px solid var(--border-color, #ccc);
+    background-color: var(--bg-panel, #fff);
+}
+
+body.mobile-view .dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+}
+
+body.mobile-view .dashboard-summary-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.9rem;
+}
+
+body.mobile-view .fatigue-summary {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+body.mobile-view .summary-style-r { color: var(--rush-color, #d9534f); font-weight: 500; }
+body.mobile-view .summary-style-c { color: var(--counter-color, #5bc0de); font-weight: 500; }
+body.mobile-view .summary-style-b { color: var(--burst-color, #f0ad4e); font-weight: 500; }
+
+body.mobile-view .dashboard-toggle {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+body.mobile-view .dashboard-content {
+    padding: 0.5rem 1rem 1rem 1rem;
+    border-top: 1px solid var(--border-color-light, #eee);
+}
+
+/* --- Footer --- */
+/* フッター分のスペースを確保 */
+body.mobile-view .main-content {
+    padding-bottom: 70px !important; /* フッターの高さ分 */
+}
+
+/* フッター本体 */
+body.mobile-view .resource-dashboard-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 900;
+    border-top: 1px solid var(--border-color, #ccc);
+    background-color: var(--bg-panel, #fff);
+}
+
+
+/* --- Slide-up Panel (replaces old modal) --- */
+body.mobile-view .mobile-panel-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    /* パネルを画面下部に配置 */
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 1000;
+}
+
+body.mobile-view .mobile-panel-content {
+    position: relative;
+    background: var(--bg-panel, #fff);
+    /* 上部の角だけ丸める */
+    border-radius: 16px 16px 0 0;
+    width: 95%;
+    /* フッターの上に配置 */
+    margin-bottom: 70px; 
+    max-height: 70vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color, #ccc);
+    border-bottom: none;
+    padding: 1.5rem;
+    /* 下からスライドしてくるアニメーション */
+    animation: slide-up 0.3s ease-out;
+}
+
+@keyframes slide-up {
+    from {
+        transform: translateY(100%);
+    }
+    to {
+        transform: translateY(0);
+    }
+}
+
+/* Modal for mobile view */
+body.mobile-view .mobile-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+body.mobile-view .mobile-modal-content {
+    position: relative; /* For close button positioning */
+    background: var(--bg-panel, #fff);
+    padding: 1.5rem;
+    border-radius: 8px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+    border: 1px solid var(--border-color, #ccc);
+}
+
+body.mobile-view .mobile-panel-content .btn-close-modal,
+body.mobile-view .mobile-modal-content .btn-close-modal {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    top: auto;
+    right: auto;
+
+    background-color: var(--bg-hover);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    color: var(--text-subtle);
+    font-size: 1rem;
+    font-weight: 500;
+    line-height: 1;
+    padding: 0.5rem 1.5rem;
+    cursor: pointer;
+    width: 80%;
+    max-width: 400px;
+}
+
+body.mobile-view .mobile-panel-content,
+body.mobile-view .mobile-modal-content {
+    /* Add padding to the bottom to make space for the new close button */
+    padding-bottom: 4rem;
+}
+
+
+/* --- Formation Manager --- */
+body.mobile-view .formation-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+body.mobile-view .formation-card-menu-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0.5rem;
+    margin: -0.5rem; /* Adjust hit area */
+    cursor: pointer;
+    color: var(--text-subtle);
+}
+
+body.mobile-view .formation-card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px;
+    background-color: var(--bg-main);
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+body.mobile-view .formation-card-actions .btn {
+    width: 100%;
+    text-align: left;
+    padding: 8px 12px;
+}
+
+body.mobile-view .fab-add-formation {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: #3B82F6; /* Brighter blue */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+body.mobile-view .fab-container {
+    position: fixed;
+    bottom: 85px; /* Footer height + margin */
+    right: 20px;
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+body.mobile-view .fab-text {
+    color: #f0f0f0;
+    font-size: 10px;
+    font-weight: 500;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+
+/* --- Ownership Manager --- */
+body.mobile-view .ownership-table th,
+body.mobile-view .ownership-table td {
+    padding: 12px 8px; /* Increase vertical padding */
+    vertical-align: middle;
+}
+
+body.mobile-view .ownership-table input[type="checkbox"] {
+    width: 24px; /* Increase size */
+    height: 24px;
+    cursor: pointer;
+}
+
+body.mobile-view .ownership-table .select-field,
+body.mobile-view .ownership-table .input-field {
+    padding: 8px; /* Increase padding */
+    min-height: 40px; /* Ensure decent tap height */
+}
+
+/* --- Mobile Header --- */
+.mobile-header-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 950; /* Ensure it's above content but below modals */
+    background-color: var(--bg-panel);
+    border-bottom: 1px solid var(--border-color);
+    padding-top: env(safe-area-inset-top);
+}
+
+.mobile-header-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 12px;
+    height: 56px;
+}
+
+.mobile-header-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+}
+
+.header-target-floor-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 2px 4px;
+}
+
+.mobile-header-actions {
+    position: relative;
+    width: 40px; /* Match settings button */
+    display: flex;
+    justify-content: flex-end;
+}
+
+.mobile-header-actions .btn-icon {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.mobile-actions-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1100;
+}
+
+.mobile-actions-menu {
+    position: absolute;
+    top: 45px;
+    right: 8px;
+    background-color: var(--bg-panel-raised);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    z-index: 1101;
+    border: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.mobile-actions-menu-item {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    text-align: left;
+    color: var(--text-main);
+    font-size: 1rem;
+    white-space: nowrap;
+}
+
+.mobile-actions-menu-item:hover {
+    background-color: var(--bg-hover);
+}
+
+.mobile-actions-menu-item.danger {
+    color: var(--danger-color);
+}
+
+.mobile-header-tabs {
+    display: flex;
+    width: 100%;
+    border-top: 1px solid var(--border-color);
+}
+
+.mobile-tab-button {
+    flex: 1;
+    padding: 12px 8px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--text-subtle);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+}
+
+.mobile-tab-button.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.floor-selection-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.floor-selection-list .modal-item-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding: 12px;
+}
+
+.floor-selection-list .modal-item-btn.selected {
+    background-color: var(--primary-accent-dark);
+    border-color: var(--primary-accent);
+}
+
+/* --- Mobile Map Adjustments --- */
+body.mobile-view .map-node-container {
+    height: 40px;
+}
+
+body.mobile-view .map-node {
+    width: 40px;
+    height: 40px;
+}
+
+body.mobile-view .floor-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+}
+
+/* Map Search Modal */
+body.mobile-view .map-search-controls .predefined-search {
+    justify-content: center;
+}
+
+body.mobile-view .predefined-search .btn {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* iOSでの入力時自動ズームを防止 */
+body.mobile-view input[type="text"],
+body.mobile-view input[type="number"],
+body.mobile-view input[type="search"],
+body.mobile-view textarea,
+body.mobile-view select {
+    font-size: 16px;
+}
