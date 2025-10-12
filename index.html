@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <script>
+        var COMPLETE_MEGIDO_LIST = [];
+        var ENEMY_ALL_DATA = [];
+        var COMPLETE_ORB_LIST = [];
+        var COMPLETE_REISHOU_LIST = [];
+        var TOWER_MAP_DATA = [];
+        var MEGIDO_BIRTHDAY_DATA = [];
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>星間の塔 攻略支援ツール ver.20251002</title>
+    <script src="https://cdn.tailwindcss.com" defer></script>
+    <link rel="stylesheet" href="css/bundle.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="preload" href="asset/maps/floor-1.svg" as="image">
+</head>
+<body>
+    <div id="root"></div>
+    <div id="qr-reader-div" style="display: none;"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js" defer></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" defer></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js" defer></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js" defer></script>
+    <script src="js/firebase-config.js" defer></script>
+    <script src="js/firebase-utils.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.4/html5-qrcode.min.js" integrity="sha512-k/KAe4Yff9EUdYI5/IAHlwUswqeipP+Cp5qnrsUjTPCgl51La2/JhyyjNciztD7mWNKLSXci48m7cctATKfLlQ==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+    
+    <script src="js/id_mapping_utils.js" defer></script>
+    <script type="text/babel" src="js/utils.js" defer></script>
+    <script type="text/babel" src="js/constants.js" defer></script>
+    <script type="text/babel" src="js/constants.js" defer></script>
+    <script type="text/babel" src="js/features/PlayerProfile.js" defer></script>
+    <script type="text/babel" src="js/features/GuidanceLogic.js" defer></script>
+    <script type="text/babel" src="js/features/RecommendationLogic.js" defer></script>
+    <script type="text/babel" src="js/hooks/usePracticeState.js" defer></script>
+    <script type="text/babel" src="js/hooks/usePlanState.js" defer></script>
+    <script type="text/babel" src="js/hooks/useFormations.js" defer></script>
+    <script type="text/babel" src="js/hooks/useMegido.js" defer></script>
+    <script type="text/babel" src="js/hooks/useSwipeNavigation.js" defer></script>
+    <script type="text/babel" src="js/hooks/useMediaQuery.js" defer></script>
+    <script type="text/babel" src="js/hooks/useCommunityFormations.js" defer></script>
+    <script type="text/babel" src="js/hooks/useAutoAssign.js" defer></script>
+    <script type="text/babel" src="js/components/MegaMenu.js" defer></script>
+    <script type="text/babel" src="js/achievement.js" defer></script>
+    <script type="text/babel" src="js/components/Settings.js" defer></script>
+    <script type="text/babel" src="js/components/Header.js" defer></script>
+    <script type="text/babel" src="js/components/FilterControls.js" defer></script>
+    <script type="text/babel" src="js/components/FilterableSelectionModal.js" defer></script>
+    <script type="text/babel" src="js/components/MegidoSlotEditor.js" defer></script>
+    <script type="text/babel" src="js/components/FormationEditor.js" defer></script>
+    <script type="text/babel" src="js/components/FormationManager.js" defer></script>
+    <script type="text/babel" src="js/components/OwnershipManager.js" defer></script>
+    <script type="text/babel" src="js/components/FloorGrid.js" defer></script>
+    <script type="text/babel" src="js/components/ExplorationActionPanel.js" defer></script>
+    <script type="text/babel" src="js/components/PracticeActionPanel.js" defer></script>
+    <script type="text/babel" src="js/components/StartSquarePanel.js" defer></script>
+    <script type="text/babel" src="js/components/LockedPanelOverlay.js" defer></script>
+    <script type="text/babel" src="js/components/LogViewer.js" defer></script>
+    <script type="text/babel" src="js/components/InputModal.js" defer></script>
+    <script type="text/babel" src="js/components/ChoiceModal.js" defer></script>
+    <script type="text/babel" src="js/components/StatusBuffModal.js" defer></script>
+    <script type="text/babel" src="js/components/InfoModal.js" defer></script>
+    <script type="text/babel" src="js/components/RecoveryModal.js" defer></script>
+    <script type="text/babel" src="js/components/ResourceDashboard.js" defer></script>
+    <script type="text/babel" src="js/components/PlanModeDashboard.js" defer></script>
+    <script type="text/babel" src="js/components/PostFormationModal.js" defer></script>
+    <script type="text/babel" src="js/components/CommunityFormationCard.js" defer></script>
+    <script type="text/babel" src="js/components/CommunityFormations.js" defer></script>
+    <script type="text/babel" src="js/components/AutoAssignResultModal.js" defer></script>
+    <script type="text/babel" src="js/components/AlternativeMegidoModal.js" defer></script>
+    <script type="text/babel" src="js/components/MapSearchModal.js" defer></script>
+    <script type="text/babel" src="js/components/GuidanceManager.js" defer></script>
+    <script type="text/babel" src="js/components/Tutorial.js" defer></script>
+    <script type="text/babel" src="js/hooks/useUIState.js" defer></script>
+    <script type="text/babel" src="js/hooks/useGameData.js" defer></script>
+    <script type="text/babel" src="js/hooks/useAchievements.js" defer></script>
+    <script type="text/babel" src="js/context/AppContext.js" defer></script>
+    <script type="text/babel" src="js/app.js" defer></script>
+</body>
+</html>
+</script>
+</body>
+</html>
