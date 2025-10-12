@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タグ付け支援ツール v3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #111827; color: #d1d5db; }
+        .tab-button.active { background-color: #3b82f6; color: white; }
+        .modal { background-color: rgba(0, 0, 0, 0.7); }
+        .modal-content { background-color: #1f2937; }
+        input, select, textarea { background-color: #374151; border-color: #4b5563; color: #d1d5db; }
+        input:focus, select:focus, textarea:focus { border-color: #3b82f6; outline: none; }
+        .tag { background-color: #374151; }
+        .tag-delete, .list-delete { cursor: pointer; color: #f87171; }
+        .list-item:hover { background-color: #374151; }
+    </style>
+</head>
+<body class="p-6">
+
+    <div id="app" class="max-w-7xl mx-auto">
+        <h1 class="text-3xl font-bold mb-6 text-white">タグ付け支援ツール v3</h1>
+
+        <!-- Tag Map Management -->
+        <div class="mb-8 p-6 bg-gray-900/50 rounded-lg border border-gray-700">
+            <h2 class="text-xl font-semibold mb-4 text-white">タグ分類管理</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-bold mb-2">大区分 (Category)</h3>
+                    <div id="category-list" class="mb-2 p-2 border border-gray-600 rounded h-48 overflow-y-auto"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-category-input" placeholder="新しい大区分" class="w-full p-2 rounded-md">
+                        <button id="add-category-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">追加</button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="font-bold mb-2">小区分 (SubCategory) - <span id="selected-category-label"></span></h3>
+                    <div id="subcategory-list" class="mb-2 p-2 border border-gray-600 rounded h-48 overflow-y-auto"></div>
+                    <div class="flex gap-2">
+                        <input type="text" id="new-subcategory-input" placeholder="新しい小区分" class="w-full p-2 rounded-md">
+                        <button id="add-subcategory-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-md">追加</button>
+                    </div>
+                </div>
+            </div>
+             <div class="mt-4 text-right">
+                <button id="copy-tag-map-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">分類データをコピー</button>
+            </div>
+        </div>
+
+        <!-- Data Source Tabs -->
+        <div class="flex border-b border-gray-700 mb-6">
+            <button data-tab="megido" class="tab-button py-2 px-4 rounded-t-lg font-semibold">メギド</button>
+            <button data-tab="orbs" class="tab-button py-2 px-4 rounded-t-lg font-semibold">オーブ</button>
+            <button data-tab="tower" class="tab-button py-2 px-4 rounded-t-lg font-semibold">塔（エネミー）</button>
+        </div>
+
+        <!-- Search & List Area -->
+        <div class="mb-6">
+            <input type="text" id="search-input" placeholder="名前で検索..." class="w-full p-2 rounded-md mb-4">
+            <div id="item-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"></div>
+        </div>
+
+        <!-- Output Area -->
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold mb-2 text-white">アイテムデータ全体出力</h2>
+            <p class="text-gray-400 mb-4">編集が完了したら、下の「コピー」ボタンを押して、対応するJSONファイルに内容を貼り付けてください。</p>
+            <textarea id="output-textarea" class="w-full h-96 p-3 rounded-md font-mono text-sm" readonly></textarea>
+            <button id="copy-output-btn" class="mt-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">全体データをコピー</button>
+        </div>
+
+        <!-- Tag Edit Modal -->
+        <div id="tag-edit-modal" class="fixed inset-0 modal items-center justify-center hidden z-50">
+            <div class="modal-content p-6 rounded-lg shadow-lg w-full max-w-2xl">
+                <h2 class="text-2xl font-bold mb-4" id="modal-title">タグ編集</h2>
+                <div id="current-tags-container" class="mb-4 p-3 bg-gray-900/50 rounded-md min-h-[80px]"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border border-gray-700 rounded-md">
+                    <div class="col-span-1 md:col-span-2 font-semibold text-lg">新規タグ追加</div>
+                    <div><label for="category-select" class="block text-sm font-medium text-gray-400">大区分</label><select id="category-select" class="w-full p-2 mt-1 rounded-md"></select></div>
+                    <div><label for="subcategory-select" class="block text-sm font-medium text-gray-400">小区分</label><select id="subcategory-select" class="w-full p-2 mt-1 rounded-md"></select></div>
+                    <div><label for="method-input" class="block text-sm font-medium text-gray-400">手段</label><input type="text" id="method-input" placeholder="例: スキル, 特性" class="w-full p-2 mt-1 rounded-md"></div>
+                    <div><label for="condition-input" class="block text-sm font-medium text-gray-400">値 (任意)</label><input type="text" id="condition-input" placeholder="例: 100, 3ターン" class="w-full p-2 mt-1 rounded-md"></div>
+                    <div class="col-span-1 md:col-span-2"><button id="add-tag-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">タグを追加</button></div>
+                </div>
+                <div class="mt-6 flex justify-between items-center">
+                    <button id="copy-item-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">このアイテムのデータをコピー</button>
+                    <button id="close-modal-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">閉じる</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- DATA ---
+    let TAG_MAP = {
+        "状態異常": ["毒", "めまい", "感電", "呪い", "暗闇", "睡眠", "凍結", "混乱", "束縛", "病気", "ノックバック", "引き寄せ", "煉獄の炎", "ねずみ化", "ゾンビ", "悪夢", "即死", "完殺", "執心", "味方状態異常"],
+        "弱体": ["攻撃力低下", "防御力低下", "素早さ低下", "フォトン容量低下", "アタック劣化", "スキル劣化", "チャージ劣化", "火耐性低下", "雷耐性低下", "覚醒増加量低下"],
+        "妨害": ["フォトン破壊", "フォトン奪取", "覚醒ゲージ減少", "強化解除", "フォトン転換", "ペインフォトン追加"],
+        "強化": ["他者攻撃力上昇", "防御力上昇", "素早さ上昇", "ダメージ軽減", "自然回復", "カウンター（反撃付与）", "状態変化耐性", "かばう", "フォトン容量上昇", "アタック強化", "スキル強化", "チャージ強化", "回数バリア", "ダメージブロック", "アタックバリア", "スキルバリア", "追加ダメージ", "列化", "全体化", "無敵", "魅了", "追撃", "自動蘇生", "状態異常命中", "回避", "火ダメージ上昇", "雷ダメージ上昇", "覚醒増加量上昇"],
+        "補助": ["覚醒ゲージ増加", "アタック追加", "スキル追加", "チャージ追加", "フォトン変化"],
+        "回復・蘇生・治癒": ["回復", "蘇生", "状態異常治癒", "弱体解除"],
+        "特殊状態": ["バーサーク", "点穴付与", "点穴", "ライブ", "ハイドロボム", "錬ボム", "ダメージ表", "エレキ", "封印", "アーマー", "デスギフト", "レイズギフト", "覚醒コスト減少", "オーラ", "オーラ消費", "誘雷", "魂衣", "強化解除無効", "オーバーチャージ"],
+        "トランス": ["協奏", "重奏", "音符発生", "怒闘", "バレット作成", "バレット消費", "ネクロ", "ソウル消費", "Fインパルス", "リリース効果付与", "コロッセオ"],
+        "地形": ["炎上", "狂炎", "滞水", "突風", "地割れ", "氷結", "凍土", "帯電", "浸食", "強染", "夢幻", "味方地形", "列地形", "全体地形", "地形延長"],
+        "攻撃手段": ["防御無視", "火ダメージ", "雷ダメージ", "破断ダメージ", "響撃ダメージ", "光子ダメージ", "固定ダメージ", "防御力依存ダメージ", "素早さ依存ダメージ", "HP依存ダメージ", "連続攻撃", "列攻撃", "全体攻撃", "獣人特効", "虫特効", "獣特効", "植物特効", "死者特効", "精霊特効", "飛行特効", "悪魔特効", "大幻獣特効", "古代生物特攻", "神特効", "爬虫類特効", "物体特効", "不定形特効", "多足類特効", "海洋生物特効", "龍特効"],
+        "耐性": ["状態異常無効", "状態異常耐性"],
+        "その他": ["飛行・地形無効", "反動・味方へのダメージ", "チェイン発生", "ブレイク", "戦旗"]
+    };
+
+    // --- STATE ---
+    let masterData = { megido: [], orbs: [], tower: [] };
+    let activeTab = 'megido';
+    let currentEditingItem = null;
+    let selectedCategoryForManagement = Object.keys(TAG_MAP)[0];
+
+    // --- DOM ELEMENTS ---
+    const copyItemBtn = document.getElementById('copy-item-btn');
+    const categoryListEl = document.getElementById('category-list');
+    const subcategoryListEl = document.getElementById('subcategory-list');
+    const selectedCategoryLabel = document.getElementById('selected-category-label');
+    const newCategoryInput = document.getElementById('new-category-input');
+    const newSubcategoryInput = document.getElementById('new-subcategory-input');
+    const addCategoryBtn = document.getElementById('add-category-btn');
+    const addSubcategoryBtn = document.getElementById('add-subcategory-btn');
+    const copyTagMapBtn = document.getElementById('copy-tag-map-btn');
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const searchInput = document.getElementById('search-input');
+    const itemListEl = document.getElementById('item-list');
+    const outputTextarea = document.getElementById('output-textarea');
+    const copyOutputBtn = document.getElementById('copy-output-btn');
+    const modal = document.getElementById('tag-edit-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const currentTagsContainer = document.getElementById('current-tags-container');
+    const categorySelect = document.getElementById('category-select');
+    const subcategorySelect = document.getElementById('subcategory-select');
+    const methodInput = document.getElementById('method-input');
+    const conditionInput = document.getElementById('condition-input');
+    const addTagBtn = document.getElementById('add-tag-btn');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+
+    // --- FUNCTIONS ---
+    const fetchData = async () => {
+        try {
+            const [megidoRes, orbsRes, towerRes] = await Promise.all([
+                fetch('data/megido.json'),
+                fetch('data/orbs.json'),
+                fetch('data/tower.json')
+            ]);
+            masterData.megido = await megidoRes.json();
+            masterData.orbs = await orbsRes.json();
+            masterData.tower = await towerRes.json();
+        } catch (e) {
+            console.error("Data loading failed:", e);
+            alert("データファイルの読み込みに失敗しました。");
+        }
+    };
+
+    const renderCategoryManagement = () => {
+        categoryListEl.innerHTML = '';
+        Object.keys(TAG_MAP).forEach(cat => {
+            const itemEl = document.createElement('div');
+            itemEl.className = `list-item p-2 rounded-md cursor-pointer flex justify-between items-center ${selectedCategoryForManagement === cat ? 'bg-blue-600 text-white' : ''}`;
+            itemEl.textContent = cat;
+            itemEl.onclick = () => {
+                selectedCategoryForManagement = cat;
+                renderCategoryManagement();
+            };
+            const deleteBtn = document.createElement('span');
+            deleteBtn.className = 'list-delete font-bold';
+            deleteBtn.textContent = '×';
+            deleteBtn.onclick = (e) => { e.stopPropagation(); deleteCategory(cat); };
+            itemEl.appendChild(deleteBtn);
+            categoryListEl.appendChild(itemEl);
+        });
+        renderSubcategoryManagement();
+    };
+
+    const renderSubcategoryManagement = () => {
+        subcategoryListEl.innerHTML = '';
+        selectedCategoryLabel.textContent = selectedCategoryForManagement;
+        if (selectedCategoryForManagement && TAG_MAP[selectedCategoryForManagement]) {
+            TAG_MAP[selectedCategoryForManagement].forEach(sub => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'list-item p-2 rounded-md flex justify-between items-center';
+                itemEl.textContent = sub;
+                const deleteBtn = document.createElement('span');
+                deleteBtn.className = 'list-delete font-bold';
+                deleteBtn.textContent = '×';
+                deleteBtn.onclick = (e) => { e.stopPropagation(); deleteSubcategory(sub); };
+                itemEl.appendChild(deleteBtn);
+                subcategoryListEl.appendChild(itemEl);
+            });
+        }
+    };
+
+    const renderItemList = () => {
+        const searchTerm = searchInput.value.toLowerCase();
+        const data = masterData[activeTab];
+        itemListEl.innerHTML = '';
+
+        if (activeTab === 'tower') {
+            const towerArray = data;
+            if (!Array.isArray(towerArray)) { return; }
+
+            towerArray.forEach(floorData => {
+                const enemiesInFloor = [];
+                if (floorData.squares) {
+                    Object.entries(floorData.squares).forEach(([squareId, squareData]) => {
+                        if (!squareData.enemies) return;
+                        squareData.enemies.forEach((enemy, index) => {
+                            const enemyName = typeof enemy === 'string' ? enemy : enemy.name;
+                            if (!searchTerm || enemyName.toLowerCase().includes(searchTerm)) {
+                                const compositeId = `${floorData.floor}|${squareId}|${index}`;
+                                const item = { id: compositeId, name: `${enemyName} (${squareId})` };
+                                enemiesInFloor.push(item);
+                            }
+                        });
+                    });
+                }
+
+                if (enemiesInFloor.length > 0) {
+                    const floorHeader = document.createElement('h2');
+                    floorHeader.className = 'text-2xl font-bold text-white mt-8 mb-4 col-span-full';
+                    floorHeader.textContent = `${floorData.floor}階`;
+                    itemListEl.appendChild(floorHeader);
+
+                    enemiesInFloor.forEach(item => {
+                        const card = createItemCard(item, 'enemy');
+                        itemListEl.appendChild(card);
+                    });
+                }
+            });
+        } else {
+            data.filter(item => (item.name || item.名前).toLowerCase().includes(searchTerm))
+               .forEach(item => {
+                    const card = createItemCard(item, activeTab);
+                    itemListEl.appendChild(card);
+               });
+        }
+        updateOutput();
+    };
+
+    const createItemCard = (item, type) => {
+        const card = document.createElement('div');
+        card.className = 'p-4 border border-gray-700 rounded-lg shadow-md flex flex-col justify-between';
+        const name = item.name || item.名前;
+        const tags = getItemTags(item, type);
+        card.innerHTML = `
+            <div>
+                <h3 class="font-bold text-white">${name}</h3>
+                <p class="text-sm text-gray-400">タグ数: ${tags.length}</p>
+            </div>
+            <button class="edit-btn mt-2 bg-gray-600 hover:bg-gray-700 text-white text-sm py-1 px-3 rounded-md w-full">編集</button>
+        `;
+        card.querySelector('.edit-btn').addEventListener('click', () => openModal(item, type));
+        return card;
+    };
+
+    const getItemTags = (item, type) => {
+        if (type === 'enemy') {
+            const [floorNum, squareId, enemyIndex] = item.id.split('|');
+            const floorData = masterData.tower.find(f => String(f.floor) === floorNum);
+            const enemyData = floorData?.squares[squareId]?.enemies[enemyIndex];
+            if (enemyData && typeof enemyData === 'object' && enemyData.tags) {
+                return [ ...(enemyData.tags.gimmicks || []), ...(enemyData.tags.weaknesses || []) ];
+            }
+            return [];
+        } else {
+            return item.tags || [];
+        }
+    };
+
+    const openModal = (item, type) => {
+        currentEditingItem = { item, type };
+        modalTitle.textContent = `タグ編集: ${(item.name || item.名前)}`;
+        renderCurrentTags();
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    const closeModal = () => {
+        currentEditingItem = null;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    };
+
+    const renderCurrentTags = () => {
+        if (!currentEditingItem) return;
+        currentTagsContainer.innerHTML = '';
+        const tags = getItemTags(currentEditingItem.item, currentEditingItem.type);
+        if (tags.length === 0) {
+            currentTagsContainer.innerHTML = '<p class="text-gray-500">現在タグはありません。</p>';
+            return;
+        }
+        tags.forEach((tag, index) => {
+            const tagEl = document.createElement('div');
+            tagEl.className = 'tag inline-flex items-center gap-2 text-sm px-2 py-1 rounded-full mr-2 mb-2';
+            tagEl.innerHTML = `
+                <span>${tag.category} > <strong>${tag.subCategory}</strong> ${tag.method ? `(${tag.method})` : ''} ${tag.condition ? `[${tag.condition}]` : ''}</span>
+                <span class="tag-delete text-red-400 hover:text-red-200" data-index="${index}">&times;</span>
+            `;
+            tagEl.querySelector('.tag-delete').addEventListener('click', () => deleteTag(index));
+            currentTagsContainer.appendChild(tagEl);
+        });
+    };
+
+    const addCategory = () => {
+        const newCat = newCategoryInput.value.trim();
+        if (newCat && !TAG_MAP[newCat]) {
+            TAG_MAP[newCat] = [];
+            selectedCategoryForManagement = newCat;
+            newCategoryInput.value = '';
+            renderCategoryManagement();
+            populateCategorySelect();
+        }
+    };
+
+    const deleteCategory = (catToDelete) => {
+        if (confirm(`大区分「${catToDelete}」を削除しますか？関連する小区分もすべて削除されます。`)) {
+            delete TAG_MAP[catToDelete];
+            if (selectedCategoryForManagement === catToDelete) {
+                selectedCategoryForManagement = Object.keys(TAG_MAP)[0];
+            }
+            renderCategoryManagement();
+            populateCategorySelect();
+        }
+    };
+
+    const addSubcategory = () => {
+        const newSub = newSubcategoryInput.value.trim();
+        if (newSub && selectedCategoryForManagement && !TAG_MAP[selectedCategoryForManagement].includes(newSub)) {
+            TAG_MAP[selectedCategoryForManagement].push(newSub);
+            newSubcategoryInput.value = '';
+            renderSubcategoryManagement();
+        }
+    };
+
+    const deleteSubcategory = (subToDelete) => {
+        if (confirm(`小区分「${subToDelete}」を削除しますか？`)) {
+            const subcategories = TAG_MAP[selectedCategoryForManagement];
+            const index = subcategories.indexOf(subToDelete);
+            if (index > -1) {
+                subcategories.splice(index, 1);
+            }
+            renderSubcategoryManagement();
+        }
+    };
+
+    const addTag = () => {
+        const newTag = { category: categorySelect.value, subCategory: subcategorySelect.value, method: methodInput.value.trim(), condition: conditionInput.value.trim() };
+        if (!newTag.category || !newTag.subCategory) { alert('大区分と小区分を選択してください。'); return; }
+        const { item, type } = currentEditingItem;
+        if (type === 'enemy') {
+            const [floorNum, squareId, enemyIndex] = item.id.split('|');
+            let floorData = masterData.tower.find(f => String(f.floor) === floorNum);
+            let enemyData = floorData?.squares[squareId]?.enemies[enemyIndex];
+            if (typeof enemyData === 'string') { 
+                enemyData = { name: enemyData, tags: { gimmicks: [], weaknesses: [] } };
+                floorData.squares[squareId].enemies[enemyIndex] = enemyData;
+            }
+            if (!enemyData.tags) enemyData.tags = { gimmicks: [], weaknesses: [] };
+            if (!enemyData.tags.gimmicks) enemyData.tags.gimmicks = [];
+            enemyData.tags.gimmicks.push(newTag);
+        } else {
+            if (!item.tags) item.tags = [];
+            item.tags.push(newTag);
+        }
+        renderCurrentTags();
+        updateOutput();
+    };
+
+    const deleteTag = (index) => {
+        const { item, type } = currentEditingItem;
+        if (type === 'enemy') {
+            alert('エネミータグの削除は現在サポートされていません。'); return;
+        } else {
+            item.tags.splice(index, 1);
+        }
+        renderCurrentTags();
+        updateOutput();
+    };
+
+    const copyItem = () => {
+        if (!currentEditingItem) return;
+        const { item, type } = currentEditingItem;
+        let itemToCopy;
+
+        if (type === 'enemy') {
+            const [floorNum, squareId, enemyIndex] = item.id.split('|');
+            const floorData = masterData.tower.find(f => String(f.floor) === floorNum);
+            itemToCopy = floorData?.squares[squareId]?.enemies[enemyIndex];
+        } else {
+            itemToCopy = masterData[type].find(i => i.id === item.id);
+        }
+
+        if (itemToCopy) {
+            navigator.clipboard.writeText(JSON.stringify(itemToCopy, null, 2))
+                .then(() => alert('このアイテムのデータをクリップボードにコピーしました。'))
+                .catch(err => alert('コピーに失敗しました。'));
+        }
+    };
+
+    const populateCategorySelect = () => {
+        categorySelect.innerHTML = '';
+        Object.keys(TAG_MAP).forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat;
+            option.textContent = cat;
+            categorySelect.appendChild(option);
+        });
+        populateSubcategorySelect();
+    };
+
+    const populateSubcategorySelect = () => {
+        const selectedCategory = categorySelect.value;
+        subcategorySelect.innerHTML = '';
+        if (selectedCategory && TAG_MAP[selectedCategory]) {
+            TAG_MAP[selectedCategory].forEach(sub => {
+                const option = document.createElement('option');
+                option.value = sub;
+                option.textContent = sub;
+                subcategorySelect.appendChild(option);
+            });
+        }
+    };
+
+    const updateOutput = () => {
+        outputTextarea.value = JSON.stringify(masterData[activeTab], null, 2);
+    };
+
+    const switchTab = (tabName) => {
+        activeTab = tabName;
+        tabButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.tab === tabName);
+        });
+        searchInput.value = '';
+        renderItemList();
+    };
+
+    const setupEventListeners = () => {
+        tabButtons.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+        searchInput.addEventListener('input', renderItemList);
+        categorySelect.addEventListener('change', populateSubcategorySelect);
+        addTagBtn.addEventListener('click', addTag);
+        closeModalBtn.addEventListener('click', closeModal);
+        copyOutputBtn.addEventListener('click', () => {
+            if (!outputTextarea.value) { alert('出力データがありません。'); return; }
+            navigator.clipboard.writeText(outputTextarea.value).then(() => alert('アイテムデータをコピーしました。')).catch(err => alert('コピーに失敗しました。'));
+        });
+        addCategoryBtn.addEventListener('click', addCategory);
+        addSubcategoryBtn.addEventListener('click', addSubcategory);
+        copyTagMapBtn.addEventListener('click', () => {
+            const outputString = `const TAG_MAP = ${JSON.stringify(TAG_MAP, null, 4)};`;
+            navigator.clipboard.writeText(outputString).then(() => alert('タグ分類データをコピーしました。')).catch(err => alert('コピーに失敗しました。'));
+        });
+        copyItemBtn.addEventListener('click', copyItem);
+    };
+
+    const init = async () => {
+        await fetchData();
+        switchTab('megido');
+        populateCategorySelect();
+        renderCategoryManagement();
+        setupEventListeners();
+    };
+
+    init();
+});
+</script>
+</body>
+</html>
