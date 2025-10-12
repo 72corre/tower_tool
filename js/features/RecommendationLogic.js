@@ -9,7 +9,7 @@ const PRIORITY_ORDER = { [PRIORITY.HIGH]: 1, [PRIORITY.MEDIUM]: 2, [PRIORITY.LOW
 // =================================================================
 
 // 敵のギミックへの直接的な対策（ジャマー向け）
-const GIMMICK_COUNTER_MAP = {
+const GIMMICKS_COUNTER_MAP = {
     '状態異常-毒': [
         { category: '耐性', subCategory: '毒無効', reason: 'で「毒」を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
         { category: '耐性', subCategory: '全状態異常耐性', reason: 'で「毒」を含む状態異常を無効化できます。', priorityRule: { type: 'fixed', priority: 'high' } },
@@ -223,7 +223,7 @@ const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs 
         ];
 
         for (const tag of enemyTags) {
-            const map = tag.type === 'weakness' ? WEAKNESS_ATTACK_MAP : GIMMICK_COUNTER_MAP;
+            const map = tag.type === 'weakness' ? WEAKNESS_ATTACK_MAP : GIMMICKS_COUNTER_MAP;
             const key = `${tag.category}-${tag.subCategory}`;
             const effectiveCounters = map[key];
             if (!effectiveCounters) continue;
@@ -291,8 +291,8 @@ const findRecommendedMegido = ({ enemy, ownedMegido, allMegidoMaster, ownedOrbs 
         }
 
         // 2-2. 敵ギミックに応じた優先度調整
-        for (const gimmick of gimmicks) {
-            const key = `ギミック-${gimmick.subCategory}`;
+        for (const gimmicks of gimmicks) {
+            const key = `ギミック-${gimmicks.subCategory}`;
             const priorityRules = SUPPORT_PRIORITY_MAP[key];
             if (!priorityRules) continue;
 
