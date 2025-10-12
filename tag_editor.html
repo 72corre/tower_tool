@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const enemyName = typeof enemy === 'string' ? enemy : enemy.name;
                             if (!searchTerm || enemyName.toLowerCase().includes(searchTerm)) {
                                 const compositeId = `${floorData.floor}|${squareId}|${index}`;
-                                const item = { id: compositeId, name: `${enemyName} (${squareId})` };
+                                const item = { id: compositeId, name: enemyName, displayName: `${enemyName} (${squareId})` };
                                 enemiesInFloor.push(item);
                             }
                         });
@@ -296,7 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const createItemCard = (item, type) => {
         const card = document.createElement('div');
         card.className = 'p-4 border border-gray-700 rounded-lg shadow-md flex flex-col justify-between';
-        const name = item.name || item.名前;
+        const name = item.displayName || item.name || item.名前;
         const tags = getItemTags(item, type);
         card.innerHTML = `
             <div>
@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const openModal = (item, type) => {
         currentEditingItem = { item, type, editTagIndex: null, editTagType: null };
-        modalTitle.textContent = `タグ編集: ${(item.name || item.名前)}`;
+        modalTitle.textContent = `タグ編集: ${(item.displayName || item.name || item.名前)}`;
 
         enemyTagTypeSelector.classList.toggle('hidden', type !== 'enemy');
         orbCastTypeSelector.classList.toggle('hidden', type !== 'orbs');
