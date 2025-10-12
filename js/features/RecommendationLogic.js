@@ -204,7 +204,7 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                 (reqMult2 ? `<li>同時爆破 <strong>2個</strong> の場合: <strong>約 ${reqMult2} 倍</strong> の錬ボムが必要</li>` : '') +
                 (reqMult5 ? `<li>同時爆破 <strong>5個</strong> の場合: <strong>約 ${reqMult5} 倍</strong> の錬ボムが必要</li>` : '') +
                 (reqMult10 ? `<li>同時爆破 <strong>10個</strong> の場合: <strong>約 ${reqMult10} 倍</strong> の錬ボムが必要</li>` : '') +
-                `</ul><p style="margin: 0.5rem 0 0; font-size: 0.8em; opacity: 0.8;">補足: Hボム重(6倍)を素材にした場合の計算値です。</p></div>`;
+                `</ul></div>`;
                 addOrUpdateRecommendation(recommendations.attackers, { megido: hBombForger, reason, priority: PRIORITY.HIGH, role: 'attacker' });
                 return;
             }
