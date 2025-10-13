@@ -562,14 +562,244 @@
       }
     ]
   },
-    { "QRID": "021", "id": "祖11_グシオン", "時計": "祖11", "名前": "グシオン", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "7727", "ATK": "857", "DEF": "430", "SPD": "697", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false },
-    { "QRID": "022", "id": "祖11_グシオンB", "時計": "祖11", "名前": "グシオンB", "スタイル": "バースト", "クラス": "スナイパー", "HP": "8586", "ATK": "1037", "DEF": "430", "SPD": "491", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false },
-    { "QRID": "023", "id": "祖12_シトリー", "時計": "祖12", "名前": "シトリー", "スタイル": "カウンター", "クラス": "トルーパー", "HP": "5667", "ATK": "1176", "DEF": "494", "SPD": "476", "汎用特性": "通常アタック回数：2", "入手方法": "その他", "絆霊宝": true, "専用霊宝": false , "Singularity": false },
-    { "QRID": "024", "id": "祖12_シトリーR", "時計": "祖12", "名前": "シトリーR", "スタイル": "ラッシュ", "クラス": "トルーパー", "HP": "8547", "ATK": "1001", "DEF": "487", "SPD": "421", "汎用特性": "", "入手方法": "配布", "絆霊宝": false, "専用霊宝": true , "Singularity": false },
-    { "QRID": "025", "id": "祖13_ベレト", "時計": "祖13", "名前": "ベレト", "スタイル": "カウンター", "クラス": "トルーパー", "HP": "5968", "ATK": "1206", "DEF": "411", "SPD": "626", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": true , "Singularity": false },
-    { "QRID": "026", "id": "祖13_ベレトB", "時計": "祖13", "名前": "ベレトB", "スタイル": "バースト", "クラス": "トルーパー", "HP": "7097", "ATK": "1354", "DEF": "407", "SPD": "470", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false },
-    { "QRID": "027", "id": "祖14_レラジェ", "時計": "祖14", "名前": "レラジェ", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "5980", "ATK": "1386", "DEF": "424", "SPD": "475", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false },
-    { "QRID": "028", "id": "祖14_レラジェR", "時計": "祖14", "名前": "レラジェR", "スタイル": "ラッシュ", "クラス": "スナイパー", "HP": "6116", "ATK": "1210", "DEF": "644", "SPD": "430", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false },
+    { "QRID": "021", "id": "祖11_グシオン", "時計": "祖11", "名前": "グシオン", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "7727", "ATK": "857", "DEF": "430", "SPD": "697", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "状態異常",
+        "subCategory": "睡眠",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "他者攻撃力上昇",
+        "method": "覚醒スキル",
+        "condition": ""
+      }
+    ]},
+    { "QRID": "022", "id": "祖11_グシオンB", "時計": "祖11", "名前": "グシオンB", "スタイル": "バースト", "クラス": "スナイパー", "HP": "8586", "ATK": "1037", "DEF": "430", "SPD": "491", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "回復・蘇生・治癒",
+        "subCategory": "回復",
+        "method": "特性",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "回数バリア",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "回復・蘇生・治癒",
+        "subCategory": "回復",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "響撃ダメージ",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "列攻撃",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "全体攻撃",
+        "method": "覚醒スキル",
+        "condition": ""
+      }
+    ]
+  },
+    { "QRID": "023", "id": "祖12_シトリー", "時計": "祖12", "名前": "シトリー", "スタイル": "カウンター", "クラス": "トルーパー", "HP": "5667", "ATK": "1176", "DEF": "494", "SPD": "476", "汎用特性": "通常アタック回数：2", "入手方法": "その他", "絆霊宝": true, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "攻撃手段",
+        "subCategory": "連続攻撃",
+        "method": "スキル",
+        "condition": "3"
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "雷ダメージ",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "雷ダメージ",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "雷ダメージ",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]},
+    { "QRID": "024", "id": "祖12_シトリーR", "時計": "祖12", "名前": "シトリーR", "スタイル": "ラッシュ", "クラス": "トルーパー", "HP": "8547", "ATK": "1001", "DEF": "487", "SPD": "421", "汎用特性": "", "入手方法": "配布", "絆霊宝": false, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "特殊状態",
+        "subCategory": "ハイドロボム速",
+        "method": "スキル",
+        "condition": "0.5"
+      },
+      {
+        "category": "特殊状態",
+        "subCategory": "ハイドロボム重",
+        "method": "覚醒スキル",
+        "condition": "5.5"
+      },
+      {
+        "category": "特殊状態",
+        "subCategory": "ハイドロボム強化",
+        "method": "覚醒スキル",
+        "condition": "40"
+      }
+    ]
+  },
+    { "QRID": "025", "id": "祖13_ベレト", "時計": "祖13", "名前": "ベレト", "スタイル": "カウンター", "クラス": "トルーパー", "HP": "5968", "ATK": "1206", "DEF": "411", "SPD": "626", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "回復・蘇生・治癒",
+        "subCategory": "蘇生",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "トランス",
+        "subCategory": "怒闘",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "特殊状態",
+        "subCategory": "バーサーク",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "強化",
+        "subCategory": "アタック強化",
+        "method": "奥義",
+        "condition": ""
+      }
+    ]
+  },
+    { "QRID": "026", "id": "祖13_ベレトB", "時計": "祖13", "名前": "ベレトB", "スタイル": "バースト", "クラス": "トルーパー", "HP": "7097", "ATK": "1354", "DEF": "407", "SPD": "470", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "その他",
+        "subCategory": "チェイン発生",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "地形",
+        "subCategory": "氷結",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "防御無視",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "その他",
+        "subCategory": "チェイン発生",
+        "method": "奥義",
+        "condition": "従属"
+      },
+      {
+        "category": "補助",
+        "subCategory": "覚醒ゲージ増加",
+        "method": "マスエフェクト",
+        "condition": "バースト+トルーパー"
+      }
+    ]},
+    { "QRID": "027", "id": "祖14_レラジェ", "時計": "祖14", "名前": "レラジェ", "スタイル": "カウンター", "クラス": "スナイパー", "HP": "5980", "ATK": "1386", "DEF": "424", "SPD": "475", "汎用特性": "", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false ,
+    "tags": [
+      {
+        "category": "攻撃手段",
+        "subCategory": "獣特効",
+        "method": "特性",
+        "condition": ""
+      },
+      {
+        "category": "トランス",
+        "subCategory": "バレット消費",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "トランス",
+        "subCategory": "バレット消費",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "状態異常",
+        "subCategory": "即死",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "妨害",
+        "subCategory": "フォトン破壊",
+        "method": "覚醒スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "獣特効",
+        "method": "マスエフェクト",
+        "condition": ""
+      }
+    ]
+  },
+    { "QRID": "028", "id": "祖14_レラジェR", "時計": "祖14", "名前": "レラジェR", "スタイル": "ラッシュ", "クラス": "スナイパー", "HP": "6116", "ATK": "1210", "DEF": "644", "SPD": "430", "汎用特性": "", "入手方法": "配布", "絆霊宝": true, "専用霊宝": false , "Singularity": false ,
+    "tags": [
+      {
+        "category": "特殊状態",
+        "subCategory": "点穴付与",
+        "method": "奥義",
+        "condition": "20"
+      },
+      {
+        "category": "特殊状態",
+        "subCategory": "点穴付与",
+        "method": "覚醒スキル",
+        "condition": "25"
+      },
+      {
+        "category": "トランス",
+        "subCategory": "バレット消費",
+        "method": "奥義",
+        "condition": ""
+      },
+      {
+        "category": "トランス",
+        "subCategory": "バレット消費",
+        "method": "スキル",
+        "condition": ""
+      },
+      {
+        "category": "攻撃手段",
+        "subCategory": "悪魔特効",
+        "method": "スキル",
+        "condition": ""
+      }
+    ]},
     { "QRID": "029", "id": "祖15_エリゴス", "時計": "祖15", "名前": "エリゴス", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "5896", "ATK": "768", "DEF": "622", "SPD": "627", "汎用特性": "通常アタック回数：2", "入手方法": "その他", "絆霊宝": false, "専用霊宝": true , "Singularity": false },
     { "QRID": "030", "id": "祖15_エリゴスB", "時計": "祖15", "名前": "エリゴスB", "スタイル": "バースト", "クラス": "ファイター", "HP": "7119", "ATK": "1280", "DEF": "410", "SPD": "462", "汎用特性": "通常アタック回数：2", "入手方法": "その他", "絆霊宝": true, "専用霊宝": false , "Singularity": false },
     { "QRID": "031", "id": "祖16_ゼパル", "時計": "祖16", "名前": "ゼパル", "スタイル": "ラッシュ", "クラス": "ファイター", "HP": "6210", "ATK": "1209", "DEF": "271", "SPD": "693", "汎用特性": "", "入手方法": "その他", "絆霊宝": true, "専用霊宝": true , "Singularity": false },

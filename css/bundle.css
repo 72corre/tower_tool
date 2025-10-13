@@ -1998,6 +1998,44 @@ body.mobile-view .mobile-header-container {
         position: absolute;
         top: 45px;
         right: 8px;
+
+/* --- Visual Guidance Highlights --- */
+.map-node-container {
+    position: relative; /* Ensure this is set for absolute positioning of children */
+}
+
+.highlight-frame {
+    box-shadow: 0 0 0 3px var(--highlight-color, #FFD700) inset;
+    border-radius: 50%;
+}
+
+.highlight-frame-yellow {
+    --highlight-color: #FFD700;
+}
+
+.highlight-arrow {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 28px;
+    color: #FFD700;
+    text-shadow: 0 0 5px black;
+    animation: bounce-arrow 1.5s infinite;
+    pointer-events: none; /* Make sure it doesn't interfere with clicks */
+}
+
+@keyframes bounce-arrow {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translate(-50%, 0);
+    }
+    40% {
+        transform: translate(-50%, -10px);
+    }
+    60% {
+        transform: translate(-50%, -5px);
+    }
+}
         background-color: var(--bg-panel-raised);
         border-radius: 8px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.2);

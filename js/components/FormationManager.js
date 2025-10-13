@@ -12,12 +12,27 @@ const FormationCard = ({
     onDelete,
     onTagClick,
     onPost,
-    onGoToSource, // ★ 追加
+    onGoToSource,
+    isGuideMode,
+    isBossFormation,
+    onSetBossFormation
 }) => {
     return (
         <div className="card" style={cardStyle}>
             <div className="formation-card-header">
-                <h3 style={{...nameStyle, fontWeight: 700, margin: 0, flexGrow: 1}}>{form.name}</h3>
+                <h3 style={{...nameStyle, fontWeight: 700, margin: 0, flexGrow: 1, display: 'flex', alignItems: 'center', gap: '8px'}}>
+                    {form.name}
+                    {isBossFormation && isGuideMode && <span className="boss-formation-label">ボス攻略編成</span>}
+                </h3>
+                {isGuideMode && (
+                    <button 
+                        onClick={() => onSetBossFormation(form.id)}
+                        className={`btn btn-ghost p-1 boss-formation-btn ${isBossFormation ? 'active' : ''}`}
+                        title={isBossFormation ? 'ボス攻略編成の指定を解除' : 'この編成をボス攻略用に指定'}
+                    >
+                        <img src="asset/boss.webp" alt="ボス攻略編成" style={{ width: '24px', height: '24px' }} />
+                    </button>
+                )}
                 <button 
                     className="formation-card-menu-btn"
                     onClick={() => onToggleExpand(form.id)}
@@ -28,7 +43,7 @@ const FormationCard = ({
 
             {isExpanded && (
                 <div className="formation-card-actions">
-                    {form.communityId && ( // ★ 追加
+                    {form.communityId && (
                         <button onClick={() => onGoToSource(form)} className="btn btn-secondary">採点しに行く</button>
                     )} 
                     <button onClick={() => onPost(form)} className="btn btn-primary">投稿</button>
@@ -85,6 +100,9 @@ const FormationManager = (props) => {
         handlePostFormation,
         isPosting,
         onGenerateShareImage,
+        bossFormationId,
+        onSetBossFormation,
+        isGuideMode
     } = props;
     const { useState, useEffect, useMemo, useCallback } = React;
     const [tagSearch, setTagSearch] = useState({ text: '', exactMatch: false });
@@ -248,7 +266,12 @@ const FormationManager = (props) => {
                 {(filteredFormations || []).map(form => {
                     const rehydratedForm = rehydrateFormation(form, megidoDetails);
                     const isInvalid = isFormationInvalid(rehydratedForm, megidoDetails, ownedMegidoIds);
-                    const cardStyle = isInvalid ? { backgroundColor: 'rgba(217, 83, 79, 0.3)' } : {};
+                    const isBossFormation = form.id === bossFormationId;
+
+                    const cardStyle = {
+                        ...(isInvalid ? { backgroundColor: 'rgba(217, 83, 79, 0.3)' } : {}),
+                        ...(isBossFormation && isGuideMode ? { border: '2px solid var(--primary-accent)', boxShadow: '0 0 8px var(--primary-accent)' } : {})
+                    };
                     const nameStyle = isInvalid ? { color: 'var(--danger-color)' } : {};
                     
                     return (
@@ -263,10 +286,13 @@ const FormationManager = (props) => {
                             onCopy={onCopy}
                             onExport={handleExportClick}
                             onEdit={(f) => onEditingFormationChange(f)}
-                                onDelete={onDelete}
-                                onTagClick={(tag) => setTagSearch({ text: tag, exactMatch: false })}
-                                onPost={(f) => setPostModalState({ isOpen: true, formation: f })}
-                                onGoToSource={handleGoToSource}
+                            onDelete={onDelete}
+                            onTagClick={(tag) => setTagSearch({ text: tag, exactMatch: false })}
+                            onPost={(f) => setPostModalState({ isOpen: true, formation: f })}
+                            onGoToSource={handleGoToSource}
+                            isGuideMode={isGuideMode}
+                            isBossFormation={isBossFormation}
+                            onSetBossFormation={onSetBossFormation}
                         />
                     );
                 })}

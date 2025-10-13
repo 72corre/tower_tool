@@ -1,0 +1,17 @@
+{
+  "2": {
+    "title": "2階の特徴",
+    "message": "この階からは敵の数が増え、難易度が少し上がります。編成を見直しながら進みましょう。",
+    "highlights": [
+      { "squareId": "f2-b1", "type": "frame", "color": "yellow" },
+      { "squareId": "f2-b2", "type": "frame", "color": "yellow" }
+    ]
+  },
+  "6": {
+    "title": "次のボスに向けて",
+    "message": "5階ボス撃破お疲れ様でした！次の10階ボスは強力な全体攻撃が特徴です。HPや防御力が高いメギドや、ダメージを軽減できる手段の準備を始めましょう。",
+    "highlights": [
+      { "squareId": "f7-e1", "type": "arrow" }
+    ]
+  }
+}

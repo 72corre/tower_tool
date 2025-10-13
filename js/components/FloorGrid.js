@@ -9,7 +9,7 @@ const getSquareIcon = (square) => {
     return `${basePath}${iconName}.webp`;
 };
 
-const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, runState, mode }) => {
+const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, runState, mode, highlight }) => {
     if (!squareId) return <div style={{ height: '48px' }}></div>;
     const square = floorData.squares[squareId];
     if (!square) return <div style={{ height: '48px', border: '1px solid red' }}>?</div>;
@@ -21,6 +21,9 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, act
     let nodeClasses = getSquareStyle(square, floorData, squareId);
     if (isCurrentPos) {
         nodeClasses += ' current-position';
+    }
+    if (highlight && highlight.type === 'frame') {
+        nodeClasses += ` highlight-frame highlight-frame-${highlight.color || 'yellow'}`;
     }
 
     const handleClick = (e) => {
@@ -40,6 +43,9 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, act
                         '--animation-color-rgb': getSquareColorRgbVarName(square)
                     }}
                 ></div>
+                {highlight && highlight.type === 'arrow' && (
+                    <div className="highlight-arrow">↓</div>
+                )}
             </div>
             {memo && <div className="memo-tooltip">{memo}</div>}
             {(mode === 'practice' || mode === 'plan' || mode === 'log') && (square.type === 'battle' || square.type === 'boss') && (
@@ -87,7 +93,7 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, act
     );
 });
 
-const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance }) => {
+const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance, highlightedSquares }) => {
     const containerRef = React.useRef(null);
 
     const isGreyedOut = floorData.floor > targetFloor;
@@ -125,23 +131,27 @@ const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, s
                     gap: `${GAP}px`, 
                     alignItems: 'center' 
                 }}>
-                    {floorData.layoutGrid.flat().map((squareId, index) => (
-                        <MapNode 
-                            key={`${floorData.floor}-${squareId}-${index}`}
-                            squareId={squareId}
-                            index={index}
-                            floorData={floorData}
-                            handleSquareClick={handleSquareClick}
-                            activePreviewId={activePreviewId}
-                            setActivePreviewId={setActivePreviewId}
-                            getSquareStyle={getSquareStyle}
-                            getSquareColorClass={getSquareColorClass}
-                            getSquareColorRgbVarName={getSquareColorRgbVarName}
-                            memos={memos}
-                            runState={runState}
-                            mode={mode}
-                        />
-                    ))}
+                    {floorData.layoutGrid.flat().map((squareId, index) => {
+                        const highlight = highlightedSquares ? highlightedSquares[squareId] : null;
+                        return (
+                            <MapNode 
+                                key={`${floorData.floor}-${squareId}-${index}`}
+                                squareId={squareId}
+                                index={index}
+                                floorData={floorData}
+                                handleSquareClick={handleSquareClick}
+                                activePreviewId={activePreviewId}
+                                setActivePreviewId={setActivePreviewId}
+                                getSquareStyle={getSquareStyle}
+                                getSquareColorClass={getSquareColorClass}
+                                getSquareColorRgbVarName={getSquareColorRgbVarName}
+                                memos={memos}
+                                runState={runState}
+                                mode={mode}
+                                highlight={highlight}
+                            />
+                        );
+                    })}
                 </div>
             </div>
         </div>

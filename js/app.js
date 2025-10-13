@@ -211,11 +211,25 @@ const TowerTool = () => {
     const [introQueue, setIntroQueue] = useState([]);
 
     const floorRefs = useRef({});
+    const prevFloorRef = useRef();
 
     const [guideStep, setGuideStep] = useState(0); // ガイドのステップを管理
     const [completedGuideSteps, setCompletedGuideSteps] = useState(() => new Set(JSON.parse(localStorage.getItem('completedGuideSteps')) || []));
 
     const [megidoList, setMegidoList] = useState(null);
+    const [bossGuides, setBossGuides] = useState(null);
+    const [floorMessages, setFloorMessages] = useState(null);
+    const [highlightedSquares, setHighlightedSquares] = useState({});
+    const [floorInfoModal, setFloorInfoModal] = useState({ isOpen: false, title: '', message: '' });
+    const [bossPlannerState, setBossPlannerState] = useState({ isOpen: false, boss: null });
+    const [shownBossGuides, setShownBossGuides] = useState(() => {
+        const saved = localStorage.getItem('shownBossGuides');
+        return saved ? new Set(JSON.parse(saved)) : new Set();
+    });
+
+    useEffect(() => {
+        localStorage.setItem('shownBossGuides', JSON.stringify(Array.from(shownBossGuides)));
+    }, [shownBossGuides]);
 
     useEffect(() => {
         Promise.all([
@@ -224,10 +238,14 @@ const TowerTool = () => {
             fetch('data/reishou.json').then(res => res.json()),
             fetch('data/birthday.json').then(res => res.json()),
             fetch('data/tower.json').then(res => res.json()),
+            fetch('data/boss_guides.json').then(res => res.json()),
+            fetch('data/floor_messages.json').then(res => res.json()),
             fetch(`js/enemy_all_data.js?v=${Date.now()}`).then(res => res.text())
-        ]).then(([megidoData, orbsData, reishouData, birthdayData, towerData, enemyText]) => {
+        ]).then(([megidoData, orbsData, reishouData, birthdayData, towerData, guidesData, messagesData, enemyText]) => {
             window.COMPLETE_MEGIDO_LIST = megidoData;
             setMegidoList(megidoData);
+            setBossGuides(guidesData);
+            setFloorMessages(messagesData);
 
             window.COMPLETE_ORB_LIST = orbsData;
             window.COMPLETE_REISHOU_LIST = reishouData;
@@ -242,6 +260,8 @@ const TowerTool = () => {
             console.error('Error loading master data:', error);
         });
     }, []);
+
+
 
     const handleOpenMapSearch = () => setIsMapSearchModalOpen(true);
     const handleCloseMapSearch = () => setIsMapSearchModalOpen(false);
@@ -280,9 +300,68 @@ const TowerTool = () => {
             onConfirm: (value) => {
                 if (value === 'yes') {
                     setIsGuideMode(true);
+                    setMode('practice');
                     showToastMessage('ガイダンスモードを開始しました。');
                 }
                 setChoiceModalState({ isOpen: false });
+            }
+        });
+    };
+
+    const openPlannerForSquare = (floorNum, squareId) => {
+        if (!bossGuides || typeof TOWER_MAP_DATA === 'undefined') {
+            showToastMessage('ボスデータがまだ読み込めていません。');
+            return;
+        }
+
+        const floorData = TOWER_MAP_DATA.find(f => f.floor === floorNum);
+        if (!floorData) return;
+
+        const squareData = floorData.squares[squareId];
+        if (!squareData || !squareData.enemies || squareData.enemies.length === 0) {
+            showToastMessage('指定されたマスの敵情報が見つかりません。');
+            return;
+        }
+
+        const enemyData = squareData.enemies[0];
+        const enemyObject = normalizeEnemy(enemyData);
+        if (!enemyObject) return;
+        
+        const guide = bossGuides[enemyObject.name];
+        enemyObject.guide = guide || { short: "攻略情報はありません。", long: "このボスに関する詳しい攻略情報はまだ登録されていません。" };
+
+        setBossPlannerState({ isOpen: true, boss: enemyObject });
+    };
+
+    const openBossPlannerForFloor = (bossFloor) => {
+        const floorData = TOWER_MAP_DATA.find(f => f.floor === bossFloor);
+        if (!floorData) return;
+        const bossSquareId = Object.keys(floorData.squares).find(id => floorData.squares[id].type === 'boss');
+        if (bossSquareId) {
+            openPlannerForSquare(bossFloor, bossSquareId);
+        } else {
+            showToastMessage(`${bossFloor}階にボスが見つかりません。`);
+        }
+    };
+
+    const askForInitialBossPlans = () => {
+        setChoiceModalState({
+            isOpen: true,
+            title: 'ボス攻略計画',
+            message: '最初のボス戦に備え、事前に計画を立てましょう。どちらの敵から計画しますか？',
+            options: [
+                { label: '1階のボス', value: '1', className: 'btn-primary' },
+                { label: '5階のボス', value: '5', className: 'btn-primary' },
+                { label: '今はやめておく', value: 'no', className: 'btn-secondary' },
+            ],
+            onConfirm: (value) => {
+                setChoiceModalState({ isOpen: false });
+                if (value === '1') {
+                    // Assuming the first battle square on floor 1 is 'b1'
+                    openPlannerForSquare(1, 'b1'); 
+                } else if (value === '5') {
+                    openBossPlannerForFloor(5);
+                }
             }
         });
     };
@@ -297,11 +376,23 @@ const TowerTool = () => {
                 { label: 'いいえ、やめておく', value: 'no', className: 'btn-secondary' },
             ],
             onConfirm: (value) => {
-                if (value === 'yes') {
-                    setTargetFloor(suggestedFloor);
-                    showToastMessage(`目標を ${suggestedFloor} 階に設定しました。`);
-                }
                 setChoiceModalState({ isOpen: false });
+                if (value === 'yes') {
+                    // Call the handler which contains the necessary guide mode exit logic
+                    handleTargetFloorChange(suggestedFloor);
+
+                    // Show toast confirmation regardless
+                    showToastMessage(`目標を ${suggestedFloor} 階に設定しました。`);
+
+                    // Only prompt for the initial boss plan if we are remaining in guide mode
+                    if (suggestedFloor < 21) {
+                        // Use a timeout to ensure the first modal has time to close
+                        // before the next one is opened, preventing state update conflicts.
+                        setTimeout(() => {
+                            askForInitialBossPlans();
+                        }, 100);
+                    }
+                }
             }
         });
     };
@@ -377,6 +468,43 @@ const TowerTool = () => {
         [megidoDetails]
     );
 
+    const [bossFormationId, setBossFormationId] = useState(() => localStorage.getItem('bossFormationId') || null);
+    const [bossSquadIds, setBossSquadIds] = useState(() => {
+        const saved = localStorage.getItem('bossSquadIds');
+        return saved ? new Set(JSON.parse(saved)) : new Set();
+    });
+
+    useEffect(() => {
+        if (bossFormationId) {
+            localStorage.setItem('bossFormationId', bossFormationId);
+        } else {
+            localStorage.removeItem('bossFormationId');
+        }
+        localStorage.setItem('bossSquadIds', JSON.stringify(Array.from(bossSquadIds)));
+    }, [bossFormationId, bossSquadIds]);
+
+    const handleSetBossFormation = useCallback((formationId) => {
+        if (!isGuideMode) return;
+
+        if (bossFormationId === formationId) {
+            setBossFormationId(null);
+            setBossSquadIds(new Set());
+            showToastMessage('ボス攻略編成の指定を解除しました。');
+        } else {
+            const formation = formations[formationId];
+            if (formation) {
+                const newSquadIds = new Set(
+                    formation.megidoSlots
+                        .map(slot => slot?.megidoId)
+                        .filter(Boolean)
+                );
+                setBossFormationId(formationId);
+                setBossSquadIds(newSquadIds);
+                showToastMessage(`「${formation.name}」をボス攻略編成に指定しました。`);
+            }
+        }
+    }, [isGuideMode, bossFormationId, formations, showToastMessage]);
+
     const [manualExplorationPowers, setManualExplorationPowers] = useState({});
 
     const handleSetManualPower = useCallback((squareId, power) => {
@@ -438,7 +566,10 @@ const TowerTool = () => {
         winStreak,
         setWinStreak,
         setActiveTab,
-        isLoading
+        isLoading,
+        floorMessages,
+        setFloorInfoModal,
+        setHighlightedSquares
     });
 
     const { 
@@ -1133,6 +1264,52 @@ const TowerTool = () => {
         }
     }, [runState, isLoading, megidoConditions, targetEnemies]);
 
+    useEffect(() => {
+        if (!isGuideMode || !runState.currentPosition || typeof TOWER_MAP_DATA === 'undefined' || !targetFloor) return;
+
+        // The trigger floor is the floor the user has *just arrived at*.
+        // We check if this floor is a trigger for planning the *next* boss.
+        // Floor 1 is handled separately after setting the target floor.
+        const planningMap = { 6: 10, 11: 15, 16: 20 };
+        const triggerFloor = runState.currentPosition.floor;
+
+        if (planningMap.hasOwnProperty(triggerFloor)) {
+            const targetBossFloor = planningMap[triggerFloor];
+
+            // Don't plan for bosses beyond the user's self-set target floor
+            if (targetBossFloor > targetFloor) {
+                return;
+            }
+
+            // Don't show the prompt if it has already been shown for this boss
+            if (shownBossGuides.has(targetBossFloor)) {
+                return;
+            }
+            
+            // Mark this boss floor as guided for this session to prevent re-showing
+            setShownBossGuides(prev => new Set(prev).add(targetBossFloor));
+
+            // Show a modal to ask the user if they want to plan
+            setChoiceModalState({
+                isOpen: true,
+                title: 'ボス攻略計画',
+                message: `次のボス（${targetBossFloor}階）の攻略計画を立てますか？`,
+                options: [
+                    { label: 'はい、計画を立てる', value: 'yes', className: 'btn-primary' },
+                    { label: 'いいえ、後で', value: 'no', className: 'btn-secondary' },
+                ],
+                onConfirm: (value) => {
+                    setChoiceModalState({ isOpen: false });
+                    if (value === 'yes') {
+                        openBossPlannerForFloor(targetBossFloor);
+                    }
+                }
+            });
+        }
+    }, [runState.currentPosition, isGuideMode, targetFloor, shownBossGuides, normalizeEnemy]);
+
+
+
 
 
     useEffect(() => {
@@ -1306,8 +1483,28 @@ const TowerTool = () => {
     }, []);
 
     const onTargetSelect = (target, screen) => {
-        console.log('Target selected:', target, screen);
+        if (target || screen) {
+            console.log('Target selected:', target, screen);
+        }
     };
+
+    const normalizeEnemy = useCallback((enemyData) => {
+        if (!enemyData) return null;
+        if (typeof enemyData === 'string') {
+            if (window.ENEMY_ALL_DATA && window.ENEMY_ALL_DATA[enemyData]) {
+                return {
+                    name: enemyData,
+                    tags: window.ENEMY_ALL_DATA[enemyData].tags || { gimmicks: [], weaknesses: [] }
+                };
+            } else {
+                return { name: enemyData, tags: { gimmicks: [], weaknesses: [] } };
+            }
+        }
+        return {
+            ...enemyData,
+            tags: enemyData.tags || { gimmicks: [], weaknesses: [] }
+        };
+    }, []);
 
     const [isGuideMode, setIsGuideMode] = useState(() => localStorage.getItem('isGuideMode') === 'true');
     const [hasSeenGuideIntro, setHasSeenGuideIntro] = useState(() => localStorage.getItem('hasSeenGuideIntro') === 'true');
@@ -1315,11 +1512,12 @@ const TowerTool = () => {
 
     useEffect(() => {
         if (selectedSquare && selectedSquare.square.enemies && selectedSquare.square.enemies.length > 0) {
-            setTargetedEnemy(selectedSquare.square.enemies[0]);
+            const defaultEnemyData = selectedSquare.square.enemies[0];
+            setTargetedEnemy(normalizeEnemy(defaultEnemyData));
         } else {
             setTargetedEnemy(null);
         }
-    }, [selectedSquare]);
+    }, [selectedSquare, normalizeEnemy]);
 
     const recommendations = useMemo(() => {
         if (!megidoList || !targetedEnemy || !selectedSquare || !window.COMPLETE_ORB_LIST) return null; 
@@ -1364,7 +1562,7 @@ const TowerTool = () => {
                 }
             });
         } else {
-            if (floor >= 25 && isGuideMode) {
+            if (floor >= 21 && isGuideMode) {
                 setIsGuideMode(false);
                 showToastMessage('ガイドモードを終了しました。');
             }
@@ -1388,13 +1586,25 @@ const TowerTool = () => {
 
     const handleTargetEnemyChange = (squareId, enemyName) => {
         const newTargetEnemies = { ...targetEnemies };
-        // If the same enemy is clicked again, untarget it.
+        let newTargetObject = null;
+
         if (newTargetEnemies[squareId] === enemyName) {
             delete newTargetEnemies[squareId];
+            if (selectedSquare && selectedSquare.square.enemies && selectedSquare.square.enemies.length > 0) {
+                newTargetObject = normalizeEnemy(selectedSquare.square.enemies[0]);
+            }
         } else {
             newTargetEnemies[squareId] = enemyName;
+            if (selectedSquare && selectedSquare.square.enemies) {
+                const newTargetData = selectedSquare.square.enemies.find(e => (e.name || e) === enemyName);
+                if (newTargetData) {
+                    newTargetObject = normalizeEnemy(newTargetData);
+                }
+            }
         }
         setTargetEnemies(newTargetEnemies);
+        setTargetedEnemy(newTargetObject);
+
         localStorage.setItem('targetEnemies', JSON.stringify(newTargetEnemies));
         showToastMessage('ターゲットを変更しました。');
         setTimeout(updateGuidance, 100);
@@ -1630,6 +1840,7 @@ const TowerTool = () => {
                             onDetailChange={handleMegidoDetailChangeWrapper}
                             onCheckDistributed={handleCheckDistributedMegido}
                             setModalState={setModalState}
+                            bossSquadIds={bossSquadIds}
                         />
                     </div>
                     <div style={{ display: activeTab === 'formation' ? 'block' : 'none', height: '100%' }}>
@@ -1708,6 +1919,7 @@ const TowerTool = () => {
                         mode={mode}
                         planState={planState}
                         guidance={guidance}
+                        highlightedSquares={highlightedSquares}
                     />
                 </div>
             ))}
@@ -1840,6 +2052,16 @@ const TowerTool = () => {
                 </InfoModal>
             )}
 
+            {floorInfoModal.isOpen && (
+                <InfoModal
+                    isOpen={floorInfoModal.isOpen}
+                    onClose={() => setFloorInfoModal({ isOpen: false, title: '', message: '' })}
+                    title={floorInfoModal.title}
+                >
+                    {floorInfoModal.message}
+                </InfoModal>
+            )}
+
             <Header />
             <GuidanceManager
                 isGuideMode={isGuideMode}
@@ -1881,7 +2103,7 @@ const TowerTool = () => {
                             </div>
                         </div>
                         <div style={{ display: activeTab === 'ownership' ? 'block' : 'none', height: '100%' }}>
-                            <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} isMobileView={isMobileView} setModalState={setModalState} />
+                            <OwnershipManager megidoDetails={megidoDetails} onDetailChange={handleMegidoDetailChangeWrapper} onCheckDistributed={handleCheckDistributedMegido} isMobileView={isMobileView} setModalState={setModalState} bossSquadIds={bossSquadIds} />
                         </div>
                         <div style={{ display: activeTab === 'formation' ? 'block' : 'none', height: '100%' }}>
                             {editingFormation ? (
@@ -1897,30 +2119,33 @@ const TowerTool = () => {
                                     onTargetSelect={onTargetSelect}
                                 />
                             ) : (
-                                                                <FormationManager 
-                                                                    formations={formations} 
-                                                                    onSave={handleSaveFormation} 
-                                                                    onDelete={handleDeleteFormation} 
-                                                                    onCopy={handleCopyFormation} 
-                                                                    ownedMegidoIds={ownedMegidoIds} 
-                                                                    megidoDetails={megidoDetails}
-                                                                    initialTagTarget={initialTagTarget}
-                                                                    setInitialTagTarget={setInitialTagTarget}
-                                                                    showToastMessage={showToastMessage}
-                                                                    setPreviousScreen={setPreviousScreen}
-                                                                    previousScreen={previousScreen}
-                                                                    onTargetSelect={onTargetSelect}
-                                                                    onCancel={onCancel}
-                                                                    isQriousLoaded={isQriousLoaded}
-                                                                    isHtml5QrLoaded={isHtml5QrLoaded}
-                                                                    onImport={handleImportFormation}
-                                                                    idMaps={idMaps}
-                                                                    editingFormation={editingFormation}
-                                                                    onEditingFormationChange={setEditingFormation}
-                                                                    onOpenCommunityFormations={handleOpenCommunityFormations}
-                                                                    handlePostFormation={handlePostFormation}
-                                                                    isPosting={isPosting}
-                                                                />                            )}
+                                                                                                <FormationManager 
+                                                                                                    formations={formations} 
+                                                                                                    onSave={handleSaveFormation} 
+                                                                                                    onDelete={handleDeleteFormation} 
+                                                                                                    onCopy={handleCopyFormation} 
+                                                                                                    ownedMegidoIds={ownedMegidoIds} 
+                                                                                                    megidoDetails={megidoDetails}
+                                                                                                    initialTagTarget={initialTagTarget}
+                                                                                                    setInitialTagTarget={setInitialTagTarget}
+                                                                                                    showToastMessage={showToastMessage}
+                                                                                                    setPreviousScreen={setPreviousScreen}
+                                                                                                    previousScreen={previousScreen}
+                                                                                                    onTargetSelect={onTargetSelect}
+                                                                                                    onCancel={onCancel}
+                                                                                                    isQriousLoaded={isQriousLoaded}
+                                                                                                    isHtml5QrLoaded={isHtml5QrLoaded}
+                                                                                                    onImport={handleImportFormation}
+                                                                                                    idMaps={idMaps}
+                                                                                                    editingFormation={editingFormation}
+                                                                                                    onEditingFormationChange={setEditingFormation}
+                                                                                                    onOpenCommunityFormations={handleOpenCommunityFormations}
+                                                                                                    handlePostFormation={handlePostFormation} 
+                                                                                                    isPosting={isPosting}
+                                                                                                    bossFormationId={bossFormationId}
+                                                                                                    onSetBossFormation={handleSetBossFormation}
+                                                                                                    isGuideMode={isGuideMode}
+                                                                                                />                            )}
                         </div>
                     </div>
                 ) : (
@@ -1981,6 +2206,12 @@ const TowerTool = () => {
                 squareKey={logActionModal.squareKey}
                 selectedLog={selectedLog}
                 towerData={TOWER_MAP_DATA}
+            />
+            <BossPlannerWizard
+                isOpen={bossPlannerState.isOpen}
+                onClose={() => setBossPlannerState({ isOpen: false, boss: null })}
+                boss={bossPlannerState.boss}
+                guideText={bossPlannerState.boss && bossGuides ? (bossGuides[bossPlannerState.boss.name]?.text || 'このボスへの特別なガイド情報はありません。') : ''}
             />
             {showToast && <div className="toast-simple">{toastMessage}</div>}
             {achievementToast && (
