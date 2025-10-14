@@ -278,7 +278,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                         ))}
                     </div>
                 </div>
-                <button onClick={handleSaveClick} disabled={isSaveDisabled} className="btn btn-primary">
+                <button id="save-formation-button" onClick={handleSaveClick} disabled={isSaveDisabled} className="btn btn-primary">
                     {isSaveDisabled ? 'リーダーを選択してください' : 'この編成を保存'}
                 </button>
             </div>

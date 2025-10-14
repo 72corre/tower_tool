@@ -21,6 +21,7 @@ const useUIState = () => {
         return saved ? JSON.parse(saved) : true;
     });
     const [isMapSearchModalOpen, setIsMapSearchModalOpen] = useState(false);
+    const [highlightedSquares, setHighlightedSquares] = useState(null);
 
     const showToastMessage = useCallback((message) => {
         setToastMessage(message);
@@ -85,5 +86,7 @@ const useUIState = () => {
         handleCloseMapSearch,
         handleModeChange,
         handleTabClick,
+        highlightedSquares,
+        setHighlightedSquares,
     };
 };

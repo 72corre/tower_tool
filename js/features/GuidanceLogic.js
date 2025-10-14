@@ -1,3 +1,48 @@
+const TUTORIAL_GUIDANCE = {
+    'INITIAL_NO_MEGIDO': {
+        highlight: {
+            selector: '#tab-button-ownership',
+            text: 'ようこそ！まずは「所持メギド管理」タブを開いて、あなたが持っているメギドを登録しましょう。'
+        }
+    },
+    'MEGIDO_REGISTERED_GO_TO_MAP': {
+        highlight: {
+            selector: '#tab-button-details',
+            text: 'メギドの登録ありがとうございます！では、最初の目標である1階のボスに挑戦してみましょう。「マス詳細」タブをタップして塔のマップを表示してください。'
+        }
+    },
+    'SELECT_FIRST_BOSS': {
+        highlight: {
+            selector: '[data-square-id="1-b1"]',
+            text: 'ここが1階のボスです。タップして詳細を表示しましょう。'
+        }
+    },
+    'CREATE_FORMATION': {
+        highlight: {
+            selector: '#create-formation-button',
+            text: 'このボスと戦うための編成を作成します。「編成を作成」ボタンを押してください。'
+        }
+    },
+    'SAVE_FORMATION': {
+        highlight: {
+            selector: '#save-formation-button',
+            text: 'メギドの配置、オーブや霊宝の装備が終わったら、「この内容で保存」ボタンを押して編成を決定します。'
+        }
+    },
+    'SIMULATE_BATTLE': {
+        highlight: {
+            selector: '#win-button',
+            text: '編成ができました！実際の戦闘はゲーム内で行い、ここではその結果を記録します。今回はガイドなので、まずは「勝利」ボタンを押して、勝ったことにしてみましょう。'
+        }
+    },
+    'GO_TO_NEXT_FLOOR': {
+        highlight: {
+            selector: '[data-square-id="2-s"]',
+            text: 'ボスを倒したので、次の階へ進めるようになりました。2階のスタートマスをタップして、2階へ移動しましょう。'
+        }
+    }
+};
+
 const getAdjustedWeights = (profile) => {
     const weights = {
         lambda_enemy: 1.0,

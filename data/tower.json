@@ -139,7 +139,78 @@
             "f5-s": { "type": "start" },
             "f5-b1": { "type": "battle", "enemies": ["赤月の残党兵長", "ドラゴニュート", "輝竜アシュトレト"], "rules": ["全能力+50%（幻獣）"] },
             "f5-b2": { "type": "battle", "enemies": ["守護竜ネイロード", "デクリオンオーク", "ゴウケツ"], "rules": ["全能力+50%（幻獣）"] },
-            "f5-o": { "type": "boss", "enemies": ["ディジースプー"], "rules": ["なし"] }
+            "f5-o": { "type": "boss", "enemies": [{"name":"ディジースプー" ,"tags": {
+                "gimmicks": [
+                  {
+                    "category": "防御",
+                    "subCategory": "ダメージ軽減",
+                    "method": "特性",
+                    "condition": "99"
+                  },
+                  {
+                    "category": "状態異常",
+                    "subCategory": "ねずみ化",
+                    "method": "奥義",
+                    "condition": ""
+                  },
+                  {
+                    "category": "妨害",
+                    "subCategory": "覚醒ゲージ減少",
+                    "method": "スキル",
+                    "condition": ""
+                  },
+                  {
+                    "category": "妨害",
+                    "subCategory": "強化解除",
+                    "method": "奥義",
+                    "condition": ""
+                  },
+                  {
+                    "category": "弱体",
+                    "subCategory": "攻撃力低下",
+                    "method": "覚醒スキル",
+                    "condition": ""
+                  },
+                  {
+                    "category": "状態異常",
+                    "subCategory": "ゾンビ",
+                    "method": "奥義",
+                    "condition": ""
+                  }
+                ],
+                "weaknesses": [
+                  {
+                    "category": "特殊状態",
+                    "subCategory": "点穴",
+                    "method": "",
+                    "condition": ""
+                  },
+                  {
+                    "category": "特殊状態",
+                    "subCategory": "点穴付与",
+                    "method": "",
+                    "condition": ""
+                  },
+                  {
+                    "category": "地形",
+                    "subCategory": "狂炎",
+                    "method": "",
+                    "condition": ""
+                  },
+                  {
+                    "category": "特殊状態",
+                    "subCategory": "エレキ",
+                    "method": "",
+                    "condition": ""
+                  },
+                  {
+                    "category": "攻撃手段",
+                    "subCategory": "ダメージ軽減無視",
+                    "method": "",
+                    "condition": ""
+                  }
+                ]
+              }}], "rules": ["なし"] }
         }
     },
     {

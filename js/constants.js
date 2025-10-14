@@ -14,6 +14,12 @@ const EXPLORE_SUB_TYPE_MAP = {
     'status_buff': 'いずれかのステータス上昇'
 };
 
+const CLASS_NAME_MAP = {
+    'ファイター': 'fighter',
+    'トルーパー': 'trooper',
+    'スナイパー': 'sniper'
+};
+
 const LEVEL_BONUSES = {
     75: { hp: 210, atk: 25, def: 25, spd: 0 },
     77: { hp: 380, atk: 43, def: 43, spd: 0 },

@@ -1,5 +1,5 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
-const AppContext = React.createContext();
+window.AppContext = React.createContext();
 const useAppContext = () => React.useContext(AppContext);
 
 const LogSummary = ({ selectedLog }) => {
@@ -209,6 +209,7 @@ const TowerTool = () => {
     const [showTutorial, setShowTutorial] = useState(false);
     const [isFirstEverLaunch, setIsFirstEverLaunch] = useState(false);
     const [introQueue, setIntroQueue] = useState([]);
+    const [spotlight, setSpotlight] = useState({ selector: null, text: null });
 
     const floorRefs = useRef({});
     const prevFloorRef = useRef();
@@ -219,9 +220,10 @@ const TowerTool = () => {
     const [megidoList, setMegidoList] = useState(null);
     const [bossGuides, setBossGuides] = useState(null);
     const [floorMessages, setFloorMessages] = useState(null);
-    const [highlightedSquares, setHighlightedSquares] = useState({});
+    const [highlightedSquares, setHighlightedSquares] = useState(null);
     const [floorInfoModal, setFloorInfoModal] = useState({ isOpen: false, title: '', message: '' });
-    const [bossPlannerState, setBossPlannerState] = useState({ isOpen: false, boss: null });
+    const [bossPlannerState, setBossPlannerState] = useState({ isOpen: false, boss: null, recommendations: null, floorNum: null });
+    const [glossaryData, setGlossaryData] = useState(null);
     const [shownBossGuides, setShownBossGuides] = useState(() => {
         const saved = localStorage.getItem('shownBossGuides');
         return saved ? new Set(JSON.parse(saved)) : new Set();
@@ -240,12 +242,14 @@ const TowerTool = () => {
             fetch('data/tower.json').then(res => res.json()),
             fetch('data/boss_guides.json').then(res => res.json()),
             fetch('data/floor_messages.json').then(res => res.json()),
+            fetch('data/glossary.json').then(res => res.json()),
             fetch(`js/enemy_all_data.js?v=${Date.now()}`).then(res => res.text())
-        ]).then(([megidoData, orbsData, reishouData, birthdayData, towerData, guidesData, messagesData, enemyText]) => {
+        ]).then(([megidoData, orbsData, reishouData, birthdayData, towerData, guidesData, messagesData, glossaryData, enemyText]) => {
             window.COMPLETE_MEGIDO_LIST = megidoData;
             setMegidoList(megidoData);
             setBossGuides(guidesData);
             setFloorMessages(messagesData);
+            setGlossaryData(glossaryData);
 
             window.COMPLETE_ORB_LIST = orbsData;
             window.COMPLETE_REISHOU_LIST = reishouData;
@@ -330,7 +334,12 @@ const TowerTool = () => {
         const guide = bossGuides[enemyObject.name];
         enemyObject.guide = guide || { short: "攻略情報はありません。", long: "このボスに関する詳しい攻略情報はまだ登録されていません。" };
 
-        setBossPlannerState({ isOpen: true, boss: enemyObject });
+        setBossPlannerState({ 
+            isOpen: true, 
+            boss: enemyObject,
+            recommendations: recommendations, // 再計算せず、useMemoの値をそのまま使う
+            floorNum: floorNum
+        });
     };
 
     const openBossPlannerForFloor = (bossFloor) => {
@@ -633,6 +642,33 @@ const TowerTool = () => {
         megidoDetails
     });
 
+    const handleCreateFormationFromSelection = useCallback((selectedIds, tagTarget) => {
+        if (!selectedIds || selectedIds.length === 0) return;
+
+        const newFormation = {
+            id: `f${Date.now()}`,
+            name: tagTarget?.enemyName ? `${tagTarget.enemyName} 対策編成` : '新規編成',
+            megidoSlots: selectedIds.slice(0, 5).map(megidoId => ({
+                megidoId,
+                orbId: null,
+                reishouIds: []
+            })),
+            tags: [],
+            notes: '',
+            enemyName: tagTarget?.enemyName || null,
+            floors: tagTarget?.floors || []
+        };
+
+        // 足りないスロットをnullで埋める
+        while (newFormation.megidoSlots.length < 5) {
+            newFormation.megidoSlots.push(null);
+        }
+
+        setEditingFormation(newFormation);
+        setActiveTab('formation');
+        showToastMessage('選択したメギドで編成ドラフトを作成しました。');
+    }, [setEditingFormation, setActiveTab, showToastMessage]);
+
     const { 
         communityFormationsState,
         handleOpenCommunityFormations,
@@ -861,30 +897,9 @@ const TowerTool = () => {
         localStorage.setItem('completedGuideSteps', JSON.stringify(Array.from(completedGuideSteps)));
     }, [completedGuideSteps]);
 
-    useEffect(() => {
-        // Guide Step 3 -> 4: Advance after first formation is created
-        if (isGuideMode && guideStep === 3 && Object.keys(formations).length > 0) {
-            setGuideStep(4);
-        }
-    }, [formations, isGuideMode, guideStep]);
 
-    useEffect(() => {
-        // Guide Step 4 -> 5: Advance after selecting the first battle square
-        if (isGuideMode && guideStep === 4 && selectedSquare?.floor.floor === 1 && selectedSquare?.id === 'b1') {
-            setGuideStep(5);
-        }
-    }, [selectedSquare, isGuideMode, guideStep]);
 
-    useEffect(() => {
-        // Guide Step 5 -> 6 (End of first part): Advance after winning the first battle
-        if (isGuideMode && guideStep === 5 && runState.history.length > 0) {
-            const lastAction = runState.history[runState.history.length - 1];
-            if (lastAction.type === 'battle' && lastAction.result === 'win' && lastAction.floor === 1 && lastAction.squareId === 'b1') {
-                setGuideStep(6); // ステップを完了状態に進める
-                showToastMessage('最初の戦闘、勝利おめでとうございます！');
-            }
-        }
-    }, [runState.history, isGuideMode, guideStep]);
+
 
     const handleExportData = () => {
         setDataManagementCount(c => c + 1);
@@ -1490,19 +1505,37 @@ const TowerTool = () => {
 
     const normalizeEnemy = useCallback((enemyData) => {
         if (!enemyData) return null;
-        if (typeof enemyData === 'string') {
-            if (window.ENEMY_ALL_DATA && window.ENEMY_ALL_DATA[enemyData]) {
-                return {
-                    name: enemyData,
-                    tags: window.ENEMY_ALL_DATA[enemyData].tags || { gimmicks: [], weaknesses: [] }
-                };
-            } else {
-                return { name: enemyData, tags: { gimmicks: [], weaknesses: [] } };
+
+        const name = typeof enemyData === 'string' ? enemyData : enemyData.name;
+        let finalTags = null;
+        let finalClass = null;
+
+        // 優先度1: enemyData (tower.json 由来) に tags があればそれを使う
+        if (typeof enemyData === 'object' && enemyData.tags && (enemyData.tags.gimmicks?.length || enemyData.tags.weaknesses?.length)) {
+            finalTags = enemyData.tags;
+        }
+
+        // 情報を補完するために ENEMY_ALL_DATA を見る
+        const partyData = window.ENEMY_ALL_DATA?.[name];
+        if (partyData) {
+            const leader = partyData.party?.find(member => member && member.leader);
+            if (leader) {
+                finalClass = leader.class; // class は leader から取得
+                // 優先度2: leader に tags があればそれを使う (finalTagsがまだない場合)
+                if (!finalTags && leader.tags) {
+                    finalTags = leader.tags;
+                }
+            }
+            // 優先度3: partyData のトップレベルに tags があればそれを使う (finalTagsがまだない場合)
+            if (!finalTags && partyData.tags) {
+                finalTags = partyData.tags;
             }
         }
+
         return {
-            ...enemyData,
-            tags: enemyData.tags || { gimmicks: [], weaknesses: [] }
+            name: name,
+            class: finalClass,
+            tags: finalTags || { gimmicks: [], weaknesses: [] } // 最終的に tags がなければ空を返す
         };
     }, []);
 
@@ -1830,6 +1863,7 @@ const TowerTool = () => {
                                     onOpenCommunityFormations={handleOpenCommunityFormations}
                                     recommendations={recommendations}
                                     isGuideMode={isGuideMode}
+                                    openPlannerForSquare={openPlannerForSquare}
                                 />;
                             }
                         })()}
@@ -1936,6 +1970,8 @@ const TowerTool = () => {
         toastMessage, setToastMessage, showToast, setShowToast, achievementToast, setAchievementToast, targetFloor, setTargetFloor, displayedEnemy, setDisplayedEnemy,
         eventToast, setEventToast, eventQueue, setEventQueue, shouldShowBetaModal, setShouldShowBetaModal, isBirthdayButtonHovered, setIsBirthdayButtonHovered, dontShowAgain, setDontShowAgain,
         guidance, setGuidance, partyConditionRisk, setPartyConditionRisk, isRecoveryRecommended, setIsRecoveryRecommended, isRouteObvious, setIsRouteObvious,
+        highlightedSquares, setHighlightedSquares,
+        spotlight, setSpotlight,
         isGuideMode, completedGuideSteps, setCompletedGuideSteps, // Add this line
         targetEnemies, setTargetEnemies, viewMode, setViewMode, showBetaModal, setShowBetaModal, showUpdateModal, setShowUpdateModal, isFooterCollapsed, setIsFooterCollapsed,
         isMapSearchModalOpen, setIsMapSearchModalOpen, handleOpenMapSearch, handleCloseMapSearch,
@@ -1947,11 +1983,13 @@ const TowerTool = () => {
         planState, setPlanState, planConditions, onPlanExplorationParty, handlePlanCombatParty,
         idMaps, formations, setFormations, editingFormation, setEditingFormation, initialTagTarget, setInitialTagTarget, previousScreen, setPreviousScreen, handleSaveFormation, handleSaveFormationMemo, handleDeleteFormation, handleCopyFormation, handleCreateFormationFromEnemy, handleGenerateShareImage, generatedImageData, showShareModal, setShowShareModal, tweetUrl, setTweetUrl,
         communityFormationsState, handleOpenCommunityFormations, handleCloseCommunityFormations, handleCopyCommunityFormation, handlePostFormation, handleDeleteCommunityFormation, isPosting,
+        handleCreateFormationFromSelection, // Add this line
         handleImportFormation, isQriousLoaded, isHtml5QrLoaded, checkAllAchievements, handleExportData, handleImportData, handleResetAllData, handleToggleTheme, handleViewModeChange,
         handleModeChange, handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo, handleScrollToFloor,
         handleSaveLog, handleResetRun, handleUndo,
         generateEventTweetUrl, handleCloseEventToast, towerConnections, handleCancelFormationEdit, RightPanelContent, MapContent,
         COMPLETE_MEGIDO_LIST: megidoList,
+        glossaryData, // Add glossaryData to the context
         getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, // Add utility functions
         TOWER_MAP_DATA: window.TOWER_MAP_DATA, // Add other master data to context
         COMPLETE_ORB_LIST: window.COMPLETE_ORB_LIST,
@@ -1979,106 +2017,21 @@ const TowerTool = () => {
     };
 
     return (
-        <AppContext.Provider value={contextValue}>
-            <div className="app-container">
-            {eventToast && (
-                <div style={eventModalOverlayStyle} onClick={handleCloseEventToast}>
-                    <div style={eventModalContentStyle} onClick={(e) => e.stopPropagation()}>
-                        <h3 style={{marginTop: 0, color: 'var(--primary-accent)', fontSize: '24px'}}>おメギド！</h3>
-                        <p style={{fontSize: '1.1rem', lineHeight: '1.6'}}>{eventToast.text}</p>
-                        {eventToast.type === 'birthday' && (
-                             <p>今日は{eventToast.base_name}を星間の塔で使ってみませんか？</p>
-                        )}
-                        <a 
-                            href={generateEventTweetUrl(eventToast)} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            style={isBirthdayButtonHovered ? eventButtonStyle.hover : eventButtonStyle.normal}
-                            onMouseEnter={() => setIsBirthdayButtonHovered(true)}
-                            onMouseLeave={() => setIsBirthdayButtonHovered(false)}
-                            onClick={() => unlockAchievement('BIRTHDAY_TWEET')}
-                        >
-                            ツイートでお祝いする
-                        </a>
-                        <div style={{marginTop: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px'}}>
-                            <input type="checkbox" id="dont-show-again" checked={dontShowAgain} onChange={(e) => setDontShowAgain(e.target.checked)} style={{width: '16px', height: '16px'}} />
-                            <label htmlFor="dont-show-again" style={{color: 'var(--text-subtle)', cursor: 'pointer'}}>今日は再表示しない</label>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {showBetaModal && (
-                <InfoModal 
-                    isOpen={true} 
-                    onClose={() => {
-                        setShowBetaModal(false);
-                        localStorage.setItem('betaModalShown', 'true');
-                        setIntroQueue(q => q.filter(item => item !== 'beta'));
-                    }}
-                    title="オープンβテストへようこそ！"
-                >
-                    {`この度は「星間の塔攻略支援ツール」オープンβにご参加いただき、本当にありがとうございます！！\n\n今回お試しいただいているのは、まだ全然完成していない“プロトタイプ版”です。\n「とりあえず動いてるな～」くらいの段階なので、荒削りな部分や足りない機能が多い点はご容赦ください。\n\nそのうえで、実際に触っていただく中で、\n「不具合を見つけた」「ここが使いにくい」「もっとこうしてほしい」\nといったご意見がありましたら、ぜひ気軽にお知らせください。\n\n報告はGoogleフォーム（設定 → ベータテスト用報告フォーム）から、何度でもご記入いただけます。\n小さな感想や気づきでも大歓迎です！\n\n皆さまからの声が、このツールをより良く育てていく力になります。\nどうぞよろしくお願いいたします！\n\nそれでは、良き戦争を！！！`}
-                </InfoModal>
-            )}
-
-            {showUpdateModal && (
-                <InfoModal
-                    isOpen={true}
-                    onClose={() => {
-                        setShowUpdateModal(false);
-                        localStorage.setItem('updateModalShown_20251007_ui_unify', 'true');
-                        setIntroQueue(q => q.filter(item => item !== 'update'));
-                    }}
-                    title="UIの変更と機能改善のお知らせ (2025/10/07)"
-                >
-                    {`【UIの変更と機能改善のお知らせ】\n\nこの度のアップデートで、PC版の表示においても、スマートフォン版のUIに統一いたしました。\n\n■ UIの変更について\n背景としまして、従来のPC版UIの「所持メギド管理」画面において、チェックボックスを操作するとスクロールが先頭に戻ってしまうという不具合がございました。\nこの問題の根本的な解決が難しく、皆様の操作性を損なっている状況を鑑み、より安定して動作しているスマートフォン版のUIに一本化する判断をいたしました。\nPCでご利用の皆様には、レイアウトの変更によりご不便をおかけする点もあるかと存じますが、何卒ご理解いただけますと幸いです。\n\n■ その他の改善\n・Android端末など一部環境で、マップのマスをタップしても詳細画面が表示されにくい問題を修正しました。\n・霊宝「水心の霊宝」が一部表示されない問題を修正しました。\n・ヘッダーがスクロールに追従して表示されるように修正しました。\n\n今後とも、より使いやすいツールを目指して改善を続けてまいります。`}
-                </InfoModal>
-            )}
-
-
-
-            {showGuideIntroModal && (
-                <InfoModal
-                    isOpen={true}
-                    onClose={() => {
-                        setShowGuideIntroModal(false);
-                        setHasSeenGuideIntro(true);
-                        localStorage.setItem('hasSeenGuideIntro', 'true');
-                    }}
-                    title="ガイドモードへようこそ！"
-                >
-                    {`ガイドモードが有効になりました。\nこのモードは、目標階を25階以上に設定するか、目標を達成すると自動で終了します。`}
-                </InfoModal>
-            )}
-
-            {floorInfoModal.isOpen && (
-                <InfoModal
-                    isOpen={floorInfoModal.isOpen}
-                    onClose={() => setFloorInfoModal({ isOpen: false, title: '', message: '' })}
-                    title={floorInfoModal.title}
-                >
-                    {floorInfoModal.message}
-                </InfoModal>
-            )}
+        <window.AppContext.Provider value={contextValue}>
 
             <Header />
             <GuidanceManager
                 isGuideMode={isGuideMode}
-                activeTab={activeTab}
-                ownedMegidoIds={ownedMegidoIds}
                 guideStep={guideStep}
                 setGuideStep={setGuideStep}
-                completedSteps={completedGuideSteps}
-                onStepComplete={(step) => setCompletedGuideSteps(prev => new Set(prev).add(step))}
                 onSuggestTargetFloor={onSuggestTargetFloor}
             />
                         {!isMobileView && (
                 <nav className="desktop-nav">
                     <div className="desktop-nav-tabs">
-                        <button onClick={() => handleTabClick('details')} className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}>マス詳細</button>
-                        <button onClick={() => handleTabClick('ownership')} className={`tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>所持メギド管理</button>
-                        <button onClick={() => handleTabClick('formation')} className={`tab-button ${activeTab === 'formation' ? 'active' : ''}`}>編成管理</button>
+                        <button id="tab-button-details" onClick={() => handleTabClick('details')} className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}>マス詳細</button>
+                        <button id="tab-button-ownership" onClick={() => handleTabClick('ownership')} className={`tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>所持メギド管理</button>
+                        <button id="tab-button-formation" onClick={() => handleTabClick('formation')} className={`tab-button ${activeTab === 'formation' ? 'active' : ''}`}>編成管理</button>
                     </div>
                     <div className="desktop-nav-actions">
                         {mode === 'practice' && (
@@ -2200,6 +2153,24 @@ const TowerTool = () => {
                 onConfirm={statusBuffModalState.onConfirm}
                 expectationLevel={statusBuffModalState.expectationLevel}
             />
+            <InfoModal
+                isOpen={showUpdateModal}
+                onClose={() => {
+                    setShowUpdateModal(false);
+                    localStorage.setItem('updateModalShown_20251007_ui_unify', 'true');
+                    setIntroQueue(q => q.filter(item => item !== 'update'));
+                }}
+                title="アップデートのお知らせ"
+            >
+                <p>いつもご利用いただきありがとうございます。</p>
+                <p>今回のアップデートでは、UIの統一と改善を行いました。</p>
+                <ul style={{listStyle: 'inside', paddingLeft: '1rem'}}>
+                    <li>画面右側のパネルのデザインを統一しました。</li>
+                    <li>全体の配色やコンポーネントの見た目を調整し、一貫性のあるデザインになりました。</li>
+                    <li>その他、軽微な不具合の修正を行いました。</li>
+                </ul>
+                <p>今後とも、星間の塔 攻略支援ツールをよろしくお願いいたします。</p>
+            </InfoModal>
             <LogActionModal 
                 isOpen={logActionModal.isOpen}
                 onClose={() => setLogActionModal({ isOpen: false, squareKey: null })}
@@ -2320,8 +2291,7 @@ const TowerTool = () => {
                     />
                 </div>
             )}
-        </div>
-        </AppContext.Provider>
+        </window.AppContext.Provider>
     );
 };
 

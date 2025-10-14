@@ -11,6 +11,7 @@ const getSquareTypeName = (type) => {
 // おすすめメギド表示用の新しいコンポーネント
 const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) => {
     const { useState } = React;
+    const { glossaryData } = useAppContext();
     const [openCategory, setOpenCategory] = useState(null);
 
     const toggleCategory = (category) => {
@@ -24,25 +25,47 @@ const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) 
         return '';
     };
 
+    const renderDetailWithTooltip = (text) => {
+        if (!glossaryData || !text) return text;
+        const allTerms = Object.keys(glossaryData);
+        allTerms.sort((a, b) => b.length - a.length);
+        const regex = new RegExp(`(${allTerms.join('|')})`, 'g');
+        const parts = text.split(regex);
+        return parts.map((part, index) => {
+            if (allTerms.includes(part)) {
+                return <GlossaryTooltip key={index} term={part}>{part}</GlossaryTooltip>;
+            }
+            return <span key={index} dangerouslySetInnerHTML={{ __html: part.replace(/<br>/g, '') }} />;
+        });
+    };
+
     const renderRecommendationCard = (rec) => {
         const { megido, orb, reason } = rec;
 
-        // 推奨理由で使われた能力(subCategory)を特定
         const reasonSubCategories = new Set();
-        megido.tags.forEach(tag => {
-            if (reason.includes(tag.method) && reason.includes(tag.subCategory)) {
-                reasonSubCategories.add(tag.subCategory);
-            }
-        });
+        if (typeof reason === 'string') {
+            megido.tags.forEach(tag => {
+                if (reason.includes(tag.method) && reason.includes(tag.subCategory)) {
+                    reasonSubCategories.add(tag.subCategory);
+                }
+            });
+        } else if (typeof reason === 'object' && reason !== null) {
+            const textToCheck = [reason.title, reason.description, ...(reason.details || []).map(d => d.value)].join(' ');
+            megido.tags.forEach(tag => {
+                if (textToCheck.includes(tag.subCategory)) {
+                    reasonSubCategories.add(tag.subCategory);
+                }
+            });
+        }
 
         const otherRoles = megido.tags
             .map(t => t.subCategory)
             .filter(sub => !reasonSubCategories.has(sub))
-            .filter((v, i, a) => a.indexOf(v) === i) // 重複削除
+            .filter((v, i, a) => a.indexOf(v) === i)
             .slice(0, 2)
             .map((role, index) => <span key={index}><span className="highlight">{role}</span>{index < 1 ? ', ' : ''}</span>);
 
-        const reasonHtml = reason.replace(/【(.*?)】/, `<span class="highlight">【$1】</span>`);
+        const reasonHtml = typeof reason === 'string' ? reason.replace(/【(.*?)】/g, `<span class="highlight">【$1】</span>`) : null;
 
         return (
             <div key={megido.id + (orb ? orb.id : '')} className="rec-card">
@@ -51,10 +74,45 @@ const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) 
                 </div>
                 <div className="rec-card-main">
                     <h5 className="rec-megido-name" onClick={() => onOpenCommunityFormations(null, null, null, megido.名前)}>{megido.名前}</h5>
-                    <p className="rec-reason" dangerouslySetInnerHTML={{ __html: reasonHtml }}></p>
+                    {(() => {
+                        if (typeof reason === 'string') {
+                            return <p className="rec-reason" dangerouslySetInnerHTML={{ __html: reason.replace(/【(.*?)】/g, `<span class="highlight">【$1】</span>`) }}></p>;
+                        }
+                        if (reason.title) { // For complex strategies with titles
+                            return (
+                                <div className="rec-reason">
+                                    <p style={{margin: 0}}>
+                                        <strong><GlossaryTooltip term={reason.title}>{`【${reason.title}】`}</GlossaryTooltip></strong>
+                                        <span dangerouslySetInnerHTML={{ __html: reason.description }}></span>
+                                    </p>
+                                    {reason.details &&
+                                        <div style={{marginTop: '0.5rem'}}>
+                                            {reason.details.map((detail, i) => (
+                                                <div key={i} style={{margin: '0.25rem 0 0'}}>
+                                                    <strong>{detail.label}:</strong>
+                                                    <span style={{ display: 'block' }}>{renderDetailWithTooltip(detail.value)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    }
+                                    {reason.notes && reason.notes.length > 0 &&
+                                        <p style={{margin: '0.5rem 0 0', fontSize: '0.8em', opacity: 0.8}}>補足: {reason.notes.join(' ')}</p>
+                                    }
+                                </div>
+                            );
+                        }
+                        if (reason.method) { // For simple counters with methods
+                            return (
+                                <p className="rec-reason">
+                                    <strong><GlossaryTooltip term={reason.method}>{`【${reason.method}】`}</GlossaryTooltip></strong>
+                                    {renderDetailWithTooltip(reason.description)}
+                                </p>
+                            );
+                        }
+                        return null;
+                    })()}
                     {otherRoles.length > 0 && <p className="rec-other-roles">その他の役割: {otherRoles}</p>}
-                </div>
-                <div className="rec-card-right">
+                </div>                <div className="rec-card-right">
                     <button className="rec-add-btn" title="編成に追加（機能は将来実装予定）">+</button>
                 </div>
             </div>
@@ -131,7 +189,8 @@ const PracticeActionPanel = ({
     onSaveFormationMemo,
     onOpenCommunityFormations,
     recommendations,
-    isGuideMode
+    isGuideMode,
+    openPlannerForSquare
 }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [memoText, setMemoText] = useState('');
@@ -323,10 +382,46 @@ const PracticeActionPanel = ({
     const plannedFormations = plannedFormationIds.map(id => formations[id]).filter(Boolean);
     const otherFormations = formationList.filter(f => !plannedFormationIds.includes(f.id));
 
+    const { glossaryData } = useAppContext(); // glossaryDataをコンテキストから取得
+
+    const renderRulesWithTooltips = (rules) => {
+        if (!glossaryData) return rules.join(', ');
+
+        const allTerms = Object.keys(glossaryData);
+        const regex = new RegExp(`(${allTerms.join('|')})`, 'g');
+
+        return rules.map((rule, ruleIndex) => (
+            <React.Fragment key={ruleIndex}>
+                {rule.split(regex).map((part, partIndex) => {
+                    if (allTerms.includes(part)) {
+                        return (
+                            <GlossaryTooltip key={partIndex} term={part}>
+                                {part}
+                            </GlossaryTooltip>
+                        );
+                    }
+                    return part;
+                })}
+                {ruleIndex < rules.length - 1 ? ', ' : ''}
+            </React.Fragment>
+        ));
+    };
+
     return (
         <div style={{ position: 'relative' }}>
             {isLocked && <LockedPanelOverlay text={lockText} />}
             <h3 className="card-header">{floorData.floor}F {getSquareTypeName(squareData.type)}</h3>
+            {squareData.type === 'boss' && (
+                <div style={{ margin: '12px 0' }}>
+                    <button 
+                        onClick={() => openPlannerForSquare(floorData.floor, squareId)}
+                        className="btn btn-primary"
+                        style={{ width: '100%' }}
+                    >
+                        攻略計画を立てる
+                    </button>
+                </div>
+            )}
             <div className="form-section">
                 {squareData.enemies && squareData.enemies.map((enemy, index) => {
                     const enemyName = getEnemyName(enemy);
@@ -348,7 +443,7 @@ const PracticeActionPanel = ({
                                     <span style={{ fontWeight: 'bold', color: isTargeted ? '#70F0E0' : 'var(--text-main)' }}>{enemyName}</span>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button onClick={() => onCreateFormation(enemyName, floorData.floor)} className="btn btn-ghost p-1" title="新規編成">
+                                    <button id={index === 0 ? "create-formation-button" : undefined} onClick={() => onCreateFormation(enemyName, floorData.floor)} className="btn btn-ghost p-1" title="新規編成">
                                         <img src="asset/create.webp" alt="新規編成" style={{width: '24px', height: '24px'}} />
                                     </button>
                                     <button onClick={() => onOpenCommunityFormations(floorData.floor, enemyName)} className="btn btn-ghost p-1" title="みんなの編成">
@@ -360,7 +455,7 @@ const PracticeActionPanel = ({
                     )
                 })}
                 {isGuideMode && recommendations && <RecommendedMegidoPanel recommendations={recommendations} onOpenCommunityFormations={onOpenCommunityFormations} />}
-                {squareData.rules && squareData.rules.length > 0 && <p style={{marginTop: '12px'}}><strong>ルール:</strong> {squareData.rules.join(', ')}</p>}
+                {squareData.rules && squareData.rules.length > 0 && <p style={{marginTop: '12px'}}><strong>ルール:</strong> {renderRulesWithTooltips(squareData.rules)}</p>}
             </div>
             <div className="form-section">
                 <label className="label">挑戦する編成:</label>

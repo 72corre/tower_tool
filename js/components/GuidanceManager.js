@@ -6,82 +6,123 @@ const usePrevious = (value) => {
     return ref.current;
 };
 
-const GuidanceManager = ({ isGuideMode, onSuggestTargetFloor }) => {
-    const { megidoDetails, targetFloor, activeTab } = React.useContext(AppContext);
-    const [hasSeenSuggestion, setHasSeenSuggestion] = React.useState(() => localStorage.getItem('hasSeenTargetFloorSuggestion') === 'true');
-    
-    const ownedMegidoCount = Object.values(megidoDetails).filter(detail => detail.owned).length;
+const GuidanceManager = ({ isGuideMode, guideStep, setGuideStep, onSuggestTargetFloor }) => {
+    const {
+        activeTab,
+        ownedMegidoIds,
+        selectedSquare,
+        formations,
+        runState,
+        editingFormation,
+    } = React.useContext(window.AppContext);
+
+    const [spotlight, setSpotlight] = React.useState({ selector: null, text: null });
+    const [isDismissed, setIsDismissed] = React.useState(false);
+    const prevGuideStep = usePrevious(guideStep);
     const prevActiveTab = usePrevious(activeTab);
 
-    const handleDismissSuggestion = React.useCallback(() => {
-        localStorage.setItem('hasSeenTargetFloorSuggestion', 'true');
-        setHasSeenSuggestion(true);
-    }, []);
+    // Effect to determine the spotlight content based on the guide step
+    React.useEffect(() => {
+        if (prevGuideStep !== guideStep) {
+            setIsDismissed(false);
+        }
 
+        if (!isGuideMode || !guideStep || isDismissed) {
+            setSpotlight({ selector: null, text: null });
+            return;
+        }
+
+        const stepConfig = TUTORIAL_GUIDANCE[guideStep];
+        if (stepConfig) {
+            setSpotlight(stepConfig.highlight);
+        } else {
+            setSpotlight({ selector: null, text: null });
+        }
+
+    }, [isGuideMode, guideStep, isDismissed, prevGuideStep]);
+
+    // Effect to ADVANCE the guide step based on user actions
+    React.useEffect(() => {
+        if (!isGuideMode) return;
+
+        switch (guideStep) {
+            case 'INITIAL_NO_MEGIDO':
+                if (ownedMegidoIds.size > 0) setGuideStep('MEGIDO_REGISTERED_GO_TO_MAP');
+                break;
+            case 'MEGIDO_REGISTERED_GO_TO_MAP':
+                if (activeTab === 'details') setGuideStep('SELECT_FIRST_BOSS');
+                break;
+            case 'SELECT_FIRST_BOSS':
+                if (selectedSquare && selectedSquare.floor.floor === 1 && selectedSquare.id === 'b1') setGuideStep('CREATE_FORMATION');
+                break;
+            case 'CREATE_FORMATION':
+                if (editingFormation) setGuideStep('SAVE_FORMATION');
+                break;
+            case 'SAVE_FORMATION':
+                if (!editingFormation && Object.keys(formations).length > 0) setGuideStep('SIMULATE_BATTLE');
+                break;
+            case 'SIMULATE_BATTLE':
+                const lastHistory = runState.history[runState.history.length - 1];
+                if (lastHistory && lastHistory.type === 'battle' && lastHistory.squareId === 'b1' && lastHistory.result === 'win') setGuideStep('GO_TO_NEXT_FLOOR');
+                break;
+            case 'GO_TO_NEXT_FLOOR':
+                if (runState.currentPosition && runState.currentPosition.floor === 2) setGuideStep('GUIDE_COMPLETE');
+                break;
+            default:
+                break;
+        }
+    }, [isGuideMode, guideStep, setGuideStep, activeTab, ownedMegidoIds, selectedSquare, editingFormation, formations, runState]);
+
+    // Effect for suggesting target floor
+    const [hasSeenSuggestion, setHasSeenSuggestion] = React.useState(() => localStorage.getItem('hasSeenTargetFloorSuggestion') === 'true');
     React.useEffect(() => {
         const justLeftOwnership = prevActiveTab === 'ownership' && activeTab !== 'ownership';
-
-        if (isGuideMode && !hasSeenSuggestion && justLeftOwnership && ownedMegidoCount > 0) {
+        if (isGuideMode && !hasSeenSuggestion && justLeftOwnership && ownedMegidoIds.size > 0) {
             let suggestedFloor = 0;
-            if (ownedMegidoCount < 100) {
-                suggestedFloor = 15;
-            } else if (ownedMegidoCount <= 150) {
-                suggestedFloor = 20;
-            } else if (ownedMegidoCount <= 200) {
-                suggestedFloor = 25;
-            } else { // more than 200
-                suggestedFloor = 35;
+            if (ownedMegidoIds.size < 100) suggestedFloor = 15;
+            else if (ownedMegidoIds.size <= 150) suggestedFloor = 20;
+            else if (ownedMegidoIds.size <= 200) suggestedFloor = 25;
+            else suggestedFloor = 35;
+
+            if (onSuggestTargetFloor) {
+                onSuggestTargetFloor(suggestedFloor);
             }
-
-            onSuggestTargetFloor(suggestedFloor);
-            handleDismissSuggestion();
+            setHasSeenSuggestion(true);
+            localStorage.setItem('hasSeenTargetFloorSuggestion', 'true');
         }
-    }, [activeTab, prevActiveTab, isGuideMode, hasSeenSuggestion, ownedMegidoCount, onSuggestTargetFloor, handleDismissSuggestion]);
+    }, [activeTab, prevActiveTab, isGuideMode, hasSeenSuggestion, ownedMegidoIds.size, onSuggestTargetFloor]);
 
-    if (!isGuideMode) {
+
+    // Initialize guide
+    React.useEffect(() => {
+        if (isGuideMode) {
+            const savedStep = localStorage.getItem('guideStep');
+            if (savedStep && savedStep !== 'null' && savedStep !== 'undefined') {
+                setGuideStep(savedStep);
+            } else if (ownedMegidoIds.size === 0) {
+                setGuideStep('INITIAL_NO_MEGIDO');
+            } else {
+                setGuideStep('MEGIDO_REGISTERED_GO_TO_MAP');
+            }
+        }
+    }, [isGuideMode, setGuideStep, ownedMegidoIds.size]);
+
+    // Persist guide step
+    React.useEffect(() => {
+        if (isGuideMode && guideStep) {
+            localStorage.setItem('guideStep', guideStep);
+        }
+    }, [isGuideMode, guideStep]);
+
+    if (!isGuideMode || !spotlight || !spotlight.selector) {
         return null;
     }
 
-    // Step 1: Prompt to register Megido, but only when NOT on the ownership tab.
-    if (ownedMegidoCount === 0 && activeTab !== 'ownership') {
-        const baseBubbleStyle = {
-            position: 'fixed',
-            backgroundColor: 'rgba(74, 85, 104, 0.9)', // Bluish-gray
-            color: 'white',
-            padding: '15px 25px',
-            borderRadius: '15px',
-            zIndex: 10002,
-            fontSize: '16px',
-            textAlign: 'center',
-            boxShadow: '0 5px 15px rgba(0,0,0,0.3)',
-            width: '90%',
-            maxWidth: '400px',
-            border: '1px solid rgba(255, 255, 255, 0.2)'
-        };
-        const bubbleStyle = {
-            ...baseBubbleStyle,
-            top: '160px', // Moved down further
-            left: '50%',
-            transform: 'translateX(-50%)',
-        };
-        const arrowStyle = {
-            content: '""',
-            position: 'absolute',
-            borderStyle: 'solid',
-            borderColor: 'rgba(74, 85, 104, 0.9) transparent transparent transparent',
-            bottom: '100%', // Arrow points up
-            left: '50%',
-            transform: 'translateX(-50%)',
-            borderWidth: '10px 10px 0',
-        };
-
-        return (
-            <div style={bubbleStyle}>
-                <div style={arrowStyle}></div>
-                <p>まずは所持しているメギドを登録しましょう！<br />登録が終わったら、次のステップに進むためにタブを移動してください。</p>
-            </div>
-        );
-    }
-
-    return null; 
+    return (
+        <SpotlightOverlay
+            selector={spotlight.selector}
+            text={spotlight.text}
+            onClose={() => setIsDismissed(true)}
+        />
+    );
 };

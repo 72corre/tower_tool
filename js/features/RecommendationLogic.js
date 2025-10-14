@@ -51,6 +51,10 @@ const WEAKNESS_ATTACK_MAP = {
     '攻撃手段-植物特効': [{ category: '攻撃手段', subCategory: '植物特効', reason: 'で大ダメージを与えられます。', priorityRule: { type: 'conditional', rules: [ { operator: '>=', value: 100, priority: 'high' }, { operator: '>=', value: 50, priority: 'medium' } ], defaultPriority: 'low' } }],
     '攻撃手段-防御無視': [{ category: '攻撃手段', subCategory: '防御無視', reason: 'で敵の高防御力を無視してダメージを与えられます。', priorityRule: { type: 'conditional', rules: [ { operator: '>=', value: 100, priority: 'high' }, { operator: '>=', value: 50, priority: 'medium' } ], defaultPriority: 'low' } }],
     '攻撃手段-固定ダメージ': [{ category: '攻撃手段', subCategory: '固定ダメージ', reason: 'で敵の高防御力を無視して固定のダメージを与えられます。', priorityRule: { type: 'conditional', rules: [ { operator: '>=', value: 100, priority: 'high' }, { operator: '>=', value: 50, priority: 'medium' } ], defaultPriority: 'low' } }],
+    '特殊状態-点穴': [{ category: '特殊状態', subCategory: '点穴', reason: 'の固定ダメージで防御力を無視できます。', priorityRule: { type: 'fixed', priority: 'high' } }],
+    '特殊状態-点穴付与': [{ category: '特殊状態', subCategory: '点穴付与', reason: 'で点穴を溜め、防御力を無視した攻撃が可能です。', priorityRule: { type: 'fixed', priority: 'high' } }],
+    '特殊状態-点穴': [{ category: '特殊状態', subCategory: '点穴', reason: 'の固定ダメージで防御力を無視できます。', priorityRule: { type: 'fixed', priority: 'high' } }],
+    '特殊状態-点穴付与': [{ category: '特殊状態', subCategory: '点穴付与', reason: 'で点穴を溜め、防御力を無視した攻撃が可能です。', priorityRule: { type: 'fixed', priority: 'high' } }],
     '特殊状態-エレキ': [{ category: '特殊状態', subCategory: 'エレキ', reason: 'で敵の高防御力を無視して固定のダメージを与えられます。', priorityRule: { type: 'conditional', rules: [ { operator: '>=', value: 100, priority: 'high' }, { operator: '>=', value: 50, priority: 'medium' } ], defaultPriority: 'low' } }],
     '耐性-火に弱い': [{ category: '攻撃手段', subCategory: '火ダメージ', reason: 'の火ダメージで弱点を突けます。', priorityRule: { type: 'fixed', priority: 'high' } }],
     '耐性-雷に弱い': [{ category: '攻撃手段', subCategory: '雷ダメージ', reason: 'の雷ダメージで弱点を突けます。', priorityRule: { type: 'fixed', priority: 'high' } }],
@@ -122,6 +126,7 @@ const addOrUpdateRecommendation = (list, newItem) => {
 };
 
 const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoMaster, ownedOrbs = new Set(), allOrbsMaster = [], megidoConditions = {} }) => {
+    console.log('[DEBUG] findRecommendedMegido started. enemy.tags:', JSON.stringify(enemy.tags, null, 2));
     if (!enemy || !enemy.tags) return { success: false, reason: 'NO_ENEMY_DATA' };
 
     const activeOwnedMegido = new Set(Array.from(ownedMegido).filter(id => megidoConditions[id] !== '気絶'));
@@ -220,7 +225,15 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
             const elekiReleaser = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === 'エレキ'));
             if (elekiReleaser) {
                 const requiredLevel = Math.ceil(finalHP / 1400);
-                const reason = `<strong>【エレキ戦術】</strong> 防御を無視するエレキダメージが有効です。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>目標エレキレベル:</strong> <strong>${requiredLevel}</strong> （敵HP ${finalHP} ÷ 1400）</p><p style="margin: 0;"><strong>役割:</strong> エレキの付与と解除</p><p style="margin: 0.5rem 0 0; font-size: 0.8em; opacity: 0.8;">補足: 雷ダメージを持つメギドと連携してレベルを上昇させてください。</p></div>`;
+                const reason = {
+                    title: 'エレキ戦術',
+                    description: '防御を無視するエレキダメージが有効です。',
+                    details: [
+                        { label: '目標エレキレベル', value: `<strong>${requiredLevel}</strong> （敵HP ${finalHP} ÷ 1400）` },
+                        { label: '役割', value: 'エレキの付与と解除' }
+                    ],
+                    notes: ['雷ダメージを持つメギドと連携してレベルを上昇させてください。']
+                };
                 addOrUpdateRecommendation(recommendations.attackers, { megido: elekiReleaser, reason, priority: PRIORITY.HIGH, role: 'attacker' });
             }
         }
@@ -236,11 +249,28 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                 const accumulator = ownedMegidoDetails.find(m => m.tags?.some(t => t.subCategory === '点穴付与'));
                 if (accumulator) {
                     const maxDamage = Math.floor(2 * (requiredStandardLevel * requiredStandardLevel));
-                    const reason = `<strong>【点穴戦術】</strong> 防御を無視する点穴ダメージが有効です。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>目標点穴レベル:</strong> <strong>${requiredStandardLevel}</strong> （敵HP ${finalHP} をワンパンするために必要）</p><p style="margin: 0;"><strong>最大ダメージ:</strong> 約${maxDamage.toLocaleString()}</p><p style="margin: 0;"><strong>役割:</strong> 点穴レベルの付与</p><p style="margin: 0.5rem 0 0; font-size: 0.8em; opacity: 0.8;">補足: レベルを溜めた後、単発・単体攻撃を持つメギドで攻撃してください。</p></div>`;
+                    const reason = {
+                        title: '点穴戦術',
+                        description: '防御を無視する点穴ダメージが有効です。',
+                        details: [
+                            { label: '目標点穴レベル', value: `<strong>${requiredStandardLevel}</strong> （敵HP ${finalHP} をワンパンするために必要）` },
+                            { label: '最大ダメージ', value: `約${maxDamage.toLocaleString()}` },
+                            { label: '役割', value: '点穴レベルの付与' }
+                        ],
+                        notes: ['レベルを溜めた後、単発・単体攻撃を持つメギドで攻撃してください。']
+                    };
                     addOrUpdateRecommendation(recommendations.attackers, { megido: accumulator, reason, priority: PRIORITY.HIGH, role: 'attacker' });
                 }
             } else if (isBelialViable) {
-                const reason = `<strong>【点穴戦術 - 固定砲台】</strong> 敵HPが高いため、ベリアルの固定砲台による連続攻撃が有効です。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>最大総ダメージ:</strong> 約${belialMaxDamage.toLocaleString()}（Lv120から連射時）</p><p style="margin: 0;"><strong>役割:</strong> 点穴の蓄積と、固定砲台による連続攻撃</p><p style="margin: 0.5rem 0 0; font-size: 0.8em; opacity: 0.8;">補足: 点穴レベルを最大まで溜めてから「固定砲台」を使用してください。</p></div>`;
+                const reason = {
+                    title: '点穴戦術 - 固定砲台',
+                    description: '敵HPが高いため、ベリアルの固定砲台による連続攻撃が有効です。',
+                    details: [
+                        { label: '最大総ダメージ', value: `約${belialMaxDamage.toLocaleString()}（Lv120から連射時）` },
+                        { label: '役割', value: '点穴の蓄積と、固定砲台による連続攻撃' }
+                    ],
+                    notes: ['点穴レベルを最大まで溜めてから「固定砲台」を使用してください。']
+                };
                 addOrUpdateRecommendation(recommendations.attackers, { megido: belial, reason, priority: PRIORITY.HIGH, role: 'attacker' });
             }
         }
@@ -288,9 +318,15 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
             });
 
             if (multipliersText) {
-                reason = `<strong>【Hボム錬戦術】</strong> ${introText}敵HP <strong>${finalHP.toLocaleString()}</strong> を突破するために必要な錬ボムの倍率目安です。<div style="margin-top: 0.5rem;"><p style="margin: 0;"><strong>役割:</strong> Hボムの錬成と付与</p><p style="margin: 0.5rem 0 0;"><strong>必要倍率の目安</strong> (敵防御 ${finalDef}):</p><ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9em;">` +
-                         multipliersText +
-                         `</ul></div>`;
+                const reason = {
+                    title: 'Hボム錬戦術',
+                    description: `${introText}敵HP <strong>${finalHP.toLocaleString()}</strong> を突破するために必要な錬ボムの倍率目安です。`,
+                    details: [
+                        { label: '役割', value: 'Hボムの錬成と付与' },
+                        { label: '必要倍率の目安', value: `<ul style="margin: 0; padding-left: 1.5rem; font-size: 0.9em;">${multipliersText}</ul>` }
+                    ],
+                    notes: []
+                };
                 addOrUpdateRecommendation(recommendations.attackers, { megido: hBombForger, reason, priority, role: 'attacker' });
                 return;
             }
@@ -325,7 +361,23 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
             }
 
             if (reason) {
-                addOrUpdateRecommendation(recommendations.attackers, { megido: hBombHeavyApplier, reason, priority, role: 'attacker' });
+                const reasonObject = {
+                    title: 'ハイドロボム戦術',
+                    description: priority === PRIORITY.MEDIUM 
+                        ? '敵が複数体いるため、Hボム重の同時爆破が有効です。'
+                        : 'Hボムによるダメージが有効です。敵が単体のため最大3つまで付与できます。',
+                    details: [
+                        { label: '役割', value: 'Hボム重の付与' },
+                        {
+                            label: '予想ダメージ(目安)',
+                            value: priority === PRIORITY.MEDIUM
+                                ? `・Hボム重(6倍)x2 同時爆破: 約 <strong>${(damage2Blasts * 2).toLocaleString()}</strong><br>・Hボム重(6倍)x5 同時爆破: 約 <strong>${(damage5Blasts * 5).toLocaleString()}</strong>`
+                                : `・Hボム重(6倍)x2 同時爆破: 約 <strong>${(damage2Blasts * 2).toLocaleString()}</strong><br>・Hボム重(6倍)x3 同時爆破: 約 <strong>${(damage3Blasts * 3).toLocaleString()}</strong>`
+                        }
+                    ],
+                    notes: []
+                };
+                addOrUpdateRecommendation(recommendations.attackers, { megido: hBombHeavyApplier, reason: reasonObject, priority, role: 'attacker' });
             }
         }
     };
@@ -340,11 +392,14 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
             if (!effectiveCounters) continue;
             for (const counter of effectiveCounters) {
                 for (const megido of ownedMegidoDetails) {
-                    const foundTag = megido.tags?.find(t => t.category === counter.category && t.subCategory === counter.subCategory);
+                    const foundTag = megido.tags?.find(t => {
+                        if (!t || !t.category || !t.subCategory) return false;
+                        return t.category.trim() === counter.category.trim() && t.subCategory.trim() === counter.subCategory.trim();
+                    });
                     if (foundTag) {
                         const priority = evaluatePriority(counter.priorityRule, foundTag.condition);
+                        const reason = { method: foundTag.method, description: counter.reason };
                         if (tag.type === 'weakness') {
-                            const reason = `【${foundTag.method}】${counter.reason}`;
                             addOrUpdateRecommendation(recommendations.attackers, { megido, reason, priority, role: tag.type });
                         } else {
                             const jammerKey = megido.id;
@@ -358,25 +413,24 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                     }
                 }
                 for (const orb of ownedOrbDetails) {
-                    const foundTag = orb.tags?.find(t => t.category === counter.category && t.subCategory === counter.subCategory);
+                    const foundTag = orb.tags?.find(t => t.category.trim() === counter.category.trim() && t.subCategory.trim() === counter.subCategory.trim());
                     if (foundTag) {
                         const equippableMegido = ownedMegidoDetails.filter(m => m.style === orb.conditions);
                         for (const megido of equippableMegido) {
                             let priority = evaluatePriority(counter.priorityRule, foundTag.condition);
+                            let description = counter.reason;
+                            if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
+                                priority = PRIORITY.LOW;
+                                description += ' (※入手難易度が高いオーブです)';
+                            }
+                            const reason = { method: `${orb.name}の${foundTag.method}`, description };
                             if (tag.type === 'weakness') {
-                                let reason = `【${orb.name}の${foundTag.method}】${counter.reason}`;
-                                if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
-                                    priority = PRIORITY.LOW;
-                                    reason += ' (※入手難易度が高いオーブです)';
-                                }
                                 addOrUpdateRecommendation(recommendations.attackers, { megido, orb, reason, priority, role: tag.type });
                             } else {
                                 const jammerKey = `${megido.id}-${orb.id}`;
                                 let entry = jammersMap.get(jammerKey);
                                 if (!entry) entry = { megido, orb, key: jammerKey, methods: new Set(), counteredGimmicks: new Map(), highestPriority: PRIORITY.LOW };
-                                let methodText = `${orb.name}の${foundTag.method}`;
-                                if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) priority = PRIORITY.LOW;
-                                entry.methods.add(methodText);
+                                entry.methods.add(`${orb.name}の${foundTag.method}`);
                                 entry.counteredGimmicks.set(tag.subCategory, counter.reason);
                                 if (PRIORITY_ORDER[priority] < PRIORITY_ORDER[entry.highestPriority]) entry.highestPriority = priority;
                                 jammersMap.set(jammerKey, entry);
@@ -389,24 +443,28 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
         const finalJammers = Array.from(jammersMap.values());
         finalJammers.forEach(jammer => {
             const methodStr = Array.from(jammer.methods).join('、');
-            let reason = '';
+            let reason;
             if (jammer.counteredGimmicks.size > 1) {
                 const sortedGimmickNames = Array.from(jammer.counteredGimmicks.keys()).sort((a, b) => (STATUS_AILMENT_DISPLAY_ORDER[a] || 99) - (STATUS_AILMENT_DISPLAY_ORDER[b] || 99));
                 const gimmickStr = '「' + sortedGimmickNames.join('」「') + '」';
-                reason = `【${methodStr}】で${gimmickStr}をまとめて対策できます。`;
+                reason = { method: methodStr, description: `で${gimmickStr}をまとめて対策できます。` };
             } else if (jammer.counteredGimmicks.size === 1) {
                 const originalReason = Array.from(jammer.counteredGimmicks.values())[0];
-                reason = `【${methodStr}】${originalReason}`;
+                reason = { method: methodStr, description: originalReason };
             }
-            if (jammer.orb && jammer.orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) reason += ' (※入手難易度が高いオーブです)';
+            if (reason && jammer.orb && jammer.orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
+                reason.description += ' (※入手難易度が高いオーブです)';
+            }
             
-            addOrUpdateRecommendation(recommendations.jammers, { 
-                megido: jammer.megido, 
-                orb: jammer.orb, 
-                reason, 
-                priority: jammer.highestPriority, 
-                role: 'jammer' 
-            });
+            if (reason) {
+                addOrUpdateRecommendation(recommendations.jammers, { 
+                    megido: jammer.megido, 
+                    orb: jammer.orb, 
+                    reason, 
+                    priority: jammer.highestPriority, 
+                    role: 'jammer' 
+                });
+            }
         });
 
         // **絶好調シナジー：状態異常耐性**
@@ -420,7 +478,10 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                         if (resistanceTag && !immunityTag) {
                             const baseResistance = parseInt(resistanceTag.condition, 10) || 0;
                             if (baseResistance > 0 && baseResistance < 100 && (baseResistance + 50) >= 100) {
-                                const reason = `【絶好調シナジー】特性の<strong>${ailment}耐性(${baseResistance}%)</strong>とコンディション効果(耐性+50%)が合わさり、<strong>「${ailment}」を完全に無効化できます。</strong>`;
+                                const reason = {
+                                    title: '絶好調シナジー',
+                                    description: `特性の<strong>${ailment}耐性(${baseResistance}%)</strong>とコンディション効果(耐性+50%)が合わさり、<strong>「${ailment}」を完全に無効化できます。</strong>`
+                                };
                                 addOrUpdateRecommendation(recommendations.jammers, { megido, reason, priority: PRIORITY.HIGH, role: 'jammer' });
                             }
                         }
@@ -439,31 +500,29 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
             if (!supportCounters) continue;
 
             for (const counter of supportCounters) {
-                // 「かばう無効」ギミックがある場合、「かばう」は推奨しない
                 if (counter.subCategory === 'かばう' && gimmicks.some(g => g.subCategory === 'かばう無効')) {
                     continue;
                 }
 
-                // Find matching Megido
                 for (const megido of ownedMegidoDetails) {
-                    const foundTag = megido.tags?.find(t => t.category === counter.category && t.subCategory === counter.subCategory);
+                    const foundTag = megido.tags?.find(t => t.category.trim() === counter.category.trim() && t.subCategory.trim() === counter.subCategory.trim());
                     if (foundTag) {
-                        const reason = `【${foundTag.method}】${counter.reason}`;
+                        const reason = { method: foundTag.method, description: counter.reason };
                         addOrUpdateRecommendation(recommendations.supporters, { megido, reason, priority: counter.priority, role: 'supporter' });
                     }
                 }
-                // Find matching Orbs
                 for (const orb of ownedOrbDetails) {
-                    const foundTag = orb.tags?.find(t => t.category === counter.category && t.subCategory === counter.subCategory);
+                    const foundTag = orb.tags?.find(t => t.category.trim() === counter.category.trim() && t.subCategory.trim() === counter.subCategory.trim());
                     if (foundTag) {
                         const equippableMegido = ownedMegidoDetails.filter(m => m.style === orb.conditions);
                         for (const megido of equippableMegido) {
-                            let reason = `【${orb.name}の${foundTag.method}】${counter.reason}`;
+                            let description = counter.reason;
                             let priority = counter.priority;
                             if (orb.tags?.some(t => t.subCategory === 'オーブキャスト不可')) {
                                 priority = PRIORITY.LOW;
-                                reason += ' (※入手難易度が高いオーブです)';
+                                description += ' (※入手難易度が高いオーブです)';
                             }
+                            const reason = { method: `${orb.name}の${foundTag.method}`, description };
                             addOrUpdateRecommendation(recommendations.supporters, { megido, orb, reason, priority, role: 'supporter' });
                         }
                     }
@@ -476,7 +535,10 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
             if (megidoConditions[megido.id] === '絶好調') {
                 const damageBlockTag = megido.tags?.find(t => t.subCategory === 'ダメージブロック');
                 if (damageBlockTag) {
-                    const reason = `【絶好調シナジー】HP+15%の恩恵により、特性<strong>（${damageBlockTag.condition || '最大HP割合'}以下のダメージを無効化）</strong>がさらに活かされ、敵の攻撃を無効化しやすくなります。`;
+                    const reason = {
+                        title: '絶好調シナジー',
+                        description: `HP+15%の恩恵により、特性<strong>（${damageBlockTag.condition || '最大HP割合'}以下のダメージを無効化）</strong>がさらに活かされ、敵の攻撃を無効化しやすくなります。`
+                    };
                     addOrUpdateRecommendation(recommendations.supporters, { megido, reason, priority: PRIORITY.MEDIUM, role: 'supporter' });
                 }
             }
@@ -501,6 +563,7 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
     };
 
     const totalRecommendations = finalRecommendations.attackers.length + finalRecommendations.jammers.length + finalRecommendations.supporters.length;
+    console.log('[DEBUG] Final recommendations:', JSON.stringify(finalRecommendations, null, 2));
     if (totalRecommendations === 0) return { success: false, reason: 'NO_RECOMMENDED_MEGIDO_FOUND' };
 
     return { success: true, recommendations: finalRecommendations };
