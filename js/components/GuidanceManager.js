@@ -14,6 +14,7 @@ const GuidanceManager = ({ isGuideMode, guideStep, setGuideStep, onSuggestTarget
         formations,
         runState,
         editingFormation,
+        isMobileView, // Get isMobileView from context
     } = React.useContext(window.AppContext);
 
     const [spotlight, setSpotlight] = React.useState({ selector: null, text: null });
@@ -34,12 +35,19 @@ const GuidanceManager = ({ isGuideMode, guideStep, setGuideStep, onSuggestTarget
 
         const stepConfig = TUTORIAL_GUIDANCE[guideStep];
         if (stepConfig) {
-            setSpotlight(stepConfig.highlight);
+            setTimeout(() => {
+                let finalHighlight = { ...stepConfig.highlight };
+                // Adapt selector for mobile/desktop if needed
+                if (guideStep === 'INITIAL_NO_MEGIDO') {
+                    finalHighlight.selector = isMobileView ? '#mobile-ownership-tab-button' : '#tab-button-ownership';
+                }
+                setSpotlight(finalHighlight);
+            }, 100); // 100ms delay
         } else {
             setSpotlight({ selector: null, text: null });
         }
 
-    }, [isGuideMode, guideStep, isDismissed, prevGuideStep]);
+    }, [isGuideMode, guideStep, isDismissed, prevGuideStep, isMobileView]);
 
     // Effect to ADVANCE the guide step based on user actions
     React.useEffect(() => {

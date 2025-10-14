@@ -1,11 +1,15 @@
-const ChoiceModal = ({ isOpen, onClose, onConfirm, title, message, options }) => {
+const ChoiceModal = ({ isOpen, onClose, onConfirm, title, message, options, closeOnConfirm = true }) => {
     if (!isOpen) {
         return null;
     }
 
     const handleConfirm = (option) => {
-        onConfirm(option);
-        onClose();
+        if (onConfirm) {
+            onConfirm(option);
+        }
+        if (closeOnConfirm) {
+            onClose();
+        }
     };
 
     const backdropStyle = {

@@ -354,24 +354,40 @@ const TowerTool = () => {
     };
 
     const askForInitialBossPlans = () => {
+        let plannedBosses = new Set();
+
+        const getOptions = () => [
+            { label: '1階のボス', value: '1', className: 'btn-primary', disabled: plannedBosses.has('1') },
+            { label: '5階のボス', value: '5', className: 'btn-primary', disabled: plannedBosses.has('5') },
+            { label: '完了', value: 'done', className: 'btn-secondary' },
+        ];
+
+        const handleConfirm = (value) => {
+            if (value === 'done') {
+                setChoiceModalState({ isOpen: false });
+                return;
+            }
+
+            if (value === '1') {
+                plannedBosses.add('1');
+                openPlannerForSquare(1, 'b1');
+            } else if (value === '5') {
+                plannedBosses.add('5');
+                openBossPlannerForFloor(5);
+            }
+
+            // Re-render the modal with the updated disabled state
+            setChoiceModalState(prev => ({ ...prev, options: getOptions() }));
+        };
+
         setChoiceModalState({
             isOpen: true,
             title: 'ボス攻略計画',
-            message: '最初のボス戦に備え、事前に計画を立てましょう。どちらの敵から計画しますか？',
-            options: [
-                { label: '1階のボス', value: '1', className: 'btn-primary' },
-                { label: '5階のボス', value: '5', className: 'btn-primary' },
-                { label: '今はやめておく', value: 'no', className: 'btn-secondary' },
-            ],
-            onConfirm: (value) => {
-                setChoiceModalState({ isOpen: false });
-                if (value === '1') {
-                    // Assuming the first battle square on floor 1 is 'b1'
-                    openPlannerForSquare(1, 'b1'); 
-                } else if (value === '5') {
-                    openBossPlannerForFloor(5);
-                }
-            }
+            message: '最初のボス戦に備え、事前に計画を立てましょう。',
+            options: getOptions(),
+            onConfirm: handleConfirm,
+            closeOnConfirm: false, // Keep modal open
+            onClose: () => setChoiceModalState({ isOpen: false }) // Ensure clicking overlay closes it
         });
     };
 
@@ -2163,10 +2179,10 @@ const TowerTool = () => {
                 title="アップデートのお知らせ"
             >
                 <p>いつもご利用いただきありがとうございます。</p>
-                <p>今回のアップデートでは、UIの統一と改善を行いました。</p>
+                <p>今回のアップデートでは、ガイドモードの機能を追加しました。</p>
                 <ul style={{listStyle: 'inside', paddingLeft: '1rem'}}>
-                    <li>画面右側のパネルのデザインを統一しました。</li>
-                    <li>全体の配色やコンポーネントの見た目を調整し、一貫性のあるデザインになりました。</li>
+                    <li>一部の単語についてガイド用のメッセージが表示されるようになりました</li>
+                    <li>ボスエネミーについて、攻略情報を表示できるようにしました</li>
                     <li>その他、軽微な不具合の修正を行いました。</li>
                 </ul>
                 <p>今後とも、星間の塔 攻略支援ツールをよろしくお願いいたします。</p>

@@ -299,7 +299,7 @@ const MobileHeader = () => {
                         <button onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
                             <span>マップ</span>
                         </button>
-                                                <button id="mobile-ownership-tab-button" onClick={() => handleTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
+                        <button id="mobile-ownership-tab-button" onClick={() => handleTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
                             <span>所持メギド</span>
                         </button>
                         <button id="mobile-formation-tab-button" onClick={() => handleTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
