@@ -1,4 +1,4 @@
-const InfoModal = ({ isOpen, onClose, title, children }) => {
+const InfoModal = ({ isOpen, onClose, title, children, onConfirm }) => {
     if (!isOpen) return null;
 
     const overlayStyle = {
@@ -54,8 +54,13 @@ const InfoModal = ({ isOpen, onClose, title, children }) => {
                 <div style={bodyStyle}>
                     {children}
                 </div>
-                <div style={footerStyle}>
-                </div>
+                {(onConfirm || onClose) && (
+                    <div style={footerStyle}>
+                        <button onClick={onConfirm || onClose} className="btn btn-primary">
+                            OK
+                        </button>
+                    </div>
+                )}
             </div>
         </div>
     );

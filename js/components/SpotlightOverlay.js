@@ -1,4 +1,4 @@
-const SpotlightOverlay = ({ selector, text, onClose }) => {
+const SpotlightOverlay = ({ selector, text, onClose, onClick }) => {
     const { useState, useEffect, useRef } = React;
     const [targetRect, setTargetRect] = useState(null);
     const overlayRef = useRef(null);
@@ -68,7 +68,7 @@ const SpotlightOverlay = ({ selector, text, onClose }) => {
         <div 
             ref={overlayRef} 
             style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', zIndex: 10002 }}
-            onClick={onClose}
+            onClick={onClick || onClose}
         >
             <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0 }}>
                 <path d={pathData} fill="rgba(0, 0, 0, 0.7)" fillRule="evenodd" />

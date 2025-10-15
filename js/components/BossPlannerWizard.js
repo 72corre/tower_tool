@@ -1,7 +1,26 @@
-const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, recommendations, floorNum }) => {
+const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
     const e = React.createElement;
     const { useState, useEffect, useContext, useMemo } = React;
-    const { ownedMegidoIds, megidoDetails, showToastMessage, handleCreateFormationFromSelection, glossaryData } = useContext(AppContext);
+    const { ownedMegidoIds, megidoDetails, showToastMessage, handleCreateFormationFromSelection, glossaryData, megidoConditions } = useContext(window.AppContext);
+
+    const recommendations = useMemo(() => {
+        if (!boss || typeof COMPLETE_MEGIDO_LIST === 'undefined' || typeof COMPLETE_ORB_LIST === 'undefined') {
+            return { attackers: [], jammers: [], supporters: [] };
+        }
+        const result = findRecommendedMegido({
+            enemy: boss,
+            floorRules: [],
+            ownedMegido: ownedMegidoIds,
+            allMegidoMaster: COMPLETE_MEGIDO_LIST,
+            ownedOrbs: new Set(),
+            allOrbsMaster: COMPLETE_ORB_LIST,
+            megidoConditions: megidoConditions || {},
+        });
+        if (result.success) {
+            return result.recommendations;
+        }
+        return { attackers: [], jammers: [], supporters: [] };
+    }, [boss, ownedMegidoIds, megidoConditions]);
 
     const [activeTab, setActiveTab] = useState('guide');
     const [currentFormation, setCurrentFormation] = useState(null);
@@ -43,7 +62,8 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, recommendations, 
             showToastMessage('メギドを1体以上選択してください。');
             return;
         }
-        handleCreateFormationFromSelection(Array.from(selectedMegido), initialTagTarget);
+        const tagTarget = { enemyName: boss.name, floors: [floorNum] };
+        handleCreateFormationFromSelection(Array.from(selectedMegido), tagTarget);
         onClose();
     };
 
@@ -156,12 +176,12 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, recommendations, 
         e('div', { style: contentStyle, onClick: (e) => e.stopPropagation() },
             e('div', { style: headerStyle },
                 e('h2', { style: { margin: 0 } }, boss ? `${boss.name} 攻略計画` : 'ボス攻略計画'),
-                e('button', { onClick: onClose, className: 'btn btn-ghost p-1' }, '×')
+                e('button', { onClick: onClose, className: 'btn btn-ghost p-1 boss-planner-close-button' }, '×')
             ),
             e('div', { className: 'tabs', style: { marginBottom: '20px', borderBottom: '1px solid var(--border-color-light)' } },
                 e('button', { 
                     onClick: () => setActiveTab('guide'), 
-                    className: `tab-button ${activeTab === 'guide' ? 'active' : ''}`,
+                    className: `tab-button boss-planner-guide-tab ${activeTab === 'guide' ? 'active' : ''}`,
                     style: { 
                         padding: '10px 15px', 
                         border: 'none', 
@@ -173,7 +193,7 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, recommendations, 
                 }, '攻略ガイド'),
                 e('button', { 
                     onClick: () => setActiveTab('formation'), 
-                    className: `tab-button ${activeTab === 'formation' ? 'active' : ''}`,
+                    className: `tab-button boss-planner-formation-tab ${activeTab === 'formation' ? 'active' : ''}`,
                     style: { 
                         padding: '10px 15px', 
                         border: 'none', 

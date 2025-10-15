@@ -56,7 +56,7 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
 };
 
 const DesktopHeader = () => {
-    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, runState, handleScrollToFloor } = useAppContext();
+    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, runState, handleScrollToFloor, guideStep, setGuideStep } = useAppContext();
     const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
@@ -100,10 +100,23 @@ const DesktopHeader = () => {
         );
     };
 
+    const handleRedisplayGuide = () => {
+        const currentStep = guideStep;
+        setGuideStep(null); // 一時的にステップをnullにしてから
+        setTimeout(() => {
+            setGuideStep(currentStep); // すぐに元に戻すことで、UIの再表示をトリガーする
+        }, 10);
+    };
+
     return (
         <header className="main-header">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    {isGuideMode && (
+                        <button className="btn btn-primary" onClick={handleRedisplayGuide}>
+                            ガイド再表示
+                        </button>
+                    )}
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
                         <img src="asset/settings.webp" alt="設定" style={{width: '28px', height: '28px'}} />
                     </button>
@@ -296,7 +309,7 @@ const MobileHeader = () => {
             <div className="mobile-header-tabs">
                  {mode !== 'log' ? (
                     <>
-                        <button onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
+                        <button id="mobile-details-tab-button" onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
                             <span>マップ</span>
                         </button>
                         <button id="mobile-ownership-tab-button" onClick={() => handleTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>

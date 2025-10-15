@@ -171,6 +171,8 @@ const TowerTool = () => {
     const [recoveryModalState, setRecoveryModalState] = useState({ isOpen: false });
     const [choiceModalState, setChoiceModalState] = useState({ isOpen: false });
     const [statusBuffModalState, setStatusBuffModalState] = useState({ isOpen: false });
+    const [infoModalState, setInfoModalState] = useState({ isOpen: false });
+    const [guideStep, setGuideStep] = useState(() => localStorage.getItem('guideStep') || null);
     const [toastMessage, setToastMessage] = useState('');
     const [showToast, setShowToast] = useState(false);
     const [achievementToast, setAchievementToast] = useState(null);
@@ -214,7 +216,6 @@ const TowerTool = () => {
     const floorRefs = useRef({});
     const prevFloorRef = useRef();
 
-    const [guideStep, setGuideStep] = useState(0); // ガイドのステップを管理
     const [completedGuideSteps, setCompletedGuideSteps] = useState(() => new Set(JSON.parse(localStorage.getItem('completedGuideSteps')) || []));
 
     const [megidoList, setMegidoList] = useState(null);
@@ -304,6 +305,7 @@ const TowerTool = () => {
             onConfirm: (value) => {
                 if (value === 'yes') {
                     setIsGuideMode(true);
+                    setGuideStep('WELCOME_MODAL'); // Explicitly start the guide
                     setMode('practice');
                     showToastMessage('ガイダンスモードを開始しました。');
                 }
@@ -312,83 +314,65 @@ const TowerTool = () => {
         });
     };
 
-    const openPlannerForSquare = (floorNum, squareId) => {
-        if (!bossGuides || typeof TOWER_MAP_DATA === 'undefined') {
-            showToastMessage('ボスデータがまだ読み込めていません。');
-            return;
-        }
-
+    const openPlannerForSquare = (floorNum, squareId, onCloseCallback) => {
         const floorData = TOWER_MAP_DATA.find(f => f.floor === floorNum);
         if (!floorData) return;
-
         const squareData = floorData.squares[squareId];
         if (!squareData || !squareData.enemies || squareData.enemies.length === 0) {
             showToastMessage('指定されたマスの敵情報が見つかりません。');
             return;
         }
 
-        const enemyData = squareData.enemies[0];
-        const enemyObject = normalizeEnemy(enemyData);
-        if (!enemyObject) return;
-        
-        const guide = bossGuides[enemyObject.name];
-        enemyObject.guide = guide || { short: "攻略情報はありません。", long: "このボスに関する詳しい攻略情報はまだ登録されていません。" };
+        const enemyObject = normalizeEnemy(squareData.enemies[0]);
+        if (bossGuides && bossGuides[enemyObject.name]) {
+            enemyObject.guide = bossGuides[enemyObject.name];
+        }
 
-        setBossPlannerState({ 
-            isOpen: true, 
+        setBossPlannerState({
+            isOpen: true,
             boss: enemyObject,
-            recommendations: recommendations, // 再計算せず、useMemoの値をそのまま使う
-            floorNum: floorNum
+            floorNum: floorNum,
+            onCloseCallback: onCloseCallback
         });
     };
 
-    const openBossPlannerForFloor = (bossFloor) => {
+    const openBossPlannerForFloor = (bossFloor, onCloseCallback) => {
         const floorData = TOWER_MAP_DATA.find(f => f.floor === bossFloor);
         if (!floorData) return;
         const bossSquareId = Object.keys(floorData.squares).find(id => floorData.squares[id].type === 'boss');
         if (bossSquareId) {
-            openPlannerForSquare(bossFloor, bossSquareId);
+            openPlannerForSquare(bossFloor, bossSquareId, onCloseCallback);
         } else {
             showToastMessage(`${bossFloor}階にボスが見つかりません。`);
         }
     };
 
     const askForInitialBossPlans = () => {
-        let plannedBosses = new Set();
-
-        const getOptions = () => [
-            { label: '1階のボス', value: '1', className: 'btn-primary', disabled: plannedBosses.has('1') },
-            { label: '5階のボス', value: '5', className: 'btn-primary', disabled: plannedBosses.has('5') },
-            { label: '完了', value: 'done', className: 'btn-secondary' },
-        ];
-
-        const handleConfirm = (value) => {
-            if (value === 'done') {
-                setChoiceModalState({ isOpen: false });
-                return;
-            }
-
-            if (value === '1') {
-                plannedBosses.add('1');
-                openPlannerForSquare(1, 'b1');
-            } else if (value === '5') {
-                plannedBosses.add('5');
-                openBossPlannerForFloor(5);
-            }
-
-            // Re-render the modal with the updated disabled state
-            setChoiceModalState(prev => ({ ...prev, options: getOptions() }));
+        const showModal = (planned = new Set()) => {
+            setChoiceModalState({
+                isOpen: true,
+                title: 'ボス攻略計画',
+                message: '最初のボス戦に備え、事前に計画を立てましょう。',
+                options: [
+                    { label: '1階のボス', value: '1', disabled: planned.has('1') },
+                    { label: '5階のボス', value: '5', disabled: planned.has('5') },
+                    { label: '完了', value: 'done' },
+                ],
+                onConfirm: (value) => {
+                    if (value === 'done') {
+                        setChoiceModalState({ isOpen: false });
+                        setGuideStep('POST_PLANNING_NEXT_STEP');
+                    } else {
+                        setChoiceModalState({ isOpen: false });
+                        const floor = parseInt(value, 10);
+                        const reOpen = () => showModal(planned.add(value));
+                        openBossPlannerForFloor(floor, reOpen);
+                    }
+                },
+                onClose: () => setChoiceModalState({ isOpen: false })
+            });
         };
-
-        setChoiceModalState({
-            isOpen: true,
-            title: 'ボス攻略計画',
-            message: '最初のボス戦に備え、事前に計画を立てましょう。',
-            options: getOptions(),
-            onConfirm: handleConfirm,
-            closeOnConfirm: false, // Keep modal open
-            onClose: () => setChoiceModalState({ isOpen: false }) // Ensure clicking overlay closes it
-        });
+        showModal();
     };
 
     const onSuggestTargetFloor = (suggestedFloor) => {
@@ -403,20 +387,9 @@ const TowerTool = () => {
             onConfirm: (value) => {
                 setChoiceModalState({ isOpen: false });
                 if (value === 'yes') {
-                    // Call the handler which contains the necessary guide mode exit logic
                     handleTargetFloorChange(suggestedFloor);
-
-                    // Show toast confirmation regardless
                     showToastMessage(`目標を ${suggestedFloor} 階に設定しました。`);
-
-                    // Only prompt for the initial boss plan if we are remaining in guide mode
-                    if (suggestedFloor < 21) {
-                        // Use a timeout to ensure the first modal has time to close
-                        // before the next one is opened, preventing state update conflicts.
-                        setTimeout(() => {
-                            askForInitialBossPlans();
-                        }, 100);
-                    }
+                    // The guide will continue from here, handled by GuidanceManager
                 }
             }
         });
@@ -585,7 +558,6 @@ const TowerTool = () => {
         setRecoveryModalState,
         setChoiceModalState,
         setStatusBuffModalState,
-        updateGuidance,
         floorClearCounts,
         setFloorClearCounts,
         winStreak,
@@ -681,9 +653,11 @@ const TowerTool = () => {
         }
 
         setEditingFormation(newFormation);
-        setActiveTab('formation');
+        if (!isGuideMode) { // ガイドモード中はタブを切り替えない
+            setActiveTab('formation');
+        }
         showToastMessage('選択したメギドで編成ドラフトを作成しました。');
-    }, [setEditingFormation, setActiveTab, showToastMessage]);
+    }, [setEditingFormation, setActiveTab, showToastMessage, isGuideMode]);
 
     const { 
         communityFormationsState,
@@ -1238,62 +1212,7 @@ const TowerTool = () => {
         setEventQueue(queue => queue.slice(1));
     };
 
-    const updateGuidance = useCallback(() => {
-        if (typeof TOWER_MAP_DATA === 'undefined' || !runState.currentPosition) return;
 
-        const profile = calculateMetrics(getProfile());
-        const accessibleSquares = {};
-        
-        const currentFloorData = TOWER_MAP_DATA.find(f => f.floor === runState.currentPosition.floor);
-        if (!currentFloorData) return;
-
-        const clearedOnThisFloor = runState.cleared[currentFloorData.floor] || [];
-
-        Object.keys(currentFloorData.squares).forEach(squareId => {
-            if (!clearedOnThisFloor.includes(squareId)) {
-                accessibleSquares[squareId] = { ...currentFloorData.squares[squareId], id: squareId };
-            }
-        });
-
-        const candidates = {};
-        let bestSquareId = null;
-        let secondBestDesirability = -Infinity;
-        let maxDesirability = -Infinity;
-
-        for (const squareId in accessibleSquares) {
-            const square = accessibleSquares[squareId];
-            const desirability = calculateDesirability(square, profile, runState, megidoConditions, targetEnemies);
-            candidates[squareId] = desirability;
-            if (desirability > maxDesirability) {
-                secondBestDesirability = maxDesirability;
-                maxDesirability = desirability;
-                bestSquareId = squareId;
-            } else if (desirability > secondBestDesirability) {
-                secondBestDesirability = desirability;
-            }
-        }
-
-        if (bestSquareId && accessibleSquares[bestSquareId]?.sub_type === 'recovery') {
-            setIsRecoveryRecommended(true);
-        } else {
-            setIsRecoveryRecommended(false);
-        }
-
-        const desirabilityGap = maxDesirability - secondBestDesirability;
-        if (isFinite(desirabilityGap) && secondBestDesirability !== -Infinity && (maxDesirability / secondBestDesirability) > 1.5) {
-            setIsRouteObvious(true);
-        } else {
-            setIsRouteObvious(false);
-        }
-
-        setGuidance({ recommended: bestSquareId, candidates });
-    }, [runState, megidoConditions, targetEnemies]);
-
-    useEffect(() => {
-        if (!isLoading) {
-            updateGuidance();
-        }
-    }, [runState, isLoading, megidoConditions, targetEnemies]);
 
     useEffect(() => {
         if (!isGuideMode || !runState.currentPosition || typeof TOWER_MAP_DATA === 'undefined' || !targetFloor) return;
@@ -1459,11 +1378,6 @@ const TowerTool = () => {
             const isOnCurrentFloor = runState.currentPosition?.floor === floorData.floor;
             if (isOnCurrentFloor) {
                 classes += ' node-accessible';
-                if (guidance.recommended === squareId) {
-                    classes += ' node-recommended';
-                } else if (guidance.candidates.hasOwnProperty(squareId)) {
-                    classes += ' node-candidate';
-                }
             } else {
                 classes += ' node-inaccessible';
             }
@@ -1656,7 +1570,6 @@ const TowerTool = () => {
 
         localStorage.setItem('targetEnemies', JSON.stringify(newTargetEnemies));
         showToastMessage('ターゲットを変更しました。');
-        setTimeout(updateGuidance, 100);
     };
 
     const onSaveMemo = (square, memo) => {
@@ -1977,6 +1890,10 @@ const TowerTool = () => {
     );
 
     const contextValue = {
+        infoModalState, setInfoModalState,
+        guideStep, setGuideStep,
+        isGuideMode,
+        bossPlannerState, openPlannerForSquare, openBossPlannerForFloor,
         currentUser, handleSignIn, handleSignOut,
         showSettings, setShowSettings, handleOpenSettings, handleCloseSettings,
         unlockedAchievements, setUnlockedAchievements, winStreak, setWinStreak, floorClearCounts, setFloorClearCounts, themeToggleCount, setThemeToggleCount, dataManagementCount, setDataManagementCount,
@@ -2040,7 +1957,7 @@ const TowerTool = () => {
                 isGuideMode={isGuideMode}
                 guideStep={guideStep}
                 setGuideStep={setGuideStep}
-                onSuggestTargetFloor={onSuggestTargetFloor}
+                ownedMegidoIds={ownedMegidoIds}
             />
                         {!isMobileView && (
                 <nav className="desktop-nav">
@@ -2061,6 +1978,14 @@ const TowerTool = () => {
                 </nav>
             )}
             <div className="main-content">
+                <InfoModal
+                    isOpen={infoModalState.isOpen}
+                    title={infoModalState.title}
+                    onConfirm={infoModalState.onConfirm}
+                >
+                    {infoModalState.children}
+                </InfoModal>
+
                 {isMobileView ? (
                     <div className="mobile-view-container">
                         <div style={{ display: mode === 'log' && (activeTab === 'summary' || activeTab === 'all_summary') ? 'block' : 'none', height: '100%', padding: '1rem' }}>
@@ -2196,7 +2121,13 @@ const TowerTool = () => {
             />
             <BossPlannerWizard
                 isOpen={bossPlannerState.isOpen}
-                onClose={() => setBossPlannerState({ isOpen: false, boss: null })}
+                onClose={() => {
+                    const callback = bossPlannerState.onCloseCallback;
+                    setBossPlannerState({ isOpen: false, boss: null, onCloseCallback: null });
+                    if (callback) {
+                        callback();
+                    }
+                }}
                 boss={bossPlannerState.boss}
                 guideText={bossPlannerState.boss && bossGuides ? (bossGuides[bossPlannerState.boss.name]?.text || 'このボスへの特別なガイド情報はありません。') : ''}
             />

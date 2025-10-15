@@ -414,6 +414,7 @@ const PracticeActionPanel = ({
             {squareData.type === 'boss' && (
                 <div style={{ margin: '12px 0' }}>
                     <button 
+                        id="open-boss-planner-button"
                         onClick={() => openPlannerForSquare(floorData.floor, squareId)}
                         className="btn btn-primary"
                         style={{ width: '100%' }}
@@ -446,7 +447,7 @@ const PracticeActionPanel = ({
                                     <button id={index === 0 ? "create-formation-button" : undefined} onClick={() => onCreateFormation(enemyName, floorData.floor)} className="btn btn-ghost p-1" title="新規編成">
                                         <img src="asset/create.webp" alt="新規編成" style={{width: '24px', height: '24px'}} />
                                     </button>
-                                    <button onClick={() => onOpenCommunityFormations(floorData.floor, enemyName)} className="btn btn-ghost p-1" title="みんなの編成">
+                                    <button id={index === 0 ? "community-formation-button" : undefined} onClick={() => onOpenCommunityFormations(floorData.floor, enemyName)} className="btn btn-ghost p-1" title="みんなの編成">
                                         <img src="asset/community.webp" alt="みんなの編成" style={{width: '24px', height: '24px'}} />
                                     </button>
                                 </div>

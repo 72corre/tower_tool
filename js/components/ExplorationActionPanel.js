@@ -465,7 +465,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
             </div>
             {!isResolvable && !isLocked && <p style={{color: 'var(--warning-color)', fontSize: '12px', marginTop: '12px'}}>このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
             <div style={{marginTop: '16px'}}>
-                <button onClick={() => onResolve('explore', { party: practiceParty.filter(m => m), totalPower: displayPower, requiredPower, expectationLevel, result }, square)} disabled={!practiceParty.some(m => m !== null) || !isResolvable} className="btn btn-primary" style={{width: '100%'}}>探索実行</button>
+                <button id="resolve-square-button" onClick={() => onResolve('explore', { party: practiceParty.filter(m => m), totalPower: displayPower, requiredPower, expectationLevel, result }, square)} disabled={!practiceParty.some(m => m !== null) || !isResolvable} className="btn btn-primary" style={{width: '100%'}}>探索実行</button>
             </div>
         </div>
     );

@@ -49,7 +49,7 @@ const ChoiceModal = ({ isOpen, onClose, onConfirm, title, message, options, clos
                 {message && <p style={{textAlign: 'center', marginBottom: '1rem'}}>{message}</p>}
                 <div style={optionsContainerStyle}>
                     {options && options.map(option => (
-                        <button key={option.value} onClick={() => handleConfirm(option.value)} className="btn btn-primary">
+                        <button key={option.value} onClick={() => handleConfirm(option.value)} disabled={option.disabled} className={`btn btn-primary ${option.disabled ? 'disabled' : ''}`}>
                             {option.label}
                         </button>
                     ))}
