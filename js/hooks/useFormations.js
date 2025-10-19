@@ -394,6 +394,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         const qrString = encodeFormationToQrString(rehydratedForm, megidoDetails, idMaps);
         if (!qrString) {
             showToastMessage('QRコードの生成に失敗');
+            console.error('[GenImg] QR string is empty. Aborting.');
             return;
         }
         new window.QRious({
@@ -403,12 +404,13 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
             padding: 0
         });
         
-        const imagePromises = [loadImage('asset/back.png')];
+        const imagePromises = [loadImage('asset/back.webp')];
         rehydratedForm.megido.forEach(m => imagePromises.push(m ? loadImage(`asset/メギド/${m.名前}.png`) : Promise.resolve(null)));
-        rehydratedForm.megido.forEach(m => imagePromises.push(m && m.orb ? loadImage(`asset/オーブ/${m.orb.name}.png`) : Promise.resolve(null)));
+        // オーブの画像アセットが見つからないため、オーブの読み込みと描画を無効化
+        // rehydratedForm.megido.forEach(m => imagePromises.push(m && m.orb ? loadImage(`asset/オーブ/${m.orb.name}.png`) : Promise.resolve(null)));
         const [bgImage, ...loadedImages] = await Promise.all(imagePromises);
         const megidoImages = loadedImages.slice(0, 5);
-        const orbImages = loadedImages.slice(5);
+        // const orbImages = loadedImages.slice(5);
 
         if (bgImage) ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         ctx.fillStyle = COLORS.BG_HEADER;
@@ -476,7 +478,10 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
             } else {
                 drawOutlinedText(ctx, megido.名前, cardX + cardW / 2, cardY + 80, { textAlign: 'center', maxWidth: cardW - 20 });
             }
-            let infoY = cardY + cardW;
+            let infoY = cardY + cardW - 20;
+            drawOutlinedText(ctx, megido.名前, cardX + cardW / 2, infoY, { font: 'bold 24px "Noto Sans JP", sans-serif', textAlign: 'center', maxWidth: cardW - 20 });
+            infoY += 30;
+
             const ougiText = `奥義Lv. ${megido.ougiLevel || 1}`;
             drawOutlinedText(ctx, ougiText, cardX + cardW / 2, infoY, { font: 'bold 22px "Noto Sans JP", sans-serif', textAlign: 'center', fillStyle: COLORS.ACCENT_GOLD });
             infoY += 30;
@@ -498,15 +503,10 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
             ctx.fillRect(cardX + 10, infoY, cardW - 20, 1);
             ctx.globalAlpha = 1.0;
             infoY += 10;
-            const orbImg = orbImages[i];
             const orb = megido.orb;
             if (orb) {
-                if (orbImg) {
-                    ctx.drawImage(orbImg, cardX + (cardW - 60) / 2, infoY, 60, 60);
-                    infoY += 60;
-                }
-                drawOutlinedText(ctx, orb.name, cardX + cardW / 2, infoY, { font: '16px "Noto Sans JP", sans-serif', textAlign: 'center', maxWidth: cardW - 20 });
-                infoY += 25;
+                drawOutlinedText(ctx, orb.name, cardX + cardW / 2, infoY, { font: 'bold 20px "Noto Sans JP", sans-serif', textAlign: 'center', maxWidth: cardW - 20 });
+                infoY += 30;
             }
             if (megido.reishou && megido.reishou.length > 0) {
                 ctx.globalAlpha = 0.5;

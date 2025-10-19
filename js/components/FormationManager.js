@@ -5,7 +5,6 @@ const FormationCard = ({
     isInvalid,
     nameStyle,
     cardStyle,
-    onGenerateShareImage = () => {},
     onCopy,
     onExport,
     onEdit,
@@ -17,6 +16,7 @@ const FormationCard = ({
     isBossFormation,
     onSetBossFormation
 }) => {
+    const { handleGenerateShareImage } = useAppContext();
     return (
         <div className="card" style={cardStyle}>
             <div className="formation-card-header">
@@ -47,7 +47,7 @@ const FormationCard = ({
                         <button onClick={() => onGoToSource(form)} className="btn btn-secondary">採点しに行く</button>
                     )} 
                     <button onClick={() => onPost(form)} className="btn btn-primary">投稿</button>
-                    <button onClick={() => onGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
+                    <button onClick={() => handleGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
                     <button onClick={() => onCopy(form.id)} className="btn btn-secondary">コピー</button>
                     <button onClick={() => onExport(form)} className="btn btn-secondary">エクスポート</button>
                     <button onClick={() => onEdit(form)} className="btn btn-secondary">編集</button>

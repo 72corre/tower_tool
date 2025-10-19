@@ -2,6 +2,23 @@ const { useState, useEffect, useMemo, useRef, useCallback } = React;
 window.AppContext = React.createContext();
 const useAppContext = () => React.useContext(AppContext);
 
+const ShareModal = ({ isOpen, onClose, imageData, tweetUrl }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div style={{position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 200}}>
+            <div className="card" style={{textAlign: 'center', padding: '20px', maxWidth: '90vw', maxHeight: '90vh', overflowY: 'auto'}}>
+                <h3 style={{marginTop: 0}}>生成された共有画像</h3>
+                <img src={imageData} style={{maxWidth: '100%', height: 'auto', border: '1px solid #ccc'}} />
+                <div style={{marginTop: '20px', display: 'flex', justifyContent: 'center', gap: '16px'}}>
+                    <a href={tweetUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary">ツイート</a>
+                    <button onClick={onClose} className="btn btn-secondary">閉じる</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const LogSummary = ({ selectedLog }) => {
     if (!selectedLog) {
         return <div className="placeholder">ログを選択してください</div>;
@@ -1951,6 +1968,12 @@ const TowerTool = () => {
 
     return (
         <window.AppContext.Provider value={contextValue}>
+            <ShareModal 
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                imageData={generatedImageData}
+                tweetUrl={tweetUrl}
+            />
 
             <Header />
             <GuidanceManager
