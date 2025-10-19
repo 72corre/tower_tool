@@ -214,8 +214,10 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
     const handleBulkCheck = (check) => {
         const newDetails = { ...megidoDetails };
         filteredList.forEach(m => {
-            const oldDetail = newDetails[m.id] || { owned: false, level: 70, ougiLevel: 3, special_reishou: m.専用霊宝 || false, bond_reishou: 0 };
-            newDetails[m.id] = { ...oldDetail, owned: check };
+            if (!newDetails[m.id]) {
+                 newDetails[m.id] = { owned: false, level: 70, ougiLevel: 3, special_reishou: m.専用霊宝 || false, bond_reishou: 0 };
+            }
+            newDetails[m.id].owned = check;
         });
         onDetailChange(newDetails);
     };
@@ -236,7 +238,13 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
                 <table className="ownership-table">
                     <thead>
                         <tr>
-                            <th>所持</th><th>名前</th><th>凸</th><th>Lv</th><th>奥義</th><th>専用</th><th>絆</th>
+                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>所持</th>
+                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>名前</th>
+                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>覚醒</th>
+                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>Lv</th>
+                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>奥義Lv</th>
+                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>専用</th>
+                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>絆</th>
                         </tr>
                     </thead>
                     <tbody>

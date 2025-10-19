@@ -1,9 +1,9 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
 const modeDescriptions = [
-    { key: 'plan', title: '計画', description: 'どの様に登るのかを計画するモードです', icon: 'asset/plan.webp' },
-    { key: 'practice', title: '実践', description: '実際に登りながら利用するモードです', icon: 'asset/practice.webp' },
-    { key: 'log', title: 'ログ', description: '過去の記録を閲覧するモードです', icon: 'asset/log.webp' }
+    { key: 'plan', title: '計画', description: 'どの様に登るのかを計画するモードです', icon: 'edit_document' },
+    { key: 'practice', title: '実践', description: '実際に登りながら利用するモードです', icon: 'directions_run' },
+    { key: 'log', title: 'ログ', description: '過去の記録を閲覧するモードです', icon: 'history' }
 ];
 
 const modeMenuItems = modeDescriptions;
@@ -41,7 +41,7 @@ const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }
                                 }}
                                 style={{ display: 'flex', alignItems: 'center', gap: '1rem', textAlign: 'left', padding: '12px' }}
                             >
-                                <img src={item.icon} alt="" style={{ width: '32px', height: '32px', flexShrink: 0 }} />
+                                <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>{item.icon}</span>
                                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                                     <strong style={{fontSize: '1.1rem'}}>{item.title}</strong>
                                     <span style={{fontSize: '0.8rem', color: 'var(--text-subtle)'}}>{item.description}</span>
@@ -118,7 +118,7 @@ const DesktopHeader = () => {
                         </button>
                     )}
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                        <img src="asset/settings.webp" alt="設定" style={{width: '28px', height: '28px'}} />
+                        <span className="material-symbols-outlined">settings</span>
                     </button>
                 </div>
                 
@@ -139,7 +139,7 @@ const DesktopHeader = () => {
                         目標: {currentFloorInfo.title}
                     </button>
                     <button id="map-search-button" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
-                        <img src="asset/map_search.png" alt="マス検索" style={{width: '24px', height: '24px'}} />
+                        <span className="material-symbols-outlined">search</span>
                     </button>
                     
                     {currentUser ? (
@@ -255,12 +255,12 @@ const MobileHeader = () => {
             <div className="mobile-header-top-bar">
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '12px' }}>
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                        <img src="asset/settings.webp" alt="設定" style={{width: '24px', height: '24px'}} />
+                        <span className="material-symbols-outlined">settings</span>
                     </button>
                     {!isGuideMode && (
                         <div className="mode-selector-wrapper">
                             <button className="btn-icon" onClick={() => setIsModeModalOpen(true)} title={currentModeInfo.title}>
-                                <img src="asset/plan.webp" alt="" style={{width: '24px', height: '24px'}} />
+                                <span className="material-symbols-outlined">{currentModeInfo.icon}</span>
                             </button>
                         </div>
                     )}
@@ -278,7 +278,7 @@ const MobileHeader = () => {
 
                 <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px' }}>
                     <button id="map-search-button-mobile" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
-                        <img src="asset/map_search.png" alt="マス検索" style={{width: '24px', height: '24px'}} />
+                        <span className="material-symbols-outlined">search</span>
                     </button>
                     {currentUser ? (
                         <button onClick={() => setIsAuthModalOpen(true)} className="btn-icon">
@@ -310,23 +310,29 @@ const MobileHeader = () => {
                  {mode !== 'log' ? (
                     <>
                         <button id="mobile-details-tab-button" onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
+                            <span className="material-symbols-outlined">explore</span>
                             <span>マップ</span>
                         </button>
                         <button id="mobile-ownership-tab-button" onClick={() => handleTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
+                            <span className="material-symbols-outlined">group</span>
                             <span>所持メギド</span>
                         </button>
                         <button id="mobile-formation-tab-button" onClick={() => handleTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
+                            <span className="material-symbols-outlined">groups</span>
                             <span>編成</span>
                         </button>                    </>
                  ) : (
                     <>
                         <button onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
+                            <span className="material-symbols-outlined">explore</span>
                             <span>マップ</span>
                         </button>
                         <button onClick={() => handleTabClick('summary')} disabled={!selectedLog} className={`mobile-tab-button ${activeTab === 'summary' ? 'active' : ''}`}>
+                            <span className="material-symbols-outlined">summarize</span>
                             <span>シーズンサマリー</span>
                         </button>
                         <button onClick={() => handleTabClick('all_summary')} className={`mobile-tab-button ${activeTab === 'all_summary' ? 'active' : ''}`}>
+                            <span className="material-symbols-outlined">assessment</span>
                             <span>通算サマリー</span>
                         </button>
                     </>

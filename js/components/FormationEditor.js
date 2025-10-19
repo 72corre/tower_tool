@@ -200,7 +200,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                 showFilters={true}
                 filterType="enemy"
             />
-            <button onClick={onCancel} className="btn btn-ghost" style={{marginBottom: '16px'}}>&larr; 元の画面に戻る</button>
+            <button onClick={onCancel} className="btn btn-ghost" style={{marginBottom: '16px'}}><span className="material-symbols-outlined">arrow_back</span> 元の画面に戻る</button>
             <div className="card" style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
                 <div className="form-section">
                     <label className="label">編成名</label>
@@ -210,6 +210,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                     <label className="label">ターゲット選択（自動タグ用）</label>
                     <div className="target-selectors">
                         <button onClick={() => setIsEnemyModalOpen(true)} className="btn btn-secondary">
+                            <span className="material-symbols-outlined">search</span>
                             {selectedEnemy || 'エネミーを選択...'}
                         </button>
                         <div className="floor-checkbox-group" style={{ maxHeight: '150px', overflowY: 'auto', border: '1px solid #ccc', padding: '10px', borderRadius: '4px' }}>
@@ -279,6 +280,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                     </div>
                 </div>
                 <button id="save-formation-button" onClick={handleSaveClick} disabled={isSaveDisabled} className="btn btn-primary">
+                    <span className="material-symbols-outlined">save</span>
                     {isSaveDisabled ? 'リーダーを選択してください' : 'この編成を保存'}
                 </button>
             </div>

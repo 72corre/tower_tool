@@ -171,6 +171,16 @@
             border-color: var(--primary-accent);
             font-weight: 700;
         }
+        .btn,
+        .tab-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .material-symbols-outlined {
+            font-size: 1.2em;
+        }
         .btn {
             font-family: var(--font-main);
             font-size: 14px;

@@ -232,10 +232,11 @@ const MapSearchModal = ({ isOpen, onClose, towerData, megidoData, enemyData, for
                             placeholder="メギド名, タグ, 編成名, エネミー名..."
                             style={{ flexGrow: 1, padding: '8px' }}
                         />
-                        <button className="btn btn-primary" onClick={() => handleSearch('free_text')}>検索</button>
+                        <button className="btn btn-primary" onClick={() => handleSearch('free_text')}><span className="material-symbols-outlined">search</span>検索</button>
                     </div>
                     <div className="predefined-search-container">
                         <button onClick={() => setShowPredefined(!showPredefined)} className="btn btn-secondary" style={{width: '100%', marginBottom: '8px'}}>
+                            <span className="material-symbols-outlined">{showPredefined ? 'expand_less' : 'expand_more'}</span>
                             {showPredefined ? 'プリセット検索を隠す' : 'プリセット検索を表示'}
                         </button>
                         {showPredefined && (

@@ -30,7 +30,7 @@ const FormationCard = ({
                         className={`btn btn-ghost p-1 boss-formation-btn ${isBossFormation ? 'active' : ''}`}
                         title={isBossFormation ? 'ボス攻略編成の指定を解除' : 'この編成をボス攻略用に指定'}
                     >
-                        <img src="asset/boss.webp" alt="ボス攻略編成" style={{ width: '24px', height: '24px' }} />
+                        <span className="material-symbols-outlined">workspace_premium</span>
                     </button>
                 )}
                 <button 
@@ -212,7 +212,7 @@ const FormationManager = (props) => {
                     <div className="card" style={{textAlign: 'center', padding: '40px'}}>
                         <h3 style={{marginTop: 0}}>生成QRコード</h3>
                         <canvas id="qr-canvas" style={{width: '256px', height: '256px'}}></canvas>
-                        <button onClick={() => setQrCodeData(null)} className="btn btn-primary" style={{marginTop: '24px'}}>閉じる</button>
+                        <button onClick={() => setQrCodeData(null)} className="btn btn-primary" style={{marginTop: '24px'}}><span className="material-symbols-outlined">close</span>閉じる</button>
                     </div>
                 </div>
             )}
@@ -251,14 +251,17 @@ const FormationManager = (props) => {
                 </div>
 
                 <div style={{display: 'flex', gap: '16px', justifyContent: 'flex-end'}}>
-                    <button onClick={handleNewFormation} className="btn btn-ghost p-1" title="新規作成">
-                        <img src="asset/create.webp" alt="新規作成" style={{width: '32px', height: '32px'}} />
+                    <button onClick={handleNewFormation} className="btn btn-ghost" title="新規作成">
+                        <span className="material-symbols-outlined">add_circle</span>
+                        <span>新規作成</span>
                     </button>
-                    <button onClick={onImport} className="btn btn-ghost p-1" disabled={!isHtml5QrLoaded || !idMaps} title="QRコードでインポート">
-                        <img src="asset/scan.webp" alt="QRコードでインポート" style={{width: '32px', height: '32px'}} />
+                    <button onClick={onImport} className="btn btn-ghost" disabled={!isHtml5QrLoaded || !idMaps} title="QRコードでインポート">
+                        <span className="material-symbols-outlined">qr_code_scanner</span>
+                        <span>QR読込</span>
                     </button>
-                    <button onClick={() => onOpenCommunityFormations()} className="btn btn-ghost p-1" title="みんなの編成">
-                        <img src="asset/community.webp" alt="みんなの編成" style={{width: '32px', height: '32px'}} />
+                    <button onClick={() => onOpenCommunityFormations()} className="btn btn-ghost" title="みんなの編成">
+                        <span className="material-symbols-outlined">public</span>
+                        <span>みんなの編成</span>
                     </button>
                 </div>
             </div>

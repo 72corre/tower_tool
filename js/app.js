@@ -1862,9 +1862,9 @@ const TowerTool = () => {
     }
 
     const MapContent = () => (
-        <div style={{ overflowX: 'auto', overflowY: 'hidden', padding: '2px' }}>
+        <React.Fragment>
             {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
-                <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor}>
+                <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor} style={{ scrollSnapAlign: 'start', padding: '1rem 0' }}>
                     <FloorGrid
                         key={floor.floor}
                         floorData={floor}
@@ -1886,7 +1886,7 @@ const TowerTool = () => {
                     />
                 </div>
             ))}
-        </div>
+        </React.Fragment>
     );
 
     const contextValue = {
@@ -1962,9 +1962,9 @@ const TowerTool = () => {
                         {!isMobileView && (
                 <nav className="desktop-nav">
                     <div className="desktop-nav-tabs">
-                        <button id="tab-button-details" onClick={() => handleTabClick('details')} className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}>マス詳細</button>
-                        <button id="tab-button-ownership" onClick={() => handleTabClick('ownership')} className={`tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>所持メギド管理</button>
-                        <button id="tab-button-formation" onClick={() => handleTabClick('formation')} className={`tab-button ${activeTab === 'formation' ? 'active' : ''}`}>編成管理</button>
+                        <button id="tab-button-details" onClick={() => handleTabClick('details')} className={`tab-button ${activeTab === 'details' ? 'active' : ''}`}><span className="material-symbols-outlined">explore</span>マス詳細</button>
+                        <button id="tab-button-ownership" onClick={() => handleTabClick('ownership')} className={`tab-button ${activeTab === 'ownership' ? 'active' : ''}`}><span className="material-symbols-outlined">group</span>所持メギド管理</button>
+                        <button id="tab-button-formation" onClick={() => handleTabClick('formation')} className={`tab-button ${activeTab === 'formation' ? 'active' : ''}`}><span className="material-symbols-outlined">groups</span>編成管理</button>
                     </div>
                     <div className="desktop-nav-actions">
                         {mode === 'practice' && (
@@ -1992,7 +1992,7 @@ const TowerTool = () => {
                             <RightPanelContent />
                         </div>
                         <div style={{ display: activeTab === 'details' ? 'block' : 'none', height: '100%' }}>
-                            <div className="left-panel" style={{ width: '100%', overflowY: 'auto' }} >
+                            <div className="left-panel" style={{ width: '100%', overflowY: 'auto', scrollSnapType: 'y mandatory' }} >
                                 <MapContent />
                             </div>
                         </div>
@@ -2044,7 +2044,7 @@ const TowerTool = () => {
                     </div>
                 ) : (
                     <div className="desktop-grid-container">
-                        <div className="left-panel">
+                        <div className="left-panel" style={{ scrollSnapType: 'y mandatory' }}>
                             <MapContent />
                         </div>
                         <div className="right-panel">

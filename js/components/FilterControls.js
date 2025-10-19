@@ -101,7 +101,8 @@ const FilterControls = ({ filters = {}, onFilterChange, onBulkCheck, onCheckDist
                 </div>
             </div>
 
-            <div className="accordion-header" onClick={() => setIsAccordionOpen(!isAccordionOpen)} style={{ cursor: 'pointer', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: 'var(--bg-hover)' }}>
+            <div className="accordion-header" onClick={() => setIsAccordionOpen(!isAccordionOpen)} style={{ cursor: 'pointer', padding: '8px', border: '1px solid var(--border-color)', borderRadius: '4px', backgroundColor: 'var(--bg-hover)', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className="material-symbols-outlined">filter_list</span>
                 <span style={{ fontWeight: 500 }}>詳細フィルター {isAccordionOpen ? '−' : '＋'}</span>
             </div>
 
