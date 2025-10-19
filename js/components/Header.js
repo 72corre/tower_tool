@@ -110,66 +110,65 @@ const DesktopHeader = () => {
 
     return (
         <header className="main-header">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    {isGuideMode && (
-                        <button className="btn btn-primary" onClick={handleRedisplayGuide}>
-                            ガイド再表示
-                        </button>
-                    )}
-                    <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                        <span className="material-symbols-outlined">settings</span>
-                    </button>
-                </div>
-                
+            <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '16px' }}>
                 <h1>星間の塔 攻略支援ツール</h1>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    {!isGuideMode && (
-                        <button className="btn btn-ghost" onClick={() => setIsModeModalOpen(true)}>
-                            モード: {currentModeInfo.title}
-                        </button>
-                    )}
-                    {mode === 'practice' && runState?.currentPosition?.floor && (
-                        <button className="btn btn-ghost" onClick={() => handleScrollToFloor(runState.currentPosition.floor)}>
-                            現在: {runState.currentPosition.floor}F
-                        </button>
-                    )}
-                    <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
-                        目標: {currentFloorInfo.title}
+                
+                {isGuideMode && (
+                    <button className="btn btn-primary" onClick={handleRedisplayGuide}>
+                        ガイド再表示
                     </button>
-                    <button id="map-search-button" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
-                        <span className="material-symbols-outlined">search</span>
-                    </button>
-                    
-                    {currentUser ? (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', border: '1px solid var(--border-color)', borderRadius: '99px' }}>
-                            <img src={currentUser.photoURL} alt={currentUser.displayName} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
-                            <span style={{ fontSize: '12px', fontWeight: 500, marginRight: '8px' }}>{currentUser.displayName}</span>
-                            <button onClick={onSignOut} className="btn btn-secondary btn-small">ログアウト</button>
-                        </div>
-                    ) : (
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                             <button onClick={() => onSignIn('google')} className="btn btn-secondary btn-small">Googleログイン</button>
-                             <button onClick={() => onSignIn('twitter')} className="btn btn-secondary btn-small">Twitterログイン</button>
-                        </div>
-                    )}
+                )}
 
-                    <ModeSelectionModal
-                        isOpen={isModeModalOpen}
-                        onClose={() => setIsModeModalOpen(false)}
-                        onSelect={onModeChange}
-                        currentKey={mode}
-                        menuItems={modeMenuItems}
-                    />
-                    <FloorSelectionModal
-                        isOpen={isFloorModalOpen}
-                        onClose={() => setIsFloorModalOpen(false)}
-                        onSelect={onTargetFloorChange}
-                        currentKey={targetFloor}
-                        menuItems={processedFloorMenuItems}
-                    />
-                </div>
+                <div style={{ flexGrow: 1 }}></div>
+
+                {!isGuideMode && (
+                    <button className="btn btn-ghost" onClick={() => setIsModeModalOpen(true)}>
+                        モード: {currentModeInfo.title}
+                    </button>
+                )}
+                {mode === 'practice' && runState?.currentPosition?.floor && (
+                    <button className="btn btn-ghost" onClick={() => handleScrollToFloor(runState.currentPosition.floor)}>
+                        現在: {runState.currentPosition.floor}F
+                    </button>
+                )}
+                <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
+                    目標: {currentFloorInfo.title}
+                </button>
+                
+                <button onClick={onOpenSettings} className="btn-icon" title="設定">
+                    <span className="material-symbols-outlined">settings</span>
+                </button>
+                <button id="map-search-button" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
+                    <span className="material-symbols-outlined">search</span>
+                </button>
+                
+                {currentUser ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', border: '1px solid var(--border-color)', borderRadius: '99px' }}>
+                        <img src={currentUser.photoURL} alt={currentUser.displayName} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+                        <span style={{ fontSize: '12px', fontWeight: 500, marginRight: '8px' }}>{currentUser.displayName}</span>
+                        <button onClick={onSignOut} className="btn btn-secondary btn-small">ログアウト</button>
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                         <button onClick={() => onSignIn('google')} className="btn btn-secondary btn-small">Googleログイン</button>
+                         <button onClick={() => onSignIn('twitter')} className="btn btn-secondary btn-small">Twitterログイン</button>
+                    </div>
+                )}
+
+                <ModeSelectionModal
+                    isOpen={isModeModalOpen}
+                    onClose={() => setIsModeModalOpen(false)}
+                    onSelect={onModeChange}
+                    currentKey={mode}
+                    menuItems={modeMenuItems}
+                />
+                <FloorSelectionModal
+                    isOpen={isFloorModalOpen}
+                    onClose={() => setIsFloorModalOpen(false)}
+                    onSelect={onTargetFloorChange}
+                    currentKey={targetFloor}
+                    menuItems={processedFloorMenuItems}
+                />
             </div>
         </header>
     );
@@ -252,8 +251,8 @@ const MobileHeader = () => {
 
     return (
         <div className="mobile-header-container">
-            <div className="mobile-header-top-bar">
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '12px' }}>
+            <div className="mobile-header-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
                         <span className="material-symbols-outlined">settings</span>
                     </button>
@@ -266,17 +265,17 @@ const MobileHeader = () => {
                     )}
                 </div>
 
-                <div style={{ flex: '0 1 auto', textAlign: 'center' }}>
-                    <h1 
+                <div style={{ flex: '0 1 auto', textAlign: 'center', minWidth: 0 }}>
+                    <div 
                         className="mobile-header-title"
                         onClick={handleTitleClick}
                         style={mode === 'log' ? { cursor: 'pointer', textDecoration: 'underline' } : {}}
                     >
                         {getTitle()}
-                    </h1>
+                    </div>
                 </div>
 
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <button id="map-search-button-mobile" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
                         <span className="material-symbols-outlined">search</span>
                     </button>
@@ -291,7 +290,7 @@ const MobileHeader = () => {
                     )}
                     {activeTab === 'details' && mode === 'practice' && (
                         <>
-                            <button onClick={() => setIsActionsMenuOpen(true)} className="btn-icon">︙</button>
+                            <button onClick={() => setIsActionsMenuOpen(true)} className="btn-icon"><span className="material-symbols-outlined">more_vert</span></button>
                             {isActionsMenuOpen && (
                                 <div className="mobile-actions-menu-overlay" onClick={() => setIsActionsMenuOpen(false)}></div>
                             )}

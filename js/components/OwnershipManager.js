@@ -223,7 +223,7 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
     };
 
     return (
-        <div style={{display: 'flex', flexDirection: 'column', height: '100%', gap: '16px', marginTop: '16px'}}>
+        <div style={{display: 'flex', flexDirection: 'column', height: '100%', gap: '8px'}}>
             <FilterControls 
                 filters={filters}
                 onFilterChange={(type, value) => setFilters(f => ({ ...f, [type]: value }))}
@@ -238,13 +238,13 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
                 <table className="ownership-table">
                     <thead>
                         <tr>
-                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>所持</th>
-                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>名前</th>
-                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>覚醒</th>
-                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>Lv</th>
-                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>奥義Lv</th>
-                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>専用</th>
-                            <th style={{display: 'flex', alignItems: 'center', gap: '4px'}}>絆</th>
+                            <th>所持</th>
+                            <th>名前</th>
+                            <th>覚醒</th>
+                            <th>Lv</th>
+                            <th>奥義Lv</th>
+                            <th>専用</th>
+                            <th>絆</th>
                         </tr>
                     </thead>
                     <tbody>

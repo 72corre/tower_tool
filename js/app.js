@@ -1707,7 +1707,7 @@ const TowerTool = () => {
                     activeTab={activeTab}
                 />
             ) : (
-                <div className="tab-content" style={{marginTop: '1rem', height: '100%'}}>
+                <div className="tab-content" style={{marginTop: '0.5rem', height: '100%'}}>
                     <div style={{ display: activeTab === 'details' ? 'block' : 'none', height: '100%' }}>
                         {!selectedSquare && <div className="placeholder" style={{height: '100%'}}>マスを選択してください</div>}
                         {selectedSquare && (() => {
@@ -1864,7 +1864,7 @@ const TowerTool = () => {
     const MapContent = () => (
         <React.Fragment>
             {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
-                <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor} style={{ scrollSnapAlign: 'start', padding: '1rem 0' }}>
+                <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor} style={{ scrollSnapAlign: 'start', padding: '0.5rem 0' }}>
                     <FloorGrid
                         key={floor.floor}
                         floorData={floor}
