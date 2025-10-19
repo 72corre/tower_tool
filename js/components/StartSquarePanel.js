@@ -54,7 +54,28 @@ const StartSquarePanel = ({ square, isLocked, lockText, onCreateFormation }) => 
     const battleSquares = Object.values(squares).filter(s => s.type === 'battle' || s.type === 'boss');
     const exploreSquares = Object.values(squares).filter(s => s.type === 'explore');
 
-    const uniqueEnemies = [...new Set(battleSquares.flatMap(s => s.enemies || []))];
+    const getEnemyName = (enemy) => {
+        if (typeof enemy === 'string') {
+            return enemy;
+        }
+        if (enemy && typeof enemy === 'object' && enemy.name) {
+            return enemy.name;
+        }
+        console.warn('Unknown enemy format:', enemy);
+        return '不明な敵';
+    };
+
+    const allEnemies = battleSquares.flatMap(s => s.enemies || []);
+    const uniqueEnemies = [];
+    const seenNames = new Set();
+
+    allEnemies.forEach(enemy => {
+        const name = getEnemyName(enemy);
+        if (!seenNames.has(name)) {
+            seenNames.add(name);
+            uniqueEnemies.push(enemy);
+        }
+    });
 
     return (
         <div className="p-4" style={{ position: 'relative' }}>
@@ -64,19 +85,22 @@ const StartSquarePanel = ({ square, isLocked, lockText, onCreateFormation }) => 
                 <h4 className="card-header">この階層の敵</h4>
                 {uniqueEnemies.length > 0 ? (
                     <div style={{display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '8px'}}>
-                        {uniqueEnemies.map(enemy => (
-                            <div key={enemy} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', backgroundColor: 'var(--bg-main)', borderRadius: '4px' }}>
-                                <span style={{ fontWeight: 'bold' }}>{enemy}</span>
-                                <button
-                                    onClick={() => onCreateFormation(enemy, floor.floor)}
-                                    style={isHovered[enemy] ? ghostButtonHoverStyle : ghostButtonBaseStyle}
-                                    onMouseEnter={() => setIsHovered(prev => ({...prev, [enemy]: true}))}
-                                    onMouseLeave={() => setIsHovered(prev => ({...prev, [enemy]: false}))}
-                                >
-                                    新規編成作成
-                                </button>
-                            </div>
-                        ))}
+                        {uniqueEnemies.map(enemy => {
+                            const enemyName = getEnemyName(enemy);
+                            return (
+                                <div key={enemyName} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px', backgroundColor: 'var(--bg-main)', borderRadius: '4px' }}>
+                                    <span style={{ fontWeight: 'bold' }}>{enemyName}</span>
+                                    <button
+                                        onClick={() => onCreateFormation(enemyName, floor.floor)}
+                                        style={isHovered[enemyName] ? ghostButtonHoverStyle : ghostButtonBaseStyle}
+                                        onMouseEnter={() => setIsHovered(prev => ({...prev, [enemyName]: true}))}
+                                        onMouseLeave={() => setIsHovered(prev => ({...prev, [enemyName]: false}))}
+                                    >
+                                        新規編成作成
+                                    </button>
+                                </div>
+                            );
+                        })}
                     </div>
                 ) : (
                     <p className="mt-2 text-gray-400">戦闘マスはありません。</p>

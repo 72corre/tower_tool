@@ -214,10 +214,8 @@ const OwnershipManager = ({ megidoDetails, onDetailChange, onCheckDistributed, i
     const handleBulkCheck = (check) => {
         const newDetails = { ...megidoDetails };
         filteredList.forEach(m => {
-            if (!newDetails[m.id]) {
-                 newDetails[m.id] = { owned: false, level: 70, ougiLevel: 3, special_reishou: m.専用霊宝 || false, bond_reishou: 0 };
-            }
-            newDetails[m.id].owned = check;
+            const oldDetail = newDetails[m.id] || { owned: false, level: 70, ougiLevel: 3, special_reishou: m.専用霊宝 || false, bond_reishou: 0 };
+            newDetails[m.id] = { ...oldDetail, owned: check };
         });
         onDetailChange(newDetails);
     };
