@@ -62,10 +62,7 @@ const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) 
             .map(t => t.subCategory)
             .filter(sub => !reasonSubCategories.has(sub))
             .filter((v, i, a) => a.indexOf(v) === i)
-            .slice(0, 2)
-            .map((role, index) => <span key={index}><span className="highlight">{role}</span>{index < 1 ? ', ' : ''}</span>);
-
-        const reasonHtml = typeof reason === 'string' ? reason.replace(/【(.*?)】/g, `<span class="highlight">【$1】</span>`) : null;
+            .slice(0, 2);
 
         return (
             <div key={megido.id + (orb ? orb.id : '')} className="rec-card">
@@ -111,7 +108,17 @@ const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) 
                         }
                         return null;
                     })()}
-                    {otherRoles.length > 0 && <p className="rec-other-roles">その他の役割: {otherRoles}</p>}
+                    {otherRoles.length > 0 && (
+                        <p className="rec-other-roles">
+                            その他の役割:&nbsp;
+                            {otherRoles.map((role, index) => (
+                                <React.Fragment key={index}>
+                                    <span className="highlight">{role}</span>
+                                    {index < otherRoles.length - 1 ? ', ' : ''}
+                                </React.Fragment>
+                            ))}
+                        </p>
+                    )}
                 </div>                <div className="rec-card-right">
                     <button className="rec-add-btn" title="編成に追加（機能は将来実装予定）">+</button>
                 </div>
