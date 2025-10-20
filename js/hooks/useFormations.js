@@ -105,6 +105,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
             notes: formationToSave.notes || '',
             enemyName: formationToSave.enemyName || null,
             floor: formationToSave.floor || null,
+            floors: formationToSave.floors || [],
             reishou_reminder: formationToSave.reishou_reminder || false,
             megidoSlots: (formationToSave.megido || Array(5).fill(null)).map(m => {
                 if (!m || !m.id) return null;

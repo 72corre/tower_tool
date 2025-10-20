@@ -28,45 +28,40 @@ const getRequiredExplorationPower = (square) => {
 
 const getBaseMegidoName = (name) => name ? name.replace(/[RBC]$/, '') : '';
 
-const isFormationInvalid = (formation, megidoDetails, ownedMegidoIds) => {
-    if (!formation || !formation.megido) return false;
+const getFormationInvalidReason = (formation, megidoDetails, ownedMegidoIds) => {
+    if (!formation || !formation.megido) return null;
 
     for (const megido of formation.megido) {
         if (!megido) continue;
 
-        // 1. Check if owned
         if (!ownedMegidoIds.has(String(megido.id))) {
-            return true; // Invalid if not owned
+            return `${megido.名前}を所持していません。`;
         }
 
         const ownedDetails = megidoDetails[megido.id];
-        if (!ownedDetails) continue; // Should not happen if owned, but as a safeguard
+        if (!ownedDetails) continue;
 
-        // 2. Check level
         if ((megido.level || 70) > (ownedDetails.level || 70)) {
-            return true; // Invalid if required level is higher
+            return `${megido.名前}のレベルが足りません。(要求: ${megido.level} / 所持: ${ownedDetails.level || 70})`;
         }
 
-        // 3. Check special reishou
         if (megido.special_reishou && !ownedDetails.special_reishou) {
-            return true; // Invalid if special reishou is required but not owned
+            return `${megido.名前}の専用霊宝を所持していません。`;
         }
 
-        // 4. Check bond reishou
         if ((megido.bond_reishou || 0) > (ownedDetails.bond_reishou || 0)) {
-            return true; // Invalid if required bond reishou tier is higher
+            return `${megido.名前}の絆霊宝のTierが足りません。`;
         }
 
-        // 5. Check singularity level
         const megidoData = COMPLETE_MEGIDO_LIST.find(m => m.id === megido.id);
         if (megidoData && megidoData.Singularity) {
             if ((megido.singularity_level || 0) > (ownedDetails.singularity_level || 0)) {
-                return true; // Invalid if required singularity level is higher
+                return `${megido.名前}の特異点レベルが足りません。`;
             }
         }
     }
 
-    return false; // Formation is valid
+    return null;
 };
 
 const CONDITION_ORDER = ['絶好調', '好調', '普通', '不調', '絶不調', '気絶'];

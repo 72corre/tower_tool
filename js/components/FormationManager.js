@@ -1,8 +1,24 @@
+const KNOWN_RULES = ["全能力+20%（幻獣）","なし","防+50%（幻獣）","早+50%（幻獣）","攻+50%（幻獣）","全能力+50%（幻獣）","スキル強化","アタック強化","戦闘開始時、覚醒ゲージ+99","チャージ強化","全フォトン強化","毎ターン終了時、覚醒+10","劣化フォトン発生","毎ターン終了時、HP30%回復（幻獣）","チャージ無し","毎ターン終了時、覚醒+1（幻獣）","ペインフォトン発生","毎ターン終了時、1回バリア（幻獣）","特殊フォトン発生","HP+80%","進化度・レベル制限：⭐︎2.5/Lv23","全能力+50%（敵）","HP不可視","素早さ100%低下","被ダメージ20%上昇（メギド）","HP+80%(幻獣)","全能力+20%(幻獣)"];
+const categoryColors = {
+    floor: '#2a4365',
+    rule: '#b7791f',
+    enemy: '#c53030',
+    custom: '#553c9a',
+};
+
+const getTagCategory = (tag) => {
+    if (/\d+F$/.test(tag)) return 'floor';
+    if (KNOWN_RULES.includes(tag)) return 'rule';
+    if (window.ENEMY_ALL_DATA && window.ENEMY_ALL_DATA[tag]) return 'enemy';
+    return 'custom';
+};
+
 const FormationCard = ({
     form,
     isExpanded,
     onToggleExpand,
     isInvalid,
+    invalidReason,
     nameStyle,
     cardStyle,
     onCopy,
@@ -18,7 +34,7 @@ const FormationCard = ({
 }) => {
     const { handleGenerateShareImage } = useAppContext();
     return (
-        <div className="card" style={cardStyle}>
+        <div className="card" style={{...cardStyle, height: '200px', display: 'flex', flexDirection: 'column'}}>
             <div className="formation-card-header">
                 <h3 style={{...nameStyle, fontWeight: 700, margin: 0, flexGrow: 1, display: 'flex', alignItems: 'center', gap: '8px'}}>
                     {form.name}
@@ -41,6 +57,13 @@ const FormationCard = ({
                 </button>
             </div>
 
+            {isInvalid && invalidReason && (
+                <p style={{ color: 'var(--danger-color)', fontWeight: 'bold', margin: '8px 0', display: 'flex', alignItems: 'center' }}>
+                    <span className="material-symbols-outlined" style={{marginRight: '8px'}}>report</span>
+                    {invalidReason}
+                </p>
+            )}
+
             {isExpanded && (
                 <div className="formation-card-actions">
                     {form.communityId && (
@@ -59,17 +82,39 @@ const FormationCard = ({
                 </div>
             )}
 
-            <p style={{color: 'var(--text-subtle)', margin: '8px 0', whiteSpace: 'pre-wrap'}}>{form.notes || ''}</p>
-            <div style={{display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px'}}>{(form.tags || []).map((tag, i) => (
-                <button key={`${tag}-${i}`} className="tag-button-item" onClick={() => onTagClick(tag)}>
-                    {tag}
-                </button>
-            ))}</div>
+            <div style={{ flex: 1, overflowY: 'auto', margin: '8px 0' }}>
+                <p style={{color: 'var(--text-subtle)', whiteSpace: 'pre-wrap', margin: 0}}>{form.notes || ''}</p>
+            </div>
+
+            <div className="tag-carousel" style={{display: 'flex', flexWrap: 'nowrap', gap: '8px', overflowX: 'auto', paddingBottom: '8px'}}>
+                {(form.tags || []).map((tag, i) => {
+                    const category = getTagCategory(tag);
+                    const color = categoryColors[category] || '#718096';
+                    return (
+                        <button 
+                            key={`${tag}-${i}`}
+                            className="tag-button-item" 
+                            style={{
+                                backgroundColor: color, 
+                                flexShrink: 0, 
+                                whiteSpace: 'nowrap',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '12px',
+                                padding: '4px 12px',
+                                cursor: 'pointer'
+                            }} 
+                            onClick={() => onTagClick(tag)}>
+                            {tag}
+                        </button>
+                    );
+                })}
+            </div>
+
             <div style={{display: 'flex', flexWrap: 'wrap', gap: '4px', marginTop: '8px'}}>{(form.megidoSlots || []).map((slot, i) => slot ? 
                 <span key={`${slot.megidoId}-${i}`} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}} className={getStyleClass(slot.megidoStyle)}>{slot.megidoName}</span> : 
                 <span key={i} style={{fontSize: '12px', padding: '2px 6px', backgroundColor: 'var(--bg-main)', borderRadius: '4px'}}>-</span>
-            )
-            }
+            )}
             </div>
         </div>
     );
@@ -268,11 +313,15 @@ const FormationManager = (props) => {
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                 {(filteredFormations || []).map(form => {
                     const rehydratedForm = rehydrateFormation(form, megidoDetails);
-                    const isInvalid = isFormationInvalid(rehydratedForm, megidoDetails, ownedMegidoIds);
+                    const invalidReason = getFormationInvalidReason(rehydratedForm, megidoDetails, ownedMegidoIds);
+                    const isInvalid = !!invalidReason;
                     const isBossFormation = form.id === bossFormationId;
 
                     const cardStyle = {
-                        ...(isInvalid ? { backgroundColor: 'rgba(217, 83, 79, 0.3)' } : {}),
+                        ...(isInvalid ? { 
+                            backgroundColor: 'rgba(217, 83, 79, 0.3)',
+                            border: '2px solid var(--warning-color)'
+                        } : {}),
                         ...(isBossFormation && isGuideMode ? { border: '2px solid var(--primary-accent)', boxShadow: '0 0 8px var(--primary-accent)' } : {})
                     };
                     const nameStyle = isInvalid ? { color: 'var(--danger-color)' } : {};
@@ -286,6 +335,7 @@ const FormationManager = (props) => {
                             isInvalid={isInvalid}
                             nameStyle={nameStyle}
                             cardStyle={cardStyle}
+                            invalidReason={invalidReason}
                             onCopy={onCopy}
                             onExport={handleExportClick}
                             onEdit={(f) => onEditingFormationChange(f)}
