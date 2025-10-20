@@ -130,14 +130,33 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         if (!formationToCopy) return;
 
         const newId = `f${Date.now()}`;
-        // The formation is already in the new denormalized format, so we can just spread it.
         let newFormation = { 
             ...formationToCopy, 
             id: newId, 
             name: `${formationToCopy.name} (コピー)` 
         };
-        
 
+        const newTags = new Map();
+        (newFormation.megidoSlots || []).forEach(slot => {
+            if (slot && slot.megidoName) {
+                newTags.set(slot.megidoName, { text: slot.megidoName, category: 'megido' });
+            }
+        });
+        if (newFormation.enemyName) {
+            newTags.set(newFormation.enemyName, { text: newFormation.enemyName, category: 'enemy' });
+        }
+        const floors = newFormation.floors || (newFormation.floor ? [newFormation.floor] : []);
+        floors.forEach(floor => {
+            const tagText = `${floor}F`;
+            newTags.set(tagText, { text: tagText, category: 'floor' });
+        });
+        (formationToCopy.tags || []).forEach(tag => {
+            const tagObject = typeof tag === 'string' ? { text: tag, category: getTagInfo(tag).category } : tag;
+            if (tagObject.category === 'custom' && !newTags.has(tagObject.text)) {
+                 newTags.set(tagObject.text, tagObject);
+            }
+        });
+        newFormation.tags = Array.from(newTags.values());
         
         const newFormations = { ...formations, [newId]: newFormation };
         setFormations(newFormations);
@@ -408,17 +427,37 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         const leftColumnMaxWidth = 450;
         let currentY = LAYOUT.PADDING;
 
-        if (rehydratedForm.floor || rehydratedForm.enemyName) {
-            const floorData = TOWER_MAP_DATA.find(f => f.floor === rehydratedForm.floor);
-            const square = floorData ? Object.values(floorData.squares).find(s => s.enemies && s.enemies.map(e => e.name || e).includes(rehydratedForm.enemyName)) : null;
-            const rules = square ? square.rules.join(", ") : '';
-
-            const floorText = `${rehydratedForm.floor || '?'}F`;
+        const floors = rehydratedForm.floors || (rehydratedForm.floor ? [rehydratedForm.floor] : []);
+        
+        if (floors.length > 0 || rehydratedForm.enemyName) {
+            const floorText = `${floors.join(',')}F`;
             drawOutlinedText(ctx, floorText, LAYOUT.PADDING, currentY, { font: 'bold 42px "Noto Sans JP", sans-serif' });
             const floorWidth = ctx.measureText(floorText).width;
             drawOutlinedText(ctx, rehydratedForm.enemyName || 'N/A', LAYOUT.PADDING + floorWidth + 15, currentY + 10, { font: 'bold 32px "Noto Sans JP", sans-serif', maxWidth: leftColumnMaxWidth - floorWidth - 15 });
             currentY += 55;
-            drawOutlinedText(ctx, rules, LAYOUT.PADDING, currentY, { font: '20px "Noto Sans JP", sans-serif', fillStyle: COLORS.TEXT_SUBTLE, textBaseline: 'top', maxWidth: leftColumnMaxWidth });
+
+            const allRules = new Set();
+            floors.forEach(floorNum => {
+                const floorData = TOWER_MAP_DATA.find(f => f.floor === floorNum);
+                const square = floorData ? Object.values(floorData.squares).find(s => s.enemies && s.enemies.map(e => e.name || e).includes(rehydratedForm.enemyName)) : null;
+                if (square && square.rules) {
+                    square.rules.forEach(rule => allRules.add(rule));
+                }
+            });
+            const rulesText = Array.from(allRules).join(", ");
+
+            let truncatedRules = rulesText;
+            if (ctx.measureText(rulesText).width > leftColumnMaxWidth) {
+                let tempText = '';
+                for (const char of rulesText) {
+                    if (ctx.measureText(tempText + char + '...').width > leftColumnMaxWidth) {
+                        break;
+                    }
+                    tempText += char;
+                }
+                truncatedRules = tempText + '...';
+            }
+            drawOutlinedText(ctx, truncatedRules, LAYOUT.PADDING, currentY, { font: '20px "Noto Sans JP", sans-serif', fillStyle: COLORS.TEXT_SUBTLE, textBaseline: 'top', maxWidth: leftColumnMaxWidth });
             currentY += 25;
         } else {
             drawOutlinedText(ctx, rehydratedForm.name || '名称未設定の編成', LAYOUT.PADDING, currentY + 10, { font: 'bold 32px "Noto Sans JP", sans-serif', textBaseline: 'top', maxWidth: leftColumnMaxWidth });
@@ -427,6 +466,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
 
         if (rehydratedForm.tags && rehydratedForm.tags.length > 0) {
             let currentX = LAYOUT.PADDING;
+            const tagLineHeight = 32;
             ctx.font = '16px "Noto Sans JP", sans-serif';
             rehydratedForm.tags.forEach(tag => {
                 const tagText = typeof tag === 'string' ? tag : tag.text;
@@ -444,7 +484,11 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
                 }
 
                 const tagWidth = ctx.measureText(tagText).width + 20;
-                if (currentX + tagWidth > leftColumnMaxWidth) return; // Prevent overflow
+                
+                if (currentX + tagWidth > leftColumnMaxWidth) {
+                    currentX = LAYOUT.PADDING;
+                    currentY += tagLineHeight;
+                }
 
                 ctx.fillStyle = bgColor;
                 ctx.fillRect(currentX, currentY, tagWidth, 24);

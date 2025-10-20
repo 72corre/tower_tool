@@ -158,6 +158,18 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
             newTags.set(tagText, { text: tagText, category: 'floor' });
         });
 
+        selectedFloors.forEach(floorNum => {
+            const floorData = TOWER_MAP_DATA.find(f => f.floor === floorNum);
+            const square = floorData ? Object.values(floorData.squares).find(s => s.enemies && s.enemies.map(e => e.name || e).includes(selectedEnemy)) : null;
+            if (square && square.rules) {
+                square.rules.forEach(rule => {
+                    if (rule && !newTags.has(rule)) {
+                        newTags.set(rule, { text: rule, category: 'rule' });
+                    }
+                });
+            }
+        });
+
         customTags.split(',').forEach(tagText => {
             const trimmedText = tagText.trim();
             if (trimmedText && !newTags.has(trimmedText)) {
