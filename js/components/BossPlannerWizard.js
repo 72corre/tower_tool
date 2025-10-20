@@ -23,9 +23,6 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
     }, [boss, ownedMegidoIds, megidoConditions]);
 
     const [activeTab, setActiveTab] = useState('guide');
-    const [currentFormation, setCurrentFormation] = useState(null);
-    const [positionModalState, setPositionModalState] = useState({ isOpen: false, megidoId: null });
-    const [selectedMegido, setSelectedMegido] = useState(new Set());
 
     const renderTextWithTooltip = (text) => {
         if (!glossaryData || !text) return text;
@@ -41,134 +38,121 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
         });
     };
 
-    const handleCheckboxChange = (megidoId) => {
-        setSelectedMegido(prev => {
-            const newSet = new Set(prev);
-            if (newSet.has(megidoId)) {
-                newSet.delete(megidoId);
-            } else {
-                if (newSet.size >= 5) {
-                    showToastMessage('最大5体まで選択できます。');
-                } else {
-                    newSet.add(megidoId);
-                }
+    const getIconElement = (iconName) => {
+        if (!iconName) return e('span', { className: 'inline-block w-8' }); // Placeholder for alignment
+        const iconMap = {
+            attack: 'swords',
+            special_attack: 'auto_awesome',
+            help: 'help_outline',
+            daze: 'star',
+            shock: 'bolt',
+            sleep: 'sleep',
+            revive: 'sync',
+            skill: 'psychology',
+            shield: 'shield',
+            info: 'info',
+            gauge_down: 'south',
+            status_ailment: 'sick',
+            damage_reduction: 'security',
+            fixed_damage: 'my_location',
+            terrain_damage: 'local_fire_department'
+        };
+        const materialIconName = iconMap[iconName] || 'help_outline';
+        return e('span', { className: 'material-symbols-outlined mr-3 text-2xl align-middle text-gray-300' }, materialIconName);
+    };
+
+    const renderTextWithEmphasis = (text) => {
+        if (!text) return '';
+        const parts = text.split(/(【.*?】)/g);
+        return parts.map((part, index) => {
+            if (part.startsWith('【') && part.endsWith('】')) {
+                const keyword = part.slice(1, -1);
+                return e('strong', { key: index, className: 'text-yellow-300 font-bold' }, keyword);
             }
-            return newSet;
+            if (!part) return null;
+            return renderTextWithTooltip(part);
         });
     };
 
-    const handleCreateFromSelectionClick = () => {
-        if (selectedMegido.size === 0) {
-            showToastMessage('メギドを1体以上選択してください。');
-            return;
-        }
-        const tagTarget = { enemyName: boss.name, floors: [floorNum] };
-        handleCreateFormationFromSelection(Array.from(selectedMegido), tagTarget);
-        onClose();
-    };
+    const renderRecommendationCard = (rec) => {
+        const styleColors = {
+            'ラッシュ': 'border-red-500',
+            'カウンター': 'border-blue-500',
+            'バースト': 'border-yellow-500'
+        };
+        const cardBorderStyle = styleColors[rec.megido.スタイル] || 'border-gray-500';
 
-    useEffect(() => {
-        if (isOpen) {
-            setSelectedMegido(new Set()); // ウィザードが開くたびに選択をリセット
-        }
-    }, [isOpen]);
+        const renderSingleReason = (reason, index) => {
+            // Handle complex, pre-formatted reasons (e.g., synergies)
+            if (reason.title) {
+                return e('div', { key: index, className: 'mt-2 text-sm' },
+                    e('h5', { className: 'font-bold text-purple-300' }, reason.title),
+                    e('p', { className: 'text-xs text-gray-300 pl-1', dangerouslySetInnerHTML: { __html: reason.description } })
+                );
+            }
 
-    const handlePositionSelect = (position) => {
-        const { megidoId } = positionModalState;
-        if (!megidoId || position === null) {
-            setPositionModalState({ isOpen: false, megidoId: null });
-            return;
-        }
+            // Handle new structured reasons
+            if (reason.targetGimmick && reason.method && reason.counter) {
+                return e('div', { key: index, className: 'text-sm flex items-start mt-1' },
+                    e('span', { className: 'material-symbols-outlined text-green-400 mr-2' }, 'task_alt'),
+                    e('p', null, 
+                        '「',
+                        e('strong', { className: 'text-red-400' }, reason.targetGimmick),
+                        '」のため、',
+                        e('strong', { className: 'text-amber-400' }, reason.method),
+                        'の「',
+                        e('strong', { className: 'text-green-400' }, reason.counter),
+                        '」が有効です。'
+                    )
+                );
+            }
 
-        // 編成情報を更新
-        const newSlots = [...currentFormation.megidoSlots];
-        
-        // 既に編成にいるかチェック
-        if (newSlots.some(slot => slot && slot.megidoId === megidoId)) {
-            showToastMessage('そのメギドは既に編成にいます。');
-            setPositionModalState({ isOpen: false, megidoId: null });
-            return;
-        }
-
-        // メギド情報を取得
-        const megidoMaster = (typeof COMPLETE_MEGIDO_LIST !== 'undefined') 
-            ? COMPLETE_MEGIDO_LIST.find(m => m.id === megidoId)
-            : null;
-
-        if (!megidoMaster) {
-            showToastMessage('メギド情報が見つかりません。');
-            setPositionModalState({ isOpen: false, megidoId: null });
-            return;
-        }
-
-        newSlots[position - 1] = {
-            megidoId: megidoId,
-            megidoName: megidoMaster.名前,
-            megidoStyle: megidoMaster.スタイル || megidoMaster.style,
-            // その他の必要な情報をここに追加
+            // Fallback for any other or older reason format
+            return e('p', { key: index, className: 'text-sm' }, reason.description || '有効なアクションです。');
         };
 
-        setCurrentFormation(prev => ({ ...prev, megidoSlots: newSlots }));
+        const reasons = Array.isArray(rec.reason) ? rec.reason : [rec.reason];
 
-        // モーダルを閉じる
-        setPositionModalState({ isOpen: false, megidoId: null });
+        return e('div', { key: rec.megido.id + (rec.orb ? rec.orb.id : ''), className: `bg-gray-800 bg-opacity-50 p-3 rounded-lg border-l-4 ${cardBorderStyle}` },
+            e('div', { className: 'flex items-center mb-2' },
+                e('img', { src: `asset/メギド/${rec.megido.名前}.png`, className: 'w-12 h-12 rounded-full mr-3' }),
+                e('div', null,
+                    e('h4', { className: 'text-lg font-bold text-white' }, rec.megido.名前),
+                    e('span', { className: 'text-xs text-gray-400' }, `[${rec.megido.スタイル}]`)
+                )
+            ),
+            e('div', { className: 'space-y-1' },
+                reasons.map((reason, index) => renderSingleReason(reason, index))
+            )
+        );
     };
-
-    const positionModalOptions = [
-        { label: '1', value: 1, className: 'btn-primary' },
-        { label: '2', value: 2, className: 'btn-primary' },
-        { label: '3', value: 3, className: 'btn-primary' },
-        { label: '4', value: 4, className: 'btn-primary' },
-        { label: '5', value: 5, className: 'btn-primary' },
-    ];
 
     if (!isOpen) {
         return null;
     }
 
     const overlayStyle = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 10001 // z-indexを高く設定
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        zIndex: 10001
     };
 
     const contentStyle = {
-        backgroundColor: 'var(--bg-panel)',
-        padding: '20px',
-        borderRadius: '8px',
-        width: '90%',
-        maxWidth: '800px',
-        maxHeight: '90vh',
-        display: 'flex',
-        flexDirection: 'column'
+        backgroundColor: 'var(--bg-panel)', padding: '20px', borderRadius: '8px',
+        width: '90%', maxWidth: '800px', maxHeight: '90vh',
+        display: 'flex', flexDirection: 'column'
     };
 
     const headerStyle = {
-        borderBottom: '1px solid var(--border-color-light)',
-        paddingBottom: '10px',
-        marginBottom: '20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+        borderBottom: '1px solid var(--border-color-light)', paddingBottom: '10px', marginBottom: '20px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
     };
 
-    const bodyStyle = {
-        overflowY: 'auto',
-        flexGrow: 1,
-        minHeight: '350px' // タブ切り替え時の高さ変動を防止
-    };
+    const bodyStyle = { overflowY: 'auto', flexGrow: 1, minHeight: '350px', padding: '5px' };
 
     const footerStyle = {
-        borderTop: '1px solid var(--border-color-light)',
-        paddingTop: '20px',
-        marginTop: '20px',
+        borderTop: '1px solid var(--border-color-light)', paddingTop: '20px', marginTop: '20px',
         textAlign: 'right'
     };
 
@@ -178,91 +162,86 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
                 e('h2', { style: { margin: 0 } }, boss ? `${boss.name} 攻略計画` : 'ボス攻略計画'),
                 e('button', { onClick: onClose, className: 'btn btn-ghost p-1 boss-planner-close-button' }, '×')
             ),
-            e('div', { className: 'tabs', style: { marginBottom: '20px', borderBottom: '1px solid var(--border-color-light)' } },
+            e('div', { className: 'tabs', style: { marginBottom: '10px', borderBottom: '1px solid var(--border-color-light)' } },
                 e('button', { 
                     onClick: () => setActiveTab('guide'), 
-                    className: `tab-button boss-planner-guide-tab ${activeTab === 'guide' ? 'active' : ''}`,
+                    className: `tab-button ${activeTab === 'guide' ? 'active' : ''}`,
                     style: { 
-                        padding: '10px 15px', 
-                        border: 'none', 
-                        background: activeTab === 'guide' ? 'var(--bg-panel-active)' : 'transparent',
-                        color: 'var(--text-main)',
-                        cursor: 'pointer',
-                        borderBottom: activeTab === 'guide' ? '2px solid var(--primary-accent)' : 'none'
+                        padding: '10px 15px', border: 'none', 
+                        background: activeTab === 'guide' ? 'var(--primary-accent-faded)' : 'transparent',
+                        color: 'var(--text-main)', cursor: 'pointer',
+                        borderBottom: activeTab === 'guide' ? '3px solid var(--primary-accent)' : '3px solid transparent',
+                        fontWeight: activeTab === 'guide' ? 'bold' : 'normal', transition: 'all 0.2s ease'
                     }
                 }, '攻略ガイド'),
                 e('button', { 
                     onClick: () => setActiveTab('formation'), 
-                    className: `tab-button boss-planner-formation-tab ${activeTab === 'formation' ? 'active' : ''}`,
+                    className: `tab-button ${activeTab === 'formation' ? 'active' : ''}`,
                     style: { 
-                        padding: '10px 15px', 
-                        border: 'none', 
-                        background: activeTab === 'formation' ? 'var(--bg-panel-active)' : 'transparent',
-                        color: 'var(--text-main)',
-                        cursor: 'pointer',
-                        borderBottom: activeTab === 'formation' ? '2px solid var(--primary-accent)' : 'none'
+                        padding: '10px 15px', border: 'none', 
+                        background: activeTab === 'formation' ? 'var(--primary-accent-faded)' : 'transparent',
+                        color: 'var(--text-main)', cursor: 'pointer',
+                        borderBottom: activeTab === 'formation' ? '3px solid var(--primary-accent)' : '3px solid transparent',
+                        fontWeight: activeTab === 'formation' ? 'bold' : 'normal', transition: 'all 0.2s ease'
                     }
-                }, '編成案')
+                }, '戦力分析')
             ),
             e('div', { style: bodyStyle },
-                activeTab === 'guide' && e('div', { className: 'guide-text-panel card', style: { padding: '15px' } },
-                    e('h3', { style: { marginTop: 0 } }, '攻略ガイド'),
-                    e('p', { style: { whiteSpace: 'pre-wrap', margin: 0 } }, renderTextWithTooltip(guideText || '現在、有効なブリーフィング情報はありません。'))
-                ),
-                activeTab === 'formation' && e('div', {
-                    className: 'formation-tab-content',
-                    style: { display: 'flex', flexDirection: 'column', height: 'calc(80vh - 200px)' }
-                },
-                    e('p', { className: 'guide-text', style: { fontSize: '14px', color: 'var(--text-subtle)', margin: '0 0 15px 0', padding: '10px', backgroundColor: 'var(--bg-main)', borderRadius: '4px' } }, 'おすすめメギドにチェックを入れ、「選択したメギドで編成を作成」ボタンを押すと、編成の雛形を作成できます。'),
-                    (recommendations && (recommendations.attackers.length > 0 || recommendations.jammers.length > 0 || recommendations.supporters.length > 0)) ? 
-                        e('div', { style: { flexShrink: 0 } },
-                            e('div', {
-                                className: 'recommendations-panel card',
-                                style: { marginBottom: '10px', padding: '15px', overflowY: 'auto', maxHeight: '180px' }
-                            },
-                                e('h4', { style: { marginTop: 0, marginBottom: '10px' } }, 'おすすめメギド'),
-                                e('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '10px' } },
-                                    recommendations.attackers.concat(recommendations.jammers, recommendations.supporters).map(rec => e('div', {
-                                        key: rec.megido.id + (rec.orb ? rec.orb.id : ''),
-                                        className: 'recommendation-item',
-                                        style: { display: 'flex', alignItems: 'center', gap: '5px', width: 'calc(50% - 5px)' }, // 2列にする
-                                    },
-                                        e('input', {
-                                            type: 'checkbox',
-                                            checked: selectedMegido.has(rec.megido.id),
-                                            onChange: () => handleCheckboxChange(rec.megido.id),
-                                            style: { cursor: 'pointer', flexShrink: 0 }
-                                        }),
-                                        e('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
-                                            e('img', {
-                                                src: `asset/メギド/${rec.megido.名前}.png`,
-                                                style: { width: '48px', height: '48px', borderRadius: '50%' },
-                                            }),
-                                            e('p', { style: { margin: 0, fontSize: '14px', fontWeight: 'bold' } }, rec.megido.名前)
+                activeTab === 'guide' && (() => {
+                    const guide = boss.guide;
+                    if (!guide || !guide.sections) {
+                        return e('div', { className: 'card', style: { padding: '15px' } },
+                            e('p', null, guideText || '現在、有効なブリーフィング情報はありません。')
+                        );
+                    }
+                    return e('div', { className: 'space-y-4' },
+                        guide.sections.map((section, sectionIndex) => {
+                            const isThreat = section.type === 'threat';
+                            const cardClasses = isThreat ? 'bg-red-900 bg-opacity-40 border-red-700' : 'bg-sky-900 bg-opacity-40 border-sky-700';
+                            const titleColor = isThreat ? 'text-red-300' : 'text-sky-300';
+                            return e('div', { key: sectionIndex, className: `border rounded-lg p-4 ${cardClasses}` },
+                                e('h4', { className: `text-lg font-bold mb-3 ${titleColor}` }, section.title),
+                                e('ul', { className: 'list-none m-0 p-0 space-y-3' }, 
+                                    section.points.map((point, pointIndex) => 
+                                        e('li', { key: pointIndex, className: 'flex items-start' },
+                                            getIconElement(point.icon),
+                                            e('span', { className: 'text-base text-white' }, renderTextWithEmphasis(point.text))
                                         )
-                                    ))
-                                )
-                            ),
-                            e('button', { 
-                                onClick: handleCreateFromSelectionClick, 
-                                className: 'btn btn-primary', 
-                                style: { marginTop: '15px', width: '100%' } 
-                            }, '選択したメギドで編成を作成')
+                                    )
+                                ),
+                                section.summary && e('p', { className: 'mt-4 text-sm text-gray-300' }, section.summary)
+                            );
+                        })
+                    );
+                })(),
+                activeTab === 'formation' && e('div', {
+                    className: 'formation-analysis-content space-y-4',
+                },
+                    e('p', { className: 'guide-text text-sm text-gray-300 p-2 bg-gray-900 rounded-md' }, 'ボスに有効なあなたの所持メギドと、その推薦理由を表示します。'),
+                    (recommendations.attackers.length > 0 || recommendations.jammers.length > 0 || recommendations.supporters.length > 0)
+                    ? e(React.Fragment, null,
+                        recommendations.attackers.length > 0 && e(React.Fragment, null,
+                            e('h4', { className: 'text-lg font-bold text-red-400 border-b border-red-400 pb-1 my-2' }, 'アタッカー候補'),
+                            recommendations.attackers.map(rec => renderRecommendationCard(rec))
+                        ),
+                        recommendations.jammers.length > 0 && e(React.Fragment, null,
+                            e('h4', { className: 'text-lg font-bold text-blue-400 border-b border-blue-400 pb-1 my-2' }, 'ジャマー候補'),
+                            recommendations.jammers.map(rec => renderRecommendationCard(rec))
+                        ),
+                        recommendations.supporters.length > 0 && e(React.Fragment, null,
+                            e('h4', { className: 'text-lg font-bold text-green-400 border-b border-green-400 pb-1 my-2' }, 'サポーター候補'),
+                            recommendations.supporters.map(rec => renderRecommendationCard(rec))
                         )
-                    : e('div', { className: 'card', style: { padding: '20px', textAlign: 'center', color: 'var(--text-subtle)' } }, 'おすすめメギドが見つかりませんでした。\n「所持メギド」タブから手持ちのメギドを登録すると、ボスに有効なメギドがここに表示されます。')
+                      )
+                    : e('div', { className: 'card p-5 text-center text-gray-400' },
+                        e('p', null, 'おすすめメギドが見つかりませんでした。'),
+                        e('p', { className: 'mt-2 text-sm' }, '「所持メギド」タブから手持ちのメギドを登録すると、ボスに有効なメギドがここに表示されます。')
+                      )
                 )
-            ),            e('div', { style: footerStyle },
-                e('button', { onClick: onClose, className: 'btn btn-secondary', style: { marginRight: '10px' } }, 'キャンセル'),
-                e('button', { className: 'btn btn-primary' }, 'この編成でボスに挑む')
             ),
-            e(ChoiceModal, {
-                isOpen: positionModalState.isOpen,
-                onClose: () => setPositionModalState({ isOpen: false, megidoId: null }),
-                onConfirm: handlePositionSelect,
-                title: '配置場所の選択',
-                message: 'このメギドをどこに配置しますか？',
-                options: positionModalOptions
-            })
+            e('div', { style: footerStyle },
+                e('button', { onClick: onClose, className: 'btn btn-secondary' }, '閉じる')
+            )
         )
     );
 };
