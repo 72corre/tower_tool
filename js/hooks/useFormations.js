@@ -335,7 +335,6 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
 
     const handleGenerateShareImage = useCallback(async (form) => {
         showToastMessage('共有用画像を生成中です...');
-        // rehydrateFormation は utils.js にあると仮定
         const rehydratedForm = rehydrateFormation(form, megidoDetails);
 
         setTweetUrl(generateTweetText(rehydratedForm));
@@ -343,11 +342,25 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         canvas.width = 1200;
         canvas.height = 675;
         const ctx = canvas.getContext('2d');
+        
+        const STYLE_COLORS = {
+            'ラッシュ': '#B3B3B5',
+            'カウンター': '#F36C21',
+            'バースト': '#5BC0DE',
+        };
+        const CATEGORY_COLORS = {
+            floor: '#2a4365',
+            rule: '#b7791f',
+            enemy: '#c53030',
+            custom: '#553c9a',
+        };
+
         const COLORS = {
             BG_HEADER: 'rgba(26, 32, 44, 0.9)',
             BG_MAIN: 'rgba(18, 18, 18, 0.9)',
             BORDER: '#4A5568',
             TEXT: '#FFFFFF',
+            TEXT_DARK: '#1E1E1E',
             TEXT_SUBTLE: '#A0AEC0',
             ACCENT_GOLD: '#FFC107'
         };
@@ -358,7 +371,6 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         };
         
         const qrCanvas = document.createElement('canvas');
-        // encodeFormationToQrString は utils.js にあると仮定
         const qrString = encodeFormationToQrString(rehydratedForm, megidoDetails, idMaps);
         if (!qrString) {
             showToastMessage('QRコードの生成に失敗');
@@ -374,11 +386,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         
         const imagePromises = [loadImage('asset/back.webp')];
         rehydratedForm.megido.forEach(m => imagePromises.push(m ? loadImage(`asset/メギド/${m.名前}.png`) : Promise.resolve(null)));
-        // オーブの画像アセットが見つからないため、オーブの読み込みと描画を無効化
-        // rehydratedForm.megido.forEach(m => imagePromises.push(m && m.orb ? loadImage(`asset/オーブ/${m.orb.name}.png`) : Promise.resolve(null)));
-        const [bgImage, ...loadedImages] = await Promise.all(imagePromises);
-        const megidoImages = loadedImages.slice(0, 5);
-        // const orbImages = loadedImages.slice(5);
+        const [bgImage, ...megidoImages] = await Promise.all(imagePromises);
 
         if (bgImage) ctx.drawImage(bgImage, 0, 0, canvas.width, canvas.height);
         ctx.fillStyle = COLORS.BG_HEADER;
@@ -398,34 +406,51 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         ctx.drawImage(qrCanvas, qrX, qrY, LAYOUT.QR_SIZE, LAYOUT.QR_SIZE);
 
         const leftColumnMaxWidth = 450;
+        let currentY = LAYOUT.PADDING;
 
         if (rehydratedForm.floor || rehydratedForm.enemyName) {
             const floorData = TOWER_MAP_DATA.find(f => f.floor === rehydratedForm.floor);
-            const square = floorData ? Object.values(floorData.squares).find(s => s.enemies && s.enemies.includes(rehydratedForm.enemyName)) : null;
+            const square = floorData ? Object.values(floorData.squares).find(s => s.enemies && s.enemies.map(e => e.name || e).includes(rehydratedForm.enemyName)) : null;
             const rules = square ? square.rules.join(", ") : '';
 
             const floorText = `${rehydratedForm.floor || '?'}F`;
-            drawOutlinedText(ctx, floorText, LAYOUT.PADDING, LAYOUT.PADDING, { font: 'bold 42px "Noto Sans JP", sans-serif' });
+            drawOutlinedText(ctx, floorText, LAYOUT.PADDING, currentY, { font: 'bold 42px "Noto Sans JP", sans-serif' });
             const floorWidth = ctx.measureText(floorText).width;
-            drawOutlinedText(ctx, rehydratedForm.enemyName || 'N/A', LAYOUT.PADDING + floorWidth + 15, LAYOUT.PADDING + 10, { font: 'bold 32px "Noto Sans JP", sans-serif', maxWidth: leftColumnMaxWidth - floorWidth - 15 });
-            drawOutlinedText(ctx, rules, LAYOUT.PADDING, LAYOUT.PADDING + 55, { font: '20px "Noto Sans JP", sans-serif', fillStyle: COLORS.TEXT_SUBTLE, textBaseline: 'top', maxWidth: leftColumnMaxWidth });
+            drawOutlinedText(ctx, rehydratedForm.enemyName || 'N/A', LAYOUT.PADDING + floorWidth + 15, currentY + 10, { font: 'bold 32px "Noto Sans JP", sans-serif', maxWidth: leftColumnMaxWidth - floorWidth - 15 });
+            currentY += 55;
+            drawOutlinedText(ctx, rules, LAYOUT.PADDING, currentY, { font: '20px "Noto Sans JP", sans-serif', fillStyle: COLORS.TEXT_SUBTLE, textBaseline: 'top', maxWidth: leftColumnMaxWidth });
+            currentY += 25;
         } else {
-            drawOutlinedText(ctx, rehydratedForm.name || '名称未設定の編成', LAYOUT.PADDING, LAYOUT.PADDING + 10, { font: 'bold 32px "Noto Sans JP", sans-serif', textBaseline: 'top', maxWidth: leftColumnMaxWidth });
+            drawOutlinedText(ctx, rehydratedForm.name || '名称未設定の編成', LAYOUT.PADDING, currentY + 10, { font: 'bold 32px "Noto Sans JP", sans-serif', textBaseline: 'top', maxWidth: leftColumnMaxWidth });
+            currentY += 60;
         }
 
-        if (rehydratedForm.notes) {
-            const notesX = leftColumnMaxWidth + LAYOUT.PADDING * 2;
-            const notesMaxWidth = canvas.width - notesX - qrBgSize - LAYOUT.PADDING * 3;
-            const lineHeight = 22;
-            let currentY = LAYOUT.PADDING;
-            const lines = rehydratedForm.notes.split('\n');
+        if (rehydratedForm.tags && rehydratedForm.tags.length > 0) {
+            let currentX = LAYOUT.PADDING;
+            ctx.font = '16px "Noto Sans JP", sans-serif';
+            rehydratedForm.tags.forEach(tag => {
+                const tagText = typeof tag === 'string' ? tag : tag.text;
+                const category = typeof tag === 'string' ? getTagInfo(tag).category : tag.category;
+                
+                let bgColor, textColor = COLORS.TEXT;
+                if (category === 'megido') {
+                    const megido = COMPLETE_MEGIDO_LIST.find(m => m.名前 === tagText);
+                    bgColor = megido ? STYLE_COLORS[megido.スタイル] : CATEGORY_COLORS.custom;
+                    if (megido && (megido.スタイル === 'ラッシュ' || megido.スタイル === 'バースト')) {
+                        textColor = COLORS.TEXT_DARK;
+                    }
+                } else {
+                    bgColor = CATEGORY_COLORS[category] || CATEGORY_COLORS.custom;
+                }
 
-            for (let i = 0; i < lines.length; i++) {
-                if (i >= 4) break;
-                const line = lines[i];
-                drawOutlinedText(ctx, line, notesX, currentY, { font: '18px "Noto Sans JP", sans-serif', fillStyle: COLORS.TEXT_SUBTLE, textBaseline: 'top', maxWidth: notesMaxWidth });
-                currentY += lineHeight;
-            }
+                const tagWidth = ctx.measureText(tagText).width + 20;
+                if (currentX + tagWidth > leftColumnMaxWidth) return; // Prevent overflow
+
+                ctx.fillStyle = bgColor;
+                ctx.fillRect(currentX, currentY, tagWidth, 24);
+                drawOutlinedText(ctx, tagText, currentX + 10, currentY + 4, { font: '16px "Noto Sans JP", sans-serif', fillStyle: textColor, strokeStyle: 'rgba(0,0,0,0.5)', lineWidth: 3 });
+                currentX += tagWidth + 8;
+            });
         }
 
         const cardW = 210;
@@ -447,7 +472,8 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
                 drawOutlinedText(ctx, megido.名前, cardX + cardW / 2, cardY + 80, { textAlign: 'center', maxWidth: cardW - 20 });
             }
             let infoY = cardY + cardW - 20;
-            drawOutlinedText(ctx, megido.名前, cardX + cardW / 2, infoY, { font: 'bold 24px "Noto Sans JP", sans-serif', textAlign: 'center', maxWidth: cardW - 20 });
+            const styleColor = STYLE_COLORS[megido.スタイル] || '#000000';
+            drawOutlinedText(ctx, megido.名前, cardX + cardW / 2, infoY, { font: 'bold 24px "Noto Sans JP", sans-serif', textAlign: 'center', maxWidth: cardW - 20, strokeStyle: styleColor });
             infoY += 30;
 
             const ougiText = `奥義Lv. ${megido.ougiLevel || 1}`;
