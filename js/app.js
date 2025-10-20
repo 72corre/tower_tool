@@ -634,8 +634,7 @@ const TowerTool = () => {
         showShareModal, 
         setShowShareModal, 
         tweetUrl, 
-        setTweetUrl, 
-        generateTagsForFormation
+        setTweetUrl
     } = useFormations({
         showToastMessage,
         idMaps,
@@ -684,7 +683,7 @@ const TowerTool = () => {
         handlePostFormation,
         handleDeleteCommunityFormation,
         isPosting,
-    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser, generateTagsForFormation });
+    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser });
 
     const handleImportFormation = () => {
         if (!idMaps) {
@@ -805,7 +804,20 @@ const TowerTool = () => {
                             floor: floors.length > 0 ? floors[0] : null
                         };
 
-                        newFormation.tags = generateTagsForFormation(newFormation);
+                        const newTags = new Map();
+                        (newFormation.megidoSlots || []).forEach(slot => {
+                            if (slot && slot.megidoName) {
+                                newTags.set(slot.megidoName, { text: slot.megidoName, category: 'megido' });
+                            }
+                        });
+                        if (newFormation.enemyName) {
+                            newTags.set(newFormation.enemyName, { text: newFormation.enemyName, category: 'enemy' });
+                        }
+                        (newFormation.floors || []).forEach(floor => {
+                            const tagText = `${floor}F`;
+                            newTags.set(tagText, { text: tagText, category: 'floor' });
+                        });
+                        newFormation.tags = Array.from(newTags.values());
                         
                         const newFormations = { ...formations, [newFormation.id]: newFormation };
                         setFormations(newFormations);

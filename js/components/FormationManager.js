@@ -1,4 +1,5 @@
-const KNOWN_RULES = ["全能力+20%（幻獣）","なし","防+50%（幻獣）","早+50%（幻獣）","攻+50%（幻獣）","全能力+50%（幻獣）","スキル強化","アタック強化","戦闘開始時、覚醒ゲージ+99","チャージ強化","全フォトン強化","毎ターン終了時、覚醒+10","劣化フォトン発生","毎ターン終了時、HP30%回復（幻獣）","チャージ無し","毎ターン終了時、覚醒+1（幻獣）","ペインフォトン発生","毎ターン終了時、1回バリア（幻獣）","特殊フォトン発生","HP+80%","進化度・レベル制限：⭐︎2.5/Lv23","全能力+50%（敵）","HP不可視","素早さ100%低下","被ダメージ20%上昇（メギド）","HP+80%(幻獣)","全能力+20%(幻獣)"];
+
+
 const categoryColors = {
     floor: '#2a4365',
     rule: '#b7791f',
@@ -6,33 +7,58 @@ const categoryColors = {
     custom: '#553c9a',
 };
 
-const getTagCategory = (tag) => {
-    if (/\d+F$/.test(tag)) return 'floor';
-    if (KNOWN_RULES.includes(tag)) return 'rule';
-    if (window.ENEMY_ALL_DATA && window.ENEMY_ALL_DATA[tag]) return 'enemy';
-    return 'custom';
+const FormationActionModal = ({
+    isOpen,
+    onClose,
+    form,
+    onGoToSource,
+    onPost,
+    onGenerateShareImage,
+    onCopy,
+    onExport,
+    onEdit,
+    onDelete
+}) => {
+    if (!isOpen || !form) return null;
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={e => e.stopPropagation()} style={{maxWidth: '300px'}}>
+                <h3 style={{marginTop: 0}}>{form.name} - アクション</h3>
+                <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                    {form.communityId && (
+                        <button onClick={() => { onGoToSource(form); onClose(); }} className="btn btn-secondary">採点しに行く</button>
+                    )} 
+                    <button onClick={() => { onPost(form); onClose(); }} className="btn btn-primary">投稿</button>
+                    <button onClick={() => { onGenerateShareImage(form); onClose(); }} className="btn btn-secondary">共有画像</button>
+                    <button onClick={() => { onCopy(form.id); onClose(); }} className="btn btn-secondary">コピー</button>
+                    <button onClick={() => { onExport(form); onClose(); }} className="btn btn-secondary">エクスポート</button>
+                    <button onClick={() => { onEdit(form); onClose(); }} className="btn btn-secondary">編集</button>
+                    <button onClick={() => {
+                        if (window.confirm(`「${form.name}」を削除してもよろしいですか？`)) {
+                            onDelete(form.id);
+                        }
+                        onClose();
+                    }} className="btn btn-danger">削除</button>
+                </div>
+                <button onClick={onClose} className="btn btn-secondary" style={{marginTop: '16px'}}>閉じる</button>
+            </div>
+        </div>
+    );
 };
 
 const FormationCard = ({
     form,
-    isExpanded,
-    onToggleExpand,
+    onOpenActionMenu,
     isInvalid,
     invalidReason,
     nameStyle,
     cardStyle,
-    onCopy,
-    onExport,
-    onEdit,
-    onDelete,
     onTagClick,
-    onPost,
-    onGoToSource,
     isGuideMode,
     isBossFormation,
     onSetBossFormation
 }) => {
-    const { handleGenerateShareImage } = useAppContext();
     return (
         <div className="card" style={{...cardStyle, height: '200px', display: 'flex', flexDirection: 'column'}}>
             <div className="formation-card-header">
@@ -51,7 +77,7 @@ const FormationCard = ({
                 )}
                 <button 
                     className="formation-card-menu-btn"
-                    onClick={() => onToggleExpand(form.id)}
+                    onClick={() => onOpenActionMenu(form.id)}
                 >
                     ︙
                 </button>
@@ -64,48 +90,56 @@ const FormationCard = ({
                 </p>
             )}
 
-            {isExpanded && (
-                <div className="formation-card-actions">
-                    {form.communityId && (
-                        <button onClick={() => onGoToSource(form)} className="btn btn-secondary">採点しに行く</button>
-                    )} 
-                    <button onClick={() => onPost(form)} className="btn btn-primary">投稿</button>
-                    <button onClick={() => handleGenerateShareImage(form)} className="btn btn-secondary">共有画像</button>
-                    <button onClick={() => onCopy(form.id)} className="btn btn-secondary">コピー</button>
-                    <button onClick={() => onExport(form)} className="btn btn-secondary">エクスポート</button>
-                    <button onClick={() => onEdit(form)} className="btn btn-secondary">編集</button>
-                    <button onClick={() => {
-                        if (window.confirm(`「${form.name}」を削除してもよろしいですか？`)) {
-                            onDelete(form.id);
-                        }
-                    }} className="btn btn-danger">削除</button>
-                </div>
-            )}
-
             <div style={{ flex: 1, overflowY: 'auto', margin: '8px 0' }}>
                 <p style={{color: 'var(--text-subtle)', whiteSpace: 'pre-wrap', margin: 0}}>{form.notes || ''}</p>
             </div>
 
             <div className="tag-carousel" style={{display: 'flex', flexWrap: 'nowrap', gap: '8px', overflowX: 'auto', paddingBottom: '8px'}}>
-                {(form.tags || []).map((tag, i) => {
-                    const category = getTagCategory(tag);
-                    const color = categoryColors[category] || '#718096';
+                {(form.tags || []).map((tagObject, i) => {
+                    const text = typeof tagObject === 'string' ? tagObject : tagObject.text;
+                    const category = typeof tagObject === 'string' ? getTagInfo(tagObject).category : tagObject.category;
+
+                    let color;
+                    let textColor = 'white';
+
+                    if (category === 'megido') {
+                        const megido = window.COMPLETE_MEGIDO_LIST && window.COMPLETE_MEGIDO_LIST.find(m => m.名前 === text);
+                        if (megido) {
+                            const style = megido.スタイル;
+                            if (style === 'ラッシュ') {
+                                color = 'var(--rush-color)';
+                                textColor = 'var(--bg-main)';
+                            } else if (style === 'カウンター') {
+                                color = 'var(--counter-color)';
+                            } else if (style === 'バースト') {
+                                color = 'var(--burst-color)';
+                                textColor = 'var(--bg-main)';
+                            } else {
+                                color = categoryColors.custom;
+                            }
+                        } else {
+                             color = categoryColors.custom;
+                        }
+                    } else {
+                        color = categoryColors[category] || categoryColors.custom;
+                    }
+
                     return (
                         <button 
-                            key={`${tag}-${i}`}
+                            key={`${text}-${i}`}
                             className="tag-button-item" 
                             style={{
                                 backgroundColor: color, 
+                                color: textColor,
                                 flexShrink: 0, 
                                 whiteSpace: 'nowrap',
-                                color: 'white',
                                 border: 'none',
                                 borderRadius: '12px',
                                 padding: '4px 12px',
                                 cursor: 'pointer'
                             }} 
-                            onClick={() => onTagClick(tag)}>
-                            {tag}
+                            onClick={() => onTagClick(tagObject)}>
+                            {text}
                         </button>
                     );
                 })}
@@ -144,7 +178,6 @@ const FormationManager = (props) => {
         onOpenCommunityFormations,
         handlePostFormation,
         isPosting,
-        onGenerateShareImage,
         bossFormationId,
         onSetBossFormation,
         isGuideMode
@@ -152,10 +185,8 @@ const FormationManager = (props) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [tagSearch, setTagSearch] = useState({ text: '', exactMatch: false });
     const [qrCodeData, setQrCodeData] = useState(null);
-    const [expandedCardId, setExpandedCardId] = useState(null);
+    const [actionMenuCardId, setActionMenuCardId] = useState(null);
     const [postModalState, setPostModalState] = useState({ isOpen: false, formation: null });
-
-    
 
     useEffect(() => {
         if (qrCodeData && isQriousLoaded) {
@@ -187,11 +218,14 @@ const FormationManager = (props) => {
         return formationList.filter(f => {
             if (!f.tags || f.tags.length === 0) return false;
             const searchText = hiraganaToKatakana(tagSearch.text).toLowerCase();
-            if (tagSearch.exactMatch) {
-                return f.tags.some(tag => hiraganaToKatakana(tag).toLowerCase() === searchText);
-            } else {
-                return f.tags.some(tag => hiraganaToKatakana(tag).toLowerCase().includes(searchText));
-            }
+            return f.tags.some(tagObject => {
+                const tagText = typeof tagObject === 'string' ? tagObject : tagObject.text;
+                const lowerTagText = hiraganaToKatakana(tagText).toLowerCase();
+                if (tagSearch.exactMatch) {
+                    return lowerTagText === searchText;
+                }
+                return lowerTagText.includes(searchText);
+            });
         });
     }, [tagSearch, formationList]);
 
@@ -224,7 +258,6 @@ const FormationManager = (props) => {
             return null;
         }
 
-        // QR文字列の生成を utils.js の関数に一元化
         const qrString = encodeFormationToQrString(form, megidoDetails, idMaps);
 
         if (!qrString) {
@@ -238,8 +271,8 @@ const FormationManager = (props) => {
         setQrCodeData(qrString);
     };
 
-    const handleToggleExpand = (formId) => {
-        setExpandedCardId(prevId => prevId === formId ? null : formId);
+    const handleOpenActionMenu = (formId) => {
+        setActionMenuCardId(formId);
     };
 
     const handleGoToSource = (form) => {
@@ -249,6 +282,8 @@ const FormationManager = (props) => {
             showToastMessage('この編成は「みんなの編成」からコピーされたものではありません。', 'info');
         }
     };
+    
+    const { handleGenerateShareImage } = useAppContext();
 
     return (
         <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
@@ -274,6 +309,20 @@ const FormationManager = (props) => {
                     }}
                 />
             )}
+
+            <FormationActionModal
+                isOpen={!!actionMenuCardId}
+                onClose={() => setActionMenuCardId(null)}
+                form={formations[actionMenuCardId]}
+                onGoToSource={handleGoToSource}
+                onPost={(f) => setPostModalState({ isOpen: true, formation: f })}
+                onGenerateShareImage={handleGenerateShareImage}
+                onCopy={onCopy}
+                onExport={handleExportClick}
+                onEdit={(f) => onEditingFormationChange(f)}
+                onDelete={onDelete}
+            />
+
             <div style={{display: 'flex', flexDirection: 'column', gap: '12px'}}>
                 <div style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
                     <input 
@@ -330,19 +379,17 @@ const FormationManager = (props) => {
                         <FormationCard
                             key={form.id}
                             form={form}
-                            isExpanded={expandedCardId === form.id}
-                            onToggleExpand={handleToggleExpand}
+                            onOpenActionMenu={handleOpenActionMenu}
                             isInvalid={isInvalid}
                             nameStyle={nameStyle}
                             cardStyle={cardStyle}
                             invalidReason={invalidReason}
-                            onCopy={onCopy}
-                            onExport={handleExportClick}
-                            onEdit={(f) => onEditingFormationChange(f)}
-                            onDelete={onDelete}
-                            onTagClick={(tag) => setTagSearch({ text: tag, exactMatch: false })}
-                            onPost={(f) => setPostModalState({ isOpen: true, formation: f })}
-                            onGoToSource={handleGoToSource}
+                            onTagClick={(tagObject) => {
+                                const category = typeof tagObject === 'string' ? getTagInfo(tagObject).category : tagObject.category;
+                                const text = typeof tagObject === 'string' ? tagObject : tagObject.text;
+                                const isMegidoTag = category === 'megido';
+                                setTagSearch({ text: text, exactMatch: isMegidoTag });
+                            }}
                             isGuideMode={isGuideMode}
                             isBossFormation={isBossFormation}
                             onSetBossFormation={onSetBossFormation}

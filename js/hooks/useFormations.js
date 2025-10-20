@@ -60,40 +60,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
     const [initialTagTarget, setInitialTagTarget] = useState(null);
     const [previousScreen, setPreviousScreen] = useState('map');
 
-    const generateTagsForFormation = (formation) => {
-        // 既存のタグと新しいタグをマージするためのSetを作成
-        const existingTags = Array.isArray(formation.tags) ? formation.tags : [];
-        const newTags = new Set(existingTags);
-    
-        // メギド名をタグに追加
-        (formation.megidoSlots || []).forEach(slot => {
-            if (slot && slot.megidoName) {
-                newTags.add(slot.megidoName);
-            }
-        });
-    
-        // 階層、敵名、ルールをタグに追加
-        const floors = Array.isArray(formation.floors) && formation.floors.length > 0 
-            ? formation.floors 
-            : (formation.floor ? [formation.floor] : []);
 
-        if (formation.enemyName && floors.length > 0) {
-            const enemyData = (typeof ENEMY_ALL_DATA !== 'undefined') ? ENEMY_ALL_DATA[formation.enemyName] : undefined;
-            if (enemyData && enemyData.locations) {
-                floors.forEach(floor => {
-                    const location = enemyData.locations.find(loc => loc && loc.floor === floor);
-                    if (location) {
-                        newTags.add(`${location.floor}F`);
-                        // 敵名は重複して追加される可能性があるが、Setなので問題ない
-                        newTags.add(formation.enemyName);
-                        (location.rules || []).forEach(rule => newTags.add(rule));
-                    }
-                });
-            }
-        }
-    
-        return Array.from(newTags);
-    };
 
     const handleSaveFormation = useCallback((formationToSave) => {
         // The formationToSave comes from FormationEditor and has full megido/orb objects.
@@ -126,7 +93,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
             })
         };
         
-        newFormationData.tags = generateTagsForFormation(newFormationData);
+
 
         const newFormations = { ...formations, [newFormationData.id]: newFormationData };
         setFormations(newFormations);
@@ -170,7 +137,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
             name: `${formationToCopy.name} (コピー)` 
         };
         
-        newFormation.tags = generateTagsForFormation(newFormation);
+
         
         const newFormations = { ...formations, [newId]: newFormation };
         setFormations(newFormations);
@@ -545,6 +512,6 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         setShowShareModal,
         tweetUrl,
         setTweetUrl,
-        generateTagsForFormation
+
     };
 };

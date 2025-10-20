@@ -16,7 +16,7 @@ const decodeFormationTags = (tagValue) => {
     return tags;
 };
 
-const useCommunityFormations = ({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser, generateTagsForFormation }) => {
+const useCommunityFormations = ({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser }) => {
     const [communityFormationsState, setCommunityFormationsState] = useState({ isOpen: false, floor: null, enemy: null, highlightId: null, initialFilter: '' });
     const [isPosting, setIsPosting] = useState(false);
 
@@ -108,11 +108,37 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
             return;
         }
 
+        const newTags = new Map();
+
+        (megidoSlots || []).forEach(slot => {
+            if (slot && slot.megidoName) {
+                newTags.set(slot.megidoName, { text: slot.megidoName, category: 'megido' });
+            }
+        });
+
+        if (formationToCopy.enemyName) {
+            newTags.set(formationToCopy.enemyName, { text: formationToCopy.enemyName, category: 'enemy' });
+        }
+
+        (floors || []).forEach(floor => {
+            const tagText = `${floor}F`;
+            newTags.set(tagText, { text: tagText, category: 'floor' });
+        });
+
+        const existingTags = [...new Set([...(formationToCopy.tags || []), ...decodedTags])];
+        existingTags.forEach(tagText => {
+            const trimmedText = tagText.trim();
+            if (trimmedText && !newTags.has(trimmedText)) {
+                const { category } = getTagInfo(trimmedText);
+                newTags.set(trimmedText, { text: trimmedText, category: category });
+            }
+        });
+
         const newFormation = {
             id: newId,
             name: finalName,
             megidoSlots: megidoSlots,
-            tags: [...new Set([...(formationToCopy.tags || []), ...decodedTags])],
+            tags: Array.from(newTags.values()),
             notes: formationToCopy.comment || '',
             enemyName: formationToCopy.enemyName || null,
             floors: floors.length > 0 ? floors : (formationToCopy.floor ? [formationToCopy.floor] : null),
@@ -120,15 +146,13 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
             communityId: formationToCopy.id,
             qrString: formationToCopy.qrString,
         };
-
-        newFormation.tags = generateTagsForFormation(newFormation);
         
         const newFormations = { ...formations, [newId]: newFormation };
         setFormations(newFormations);
         localStorage.setItem('formations', JSON.stringify(newFormations));
         showToastMessage('編成を自分のリストにコピーしました。');
         handleCloseCommunityFormations();
-    }, [formations, setFormations, showToastMessage, handleCloseCommunityFormations, idMaps, generateTagsForFormation]);
+    }, [formations, setFormations, showToastMessage, handleCloseCommunityFormations, idMaps]);
 
     // --- 編成投稿ハンドラ ---
     const handlePostFormation = useCallback(async ({ formation, tags, comment }) => {

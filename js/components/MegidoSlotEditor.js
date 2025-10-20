@@ -62,32 +62,41 @@ const MegidoSlotEditor = ({ megido, onSlotClick, onOrbClick, onReishouClick, onR
                 <p onClick={onRemoveMegido} className={`megido-slot-name font-bold cursor-pointer hover:text-red-400 ${getStyleClass(megido.スタイル)}`}>
                     {megido.名前} {isLeader && <span style={{ color: 'var(--primary-accent)' }}>(L)</span>}
                 </p>
-                <div className="megido-slot-stats">
-                    <select value={megido.level || 70} onChange={e => onStatChange('level', parseInt(e.target.value))} onClick={e => e.stopPropagation()} className="select-field megido-slot-stat-select">
-                        {[70, 75, 77, 79, 80].map(lv => <option key={lv} value={lv}>{`Lv${lv}`}</option>)}
-                    </select>
-                    <select value={megido.ougiLevel || 1} onChange={e => onStatChange('ougiLevel', parseInt(e.target.value))} onClick={e => e.stopPropagation()} className="select-field megido-slot-stat-select">
-                        {Array.from({length: 11}, (_, i) => i + 1).map(lv => <option key={lv} value={lv}>{`奥義${lv}`}</option>)}
-                    </select>
-                    {megido.専用霊宝 && 
-                        <label className="flex items-center gap-1 cursor-pointer" onClick={e => e.stopPropagation()}>
-                            <input type="checkbox" checked={megido.special_reishou} onChange={e => onStatChange('special_reishou', e.target.checked)} />
-                            <span className="text-xs">専用</span>
-                        </label>}
-                    {megido.絆霊宝 && 
-                        <select value={megido.bond_reishou || 0} onChange={e => onStatChange('bond_reishou', parseInt(e.target.value))} onClick={e => e.stopPropagation()} className="select-field megido-slot-stat-select">
-                            {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>{formatBondReishou(tier)}</option>)}
-                        </select>}
-                    {megido.Singularity && (
-                        <select
-                            value={megido.singularity_level || 0}
-                            onChange={e => onStatChange('singularity_level', parseInt(e.target.value))}
-                            onClick={e => e.stopPropagation()}
-                            className="select-field megido-slot-stat-select"
-                        >
-                            {[0, 1, 2, 3, 4].map(level => <option key={level} value={level}>{`凸${level}`}</option>)}
+                <div className="megido-slot-stats-new">
+                    <div className="stat-row">
+                        <label className="stat-label">Lv</label>
+                        <select value={megido.level || 70} onChange={e => onStatChange('level', parseInt(e.target.value))} onClick={e => e.stopPropagation()} className="select-field megido-slot-stat-select">
+                            {[70, 75, 77, 79, 80].map(lv => <option key={lv} value={lv}>{lv}</option>)}
                         </select>
-                    )}
+                    </div>
+                    <div className="stat-row">
+                        <label className="stat-label">奥義</label>
+                        <select value={megido.ougiLevel || 1} onChange={e => onStatChange('ougiLevel', parseInt(e.target.value))} onClick={e => e.stopPropagation()} className="select-field megido-slot-stat-select">
+                            {Array.from({length: 11}, (_, i) => i + 1).map(lv => <option key={lv} value={lv}>{lv}</option>)}
+                        </select>
+                    </div>
+                    {megido.専用霊宝 &&
+                        <div className="stat-row">
+                            <label className="stat-label">専用</label>
+                            <input type="checkbox" checked={megido.special_reishou} onChange={e => onStatChange('special_reishou', e.target.checked)} onClick={e => e.stopPropagation()} />
+                        </div>
+                    }
+                    {megido.絆霊宝 &&
+                        <div className="stat-row">
+                            <label className="stat-label">絆</label>
+                            <select value={megido.bond_reishou || 0} onChange={e => onStatChange('bond_reishou', parseInt(e.target.value))} onClick={e => e.stopPropagation()} className="select-field megido-slot-stat-select">
+                                {[0, 1, 2, 3].map(tier => <option key={tier} value={tier}>{formatBondReishou(tier)}</option>)}
+                            </select>
+                        </div>
+                    }
+                    {megido.Singularity &&
+                        <div className="stat-row">
+                            <label className="stat-label">凸</label>
+                            <select value={megido.singularity_level || 0} onChange={e => onStatChange('singularity_level', parseInt(e.target.value))} onClick={e => e.stopPropagation()} className="select-field megido-slot-stat-select">
+                                {[0, 1, 2, 3, 4].map(level => <option key={level} value={level}>{level}</option>)}
+                            </select>
+                        </div>
+                    }
                 </div>
             </div>
 

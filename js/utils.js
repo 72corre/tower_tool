@@ -28,6 +28,17 @@ const getRequiredExplorationPower = (square) => {
 
 const getBaseMegidoName = (name) => name ? name.replace(/[RBC]$/, '') : '';
 
+const KNOWN_RULES = ["全能力+20%（幻獣）","なし","防+50%（幻獣）","早+50%（幻獣）","攻+50%（幻獣）","全能力+50%（幻獣）","スキル強化","アタック強化","戦闘開始時、覚醒ゲージ+99","チャージ強化","全フォトン強化","毎ターン終了時、覚醒+10","劣化フォトン発生","毎ターン終了時、HP30%回復（幻獣）","チャージ無し","毎ターン終了時、覚醒+1（幻獣）","ペインフォトン発生","毎ターン終了時、1回バリア（幻獣）","特殊フォトン発生","HP+80%","進化度・レベル制限：⭐︎2.5/Lv23","全能力+50%（敵）","HP不可視","素早さ100%低下","被ダメージ20%上昇（メギド）","HP+80%(幻獣)","全能力+20%(幻獣)"];
+
+const getTagInfo = (tag) => {
+    if (/\d+F$/.test(tag)) return { category: 'floor' };
+    if (KNOWN_RULES.includes(tag)) return { category: 'rule' };
+    const megido = window.COMPLETE_MEGIDO_LIST && window.COMPLETE_MEGIDO_LIST.find(m => m.名前 === tag);
+    if (megido) return { category: 'megido', style: megido.スタイル };
+    if (window.ENEMY_ALL_DATA && window.ENEMY_ALL_DATA[tag]) return { category: 'enemy' };
+    return { category: 'custom' };
+};
+
 const getFormationInvalidReason = (formation, megidoDetails, ownedMegidoIds) => {
     if (!formation || !formation.megido) return null;
 
@@ -69,9 +80,9 @@ const CONDITION_ORDER = ['絶好調', '好調', '普通', '不調', '絶不調',
 const getStyleClass = (style) => {
     if (!style) return '';
     const s = String(style).toLowerCase();
-    if (s.includes('ラッシュ') || s.includes('rush')|| s.includes('R')) return 'text-rush';
-    if (s.includes('カウンター') || s.includes('counter')|| s.includes('C')) return 'text-counter';
-    if (s.includes('バースト') || s.includes('burst')|| s.includes('B')) return 'text-burst';
+    if (s.includes('ラッシュ') || s.includes('rush')|| s.includes('R')) return 'rush-text';
+    if (s.includes('カウンター') || s.includes('counter')|| s.includes('C')) return 'counter-text';
+    if (s.includes('バースト') || s.includes('burst')|| s.includes('B')) return 'burst-text';
     return '';
 };
 

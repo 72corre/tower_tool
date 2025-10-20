@@ -5,10 +5,15 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
     const [selectedFloors, setSelectedFloors] = useState([]);
     const [selectedEnemy, setSelectedEnemy] = useState('');
     const [isEnemyModalOpen, setIsEnemyModalOpen] = useState(false);
+    const [customTags, setCustomTags] = useState('');
 
     useEffect(() => {
         if (initialFormation) {
             setFormation(rehydrateFormation(initialFormation, megidoDetails));
+            const customTagsArray = (initialFormation.tags || [])
+                .filter(tag => typeof tag === 'string' || tag.category === 'custom')
+                .map(tag => typeof tag === 'string' ? tag : tag.text);
+            setCustomTags(customTagsArray.join(', '));
         }
     }, [initialFormation, megidoDetails]);
 
@@ -124,8 +129,8 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
 
         if (selectedEnemy && selectedFloors.length > 0) {
             finalFormation.enemyName = selectedEnemy;
-            finalFormation.floors = selectedFloors; // Save to 'floors' (plural)
-            finalFormation.floor = selectedFloors.length === 1 ? selectedFloors[0] : selectedFloors.join(','); // Keep for compatibility
+            finalFormation.floors = selectedFloors;
+            finalFormation.floor = selectedFloors.length === 1 ? selectedFloors[0] : selectedFloors.join(',');
         }
 
         if (!finalFormation.name) {
@@ -135,6 +140,32 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                 finalFormation.name = `${finalFormation.megido[2].名前}編成`;
             }
         }
+
+        const newTags = new Map();
+
+        (finalFormation.megido || []).forEach(megido => {
+            if (megido) {
+                newTags.set(megido.名前, { text: megido.名前, category: 'megido' });
+            }
+        });
+
+        if (selectedEnemy) {
+            newTags.set(selectedEnemy, { text: selectedEnemy, category: 'enemy' });
+        }
+
+        selectedFloors.forEach(floor => {
+            const tagText = `${floor}F`;
+            newTags.set(tagText, { text: tagText, category: 'floor' });
+        });
+
+        customTags.split(',').forEach(tagText => {
+            const trimmedText = tagText.trim();
+            if (trimmedText && !newTags.has(trimmedText)) {
+                newTags.set(trimmedText, { text: trimmedText, category: 'custom' });
+            }
+        });
+
+        finalFormation.tags = Array.from(newTags.values());
 
         onSave(finalFormation, previousScreen);
         showToastMessage("編成を保存しました");
@@ -181,6 +212,30 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
 
     return (
         <div className="formation-editor-form">
+            <style>{`
+                .megido-slot-stats-new {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1px;
+                    padding: 2px 0;
+                }
+                .stat-row {
+                    display: grid;
+                    grid-template-columns: 30px 1fr;
+                    align-items: center;
+                    gap: 2px;
+                }
+                .stat-label {
+                    font-size: 10px;
+                    color: var(--text-subtle);
+                    text-align: left;
+                    font-weight: 500;
+                }
+                .megido-slot-stat-select {
+                    padding: 1px;
+                    font-size: 10px;
+                }
+            `}</style>
             <FilterableSelectionModal {...getModalConfig()} onSelect={handleSelect} onClose={() => setModalState({ isOpen: false, type: null, slotIndex: null })} isOpen={modalState.isOpen && modalState.type !== null} uniquePrefix={uniquePrefix} />
             <FilterableSelectionModal 
                 title="エネミーを選択" 
@@ -228,8 +283,8 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                     </div>
                 </div>
                 <div className="form-section">
-                    <label className="label">タグ（カンマ区切り）</label>
-                    <input type="text" value={(formation.tags || []).join(', ')} onChange={e => setFormation(f => ({...f, tags: e.target.value.split(',').map(t=>t.trim())}))} className="input-field" />
+                    <label className="label">カスタムタグ（カンマ区切り）</label>
+                    <input type="text" value={customTags} onChange={e => setCustomTags(e.target.value)} className="input-field" />
                 </div>
                 <div className="form-section">
                     <label className="label">メモ</label>

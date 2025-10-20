@@ -66,7 +66,7 @@ const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) 
 
         return (
             <div key={megido.id + (orb ? orb.id : '')} className="rec-card">
-                <div className="rec-card-left">
+                <div className="rec-card-left" onClick={() => onOpenCommunityFormations(null, null, null, megido.名前)} style={{cursor: 'pointer'}}>
                     <img src={`asset/メギド/${megido.名前}.png`} alt={megido.名前} className={`rec-megido-icon ${getStyleClass(megido.スタイル)}`} />
                 </div>
                 <div className="rec-card-main">
