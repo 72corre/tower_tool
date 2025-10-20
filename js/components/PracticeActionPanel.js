@@ -499,7 +499,7 @@ const PracticeActionPanel = ({
                 secondaryItems={otherFormations}
                 renderItem={(item, onSelect) => {
                     const rehydratedItem = rehydrateFormation(item);
-                    const isInvalid = isFormationInvalid(rehydratedItem, megidoDetails, ownedMegidoIds);
+                    const isInvalid = getFormationInvalidReason(rehydratedItem, megidoDetails, ownedMegidoIds);
                     return (
                         <button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn" style={isInvalid ? { color: 'var(--danger-color)' } : {}}>
                             <p style={{fontWeight: 'bold'}}>{item.name}</p>
