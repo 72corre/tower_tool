@@ -21,6 +21,7 @@ const GIMMICKS_COUNTER_MAP = {
         { category: '強化', subCategory: '状態異常無効', priorityRule: { type: 'fixed', priority: 'medium' } },
     ],
     '状態異常-感電': [
+        { category: '妨害', subCategory: '感電', priorityRule: { type: 'fixed', priority: 'high' } },
         { category: '耐性', subCategory: '感電無効', priorityRule: { type: 'fixed', priority: 'high' } },
         { category: '耐性', subCategory: '全状態異常耐性', priorityRule: { type: 'fixed', priority: 'high' } },
         { category: '強化', subCategory: '状態異常無効', priorityRule: { type: 'fixed', priority: 'medium' } },
@@ -41,7 +42,40 @@ const GIMMICKS_COUNTER_MAP = {
         { category: '攻撃手段', subCategory: '防御無視', priorityRule: { type: 'fixed', priority: 'high' } },
         { category: '特殊状態', subCategory: '点穴', priorityRule: { type: 'fixed', priority: 'medium' } },
         { category: '特殊状態', subCategory: '点穴付与', priorityRule: { type: 'fixed', priority: 'medium' } },
+    ],
+    '防御-ダメージ軽減': [
+        { category: '攻撃手段', subCategory: '固定ダメージ', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '攻撃手段', subCategory: '防御無視', priorityRule: { type: 'fixed', priority: 'high' } },
+        { category: '特殊状態', subCategory: '点穴', priorityRule: { type: 'fixed', priority: 'medium' } },
+        { category: '特殊状態', subCategory: '点穴付与', priorityRule: { type: 'fixed', priority: 'medium' } },
     ]
+};
+
+const GIMMICK_REASON_TEMPLATES = {
+    '高火力スキル': '敵の強力なスキル攻撃に対処するため',
+    '高火力奥義': '敵の強力な奥義に対処するため',
+    '全体攻撃': 'パーティ全体が受けるダメージを軽減するため',
+    '連続攻撃': '複数回ヒットする攻撃を無効化、または軽減するため',
+    'かばう無効': '「かばう」を無視する攻撃からアタッカー等を守るため',
+    '状態異常-毒': '「毒」による継続ダメージを防ぐため',
+    '状態異常-めまい': '「めまい」による行動不能を防ぐため',
+    '状態異常-感電': '「感電」によるスキルフォトン破壊を防ぐため',
+    '状態異常-呪い': '「呪い」による回復量低下や即死を防ぐため',
+    '状態異常-即死': '「即死」効果を防ぐため',
+    '弱体-攻撃力低下': '攻撃力低下の弱体を解除し、火力を維持するため',
+    '弱体-防御力低下': '防御力低下の弱体を解除し、被ダメージを抑えるため',
+    '弱体-素早さ低下': '素早さ低下の弱体を解除し、行動順を確保するため',
+    '防御-高防御': '敵の高い防御力を無視してダメージを与えるため',
+    '耐性-火に弱い': '弱点である火ダメージで効率的にダメージを与えるため',
+    '耐性-雷に弱い': '弱点である雷ダメージで効率的にダメージを与えるため',
+    '攻撃手段-死者特効': '死者系の敵に特効ダメージを与えるため',
+    '攻撃手段-獣人特効': '獣人系の敵に特効ダメージを与えるため',
+    '攻撃手段-植物特効': '植物系の敵に特効ダメージを与えるため',
+    '攻撃手段-防御無視': '敵の高い防御力を無視してダメージを与えるため',
+    '攻撃手段-固定ダメージ': '敵の防御力に関わらず固定ダメージを与えるため',
+    '特殊状態-点穴': '防御力を無視する点穴ダメージで攻撃するため',
+    '特殊状態-点穴付与': '点穴を溜めて大ダメージを狙うため',
+    '特殊状態-エレキ': 'エレキ状態にして雷ダメージを増加させるため',
 };
 
 const WEAKNESS_ATTACK_MAP = {
@@ -165,6 +199,12 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
     const rawWeaknesses = enemy.tags.weaknesses;
     const weaknesses = Array.isArray(rawWeaknesses) ? rawWeaknesses : (rawWeaknesses && typeof rawWeaknesses === 'object' ? [rawWeaknesses] : []);
 
+    const WEAKNESS_TO_GIMMICK_MAP = {
+        '点穴': 'ダメージ軽減／高防御',
+        '点穴付与': 'ダメージ軽減／高防御',
+        '防御無視': 'ダメージ軽減／高防御',
+        '固定ダメージ': 'ダメージ軽減／高防御'
+    };    
     const findAttackersAndJammers = () => {
         const jammersMap = new Map();
         const enemyTags = [ ...weaknesses.map(t => ({ ...t, type: 'weakness' })), ...gimmicks.map(t => ({ ...t, type: 'gimmick' })) ];
@@ -178,8 +218,18 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                     const foundTag = megido.tags?.find(t => t.category.trim() === counter.category.trim() && t.subCategory.trim() === counter.subCategory.trim());
                     if (foundTag) {
                         const priority = evaluatePriority(counter.priorityRule, foundTag.condition);
-                        const reason = { method: foundTag.method, counter: counter.subCategory, targetGimmick: tag.subCategory };
-                        if (tag.type === 'weakness') {
+                        
+                        let realTargetGimmick = tag.subCategory;
+                        if (tag.type === 'weakness' && WEAKNESS_TO_GIMMICK_MAP[tag.subCategory]) {
+                            realTargetGimmick = WEAKNESS_TO_GIMMICK_MAP[tag.subCategory];
+                        }
+    
+                        const description = GIMMICK_REASON_TEMPLATES[key] || `敵の「${realTargetGimmick}」への対策です。`;
+                        const reason = { method: foundTag.method, counter: counter.subCategory, targetGimmick: realTargetGimmick, description };
+                        // ギミック対策でも、攻撃的な役割はアタッカーに分類する
+                        if (counter.category === '攻撃手段' || counter.subCategory === '点穴' || counter.subCategory === '点穴付与') {
+                            addOrUpdateRecommendation(recommendations.attackers, { megido, reason, priority, role: 'attacker' });
+                        } else if (tag.type === 'weakness') {
                             addOrUpdateRecommendation(recommendations.attackers, { megido, reason, priority, role: tag.type });
                         } else {
                             const jammerKey = megido.id;
@@ -202,8 +252,12 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                                 priority = PRIORITY.LOW;
                                 orbNote = ' (※入手難易度が高いオーブです)';
                             }
-                            const reason = { method: `${orb.name}の${foundTag.method}`, counter: counter.subCategory, targetGimmick: tag.subCategory, note: orbNote };
-                            if (tag.type === 'weakness') {
+                            const description = GIMMICK_REASON_TEMPLATES[`${tag.category}-${tag.subCategory}`] || `敵の「${tag.subCategory}」への対策です。`;
+                            const reason = { method: `${orb.name}の${foundTag.method}`, counter: counter.subCategory, targetGimmick: tag.subCategory, note: orbNote, description };
+
+                            if (counter.category === '攻撃手段' || counter.subCategory === '点穴' || counter.subCategory === '点穴付与') {
+                                addOrUpdateRecommendation(recommendations.attackers, { megido, orb, reason, priority, role: 'attacker' });
+                            } else if (tag.type === 'weakness') {
                                 addOrUpdateRecommendation(recommendations.attackers, { megido, orb, reason, priority, role: tag.type });
                             } else {
                                 const jammerKey = `${megido.id}-${orb.id}`;
@@ -269,7 +323,8 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                 for (const megido of ownedMegidoDetails) {
                     const foundTag = megido.tags?.find(t => t.category.trim() === counter.category.trim() && t.subCategory.trim() === counter.subCategory.trim());
                     if (foundTag) {
-                        const reason = { method: foundTag.method, counter: counter.subCategory, targetGimmick: threat.subCategory };
+                        const description = GIMMICK_REASON_TEMPLATES[`${threat.category}-${threat.subCategory}`] || `敵の「${threat.subCategory}」への対策です。`;
+                        const reason = { method: foundTag.method, counter: counter.subCategory, targetGimmick: threat.subCategory, description };
                         addOrUpdateRecommendation(recommendations.supporters, { megido, reason, priority: counter.priority, role: 'supporter' });
                     }
                 }
@@ -284,7 +339,8 @@ const findRecommendedMegido = ({ enemy, floorRules = [], ownedMegido, allMegidoM
                                 priority = PRIORITY.LOW;
                                 orbNote = ' (※入手難易度が高いオーブです)';
                             }
-                            const reason = { method: `${orb.name}の${foundTag.method}`, counter: counter.subCategory, targetGimmick: threat.subCategory, note: orbNote };
+                            const description = GIMMICK_REASON_TEMPLATES[`${threat.category}-${threat.subCategory}`] || `敵の「${threat.subCategory}」への対策です。`;
+                            const reason = { method: `${orb.name}の${foundTag.method}`, counter: counter.subCategory, targetGimmick: threat.subCategory, note: orbNote, description };
                             addOrUpdateRecommendation(recommendations.supporters, { megido, orb, reason, priority, role: 'supporter' });
                         }
                     }

@@ -72,7 +72,7 @@ const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) 
                 <div className="rec-card-main">
                     <h5 className="rec-megido-name" onClick={() => onOpenCommunityFormations(null, null, null, megido.名前)}>{megido.名前}</h5>
                     {(() => {
-                        if (typeof reason === 'string') {
+                        if (typeof reason === 'string' && reason !== megido.名前) {
                             return <p className="rec-reason" dangerouslySetInnerHTML={{ __html: reason.replace(/【(.*?)】/g, `<span class="highlight">【$1】</span>`) }}></p>;
                         }
                         if (reason.title) { // For complex strategies with titles
@@ -119,8 +119,6 @@ const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) 
                             ))}
                         </p>
                     )}
-                </div>                <div className="rec-card-right">
-                    <button className="rec-add-btn" title="編成に追加（機能は将来実装予定）">+</button>
                 </div>
             </div>
         );
@@ -158,16 +156,13 @@ const RecommendedMegidoPanel = ({ recommendations, onOpenCommunityFormations }) 
                 .style-counter { border-color: var(--counter-color, #f97316); }
                 .style-burst { border-color: var(--burst-color, #2563eb); }
                 .rec-card-main { flex-grow: 1; }
-                .rec-megido-name { margin: 0; font-size: 1rem; color: white; cursor: pointer; }
+                .rec-megido-name { margin: 0; font-size: 1rem; font-weight: 700; color: white; cursor: pointer; }
                 .rec-megido-name:hover { text-decoration: underline; }
                 .rec-reason { margin: 4px 0; font-size: 0.875rem; color: #d1d5db; }
                 .rec-reason .highlight, .rec-other-roles .highlight { color: var(--primary-accent, #70F0E0); font-weight: bold; }
                 .rec-other-roles { margin: 4px 0 0; font-size: 0.75rem; color: #9ca3af; }
-                .rec-card-right { flex-shrink: 0; }
-                .rec-add-btn { width: 30px; height: 30px; border-radius: 50%; background-color: #4b5563; color: white; border: none; font-size: 1.2rem; cursor: pointer; }
-                .rec-add-btn:hover { background-color: #6b7280; }
             `}</style>
-            <h5 style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#9ca3af', fontWeight: 'bold', textTransform: 'uppercase' }}>おすすめメギド</h5>
+            <h5 style={{ margin: '0 0 8px 0', fontSize: '1rem', color: '#9ca3af', fontWeight: 'bold'}}>おすすめメギド</h5>
             {renderCategory('アタッカー候補', 'attackers', '🗡️')}
             {renderCategory('ジャマー候補', 'jammers', '🌀')}
             {renderCategory('サポーター候補', 'supporters', '🛡️')}
@@ -417,7 +412,7 @@ const PracticeActionPanel = ({
     return (
         <div style={{ position: 'relative' }}>
             {isLocked && <LockedPanelOverlay text={lockText} />}
-            <h3 className="card-header">{floorData.floor}F {getSquareTypeName(squareData.type)}</h3>
+            <h3 className="card-header" style={{fontSize: '1.25rem', fontWeight: '700'}}>{floorData.floor}F {getSquareTypeName(squareData.type)}</h3>
             {squareData.type === 'boss' && (
                 <div style={{ margin: '12px 0' }}>
                     <button 
@@ -441,21 +436,21 @@ const PracticeActionPanel = ({
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 padding: '8px',
-                                backgroundColor: isTargeted ? 'var(--primary-accent-dark)' : 'var(--bg-main)',
+                                backgroundColor: isTargeted ? 'var(--bg-main)' : 'var(--bg-main)',
                                 borderRadius: '4px',
-                                border: isTargeted ? '2px solid var(--primary-accent)' : '2px solid transparent',
+                                border: isTargeted ? '2px solid var(--primary-accent)' : '2px solid var(--border-color)',
                                 transition: 'all 0.2s ease'
                             }}>
                                 <div onClick={() => onTargetEnemyChange(enemyName)} style={{cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', flexGrow: 1}}>
                                     {isTargeted && <span style={{color: '#70F0E0', fontWeight: 'bold', fontSize: '20px'}}>&gt;</span>}
-                                    <span style={{ fontWeight: 'bold', color: isTargeted ? '#70F0E0' : 'var(--text-main)' }}>{enemyName}</span>
+                                    <span style={{ fontSize: '1.125rem', fontWeight: 'bold', color: isTargeted ? '#70F0E0' : 'var(--text-main)' }}>{enemyName}</span>
                                 </div>
                                 <div style={{ display: 'flex', gap: '8px' }}>
                                     <button id={index === 0 ? "create-formation-button" : undefined} onClick={() => onCreateFormation(enemyName, floorData.floor)} className="btn btn-ghost p-1" title="新規編成">
-                                        <img src="asset/create.webp" alt="新規編成" style={{width: '24px', height: '24px'}} />
+                                        <span className="material-symbols-outlined">add_circle</span>
                                     </button>
                                     <button id={index === 0 ? "community-formation-button" : undefined} onClick={() => onOpenCommunityFormations(floorData.floor, enemyName)} className="btn btn-ghost p-1" title="みんなの編成">
-                                        <img src="asset/community.webp" alt="みんなの編成" style={{width: '24px', height: '24px'}} />
+                                        <span className="material-symbols-outlined">public</span>
                                     </button>
                                 </div>
                             </div>
@@ -463,10 +458,14 @@ const PracticeActionPanel = ({
                     )
                 })}
                 {isGuideMode && recommendations && <RecommendedMegidoPanel recommendations={recommendations} onOpenCommunityFormations={onOpenCommunityFormations} />}
-                {squareData.rules && squareData.rules.length > 0 && <p style={{marginTop: '12px'}}><strong>ルール:</strong> {renderRulesWithTooltips(squareData.rules)}</p>}
+                {squareData.rules && squareData.rules.length > 0 && 
+                    <div className="card" style={{padding: '12px', marginTop: '12px', backgroundColor: 'var(--bg-main)'}}>
+                        <p style={{margin: 0, fontWeight: 'bold', fontSize: '1rem'}}>ルール: <span style={{fontWeight: 'normal'}}>{renderRulesWithTooltips(squareData.rules)}</span></p>
+                    </div>
+                }
             </div>
             <div className="form-section">
-                <label className="label">挑戦する編成:</label>
+                <label className="label" style={{fontWeight: 600}}>挑戦する編成:</label>
                 <button onClick={() => setIsFormationModalOpen(true)} className="select-field-btn">
                     {formation ? formation.name : <span style={{color: 'var(--text-subtle)'}}>編成を選択...</span>}
                 </button>

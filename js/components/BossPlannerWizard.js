@@ -76,11 +76,13 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
 
     const renderRecommendationCard = (rec) => {
         const styleColors = {
-            'ラッシュ': 'border-red-500',
-            'カウンター': 'border-blue-500',
-            'バースト': 'border-yellow-500'
+            'ラッシュ': 'var(--rush-color)',
+            'カウンター': 'var(--counter-color)',
+            'バースト': 'var(--burst-color)'
         };
-        const cardBorderStyle = styleColors[rec.megido.スタイル] || 'border-gray-500';
+        const cardBorderStyle = {
+            borderLeft: `4px solid ${styleColors[rec.megido.スタイル] || 'var(--border-color)'}`
+        };
 
         const renderSingleReason = (reason, index) => {
             // Handle complex, pre-formatted reasons (e.g., synergies)
@@ -93,17 +95,52 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
 
             // Handle new structured reasons
             if (reason.targetGimmick && reason.method && reason.counter) {
-                return e('div', { key: index, className: 'text-sm flex items-start mt-1' },
+                const megidoName = rec.megido.名前;
+
+                const isDefensiveGimmick = ['高防御', 'ダメージ軽減', 'ダメージ99%軽減'].includes(reason.targetGimmick);
+                const isWeakness = reason.targetGimmick.includes('弱い');
+                const isAilment = reason.targetGimmick.includes('状態異常');
+
+                let sentenceParts = [];
+
+                if (isDefensiveGimmick) {
+                    sentenceParts = [
+                        '敵は', e('strong', { className: 'text-red-400' }, `「${reason.targetGimmick}」`), 'を持ちますが、',
+                        e('strong', { className: 'text-yellow-300' }, `「${megidoName}」`), 'の',
+                        e('strong', { className: 'text-amber-400' }, reason.method), 'は、これを無視して',
+                        e('strong', { className: 'text-green-400' }, reason.counter), 'ダメージを与えられるため有効です。'
+                    ];
+                } else if (isWeakness) {
+                    sentenceParts = [
+                        '敵は', e('strong', { className: 'text-red-400' }, `「${reason.targetGimmick}」`), 'という弱点を持つため、',
+                        e('strong', { className: 'text-yellow-300' }, `「${megidoName}」`), 'の',
+                        e('strong', { className: 'text-amber-400' }, reason.method), 'による',
+                        e('strong', { className: 'text-green-400' }, reason.counter), 'での攻撃が有効です。'
+                    ];
+                } else if (isAilment) {
+                    sentenceParts = [
+                        '敵が使用する', e('strong', { className: 'text-red-400' }, `「${reason.targetGimmick}」`), 'は、',
+                        e('strong', { className: 'text-yellow-300' }, `「${megidoName}」`), 'の',
+                        e('strong', { className: 'text-amber-400' }, reason.method), 'で対策できるため有効です。'
+                    ];
+                } else {
+                    if (reason.targetGimmick === reason.counter) {
+                        sentenceParts = [
+                            e('strong', { className: 'text-yellow-300' }, `「${megidoName}」`), 'の',
+                            e('strong', { className: 'text-amber-400' }, reason.method), 'による',
+                            e('strong', { className: 'text-green-400' }, `「${reason.counter}」`), 'での攻撃が有効です。'
+                        ];
+                    } else {
+                        sentenceParts = [
+                            '敵の', e('strong', { className: 'text-red-400' }, `「${reason.targetGimmick}」`), 'に対して、',
+                            e('strong', { className: 'text-yellow-300' }, `「${megidoName}」`), 'の',
+                            e('strong', { className: 'text-amber-400' }, reason.method), '(',
+                            e('strong', { className: 'text-green-400' }, reason.counter), ')が有効です。'
+                        ];
+                    }
+                }return e('div', { key: index, className: 'text-sm flex items-start mt-1' },
                     e('span', { className: 'material-symbols-outlined text-green-400 mr-2' }, 'task_alt'),
-                    e('p', null, 
-                        '「',
-                        e('strong', { className: 'text-red-400' }, reason.targetGimmick),
-                        '」のため、',
-                        e('strong', { className: 'text-amber-400' }, reason.method),
-                        'の「',
-                        e('strong', { className: 'text-green-400' }, reason.counter),
-                        '」が有効です。'
-                    )
+                    e('p', null, ...sentenceParts)
                 );
             }
 
@@ -113,7 +150,11 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
 
         const reasons = Array.isArray(rec.reason) ? rec.reason : [rec.reason];
 
-        return e('div', { key: rec.megido.id + (rec.orb ? rec.orb.id : ''), className: `bg-gray-800 bg-opacity-50 p-3 rounded-lg border-l-4 ${cardBorderStyle}` },
+        return e('div', { 
+            key: rec.megido.id + (rec.orb ? rec.orb.id : ''), 
+            className: `bg-gray-800 bg-opacity-50 p-3 rounded-lg`, 
+            style: cardBorderStyle 
+        },
             e('div', { className: 'flex items-center mb-2' },
                 e('img', { src: `asset/メギド/${rec.megido.名前}.png`, className: 'w-12 h-12 rounded-full mr-3' }),
                 e('div', null,
@@ -217,7 +258,7 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
                 activeTab === 'formation' && e('div', {
                     className: 'formation-analysis-content space-y-4',
                 },
-                    e('p', { className: 'guide-text text-sm text-gray-300 p-2 bg-gray-900 rounded-md' }, 'ボスに有効なあなたの所持メギドと、その推薦理由を表示します。'),
+                    e('p', { className: 'guide-text text-sm text-gray-300 p-2 bg-gray-900 rounded-md' }, 'このページでは、隣のタブ「攻略ガイド」で紹介した敵のギミックに対し、あなたの所持メギドの中から特に有効なメギドを推奨しています。誰の「どの行動」が「なぜ」有効なのかを知り、攻略編成を組む際の参考にしてください。'),
                     (recommendations.attackers.length > 0 || recommendations.jammers.length > 0 || recommendations.supporters.length > 0)
                     ? e(React.Fragment, null,
                         recommendations.attackers.length > 0 && e(React.Fragment, null,

@@ -33,35 +33,30 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
         const fetchFormations = async () => {
             setIsLoading(true);
             try {
-                const filterTerm = (filters.megidoName || filters.enemy || '').trim();
-                const katakanaTerm = hiraganaToKatakana(filterTerm);
-                const hiraganaTerm = katakanaToHiragana(filterTerm);
-                
-                const termsToSearch = [...new Set([katakanaTerm, hiraganaTerm])].filter(Boolean);
-
-                let allFormations = [];
                 const query = {};
+
                 if (filters.floor) {
-                    query.floors_contains = parseInt(filters.floor, 10);
+                    const floorNum = parseInt(filters.floor, 10);
+                    if (!isNaN(floorNum)) {
+                        query.floors_array_contains = floorNum;
+                    }
                 }
 
-                if (termsToSearch.length > 0) {
-                    const promises = termsToSearch.map(term => getCommunityFormations({ ...query, searchTerm: term }));
-                    const results = await Promise.all(promises);
-                    const flattenedResults = results.flat();
-                    // Merge and remove duplicates
-                    const uniqueIds = new Set();
-                    allFormations = flattenedResults.filter(f => {
-                        if (uniqueIds.has(f.id)) {
-                            return false;
-                        } else {
-                            uniqueIds.add(f.id);
-                            return true;
-                        }
-                    });
-                } else if (Object.keys(query).length > 0) {
-                    allFormations = await getCommunityFormations(query);
+                if (filters.enemy) {
+                    query.enemyName_eq = hiraganaToKatakana(filters.enemy.trim());
                 }
+
+                if (filters.megidoName) {
+                    const term = filters.megidoName.trim();
+                    const katakanaTerm = hiraganaToKatakana(term);
+                    const hiraganaTerm = katakanaToHiragana(term);
+                    const termsToSearch = [...new Set([katakanaTerm, hiraganaTerm])].filter(Boolean);
+                    if (termsToSearch.length > 0) {
+                        query.megidoNames_array_contains_any = termsToSearch;
+                    }
+                }
+
+                const allFormations = await getCommunityFormations(query);
 
                 if (allFormations.length > 0) {
                     const formationIds = allFormations.map(f => f.id);

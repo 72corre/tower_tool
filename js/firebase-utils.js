@@ -210,47 +210,70 @@ async function deleteCommunityFormation(formationId) {
  * @returns {Promise<Array>} 取得した編成データの配列。
  */
 async function getCommunityFormations(filters = {}) {
-    console.log('Searching with filters:', filters);
     if (!db) {
         console.error("Firestore is not initialized.");
         return [];
     }
 
+    const validFilterKeys = ['megidoNames_array_contains_any', 'enemyName_eq', 'floors_array_contains'];
+    const hasValidFilter = Object.keys(filters).some(key => validFilterKeys.includes(key) && filters[key]);
+
+    if (!hasValidFilter) {
+        console.log("No valid filters provided, returning empty array.");
+        return [];
+    }
+
+    console.log('Searching with new filters:', filters);
+
     try {
-        let query = db.collection('communityFormations');
+        const floorNum = filters.floors_array_contains ? parseInt(filters.floors_array_contains, 10) : null;
 
-        // フィルタを適用
-        if (filters.floors_contains) {
-            query = query.where('floors', 'array-contains', parseInt(filters.floors_contains, 10));
-        } else if (filters.floor) { // 後方互換性のためのフォールバック
-            query = query.where('floor', '==', parseInt(filters.floor, 10));
-        }
+        // 階数フィルターがある場合、2つのクエリを並列実行してマージする
+        if (floorNum !== null && !isNaN(floorNum)) {
+            let query1 = db.collection('communityFormations').where('floors', 'array-contains', floorNum);
+            let query2 = db.collection('communityFormations').where('floor', '==', floorNum);
 
-        if (filters.searchTerm) {
-            query = query.where('searchText', 'array-contains', filters.searchTerm);
-        }
+            // 他のフィルターを両方のクエリに適用
+            if (filters.megidoNames_array_contains_any && filters.megidoNames_array_contains_any.length > 0) {
+                query1 = query1.where('megidoNames', 'array-contains-any', filters.megidoNames_array_contains_any);
+                query2 = query2.where('megidoNames', 'array-contains-any', filters.megidoNames_array_contains_any);
+            }
+            if (filters.enemyName_eq) {
+                query1 = query1.where('enemyName', '==', filters.enemyName_eq);
+                query2 = query2.where('enemyName', '==', filters.enemyName_eq);
+            }
 
-        // orderBy のロジックを修正
-        if (filters.searchTerm) {
-            // searchTermで検索した場合、並び順はデフォルト(createdAt)にする
-            query = query.orderBy('createdAt', 'desc');
+            const [snapshot1, snapshot2] = await Promise.all([
+                query1.orderBy('createdAt', 'desc').limit(50).get(),
+                query2.orderBy('createdAt', 'desc').limit(50).get()
+            ]);
+
+            const results = new Map();
+            snapshot1.docs.forEach(doc => results.set(doc.id, { id: doc.id, ...doc.data() }));
+            snapshot2.docs.forEach(doc => results.set(doc.id, { id: doc.id, ...doc.data() }));
+            
+            return Array.from(results.values());
+
         } else {
-            // それ以外の場合はcreatedAtでソート
+            // 階数フィルターがない場合
+            let query = db.collection('communityFormations');
+            if (filters.megidoNames_array_contains_any && filters.megidoNames_array_contains_any.length > 0) {
+                query = query.where('megidoNames', 'array-contains-any', filters.megidoNames_array_contains_any);
+            }
+            if (filters.enemyName_eq) {
+                query = query.where('enemyName', '==', filters.enemyName_eq);
+            }
+
             query = query.orderBy('createdAt', 'desc');
+            const querySnapshot = await query.limit(50).get();
+            return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         }
-
-        // 最終的なクエリを実行
-        const querySnapshot = await query.limit(50).get();
-        
-        const formations = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-
-        return formations;
 
     } catch (e) {
         console.error("Error getting community formations: ", e);
+        if (e.message && e.message.includes('indexes')) {
+            alert('検索に必要な複合インデックスがありません。Firebaseコンソールで必要なインデックスを作成してください。エラーの詳細はコンソールを確認してください。');
+        }
         return [];
     }
 }
