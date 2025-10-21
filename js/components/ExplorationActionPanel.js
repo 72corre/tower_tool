@@ -207,9 +207,9 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                             onChange={e => setTargetExpectation(Number(e.target.value))} 
                             className="select-field"
                         >
-                            <option value={3}>3 (良い報酬)</option>
-                            <option value={2}>2 (通常報酬)</option>
-                            <option value={1}>1 (低い報酬)</option>
+                            <option value={3}>3 </option>
+                            <option value={2}>2 </option>
+                            <option value={1}>1 </option>
                         </select>
                     </div>
                     <button 
@@ -218,7 +218,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                         style={{flex: 2, padding: '12px 0', fontSize: '16px', fontWeight: 700}}
                     >
                         <span className="material-symbols-outlined" style={{verticalAlign: 'middle', marginRight: '4px'}}>auto_awesome</span>
-                        おまかせ探索編成
+                        おまかせ探索
                     </button>
                 </div>
             </div>
