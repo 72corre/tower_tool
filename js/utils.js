@@ -128,17 +128,14 @@ const encodeFormationToQrString = (formation, megidoDetails, idMaps) => {
 
     const enemyId = formation.enemyName ? (idMaps.enemy.originalToNew.get(formation.enemyName) || '000') : '000';
 
-    // Handle both comma-separated string and array/number for floors
     const floorsRaw = formation.floors || formation.floor || [];
     const floors = (Array.isArray(floorsRaw) ? floorsRaw : floorsRaw.toString().split(',')).map(f => String(f).trim()).filter(f => f && !isNaN(f));
 
     let header = '';
-    // V2 format for multiple floors, prefixed with '2'
     if (floors.length > 1) {
         const floorList = floors.map(f => f.toString().padStart(2, '0')).join('');
         header = `2${enemyId}${floors.length}${floorList}`;
     } else {
-        // V1 format for single or no floor
         const floor = floors.length > 0 ? floors[0].toString().padStart(2, '0') : '00';
         header = `${enemyId}${floor}`;
     }
@@ -177,18 +174,16 @@ const encodeFormationToQrString = (formation, megidoDetails, idMaps) => {
             const orbId = megidoSlot.orbId ? (idMaps.orb.originalToNew.get(String(megidoSlot.orbId)) || '999') : '999';
             partyData += orbId;
         } else {
-            partyData += '999010099999999999900999'; // Empty slot data
+            partyData += '999010099999999999900999';
         }
     }
     
     const finalQrString = header + partyData;
-    console.log('Final QR String:', finalQrString);
     return finalQrString;
 };
 
 const rehydrateFormation = (formation, megidoDetails) => {
     if (!formation) return null;
-    // If formation already has a hydrated 'megido' array, just return it.
     if (formation.megido) return formation;
     if (!formation.megidoSlots) return { ...formation, megido: [] };
 
@@ -229,7 +224,7 @@ const getOrb = (orbId) => {
 
 const hiraganaToKatakana = (str) => {
   if (!str) return '';
-  return str.replace(/[\u3041-\u3096]/g, (match) => {
+  return str.replace(/[\u3040-\u309f]/g, (match) => {
     const charCode = match.charCodeAt(0) + 0x60;
     return String.fromCharCode(charCode);
   });
@@ -237,9 +232,8 @@ const hiraganaToKatakana = (str) => {
 
 const katakanaToHiragana = (str) => {
   if (!str) return '';
-  return str.replace(/[\u30A1-\u30F6]/g, (match) => {
+  return str.replace(/[\u30a0-\u30ff]/g, (match) => {
     const charCode = match.charCodeAt(0) - 0x60;
     return String.fromCharCode(charCode);
   });
 };
-

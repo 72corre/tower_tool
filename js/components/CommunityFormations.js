@@ -43,7 +43,7 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                 }
 
                 if (filters.enemy) {
-                    query.enemyName_eq = hiraganaToKatakana(filters.enemy.trim());
+                    query.enemyName_katakana_eq = hiraganaToKatakana(filters.enemy.trim());
                 }
 
                 if (filters.megidoName) {

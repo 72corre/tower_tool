@@ -424,7 +424,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         ctx.fillRect(qrBgX, qrBgY, qrBgSize, qrBgSize);
         ctx.drawImage(qrCanvas, qrX, qrY, LAYOUT.QR_SIZE, LAYOUT.QR_SIZE);
 
-        const leftColumnMaxWidth = 450;
+        const leftColumnMaxWidth = 900;
         let currentY = LAYOUT.PADDING;
 
         const floors = rehydratedForm.floors || (rehydratedForm.floor ? [rehydratedForm.floor] : []);

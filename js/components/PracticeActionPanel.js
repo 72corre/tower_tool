@@ -11,13 +11,6 @@ const StrategyGuide = ({ square, targetedEnemy, bossGuide, recommendations, onOp
     const { glossaryData } = useAppContext();
     const [isOpen, setIsOpen] = useState(true);
 
-    const getStyleClass = (style) => {
-        if (style === 'ラッシュ') return 'style-rush';
-        if (style === 'カウンター') return 'style-counter';
-        if (style === 'バースト') return 'style-burst';
-        return '';
-    };
-
     const renderDetailWithTooltip = (text) => {
         if (!glossaryData || !text) return text;
         const allTerms = Object.keys(glossaryData).sort((a, b) => b.length - a.length);
@@ -143,12 +136,7 @@ const StrategyGuide = ({ square, targetedEnemy, bossGuide, recommendations, onOp
 // =================================================================
 const SelectedFormationViewer = ({ formation }) => {
     if (!formation || !formation.megido) return null;
-    const getStyleClass = (style) => {
-        if (style === 'ラッシュ') return 'style-rush';
-        if (style === 'カウンター') return 'style-counter';
-        if (style === 'バースト') return 'style-burst';
-        return '';
-    };
+
     return (
         <div className="selected-formation-viewer">
             {formation.megido.map((megido, index) => (
@@ -185,24 +173,12 @@ const PracticeActionPanel = ({
 
     const getEnemyName = (enemy) => (typeof enemy === 'string' ? enemy : enemy.name);
 
-    const rehydrateFormation = useCallback((formation) => {
-        if (!formation || !formation.megidoSlots) return { ...formation, megido: [] };
-        const rehydratedMegido = formation.megidoSlots.map(slot => {
-            if (!slot || !slot.megidoId) return null;
-            const megidoMaster = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(slot.megidoId));
-            if (!megidoMaster) return null;
-            const details = megidoDetails[slot.megidoId] || {};
-            return { ...megidoMaster, ...details };
-        });
-        return { ...formation, megido: rehydratedMegido };
-    }, [megidoDetails]);
-
     const { square: squareData, floor: floorData, id: squareId } = square;
     const [selectedFormationId, setSelectedFormationId] = useState('');
     const [isFormationModalOpen, setIsFormationModalOpen] = useState(false);
 
     const formation = formations[selectedFormationId];
-    const rehydratedSelectedFormation = useMemo(() => formation ? rehydrateFormation(formation) : null, [formation, rehydrateFormation]);
+    const rehydratedSelectedFormation = useMemo(() => formation ? rehydrateFormation(formation, megidoDetails) : null, [formation, megidoDetails]);
     const isFormationDisabled = rehydratedSelectedFormation && rehydratedSelectedFormation.megido.some(m => m && megidoConditions[String(m.id)] === '気絶');
 
     const bossGuide = useMemo(() => {
@@ -289,6 +265,7 @@ const PracticeActionPanel = ({
                 .btn-ghost-win { background-color: var(--success-bg, #1A4237); border: 1px solid var(--success-text, #9AE6B4); color: var(--success-text, #9AE6B4); font-weight: bold; }
                 .btn-ghost-win:hover { background-color: var(--success-text, #9AE6B4); color: var(--success-bg, #1A4237); }
                 .btn-ghost-win:disabled { background-color: var(--bg-main-dark); border-color: var(--border-color); color: var(--text-subtle); opacity: 0.5; }
+                .textarea-field { width: 100%; padding: 8px; border: 1px solid var(--border-color); border-radius: 4px; background-color: var(--bg-main); color: var(--text-main); resize: vertical; }
             `}</style>
 
             {isLocked && <LockedPanelOverlay text={lockText} />}
@@ -356,7 +333,7 @@ const PracticeActionPanel = ({
 
                     {selectedFormationId && formation && (
                         <div style={{marginTop: '12px'}}>
-                            <textarea value={memoText} onChange={(e) => setMemoText(e.target.value)} className="textarea-field" rows="3" placeholder="この編成に関するメモ..."></textarea>
+                            <textarea value={memoText} onChange={(e) => setMemoText(e.target.value)} className="textarea-field" rows="3" placeholder="例: 1ターン目にスキルが取れなければリタイア。アスモデウスにターゲットし、2ターン目にオーブを使用。"></textarea>
                             <button onClick={() => onSaveFormationMemo(selectedFormationId, memoText)} className="btn btn-primary" style={{marginTop: '8px', width: '100%'}}>メモを保存</button>
                         </div>
                     )}
@@ -387,7 +364,8 @@ const PracticeActionPanel = ({
                 onSelect={(item) => { setSelectedFormationId(item.id); setIsFormationModalOpen(false); }}
                 items={formationList}
                 renderItem={(item, onSelect) => {
-                    const isInvalid = getFormationInvalidReason(rehydrateFormation(item), megidoDetails, ownedMegidoIds);
+                    const rehydratedItem = rehydrateFormation(item, megidoDetails);
+                    const isInvalid = getFormationInvalidReason(rehydratedItem, megidoDetails, ownedMegidoIds);
                     return (
                         <button key={item.id} onClick={() => onSelect(item)} className="modal-item-btn" style={isInvalid ? { opacity: 0.5 } : {}}>
                             <p style={{fontWeight: 'bold'}}>{item.name}</p>

@@ -175,6 +175,11 @@ async function postCommunityFormation(formationData) {
             rating_count: 0,
         };
 
+        // 検索用のカタカナフィールドを追加
+        if (dataToPost.enemyName) {
+            dataToPost.enemyName_katakana = hiraganaToKatakana(dataToPost.enemyName);
+        }
+
         const docRef = await db.collection('communityFormations').add(dataToPost);
         console.log("Formation posted successfully with ID: ", docRef.id);
         return docRef.id;
@@ -215,7 +220,7 @@ async function getCommunityFormations(filters = {}) {
         return [];
     }
 
-    const validFilterKeys = ['megidoNames_array_contains_any', 'enemyName_eq', 'floors_array_contains'];
+    const validFilterKeys = ['megidoNames_array_contains_any', 'enemyName_katakana_eq', 'floors_array_contains'];
     const hasValidFilter = Object.keys(filters).some(key => validFilterKeys.includes(key) && filters[key]);
 
     if (!hasValidFilter) {
@@ -238,9 +243,9 @@ async function getCommunityFormations(filters = {}) {
                 query1 = query1.where('megidoNames', 'array-contains-any', filters.megidoNames_array_contains_any);
                 query2 = query2.where('megidoNames', 'array-contains-any', filters.megidoNames_array_contains_any);
             }
-            if (filters.enemyName_eq) {
-                query1 = query1.where('enemyName', '==', filters.enemyName_eq);
-                query2 = query2.where('enemyName', '==', filters.enemyName_eq);
+            if (filters.enemyName_katakana_eq) {
+                query1 = query1.where('enemyName_katakana', '==', filters.enemyName_katakana_eq);
+                query2 = query2.where('enemyName_katakana', '==', filters.enemyName_katakana_eq);
             }
 
             const [snapshot1, snapshot2] = await Promise.all([
@@ -260,8 +265,8 @@ async function getCommunityFormations(filters = {}) {
             if (filters.megidoNames_array_contains_any && filters.megidoNames_array_contains_any.length > 0) {
                 query = query.where('megidoNames', 'array-contains-any', filters.megidoNames_array_contains_any);
             }
-            if (filters.enemyName_eq) {
-                query = query.where('enemyName', '==', filters.enemyName_eq);
+            if (filters.enemyName_katakana_eq) {
+                query = query.where('enemyName_katakana', '==', filters.enemyName_katakana_eq);
             }
 
             query = query.orderBy('createdAt', 'desc');
