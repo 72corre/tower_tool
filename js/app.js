@@ -1814,7 +1814,8 @@ const TowerTool = () => {
                                     lockText={lockText}
                                     isPlanMode={mode === 'plan'}
                                     onPlanCombatParty={handlePlanCombatParty}
-                                    targetEnemy={targetEnemies[selectedSquare.id]}
+                                    targetedEnemy={targetedEnemy}
+                                    bossGuides={bossGuides}
                                     onTargetEnemyChange={(enemyName) => handleTargetEnemyChange(selectedSquare.id, enemyName)}
                                     isResolvable={isResolvable}
                                     onSaveFormationMemo={handleSaveFormationMemo}
