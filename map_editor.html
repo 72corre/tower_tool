@@ -49,21 +49,36 @@
             <h1>推奨ロジック マップエディタ (v3)</h1>
         </div>
 
-        <div class="form-group">
-            <label for="mapSelector"><strong>1. 編集するマップを選択</strong></label>
-            <select class="custom-select" id="mapSelector">
-                <option value="GIMMICK_COUNTER_MAP">GIMMICK_COUNTER_MAP (ギミック → 対策)</option>
-                <option value="WEAKNESS_ATTACK_MAP">WEAKNESS_ATTACK_MAP (弱点 → 攻撃)</option>
-                <option value="THREAT_SUPPORT_MAP">THREAT_SUPPORT_MAP (ギミック → サポート)</option>
-                <option value="WEAKNESS_TO_GIMMICK_MAP">WEAKNESS_TO_GIMMICK_MAP (偽の弱点 → 真のギミック)</option>
-                <option value="GIMMICK_REASON_TEMPLATES">GIMMICK_REASON_TEMPLATES (推奨理由テンプレート)</option>
-            </select>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label for="mapSelector"><strong>1. 編集するマップを選択</strong></label>
+                    <select class="custom-select" id="mapSelector">
+                        <option value="GIMMICK_COUNTER_MAP">GIMMICK_COUNTER_MAP (ギミック → 対策)</option>
+                        <option value="WEAKNESS_ATTACK_MAP">WEAKNESS_ATTACK_MAP (弱点 → 攻撃)</option>
+                        <option value="THREAT_SUPPORT_MAP">THREAT_SUPPORT_MAP (ギミック → サポート)</option>
+                        <option value="WEAKNESS_TO_GIMMICK_MAP">WEAKNESS_TO_GIMMICK_MAP (偽の弱点 → 真のギミック)</option>
+                        <option value="GIMMICK_REASON_TEMPLATES">GIMMICK_REASON_TEMPLATES (推奨理由テンプレート)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                 <div class="form-group">
+                    <label><strong>2. 既存のJSオブジェクトを貼り付け</strong></label>
+                    <div class="input-group">
+                        <textarea id="input-area" class="form-control" rows="3" placeholder="例: const GIMMICK_COUNTER_MAP = { ... };"></textarea>
+                        <div class="input-group-append">
+                            <button id="load-btn" class="btn btn-success">読み込み</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <hr class="my-4 border-secondary">
 
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h2 id="editor-title" class="h4"></h2>
+            <h2 id="editor-title" class="h4">3. エディタ</h2>
             <button id="add-entry-btn" class="btn btn-primary">新しいトリガーを追加</button>
         </div>
         <div id="editor-container">
@@ -73,14 +88,13 @@
         <hr class="my-4 border-secondary">
 
         <div>
-            <h2>3. JavaScriptオブジェクト出力</h2>
+            <h2>4. JavaScriptオブジェクト出力</h2>
             <p>編集内容がここにJavaScriptオブジェクトとして出力されます。下の「コピー」ボタンを押し、<code>RecommendationLogic.js</code> に貼り付けてください。</p>
             <textarea id="output" class="form-control" rows="20"></textarea>
             <button id="copy-btn" class="btn btn-info mt-2">クリップボードにコピー</button>
         </div>
     </div>
 
-    <script src="js/features/RecommendationLogic.js"></script>
     <script src="js/map_editor_v3.js"></script>
 
 </body>

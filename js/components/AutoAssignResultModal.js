@@ -32,6 +32,11 @@ const AutoAssignResultModal = ({ isOpen, onClose, result, onSelectParty, onRetry
         <div style={backdropStyle} onClick={onClose}>
             <div className="card" style={dialogStyle} onClick={e => e.stopPropagation()}>
                 <h3 className="card-header">おまかせ探索 結果</h3>
+                <div className="p-2 my-2 rounded-md" style={{backgroundColor: 'var(--bg-main)'}}>
+                    <p className="text-xs text-gray-400 m-0">
+                        <strong>おまかせ探索とは:</strong> 単に探索力が高いだけでなく、「メギドのコンディション」や「今後の回復マスの状況」を考慮し、さらに<strong>「計画」モードで戦闘に割り当て済みのメギドを除外</strong>して、最も効率的なパーティを提案する機能です。
+                    </p>
+                </div>
                 {result.success ? (
                     <div>
                         <p>以下の組み合わせが見つかりました。クリックで選択できます。</p>
