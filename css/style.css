@@ -38,7 +38,13 @@
             --node-color-recovery-b-rgb: 91, 192, 222;
         }
         *, *::before, *::after { box-sizing: border-box; }
-        html { color-scheme: dark; }
+        html {
+            color-scheme: dark;
+            --font-size-title: 1.5rem;    /* 3. タイトル (パネルタイトルなど) */
+            --font-size-large: 1.2rem;    /* 2. 大きな文字 (カードヘッダー、敵名など) */
+            --font-size-body: 1rem;       /* 1. 平文 (通常のテキスト) */
+            --font-size-small: 0.875rem;  /* 4. 補足 (注釈など) */
+        }
         body {
             background-color: var(--bg-main);
             color: var(--text-main);
@@ -1369,6 +1375,251 @@
     overflow-y: auto;
     border-top: 1px solid var(--border-color);
     padding-top: 1rem;
+}
+
+/* ===============================================
+   5. Action Panel (Right Side Details)
+   =============================================== */
+.practice-action-panel, .exploration-action-panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 16px;
+    gap: 16px;
+}
+.panel-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 8px 0;
+    flex-shrink: 0;
+}
+.sticky-tabs {
+    position: sticky;
+    top: 0;
+    background-color: var(--bg-panel);
+    z-index: 10;
+    padding: 8px 0;
+    flex-shrink: 0;
+}
+.panel-content {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding-right: 8px; /* For scrollbar space */
+}
+.tab-content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+.text-danger { color: var(--danger-color); }
+.text-warning { color: var(--warning-color); }
+.text-success { color: var(--success-color); }
+.placeholder-text { color: var(--text-subtle); text-align: center; padding: 24px; }
+.button-group {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-top: 8px;
+}
+.btn.btn-ghost.btn-success { border-color: var(--success-color); color: var(--success-color); }
+.btn.btn-ghost.btn-success:hover { background-color: var(--success-color); color: white; }
+.btn.btn-ghost.btn-danger { border-color: var(--danger-color); color: var(--danger-color); }
+.btn.btn-ghost.btn-danger:hover { background-color: var(--danger-color); color: white; }
+.btn.btn-ghost.btn-warning { border-color: var(--warning-color); color: var(--warning-color); }
+.btn.btn-ghost.btn-warning:hover { background-color: var(--warning-color); color: var(--bg-main); }
+.icon-label { font-size: 1.2rem; color: var(--primary-accent); vertical-align: middle; }
+.input-field {
+    width: 100%;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color-light);
+    border-radius: 4px;
+    padding: 10px 12px;
+    color: var(--text-main);
+    font-family: var(--font-main);
+}
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 16px;
+}
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--bg-main);
+    padding: 12px;
+    border-radius: 6px;
+}
+.stat-label { font-size: 0.9em; color: var(--text-subtle); margin-bottom: 4px; }
+.stat-value { font-size: 1.5em; font-weight: 700; color: var(--primary-accent); }
+.stat-unit { font-size: 0.6em; color: var(--text-subtle); margin-left: 2px; }
+
+/* --- Megido Icon Circle --- */
+.megido-icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid;
+    flex-shrink: 0;
+}
+.megido-icon-circle.rush { border-color: var(--rush-color); }
+.megido-icon-circle.counter { border-color: var(--counter-color); }
+.megido-icon-circle.burst { border-color: var(--burst-color); }
+
+/* --- Selected Formation Viewer --- */
+.selected-formation-viewer {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    padding: 12px;
+    background-color: var(--bg-main);
+    border-radius: 6px;
+    margin-top: 12px;
+}
+.formation-slot {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* --- Enemy Selector in Card --- */
+.enemy-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.enemy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Ensures vertical alignment */
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+.enemy-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+.enemy-item.targeted {
+    background-color: rgba(250, 204, 21, 0.1) !important;
+    border-left: 4px solid #FACC15 !important;
+}
+.enemy-item.targeted .icon-label {
+    color: #FACC15 !important;
+}
+
+.enemy-name {
+    font-size: var(--font-size-large);
+    font-weight: 700;
+}
+
+.enemy-name-wrapper:hover .enemy-name {
+    color: var(--primary-accent);
+}
+
+/* --- Rules Card (Card in Card) --- */
+.rules-card {
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color-light);
+    border-radius: 4px;
+    padding: 12px;
+    margin-top: 12px;
+}
+.rules-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.rule-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--font-size-small);
+    color: var(--text-subtle);
+    margin-bottom: 4px;
+}
+.rule-item .material-symbols-outlined {
+    font-size: 1.2em;
+    color: var(--primary-accent);
+}
+
+/* --- Strategy Guide Tags --- */
+.strategy-tag {
+    font-size: var(--font-size-small);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.strategy-tag.threat {
+    background-color: rgba(229, 62, 62, 0.2);
+    color: #fca5a5; /* red-300 */
+    border: 1px solid #e53e3e; /* red-600 */
+}
+.strategy-tag.counter {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #93c5fd; /* blue-300 */
+    border: 1px solid #3b82f6; /* blue-600 */
+}
+
+/* --- Button Group & Specific Buttons --- */
+.button-group {
+    display: flex; /* Changed to flexbox */
+    gap: 8px;
+    margin-top: 8px;
+}
+.button-group .btn {
+    flex: 1; /* Make buttons take equal space */
+}
+
+.btn-win {
+    background-color: var(--success-color);
+    color: white;
+    border: 1px solid var(--success-color);
+}
+.btn-win:hover { background-color: #36a166; }
+
+.btn-lose {
+    background-color: var(--danger-color);
+    color: white;
+    border: 1px solid var(--danger-color);
+}
+.btn-lose:hover { background-color: #c53030; }
+
+.btn-retire {
+    background-color: var(--warning-color);
+    color: var(--bg-main);
+    border: 1px solid var(--warning-color);
+}
+.btn-retire:hover { background-color: #d69e2e; }
+.enemy-actions .btn-icon {
+    color: var(--text-subtle);
+}
+.enemy-actions .btn-icon:hover {
+    color: var(--primary-accent);
+    background-color: var(--bg-hover);
+}
+
+/* --- Square Rules in Card --- */
+.square-rules {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color-light);
+    font-size: 0.9em;
+    color: var(--text-subtle);
+}
+
+/* --- Accented Card --- */
+.card-accented {
+    border-left: 4px solid var(--primary-accent);
 }
 
 .search-result-floor-group {

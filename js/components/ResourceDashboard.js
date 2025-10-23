@@ -1,5 +1,5 @@
 const ResourceDashboard = () => {
-    const { runState, megidoConditions, ownedMegidoIds, planState, formations, mode, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, targetFloor } = useAppContext();
+    const { runState, megidoConditions, ownedMegidoIds, planState, formations, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, targetFloor } = useAppContext();
     const { useMemo } = React;
 
     const normalizeStyleKey = (style) => {
@@ -98,7 +98,7 @@ const ResourceDashboard = () => {
 
     const fatiguedMegido = useMemo(() => {
         const fatigued = { R: [], C: [], B: [] };
-        if (mode !== 'practice' || !megidoConditions || !COMPLETE_MEGIDO_LIST) {
+        if (!megidoConditions || !COMPLETE_MEGIDO_LIST) {
             return fatigued;
         }
 
@@ -121,11 +121,11 @@ const ResourceDashboard = () => {
         fatigued.B.sort((a, b) => condIndex(b.condition) - condIndex(a.condition));
         
         return fatigued;
-    }, [megidoConditions, ownedMegidoIds, mode, COMPLETE_MEGIDO_LIST, CONDITION_ORDER]);
+    }, [megidoConditions, ownedMegidoIds, COMPLETE_MEGIDO_LIST, CONDITION_ORDER]);
 
     const recoveryInfo = useMemo(() => {
         const result = { random: { floor: '---', distance: Infinity }, styled: { floor: '---', style: '---', distance: Infinity, capacity: 0 } };
-        if (mode !== 'practice' || typeof TOWER_MAP_DATA === 'undefined' || !runState) return result;
+        if (typeof TOWER_MAP_DATA === 'undefined' || !runState) return result;
         const currentFloor = runState.highestFloorReached;
         let foundRandom = false, foundStyled = false;
         for (let i = currentFloor - 1; i < TOWER_MAP_DATA.length; i++) {
@@ -150,9 +150,9 @@ const ResourceDashboard = () => {
             }
         }
         return result;
-    }, [runState, mode, TOWER_MAP_DATA]);
+    }, [runState, TOWER_MAP_DATA]);
 
-    if ((mode === 'practice' && !runState) || (mode === 'plan' && !planConditions)) {
+    if (!runState) {
         return null;
     }
 
@@ -280,8 +280,7 @@ const ResourceDashboard = () => {
             </div>
             {!isFooterCollapsed && (
                 <div className="dashboard-content">
-                    {mode === 'practice' && renderPracticeMode()}
-                    {mode === 'plan' && renderPlanMode()}
+                    {renderPracticeMode()}
                 </div>
             )}
         </div>

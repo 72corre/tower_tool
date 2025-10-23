@@ -1,12 +1,6 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
-const modeDescriptions = [
-    { key: 'plan', title: '計画', description: 'どの様に登るのかを計画するモードです', icon: 'edit_document' },
-    { key: 'practice', title: '実践', description: '実際に登りながら利用するモードです', icon: 'directions_run' },
-    { key: 'log', title: 'ログ', description: '過去の記録を閲覧するモードです', icon: 'history' }
-];
 
-const modeMenuItems = modeDescriptions;
 
 const floorMenuItems = [
     { key: 1, title: '1F', description: 'まずはこれがオススメ。Ωアバドンを倒しに行きます' },
@@ -20,44 +14,10 @@ const floorMenuItems = [
     { key: 35, title: '35F', description: 'これであなたも星間の塔マスター！契りのドゥーエを倒しに行きます' },
 ];
 
-const ModeSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }) => {
-    if (!isOpen) return null;
 
-    return (
-        <div className="mobile-modal-overlay" onClick={onClose}>
-            <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0, width: 'min(500px, 90vw)'}}>
-                <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
-                    <h3 style={{marginTop: 0, textAlign: 'center'}}>モードを選択</h3>
-                </div>
-                <div style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {menuItems.map(item => (
-                            <button
-                                key={item.key}
-                                className={`modal-item-btn ${currentKey === item.key ? 'selected' : ''}`}
-                                onClick={() => {
-                                    onSelect(item.key);
-                                    onClose();
-                                }}
-                                style={{ display: 'flex', alignItems: 'center', gap: '1rem', textAlign: 'left', padding: '12px' }}
-                            >
-                                <span className="material-symbols-outlined" style={{ fontSize: '32px' }}>{item.icon}</span>
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <strong style={{fontSize: '1.1rem'}}>{item.title}</strong>
-                                    <span style={{fontSize: '0.8rem', color: 'var(--text-subtle)'}}>{item.description}</span>
-                                </div>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
 
 const DesktopHeader = () => {
-    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, runState, handleScrollToFloor, guideStep, setGuideStep } = useAppContext();
-    const [isModeModalOpen, setIsModeModalOpen] = React.useState(false);
+    const { targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, runState, handleScrollToFloor, guideStep, setGuideStep } = useAppContext();
     const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
 
     const processedFloorMenuItems = useMemo(() => {
@@ -69,7 +29,6 @@ const DesktopHeader = () => {
         });
     }, []);
 
-    const currentModeInfo = modeMenuItems.find(item => item.key === mode) || modeMenuItems[0];
     const currentFloorInfo = processedFloorMenuItems.find(item => item.key === targetFloor) || { key: targetFloor, title: `${targetFloor}F` };
 
     const FloorSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }) => {
@@ -121,16 +80,12 @@ const DesktopHeader = () => {
 
                 <div style={{ flexGrow: 1 }}></div>
 
-                {!isGuideMode && (
-                    <button className="btn btn-ghost" onClick={() => setIsModeModalOpen(true)}>
-                        モード: {currentModeInfo.title}
-                    </button>
-                )}
-                {mode === 'practice' && runState?.currentPosition?.floor && (
+                
+                
                     <button className="btn btn-ghost" onClick={() => handleScrollToFloor(runState.currentPosition.floor)}>
                         現在: {runState.currentPosition.floor}F
                     </button>
-                )}
+                
                 <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
                     目標: {currentFloorInfo.title}
                 </button>
@@ -155,13 +110,6 @@ const DesktopHeader = () => {
                     </div>
                 )}
 
-                <ModeSelectionModal
-                    isOpen={isModeModalOpen}
-                    onClose={() => setIsModeModalOpen(false)}
-                    onSelect={onModeChange}
-                    currentKey={mode}
-                    menuItems={modeMenuItems}
-                />
                 <FloorSelectionModal
                     isOpen={isFloorModalOpen}
                     onClose={() => setIsFloorModalOpen(false)}
@@ -175,10 +123,9 @@ const DesktopHeader = () => {
 };
 
 const MobileHeader = () => {
-    const { mode, handleModeChange: onModeChange, targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, handleSaveLog, handleResetRun, handleUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, handleScrollToFloor } = useAppContext();
+    const { targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, handleSaveLog, handleResetRun, handleUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, handleScrollToFloor } = useAppContext();
     const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
     const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
-    const [isModeModalOpen, setIsModeModalOpen] = useState(false);
     const [isLogSelectionOpen, setIsLogSelectionOpen] = useState(false);
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
@@ -191,12 +138,9 @@ const MobileHeader = () => {
         });
     }, []);
 
-    const currentModeInfo = modeMenuItems.find(item => item.key === mode) || modeMenuItems[0];
+
 
     const getTitle = () => {
-        if (mode === 'log') {
-            return selectedLog ? selectedLog.name : 'ログを選択';
-        }
         switch (activeTab) {
             case 'details':
                 const currentFloor = runState?.currentPosition?.floor || '-';
@@ -224,11 +168,7 @@ const MobileHeader = () => {
         }
     };
     
-    const handleTitleClick = () => {
-        if (mode === 'log') {
-            setIsLogSelectionOpen(true);
-        }
-    };
+
 
     const AuthContent = () => {
         if (currentUser) {
@@ -256,20 +196,12 @@ const MobileHeader = () => {
                     <button onClick={onOpenSettings} className="btn-icon" title="設定">
                         <span className="material-symbols-outlined">settings</span>
                     </button>
-                    {!isGuideMode && (
-                        <div className="mode-selector-wrapper">
-                            <button className="btn-icon" onClick={() => setIsModeModalOpen(true)} title={currentModeInfo.title}>
-                                <span className="material-symbols-outlined">{currentModeInfo.icon}</span>
-                            </button>
-                        </div>
-                    )}
+                    
                 </div>
 
                 <div style={{ flex: '0 1 auto', textAlign: 'center', minWidth: 0 }}>
                     <div 
                         className="mobile-header-title"
-                        onClick={handleTitleClick}
-                        style={mode === 'log' ? { cursor: 'pointer', textDecoration: 'underline' } : {}}
                     >
                         {getTitle()}
                     </div>
@@ -288,7 +220,7 @@ const MobileHeader = () => {
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '24px', height: '24px'}}><path d="M12 2.5a5.5 5.5 0 0 1 3.096 10.047 9.005 9.005 0 0 1 5.9 8.181.75.75 0 1 1-1.499.044 7.5 7.5 0 0 0-14.993 0 .75.75 0 0 1-1.5-.045 9.005 9.005 0 0 1 5.9-8.181A5.5 5.5 0 0 1 12 2.5ZM8 8a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z" /></svg>
                         </button>
                     )}
-                    {activeTab === 'details' && mode === 'practice' && (
+                    {activeTab === 'details' && (
                         <>
                             <button onClick={() => setIsActionsMenuOpen(true)} className="btn-icon"><span className="material-symbols-outlined">more_vert</span></button>
                             {isActionsMenuOpen && (
@@ -306,7 +238,7 @@ const MobileHeader = () => {
                 </div>
             </div>
             <div className="mobile-header-tabs">
-                 {mode !== 'log' ? (
+                 
                     <>
                         <button id="mobile-details-tab-button" onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
                             <span className="material-symbols-outlined">explore</span>
@@ -320,31 +252,10 @@ const MobileHeader = () => {
                             <span className="material-symbols-outlined">groups</span>
                             <span>編成</span>
                         </button>                    </>
-                 ) : (
-                    <>
-                        <button onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
-                            <span className="material-symbols-outlined">explore</span>
-                            <span>マップ</span>
-                        </button>
-                        <button onClick={() => handleTabClick('summary')} disabled={!selectedLog} className={`mobile-tab-button ${activeTab === 'summary' ? 'active' : ''}`}>
-                            <span className="material-symbols-outlined">summarize</span>
-                            <span>シーズンサマリー</span>
-                        </button>
-                        <button onClick={() => handleTabClick('all_summary')} className={`mobile-tab-button ${activeTab === 'all_summary' ? 'active' : ''}`}>
-                            <span className="material-symbols-outlined">assessment</span>
-                            <span>通算サマリー</span>
-                        </button>
-                    </>
-                 )}
+                 
             </div>
 
-            <ModeSelectionModal
-                isOpen={isModeModalOpen}
-                onClose={() => setIsModeModalOpen(false)}
-                onSelect={onModeChange}
-                currentKey={mode}
-                menuItems={modeMenuItems}
-            />
+
 
             {isAuthModalOpen && (
                 <div className="mobile-modal-overlay" onClick={() => setIsAuthModalOpen(false)}>

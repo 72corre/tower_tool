@@ -9,7 +9,7 @@ const getSquareIcon = (square) => {
     return `${basePath}${iconName}.webp`;
 };
 
-const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, runState, mode, highlight }) => {
+const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, runState, highlight }) => {
     if (!squareId) return <div style={{ height: '48px' }}></div>;
     const square = floorData.squares[squareId];
     if (!square) return <div style={{ height: '48px', border: '1px solid red' }}>?</div>;
@@ -17,7 +17,7 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, act
     const getEnemyName = (enemy) => (typeof enemy === 'string' ? enemy : enemy.name);
 
     const memo = memos[`${floorData.floor}-${squareId}`];
-    const isCurrentPos = mode === 'practice' && runState.currentPosition?.floor === floorData.floor && runState.currentPosition?.squareId === squareId;
+    const isCurrentPos = runState.currentPosition?.floor === floorData.floor && runState.currentPosition?.squareId === squareId;
     let nodeClasses = getSquareStyle(square, floorData, squareId);
     if (isCurrentPos) {
         nodeClasses += ' current-position';
@@ -48,7 +48,7 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, act
                 )}
             </div>
             {memo && <div className="memo-tooltip">{memo}</div>}
-            {(mode === 'practice' || mode === 'plan' || mode === 'log') && (square.type === 'battle' || square.type === 'boss') && (
+            {(square.type === 'battle' || square.type === 'boss') && (
                 <div className="enemy-tooltip">
                     <h4 style={{margin: 0, paddingBottom: '4px', borderBottom: '1px solid var(--border-color-light)', fontSize:'14px', fontWeight: 700}}>出現エネミー</h4>
                     <ul style={{margin: '8px 0 0 0', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px'}}>
@@ -63,7 +63,7 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, act
                     </ul>
                 </div>
             )}
-            {(mode === 'practice' || mode === 'plan' || mode === 'log') && square.type === 'explore' && (
+            {square.type === 'explore' && (
                 <div className="enemy-tooltip">
                     <h4 style={{margin: 0, paddingBottom: '4px', borderBottom: '1px solid var(--border-color-light)', fontSize:'14px', fontWeight: 700}}>探索マス情報</h4>
                     <div style={{marginTop: '8px', fontSize: '12px'}}>
@@ -93,7 +93,7 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, act
     );
 });
 
-const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, mode, guidance, highlightedSquares }) => {
+const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, guidance, highlightedSquares }) => {
     const containerRef = React.useRef(null);
 
     const isGreyedOut = floorData.floor > targetFloor;
@@ -147,7 +147,6 @@ const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, s
                                 getSquareColorRgbVarName={getSquareColorRgbVarName}
                                 memos={memos}
                                 runState={runState}
-                                mode={mode}
                                 highlight={highlight}
                             />
                         );

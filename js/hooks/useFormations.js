@@ -1,4 +1,4 @@
-const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveTab, setPracticeView, mode, handleMegidoDetailChange, megidoDetails }) => {
+const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveTab, setPracticeView, handleMegidoDetailChange, megidoDetails }) => {
     const { useState, useCallback, useMemo } = React;
 
     const [formations, setFormations] = useState(() => {
@@ -292,13 +292,9 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
         };
         setEditingFormation(newFormation);
         setInitialTagTarget({ enemy: enemyName, floor: floor });
-        if (mode === 'plan') {
-            setPreviousScreen('combat_plan');
-        } else {
-            setPreviousScreen('action');
-        }
+        setPreviousScreen('action');
         setActiveTab('formation');
-    }, [mode, setActiveTab]);
+    }, [setActiveTab]);
 
     const [generatedImageData, setGeneratedImageData] = useState('');
     const [showShareModal, setShowShareModal] = useState(false);

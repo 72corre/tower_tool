@@ -601,15 +601,121 @@
             align-items: center;
         }
 
-        /* Misc */
-        .placeholder {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            height: 100%;
-            color: var(--text-subtle);
-        }
+        /* --- Enemy Selector in Card --- */
+.enemy-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.enemy-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; /* Ensures vertical alignment */
+    padding: 8px;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+.enemy-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 500;
+}
+.enemy-item.targeted {
+    background-color: rgba(250, 204, 21, 0.1) !important;
+    border-left: 4px solid #FACC15 !important;
+}
+.enemy-item.targeted .icon-label {
+    color: #FACC15 !important;
+}
+
+.enemy-name {
+    font-size: var(--font-size-large);
+    font-weight: 700;
+}
+
+.enemy-name-wrapper:hover .enemy-name {
+    color: var(--primary-accent);
+}
+
+/* --- Rules Card (Card in Card) --- */
+.rules-card {
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color-light);
+    border-radius: 4px;
+    padding: 12px;
+    margin-top: 12px;
+}
+.rules-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.rule-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: var(--font-size-small);
+    color: var(--text-subtle);
+    margin-bottom: 4px;
+}
+.rule-item .material-symbols-outlined {
+    font-size: 1.2em;
+    color: var(--primary-accent);
+}
+
+/* --- Strategy Guide Tags --- */
+.strategy-tag {
+    font-size: var(--font-size-small);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.strategy-tag.threat {
+    background-color: rgba(229, 62, 62, 0.2);
+    color: #fca5a5; /* red-300 */
+    border: 1px solid #e53e3e; /* red-600 */
+}
+.strategy-tag.counter {
+    background-color: rgba(59, 130, 246, 0.2);
+    color: #93c5fd; /* blue-300 */
+    border: 1px solid #3b82f6; /* blue-600 */
+}
+
+/* --- Button Group & Specific Buttons --- */
+.button-group {
+    display: flex; /* Changed to flexbox */
+    gap: 8px;
+    margin-top: 8px;
+}
+.button-group .btn {
+    flex: 1; /* Make buttons take equal space */
+}
+
+.btn-win {
+    background-color: var(--success-color);
+    color: white;
+    border: 1px solid var(--success-color);
+}
+.btn-win:hover { background-color: #36a166; }
+
+.btn-lose {
+    background-color: var(--danger-color);
+    color: white;
+    border: 1px solid var(--danger-color);
+}
+.btn-lose:hover { background-color: #c53030; }
+
+.btn-retire {
+    background-color: var(--warning-color);
+    color: var(--bg-main);
+    border: 1px solid var(--warning-color);
+}
+.btn-retire:hover { background-color: #d69e2e; }
         .form-section {
             margin-bottom: 20px;
         }

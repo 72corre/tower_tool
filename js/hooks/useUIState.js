@@ -7,7 +7,6 @@ const useUIState = () => {
         return (savedTab && allowedTabs.includes(savedTab)) ? savedTab : 'details';
     });
 
-    const [mode, setMode] = useState(() => localStorage.getItem('ui_mode') || 'practice');
     const [selectedSquare, setSelectedSquare] = useState(null);
     const [modalState, setModalState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
     const [recoveryModalState, setRecoveryModalState] = useState({ isOpen: false });
@@ -28,17 +27,6 @@ const useUIState = () => {
         setShowToast(true);
         setTimeout(() => setShowToast(false), 3000);
     }, []);
-
-    const handleModeChange = (newMode) => {
-        setMode(newMode);
-        // setDisplayedEnemy(null); // This will be handled in the main component
-        if (mode === 'log' && newMode !== 'log') {
-            // handleSelectLog(null); // This will be handled in the main component
-            // setSelectedLogSquare(null); // This will be handled in the main component
-        }
-        setSelectedSquare(null);
-        localStorage.removeItem('ui_selectedSquareKey');
-    };
 
     const handleTabClick = (tabName) => {
         setActiveTab(tabName);
@@ -62,8 +50,6 @@ const useUIState = () => {
     return {
         activeTab,
         setActiveTab,
-        mode,
-        setMode,
         selectedSquare,
         setSelectedSquare,
         modalState,
@@ -84,7 +70,6 @@ const useUIState = () => {
         isMapSearchModalOpen,
         handleOpenMapSearch,
         handleCloseMapSearch,
-        handleModeChange,
         handleTabClick,
         highlightedSquares,
         setHighlightedSquares,

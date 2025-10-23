@@ -1,4 +1,4 @@
-const usePlanState = ({ formations, megidoDetails, mode, showToastMessage }) => {
+const usePlanState = ({ formations, megidoDetails, showToastMessage }) => {
     const { useState, useEffect } = React;
 
     const [planState, setPlanState] = useState(() => {
@@ -13,7 +13,7 @@ const usePlanState = ({ formations, megidoDetails, mode, showToastMessage }) => 
     const [planConditions, setPlanConditions] = useState({ fatigueByGroup: {}, megidoConditionsBySection: {} });
 
     useEffect(() => {
-        if (mode !== 'plan' || !formations) return;
+        if (!formations) return;
 
         const fatigueByGroup = {};
         const megidoConditionsBySection = {};
@@ -130,7 +130,7 @@ const usePlanState = ({ formations, megidoDetails, mode, showToastMessage }) => 
         });
 
         setPlanConditions({ fatigueByGroup, megidoConditionsBySection });
-    }, [planState, formations, megidoDetails, mode]);
+    }, [planState, formations, megidoDetails]);
 
     const onPlanExplorationParty = (squareId, recType, party) => {
         const newPlanState = {
