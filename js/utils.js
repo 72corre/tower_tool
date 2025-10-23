@@ -19,7 +19,9 @@ const calculateStats = (baseMegido, level) => {
 
 const getRequiredExplorationPower = (square) => {
     if (!square || !square.floor) return 3500;
-    if (square.sub_type === 'status_buff' || 'attack_buff' || 'hp_buff' || 'defense_buff')  return 3500;
+    if (['status_buff', 'attack_buff', 'hp_buff', 'defense_buff'].includes(square.sub_type)) {
+        return 3500;
+    }
     const floor = square.floor.floor;
     if (floor >= 21) return 5500;
     if (floor >= 11) return 4500;

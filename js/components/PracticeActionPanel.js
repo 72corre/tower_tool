@@ -10,6 +10,8 @@ const StrategyGuide = ({ square, targetedEnemy, bossGuide, recommendations, onOp
     const { useMemo } = React;
     const { glossaryData } = useAppContext();
 
+
+
     const renderDetailWithTooltip = (text, highlightClass = '') => {
         if (!glossaryData || !text) return <span className={highlightClass}>{text}</span>;
         const allTerms = Object.keys(glossaryData).sort((a, b) => b.length - a.length);
@@ -24,13 +26,15 @@ const StrategyGuide = ({ square, targetedEnemy, bossGuide, recommendations, onOp
     };
 
     const renderRecommendationCard = (rec) => {
-        const { megido, reason } = rec;
+        const { megido, reason: reasonOrReasons } = rec;
+        const reason = Array.isArray(reasonOrReasons) ? reasonOrReasons[0] : reasonOrReasons;
+
         return (
             <div key={megido.id} className="rec-card" onClick={() => onOpenCommunityFormations(null, null, null, megido.名前)}>
                 <div className={`megido-icon-circle ${getStyleClass(megido.スタイル)}`} style={{ backgroundImage: `url(asset/メギド/${megido.名前}.png)` }}></div>
                 <div className="rec-card-main">
                     <h5 className="rec-megido-name">{megido.名前}</h5>
-                    {reason.method && (
+                    {reason && reason.method && (
                         <p className="rec-reason">
                             <strong><GlossaryTooltip term={reason.method}>{`【${reason.method}】`}</GlossaryTooltip></strong>
                             {renderDetailWithTooltip(reason.description)}
@@ -71,6 +75,29 @@ const StrategyGuide = ({ square, targetedEnemy, bossGuide, recommendations, onOp
                     )}
                 </div>
             </div>
+
+            {recommendations && (
+                <>
+                    {recommendations.attackers && recommendations.attackers.length > 0 && (
+                        <div className="strategy-section">
+                            <h4 className="strategy-subheader">オススメアタッカー</h4>
+                            {recommendations.attackers.map(renderRecommendationCard)}
+                        </div>
+                    )}
+                    {recommendations.jammers && recommendations.jammers.length > 0 && (
+                        <div className="strategy-section">
+                            <h4 className="strategy-subheader">オススメジャマー</h4>
+                            {recommendations.jammers.map(renderRecommendationCard)}
+                        </div>
+                    )}
+                    {recommendations.supporters && recommendations.supporters.length > 0 && (
+                        <div className="strategy-section">
+                            <h4 className="strategy-subheader">オススメサポーター</h4>
+                            {recommendations.supporters.map(renderRecommendationCard)}
+                        </div>
+                    )}
+                </>
+            )}
 
             {strategyPoints.map((point, i) => (
                 <div key={i} className="strategy-point-group">

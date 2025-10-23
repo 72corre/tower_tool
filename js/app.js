@@ -11,7 +11,7 @@ const RightPanelContent = () => {
         handleCancelFormationEdit, ownedMegidoIds, initialTagTarget, previousScreen,
         showToastMessage, onTargetSelect, formations, handleDeleteFormation, handleCopyFormation,
         setInitialTagTarget, setPreviousScreen, onCancel, isQriousLoaded, isHtml5QrLoaded,
-        onImport, idMaps, setEditingFormation, onOpenCommunityFormations, handlePostFormation,
+        onImport, idMaps, setEditingFormation, handleOpenCommunityFormations, handlePostFormation,
         isPosting, bossFormationId, handleSetBossFormation, isGuideMode, onGenerateShareImage,
         generatedImageData, showShareModal, setShowShareModal, tweetUrl, handleResolveSquare,
         megidoConditions, planState, onRecommendationChange, handlePlanCombatParty,
@@ -188,7 +188,7 @@ const RightPanelContent = () => {
 
                                 onSaveFormationMemo={handleSaveFormationMemo}
 
-                                onOpenCommunityFormations={onOpenCommunityFormations}
+                                onOpenCommunityFormations={handleOpenCommunityFormations}
 
                                 recommendations={recommendations}
 
@@ -246,7 +246,7 @@ const RightPanelContent = () => {
                         idMaps={idMaps}
                         editingFormation={editingFormation}
                         onEditingFormationChange={setEditingFormation}
-                        onOpenCommunityFormations={onOpenCommunityFormations}
+                        onOpenCommunityFormations={handleOpenCommunityFormations}
                         handlePostFormation={handlePostFormation} 
                         isPosting={isPosting}
                         onGenerateShareImage={onGenerateShareImage}
@@ -1797,12 +1797,13 @@ const TowerTool = () => {
         if ((selectedSquare.square.type === 'battle' || selectedSquare.square.type === 'boss') && ownedMegidoIds.size > 0) {
             const enemy = targetedEnemy;
             if (enemy && typeof enemy !== 'string' && enemy.tags) {
+                const allOrbIds = new Set(window.COMPLETE_ORB_LIST.map(o => o.id));
                 const result = findRecommendedMegido({
                     enemy: enemy,
                     floorRules: selectedSquare.square.rules || [],
                     ownedMegido: ownedMegidoIds,
                     allMegidoMaster: megidoList,
-                    ownedOrbs: new Set(), // 所持オーブのデータソースが不明なため、一旦空のSetを渡す
+                    ownedOrbs: allOrbIds, // すべてのオーブを所持していると仮定
                     allOrbsMaster: window.COMPLETE_ORB_LIST || [],
                     megidoConditions: megidoConditions || {}
                 });
@@ -2003,6 +2004,7 @@ const TowerTool = () => {
             return <div>Loading...</div>;
         }
     const contextValue = {
+        recommendations,
         infoModalState, setInfoModalState,
         guideStep, setGuideStep,
         isGuideMode,
