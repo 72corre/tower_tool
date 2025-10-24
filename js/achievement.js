@@ -40,7 +40,7 @@ const ACHIEVEMENTS = {
             const plannedCombat = Object.keys(data.planState.assignments || {}).filter(key => {
                 const assignmentsForSquare = data.planState.assignments[key];
                 return Object.values(assignmentsForSquare).some(enemySlots => 
-                    Object.values(enemySlots).some(slots => slots.some(slot => slot !== null))
+                    Object.values(enemySlots).some(slots => slots && slots.some(slot => slot !== null))
                 );
             });
 

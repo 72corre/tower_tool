@@ -1,4 +1,4 @@
-const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable, manualPower, onOpenManualPowerInput, onSetManualPower }) => {
+const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable, manualPower, onOpenManualPowerInput, onSetManualPower, autoExploreExcludedIds, onToggleAutoExploreExclusion }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const { findOptimalExplorationParty } = useAutoAssign();
     const { detailPanelTab: activeTab, setDetailPanelTab: onTabChange } = useAppContext();
@@ -30,7 +30,8 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
             formations,
             includeGoodCondition,
             calculatePower,
-            recommendation
+            recommendation,
+            autoExploreExcludedIds
         });
 
         setAutoAssignResult({ isOpen: true, result });
@@ -149,6 +150,10 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
         return '#9ca3af'; // gray-400
     };
 
+    const squareLog = useMemo(() => {
+        if (!runState || !runState.log) return [];
+        return runState.log.filter(entry => entry.squareId === square.id && entry.type === 'explore').sort((a, b) => b.timestamp - a.timestamp);
+    }, [runState, square.id]);
 
 
     const isReady = practiceParty.some(m => m !== null);
@@ -284,12 +289,48 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                 {activeTab === 'logs' && (
                     <div className="tab-content-wrapper">
                         <div className="card">
-                            <div className="card-header">統計情報</div>
-                             <p className="placeholder-text">（この機能は現在開発中です）</p>
-                        </div>
-                        <div className="card">
                             <div className="card-header">探索履歴</div>
-                            <p className="placeholder-text">（この機能は現在開発中です）</p>
+                            {squareLog.length === 0 ? (
+                                <p className="placeholder-text">このマスには探索記録がありません。</p>
+                            ) : (
+                                <div className="log-list">
+                                    {squareLog.map(logEntry => {
+                                        const party = logEntry.details.party || [];
+                                        const isExcluded = party.some(megido => autoExploreExcludedIds.has(megido.id));
+                                        return (
+                                            <div key={logEntry.id} className="log-entry-card explore-log-card">
+                                                <div className="log-entry-header">
+                                                    <span className="log-result-badge expectation">期待度 {logEntry.details.expectationLevel}</span>
+                                                    <span className="log-timestamp">{new Date(logEntry.timestamp).toLocaleString()}</span>
+                                                </div>
+                                                <div className="explore-log-body">
+                                                    <div className="explore-log-party">
+                                                        {party.map(megido => (
+                                                            <div key={megido.id} className="megido-icon-name">
+                                                                <div className={`megido-icon-circle ${getStyleClass(megido.スタイル)}`} style={{ backgroundImage: `url(asset/メギド/${megido.名前}.png)` }}></div>
+                                                                <span>{megido.名前}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                    <div className="explore-log-result">
+                                                        <p>{getFormattedReward(logEntry.details.result, square.square.sub_type)}</p>
+                                                    </div>
+                                                </div>
+                                                {party.map(megido => (
+                                                    <button 
+                                                        key={megido.id}
+                                                        onClick={() => onToggleAutoExploreExclusion(megido.id)}
+                                                        className={`btn btn-small ${autoExploreExcludedIds.has(megido.id) ? 'btn-warning' : 'btn-secondary'} log-plan-button`}
+                                                    >
+                                                        <span className="material-symbols-outlined">{autoExploreExcludedIds.has(megido.id) ? 'person_add' : 'person_remove'}</span>
+                                                        {megido.名前}を{autoExploreExcludedIds.has(megido.id) ? '自動探索に含める' : '自動探索から除外'}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
