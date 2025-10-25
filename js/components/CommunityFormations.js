@@ -183,20 +183,20 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-[9999]" onClick={onClose}>
-            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl h-full max-h-[90vh] flex flex-col text-gray-900 dark:text-gray-100" onClick={(e) => e.stopPropagation()}>
-                <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center sticky top-0 bg-white dark:bg-gray-800 z-10">
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content w-full max-w-4xl h-full max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
+                <div className="settings-header flex justify-between items-center">
                     <div className="flex items-center gap-4">
                         <h2 className="text-xl font-bold">みんなの編成</h2>
-                        <button onClick={() => setIsFilterVisible(!isFilterVisible)} className="text-sm text-blue-500 hover:underline">
+                        <button onClick={() => setIsFilterVisible(!isFilterVisible)} className="btn btn-ghost btn-small">
                             {isFilterVisible ? 'フィルターを隠す' : 'フィルターを表示'}
                         </button>
                     </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-800 text-2xl font-bold">&times;</button>
+                    <button onClick={onClose} className="btn-icon text-2xl font-bold">&times;</button>
                 </div>
 
                 {isFilterVisible && (
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-700 animate-fade-in-down">
+                    <div className="p-4 border-b animate-fade-in-down" style={{ borderColor: 'var(--border-color)' }}>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <input
                                 type="number"
@@ -204,7 +204,7 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                                 placeholder="階数"
                                 value={filters.floor}
                                 onChange={handleFilterChange}
-                                className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                                className="input-field"
                             />
                             <input
                                 type="text"
@@ -212,7 +212,7 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                                 placeholder="敵の名前"
                                 value={filters.enemy}
                                 onChange={handleFilterChange}
-                                className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                                className="input-field"
                                 list="enemy-options"
                             />
                             <input
@@ -221,7 +221,7 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                                 placeholder="メギド名"
                                 value={filters.megidoName}
                                 onChange={handleFilterChange}
-                                className="p-2 border rounded bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600"
+                                className="input-field"
                             />
                             <datalist id="enemy-options">
                                 {enemyOptions.map(opt => <option key={opt} value={opt} />)}
@@ -231,25 +231,25 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                             <div>
                                 <p className="text-sm font-semibold mb-2">除外するタグ:</p>
                                 <div className="flex flex-wrap gap-x-4 gap-y-2">
-                                    <label className="inline-flex items-center"><input type="checkbox" className="rounded" name="reishou" checked={filters.excludeTags.reishou} onChange={handleExcludeTagChange} /> <span className="ml-2">霊宝必須</span></label>
-                                    <label className="inline-flex items-center"><input type="checkbox" className="rounded" name="kizuna" checked={filters.excludeTags.kizuna} onChange={handleExcludeTagChange} /> <span className="ml-2">絆霊宝必須</span></label>
-                                    <label className="inline-flex items-center"><input type="checkbox" className="rounded" name="totsu" checked={filters.excludeTags.totsu} onChange={handleExcludeTagChange} /> <span className="ml-2">凸必須</span></label>
-                                    <label className="inline-flex items-center"><input type="checkbox" className="rounded" name="orb_cast" checked={filters.excludeTags.orb_cast} onChange={handleExcludeTagChange} /> <span className="ml-2">オーブキャスト不可</span></label>
+                                    <label className="inline-flex items-center"><input type="checkbox" name="reishou" checked={filters.excludeTags.reishou} onChange={handleExcludeTagChange} /> <span className="ml-2" style={{ color: filters.excludeTags.reishou ? 'var(--primary-accent)' : 'inherit' }}>霊宝必須</span></label>
+                                    <label className="inline-flex items-center"><input type="checkbox" name="kizuna" checked={filters.excludeTags.kizuna} onChange={handleExcludeTagChange} /> <span className="ml-2" style={{ color: filters.excludeTags.kizuna ? 'var(--primary-accent)' : 'inherit' }}>絆霊宝必須</span></label>
+                                    <label className="inline-flex items-center"><input type="checkbox" name="totsu" checked={filters.excludeTags.totsu} onChange={handleExcludeTagChange} /> <span className="ml-2" style={{ color: filters.excludeTags.totsu ? 'var(--primary-accent)' : 'inherit' }}>凸必須</span></label>
+                                    <label className="inline-flex items-center"><input type="checkbox" name="orb_cast" checked={filters.excludeTags.orb_cast} onChange={handleExcludeTagChange} /> <span className="ml-2" style={{ color: filters.excludeTags.orb_cast ? 'var(--primary-accent)' : 'inherit' }}>オーブキャスト不可</span></label>
                                 </div>
                             </div>
                             <div>
                                  <p className="text-sm font-semibold mb-2">表示設定:</p>
-                                 <label className="inline-flex items-center"><input type="checkbox" className="rounded" name="hideNotOwned" checked={filters.hideNotOwned} onChange={handleFilterChange} /> <span className="ml-2">未所持メギドを含む編成を隠す</span></label>
+                                 <label className="inline-flex items-center"><input type="checkbox" name="hideNotOwned" checked={filters.hideNotOwned} onChange={handleFilterChange} /> <span className="ml-2" style={{ color: filters.hideNotOwned ? 'var(--primary-accent)' : 'inherit' }}>未所持メギドを含む編成を隠す</span></label>
                             </div>
                         </div>
                     </div>
                 )}
 
-                <div className="p-4 flex-grow overflow-y-auto bg-gray-100 dark:bg-gray-900">
+                <div className="flex-grow overflow-y-auto p-4" style={{ backgroundColor: 'var(--bg-main)' }}>
                     {isLoading ? (
-                        <div className="text-center text-gray-500 pt-10">読み込み中...</div>
+                        <div className="placeholder">読み込み中...</div>
                     ) : error ? (
-                         <div className="text-center text-red-500 pt-10">{error}</div>
+                         <div className="placeholder text-danger">{error}</div>
                     ) : filteredFormations.length > 0 ? (
                         filteredFormations.map((data, index) => {
                             const hasUsed = Object.values(userFormations).some(f => f.communityId === data.id);
@@ -259,8 +259,8 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                                         formationData={data}
                                         onCopy={onCopyFormation}
                                         onRate={handleRate}
-                                        onDelete={onDeleteFormation} // ★ 追加
-                                        currentUser={currentUser} // ★ 追加
+                                        onDelete={onDeleteFormation}
+                                        currentUser={currentUser}
                                         getMegido={getMegido}
                                         getOrb={getOrb}
                                         idMaps={idMaps}
@@ -270,15 +270,15 @@ const CommunityFormations = ({ onClose, onCopyFormation, onDeleteFormation, curr
                             );
                         })
                     ) : (
-                        <div className="text-center text-gray-500 pt-10">
+                        <div className="placeholder">
                             <p>条件に合う編成が見つかりませんでした。</p>
                             <p className="text-sm mt-2">検索条件や除外タグを見直してください。</p>
                         </div>
                     )}
                 </div>
 
-                <div className="p-4 border-t text-right sticky bottom-0 bg-white dark:bg-gray-800 z-10 border-gray-200 dark:border-gray-700">
-                    <button onClick={onClose} className="px-4 py-2 bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 rounded hover:bg-gray-400 dark:hover:bg-gray-500">閉じる</button>
+                <div className="settings-header flex justify-end">
+                    <button onClick={onClose} className="btn btn-secondary">閉じる</button>
                 </div>
             </div>
         </div>

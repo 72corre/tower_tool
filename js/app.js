@@ -1708,7 +1708,7 @@ const TowerTool = () => {
         }
         const clearedSquaresOnFloor = runState.cleared[floorData.floor] || [];
         const isCleared = clearedSquaresOnFloor.includes(squareId);
-        // Add node-cleared class ONLY if it's not a start square
+
         if (isCleared && square.type !== 'start') {
             classes += ' node-cleared';
         }
@@ -1724,13 +1724,24 @@ const TowerTool = () => {
         if (!isCleared) {
             const isOnCurrentFloor = runState.currentPosition?.floor === floorData.floor;
             if (isOnCurrentFloor) {
-                classes += ' node-accessible';
+                const connectionsForFloor = towerConnections[floorData.floor];
+                let isResolvable = false;
+                if (connectionsForFloor) {
+                    const neighbors = connectionsForFloor[squareId] || [];
+                    isResolvable = neighbors.some(neighborId => clearedSquaresOnFloor.includes(neighborId));
+                }
+
+                if (isResolvable) {
+                    classes += ' node-resolvable';
+                } else {
+                    classes += ' node-accessible';
+                }
             } else {
                 classes += ' node-inaccessible';
             }
         }
         return classes;
-    }, [selectedSquare, runState, planState, guidance]);
+    }, [selectedSquare, runState, planState, guidance, towerConnections]);
 
     const getSquareColorClass = useCallback((square) => {
         if (square.type === 'start') return 'node-color-start';
@@ -2085,7 +2096,8 @@ const TowerTool = () => {
         COMPLETE_MEGIDO_LIST: megidoList,
         glossaryData, // Add glossaryData to the context
         getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, // Add utility functions
-        TOWER_MAP_DATA: window.TOWER_MAP_DATA, // Add other master data to context
+                    TOWER_MAP_DATA: window.TOWER_MAP_DATA,
+                    towerConnections, // Add other master data to context
         COMPLETE_ORB_LIST: window.COMPLETE_ORB_LIST,
         COMPLETE_REISHOU_LIST: window.COMPLETE_REISHOU_LIST,
         MEGIDO_BIRTHDAY_DATA: window.MEGIDO_BIRTHDAY_DATA,

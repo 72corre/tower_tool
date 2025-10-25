@@ -176,19 +176,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
         <div className="exploration-action-panel">
             <h3 className="panel-title">{`${square.floor.floor}F ${getTitle(square.square)}`}</h3>
             
-            <div className="sticky-tabs">
-                <div className="tabs">
-                    <button className={`tab-button ${activeTab === 'info' ? 'active' : ''}`} onClick={() => onTabChange('info')}>
-                        <span className="material-symbols-outlined">edit_note</span>
-                        情報・記録
-                    </button>
-                    <button className={`tab-button ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => onTabChange('logs')}>
-                        <span className="material-symbols-outlined">history</span>
-                        過去の記録
-                    </button>
-                </div>
-            </div>
-
+            
             <div className="panel-content">
                 {isLocked && <LockedPanelOverlay text={lockText} />}
 
@@ -336,6 +324,17 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                         </div>
                     </div>
                 )}
+            </div>
+
+            <div className="bottom-tabs-container">
+                <button className={`bottom-tab-button ${activeTab === 'info' ? 'active' : ''}`} onClick={() => onTabChange('info')}>
+                    <span className="material-symbols-outlined">edit_note</span>
+                    <span>実践</span>
+                </button>
+                <button className={`bottom-tab-button ${activeTab === 'logs' ? 'active' : ''}`} onClick={() => onTabChange('logs')}>
+                    <span className="material-symbols-outlined">history</span>
+                    <span>ログ</span>
+                </button>
             </div>
 
             {/* Modals */}
