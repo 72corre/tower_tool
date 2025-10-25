@@ -1,4 +1,4 @@
-const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onClose, isOpen, renderItem, showFilters, initialSearch, isFormationSearch = false, filterType = 'megido', ...props }) => {
+const FilterableSelectionModal = ({ title, items, secondaryItems, primaryItemsHeader, onSelect, onClose, isOpen, renderItem, showFilters, initialSearch, isFormationSearch = false, filterType = 'megido', ...props }) => {
     const { useMemo, useState, useEffect, useRef } = React;
     const dialogRef = useRef(null);
     const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', race: 'All', lineage: 'All', exactMatch: false });
@@ -123,9 +123,10 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, onSelect, onCl
             
             <div style={contentStyle}>
                 <div className="modal-grid">
+                    {primaryItemsHeader && filteredItems.length > 0 && <h4 className="modal-subheader">{primaryItemsHeader}</h4>}
                     {filteredItems.map(item => renderItem(item, onSelect, props))}
                     {secondaryItems && filteredItems.length > 0 && <div className="modal-divider"></div>}
-                    {secondaryItems && <h4 className="modal-subheader">その他の編成</h4>}
+                    {secondaryItems && filteredSecondaryItems.length > 0 && <h4 className="modal-subheader">その他の編成</h4>}
                     {filteredSecondaryItems && filteredSecondaryItems.map(item => renderItem(item, onSelect, props))}
                 </div>
             </div>

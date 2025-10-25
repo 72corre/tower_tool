@@ -57,10 +57,11 @@ const FormationCard = ({
     onTagClick,
     isGuideMode,
     isBossFormation,
-    onSetBossFormation
+    onSetBossFormation,
+    assignments
 }) => {
     return (
-        <div className="card" style={{...cardStyle, height: '200px', display: 'flex', flexDirection: 'column'}}>
+        <div className="card" style={{...cardStyle, height: 'auto', minHeight: '200px', display: 'flex', flexDirection: 'column'}}>
             <div className="formation-card-header">
                 <h3 style={{...nameStyle, fontWeight: 700, margin: 0, flexGrow: 1, display: 'flex', alignItems: 'center', gap: '8px'}}>
                     {form.name}
@@ -93,6 +94,20 @@ const FormationCard = ({
             <div style={{ flex: 1, overflowY: 'auto', margin: '8px 0' }}>
                 <p style={{color: 'var(--text-subtle)', whiteSpace: 'pre-wrap', margin: 0}}>{form.notes || ''}</p>
             </div>
+
+            {assignments && assignments.length > 0 && (
+                <div className="plan-info-container" style={{backgroundColor: 'var(--primary-accent-faded)', padding: '8px', borderRadius: '4px', marginTop: '8px'}}>
+                    <h4 className="plan-info-header" style={{margin: 0, fontSize: '14px', color: 'var(--primary-accent)'}}>計画中のマス</h4>
+                    <div className="plan-info-list" style={{marginTop: '4px'}}>
+                        {assignments.map(({ floor, enemyName, slotIndex }) => (
+                            <div key={`${floor}-${enemyName}-${slotIndex}`} className="plan-info-item" style={{fontSize: '12px'}}>
+                                <span className="material-symbols-outlined" style={{fontSize: '16px', marginRight: '4px'}}>push_pin</span>
+                                <span>{`${floor}F | ${enemyName}`}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="tag-carousel" style={{display: 'flex', flexWrap: 'nowrap', gap: '8px', overflowX: 'auto', paddingBottom: '8px'}}>
                 {(form.tags || []).map((tagObject, i) => {
@@ -393,6 +408,7 @@ const FormationManager = (props) => {
                             isGuideMode={isGuideMode}
                             isBossFormation={isBossFormation}
                             onSetBossFormation={onSetBossFormation}
+                            assignments={props.formationAssignments ? props.formationAssignments[form.id] : []}
                         />
                     );
                 })}

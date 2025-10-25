@@ -17,7 +17,9 @@ const RightPanelContent = () => {
         megidoConditions, planState, onRecommendationChange, handlePlanCombatParty,
         targetedEnemy, bossGuides, handleTargetEnemyChange, handleSaveFormationMemo,
         openPlannerForSquare, recommendations, memos, onSaveMemo, seasonLogs, isResolvable,
-        manualExplorationPowers, onOpenManualPowerInput, onSetManualPower, onPlanExplorationParty
+        manualExplorationPowers, onOpenManualPowerInput, onSetManualPower, onPlanExplorationParty,
+        formationAssignments,
+        autoExploreExcludedIds, handleToggleAutoExploreExclusion
     } = useAppContext();
 
             return (<>
@@ -83,7 +85,6 @@ const RightPanelContent = () => {
                             }
 
                         
-
     
 
                         if (selectedSquare.square.type === 'start') {
@@ -144,6 +145,10 @@ const RightPanelContent = () => {
 
                                 onSetManualPower={onSetManualPower}
 
+                                autoExploreExcludedIds={autoExploreExcludedIds}
+
+                                onToggleAutoExploreExclusion={handleToggleAutoExploreExclusion}
+
                             />;
 
                         } else {
@@ -187,6 +192,7 @@ const RightPanelContent = () => {
                                 isResolvable={isResolvable}
 
                                 onSaveFormationMemo={handleSaveFormationMemo}
+                                seasonLogs={seasonLogs}
 
                                 onOpenCommunityFormations={handleOpenCommunityFormations}
 
@@ -200,8 +206,8 @@ const RightPanelContent = () => {
 
                         }
 
-                    })()}
-            </div>
+                    })()
+                }</div>
             <div style={{ display: activeTab === 'ownership' ? 'block' : 'none', height: '100%' }}>
                 <OwnershipManager 
                     megidoDetails={megidoDetails} 
@@ -254,6 +260,7 @@ const RightPanelContent = () => {
                         showShareModal={showShareModal}
                         setShowShareModal={setShowShareModal}
                         tweetUrl={tweetUrl}
+                        formationAssignments={formationAssignments}
                     />}
                 </div>
             </div>
@@ -528,6 +535,20 @@ const TowerTool = () => {
     const [isFirstEverLaunch, setIsFirstEverLaunch] = useState(false);
     const [introQueue, setIntroQueue] = useState([]);
     const [spotlight, setSpotlight] = useState({ selector: null, text: null });
+    const [autoExploreExcludedIds, setAutoExploreExcludedIds] = useState(() => new Set(JSON.parse(localStorage.getItem('autoExploreExcludedIds') || '[]')));
+
+    const handleToggleAutoExploreExclusion = (megidoId) => {
+        setAutoExploreExcludedIds(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(megidoId)) {
+                newSet.delete(megidoId);
+            } else {
+                newSet.add(megidoId);
+            }
+            localStorage.setItem('autoExploreExcludedIds', JSON.stringify(Array.from(newSet)));
+            return newSet;
+        });
+    };
 
     const floorRefs = useRef({});
     const prevFloorRef = useRef();
@@ -1131,6 +1152,29 @@ const TowerTool = () => {
     const [isQriousLoaded, setIsQriousLoaded] = useState(false);
     const [isHtml5QrLoaded, setIsHtml5QrLoaded] = useState(false);
 
+    const formationAssignments = useMemo(() => {
+        const assignments = {};
+        if (!planState.assignments) return assignments;
+
+        for (const fullSquareId in planState.assignments) {
+            const [floor, ...squareIdParts] = fullSquareId.split('-');
+            const squareId = squareIdParts.join('-');
+            const enemyAssignments = planState.assignments[fullSquareId];
+            for (const enemyName in enemyAssignments) {
+                const slots = enemyAssignments[enemyName];
+                slots.forEach((formationId, slotIndex) => {
+                    if (formationId) {
+                        if (!assignments[formationId]) {
+                            assignments[formationId] = [];
+                        }
+                        assignments[formationId].push({ floor, squareId, enemyName, slotIndex });
+                    }
+                });
+            }
+        }
+        return assignments;
+    }, [planState]);
+
     useEffect(() => {
         // QRious (for export) check
         if (window.QRious) {
@@ -1572,7 +1616,6 @@ const TowerTool = () => {
             });
         }
     }, [runState.currentPosition, isGuideMode, targetFloor, shownBossGuides, normalizeEnemy]);
-
 
 
 
@@ -2030,9 +2073,11 @@ const TowerTool = () => {
         manualExplorationPowers, setManualExplorationPowers, handleSetManualPower, handleOpenManualPowerInput,
         runState, setRunState, megidoConditions, setMegidoConditions, manualRecovery, setManualRecovery, handleResolveSquare, handleResetRun, handleManualRecovery, handleConditionRecovery, handleUndo,
         planState, setPlanState, planConditions, onPlanExplorationParty, handlePlanCombatParty,
+        formationAssignments,
         idMaps, formations, setFormations, editingFormation, setEditingFormation, initialTagTarget, setInitialTagTarget, previousScreen, setPreviousScreen, handleSaveFormation, handleSaveFormationMemo, handleDeleteFormation, handleCopyFormation, handleCreateFormationFromEnemy, handleGenerateShareImage, generatedImageData, showShareModal, setShowShareModal, tweetUrl, setTweetUrl,
         communityFormationsState, handleOpenCommunityFormations, handleCloseCommunityFormations, handleCopyCommunityFormation, handlePostFormation, handleDeleteCommunityFormation, isPosting,
         handleCreateFormationFromSelection, // Add this line
+        autoExploreExcludedIds, handleToggleAutoExploreExclusion, // Add this line
         handleImportFormation, isQriousLoaded, isHtml5QrLoaded, checkAllAchievements, handleExportData, handleImportData, handleResetAllData, handleToggleTheme, handleViewModeChange,
         handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo, handleScrollToFloor,
         handleSaveLog, handleResetRun, handleUndo,

@@ -185,7 +185,7 @@ const PracticeActionPanel = ({
     square, formations, onResolve, megidoConditions, onCreateFormation, planState,
     ownedMegidoIds, megidoDetails, runState, onRecommendationChange, isLocked, lockText,
     onPlanCombatParty, targetedEnemy, bossGuides, onTargetEnemyChange, isResolvable,
-    onSaveFormationMemo, onOpenCommunityFormations, recommendations, isGuideMode, openPlannerForSquare
+    onSaveFormationMemo, onOpenCommunityFormations, recommendations, isGuideMode, openPlannerForSquare, seasonLogs
 }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const [memoText, setMemoText] = useState('');
@@ -212,6 +212,8 @@ const PracticeActionPanel = ({
     const { detailPanelTab: activeTab, setDetailPanelTab: onTabChange } = useAppContext();
     const [selectedFormation, setSelectedFormation] = useState(null);
     const [isFormationModalOpen, setIsFormationModalOpen] = useState(false);
+    const [targetedSlot, setTargetedSlot] = useState(null);
+    const [numVisibleSlots, setNumVisibleSlots] = useState(1);
 
     const formation = selectedFormation;
     const rehydratedSelectedFormation = useMemo(() => formation ? rehydrateFormation(formation, megidoDetails) : null, [formation, megidoDetails]);
@@ -223,40 +225,27 @@ const PracticeActionPanel = ({
     }, [bossGuides, targetedEnemy]);
 
     const squareLog = useMemo(() => {
-        if (!runState || !runState.log) {
-            return [];
-        }
-        return runState.log.filter(entry => entry.squareId === square.id).sort((a, b) => b.timestamp - a.timestamp);
-    }, [runState, square.id]);
-
-    const plannedFormationForSquare = useMemo(() => {
-        if (!planState || !planState.assignments || !square || !targetedEnemy) return null;
-        const squareAssignments = planState.assignments[`${square.floor.floor}-${square.id}`];
-        if (!squareAssignments) return null;
-        const formation = squareAssignments[targetedEnemy.name];
-        if (!formation) return null;
-        return rehydrateFormation(formation, megidoDetails);
-    }, [planState, square, targetedEnemy, megidoDetails]);
-
-    const formationToSquareMap = useMemo(() => {
-        const map = {};
-        if (!planState || !planState.assignments) return map;
-        for (const squareId in planState.assignments) {
-            const assignmentsForSquare = planState.assignments[squareId];
-            for (const enemyName in assignmentsForSquare) {
-                const formation = assignmentsForSquare[enemyName];
-                if (formation && formation.id) {
-                    map[formation.id] = squareId.replace(`${square.floor.floor}-`, '');
-                }
-            }
-        }
-        return map;
-    }, [planState]);
+        const currentLog = (runState && runState.history) ? runState.history.filter(entry => entry.squareId === square.id) : [];
+        const savedLogs = (seasonLogs || []).flatMap(log => 
+            (log.runState && log.runState.history) ? log.runState.history.filter(entry => entry.squareId === square.id) : []
+        );
+        return [...currentLog, ...savedLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }, [runState, seasonLogs, square.id]);
 
     useEffect(() => {
         if (formation) setMemoText(formation.notes || '');
         else setMemoText('');
     }, [formation]);
+
+    useEffect(() => {
+        if (targetedEnemy && planState.assignments) {
+            const assignments = planState.assignments?.[`${square.floor.floor}-${square.id}`]?.[targetedEnemy.name] || [];
+            const numPlans = assignments.filter(Boolean).length;
+            setNumVisibleSlots(Math.max(1, numPlans));
+        } else {
+            setNumVisibleSlots(1);
+        }
+    }, [targetedEnemy, planState, square]);
     
     const renderRulesWithTooltips = (rule) => {
         if (!glossaryData || !rule) return rule;
@@ -277,6 +266,23 @@ const PracticeActionPanel = ({
     };
 
     const formationList = Object.values(formations);
+
+    const { plannedFormations, otherFormations } = useMemo(() => {
+        if (!targetedEnemy || !planState.assignments) {
+            return { plannedFormations: [], otherFormations: formationList };
+        }
+        const plannedIds = planState.assignments?.[`${square.floor.floor}-${square.id}`]?.[targetedEnemy.name] || [];
+        const planned = [];
+        const others = [];
+        formationList.forEach(form => {
+            if (plannedIds.includes(form.id)) {
+                planned.push(form);
+            } else {
+                others.push(form);
+            }
+        });
+        return { plannedFormations: planned, otherFormations: others };
+    }, [formations, targetedEnemy, planState, square]);
 
     return (
         <div className="practice-action-panel">
@@ -350,25 +356,67 @@ const PracticeActionPanel = ({
                             openPlannerForSquare={openPlannerForSquare}
                         />
 
-                        {/* Card 3: Challenge Party */}
+                        {/* Card 3: Combat Plan */}
+                        <div className="card">
+                            <div className="card-header">
+                                <span className="material-symbols-outlined">edit_note</span>
+                                戦闘計画
+                            </div>
+                            <p className="card-description">選択中の敵に対して、最大3つまで編成計画を立てることができます。</p>
+                            <div className="plan-slots-container">
+                                {targetedEnemy ? (
+                                    Array.from({ length: numVisibleSlots }).map((_, slotIndex) => {
+                                        const plannedFormationId = planState.assignments?.[`${square.floor.floor}-${square.id}`]?.[targetedEnemy.name]?.[slotIndex];
+                                        const plannedFormation = plannedFormationId ? formations[plannedFormationId] : null;
+
+                                        return (
+                                            <div key={slotIndex} className="plan-slot">
+                                                <div className="plan-slot-header">
+                                                    <span className="plan-slot-index">計画 {slotIndex + 1}</span>
+                                                    {plannedFormation && (
+                                                        <button 
+                                                            onClick={() => onPlanCombatParty(`${square.floor.floor}-${square.id}`, targetedEnemy.name, slotIndex, null)} 
+                                                            className="btn-icon-danger" 
+                                                            title="計画をクリア"
+                                                        >
+                                                            <span className="material-symbols-outlined">delete</span>
+                                                        </button>
+                                                    )}
+                                                </div>
+                                                <button 
+                                                    onClick={() => {
+                                                        setTargetedSlot(slotIndex);
+                                                        setIsFormationModalOpen(true);
+                                                    }} 
+                                                    className="select-field-btn"
+                                                >
+                                                    {plannedFormation ? plannedFormation.name : '編成を選択...'}
+                                                </button>
+                                                {plannedFormation && <SelectedFormationViewer formation={rehydrateFormation(plannedFormation, megidoDetails)} />}
+                                            </div>
+                                        );
+                                    })
+                                ) : (
+                                    <p className="placeholder-text">敵を選択してください。</p>
+                                )}
+                                {targetedEnemy && numVisibleSlots < 3 && (
+                                    <button onClick={() => setNumVisibleSlots(n => n + 1)} className="btn-add-slot">
+                                        <span className="material-symbols-outlined">add</span>
+                                        計画スロットを追加
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Card 4: Challenge Party */}
                         <div className="card">
                             <div className="card-header">
                                 <span className="material-symbols-outlined">group</span>
                                 挑戦パーティ
                             </div>
 
-                            {plannedFormationForSquare && (
-                                <div className="planned-formation-display">
-                                    <div className="planned-formation-header">
-                                        <span className="material-symbols-outlined">push_pin</span>
-                                        <span>計画中の編成: {plannedFormationForSquare.name}</span>
-                                    </div>
-                                    <SelectedFormationViewer formation={plannedFormationForSquare} />
-                                </div>
-                            )}
-
                             <button onClick={() => setIsFormationModalOpen(true)} className="select-field-btn">
-                                {selectedFormation ? `選択中: ${selectedFormation.name}` : (plannedFormationForSquare ? '別の編成で挑戦する' : '編成を選択...')}
+                                {selectedFormation ? `選択中: ${selectedFormation.name}` : '編成を選択...'}
                             </button>
                             
                             {selectedFormation && (
@@ -436,35 +484,32 @@ const PracticeActionPanel = ({
             <FilterableSelectionModal 
                 title="編成を選択"
                 isOpen={isFormationModalOpen}
-                onClose={() => setIsFormationModalOpen(false)}
-                onSelect={(item) => {
-                    setSelectedFormation(item);
+                onClose={() => {
                     setIsFormationModalOpen(false);
+                    setTargetedSlot(null); // Reset slot on close
                 }}
-                items={formationList}
+                onSelect={(item) => {
+                    if (targetedSlot !== null) {
+                        onPlanCombatParty(`${square.floor.floor}-${square.id}`, targetedEnemy.name, targetedSlot, item.id);
+                        showToastMessage(`${item.name}を計画スロット${targetedSlot + 1}に設定しました。`);
+                    } else {
+                        setSelectedFormation(item);
+                    }
+                    setIsFormationModalOpen(false);
+                    setTargetedSlot(null);
+                }}
+                items={plannedFormations}
+                secondaryItems={otherFormations}
+                primaryItemsHeader="計画中の編成"
                 renderItem={(item, onSelect) => {
                     const rehydratedItem = rehydrateFormation(item, megidoDetails);
                     const isInvalid = getFormationInvalidReason(rehydratedItem, megidoDetails, ownedMegidoIds);
-                    const plannedForSquare = formationToSquareMap[item.id];
+                    
                     return (
                         <div key={item.id} className="modal-item-container">
                             <button onClick={() => onSelect(item)} className="modal-item-btn" disabled={isInvalid}>
                                 <p style={{fontWeight: 'bold'}}>{item.name}</p>
                                 {isInvalid && <small className="text-danger">{isInvalid}</small>}
-                                {plannedForSquare && 
-                                    <span className="planned-badge">{plannedForSquare}で計画中</span>
-                                }
-                            </button>
-                            <button
-                                onClick={() => {
-                                    handlePlanFormation(item);
-                                    setIsFormationModalOpen(false);
-                                }}
-                                className="btn btn-secondary btn-small"
-                                disabled={isInvalid}
-                                title="この編成を計画に設定"
-                            >
-                                <span className="material-symbols-outlined">edit_note</span>
                             </button>
                         </div>
                     )

@@ -151,9 +151,12 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
     };
 
     const squareLog = useMemo(() => {
-        if (!runState || !runState.log) return [];
-        return runState.log.filter(entry => entry.squareId === square.id && entry.type === 'explore').sort((a, b) => b.timestamp - a.timestamp);
-    }, [runState, square.id]);
+        const currentLog = (runState && runState.history) ? runState.history.filter(entry => entry.squareId === square.id && entry.type === 'explore') : [];
+        const savedLogs = (seasonLogs || []).flatMap(log => 
+            (log.runState && log.runState.history) ? log.runState.history.filter(entry => entry.squareId === square.id && entry.type === 'explore') : []
+        );
+        return [...currentLog, ...savedLogs].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }, [runState, seasonLogs, square.id]);
 
 
     const isReady = practiceParty.some(m => m !== null);
@@ -295,12 +298,11 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                             ) : (
                                 <div className="log-list">
                                     {squareLog.map(logEntry => {
-                                        const party = logEntry.details.party || [];
-                                        const isExcluded = party.some(megido => autoExploreExcludedIds.has(megido.id));
+                                        const party = (logEntry.megido || []).map(id => COMPLETE_MEGIDO_LIST.find(m => String(m.id) === String(id))).filter(Boolean);
                                         return (
-                                            <div key={logEntry.id} className="log-entry-card explore-log-card">
+                                            <div key={logEntry.timestamp} className="log-entry-card explore-log-card">
                                                 <div className="log-entry-header">
-                                                    <span className="log-result-badge expectation">期待度 {logEntry.details.expectationLevel}</span>
+                                                    <span className="log-result-badge expectation">期待度 {logEntry.expectationLevel}</span>
                                                     <span className="log-timestamp">{new Date(logEntry.timestamp).toLocaleString()}</span>
                                                 </div>
                                                 <div className="explore-log-body">
@@ -313,7 +315,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                                                         ))}
                                                     </div>
                                                     <div className="explore-log-result">
-                                                        <p>{getFormattedReward(logEntry.details.result, square.square.sub_type)}</p>
+                                                        <p>{getFormattedReward(logEntry.exploreResult, square.square.sub_type)}</p>
                                                     </div>
                                                 </div>
                                                 {party.map(megido => (
