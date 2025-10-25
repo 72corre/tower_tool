@@ -121,7 +121,7 @@ const usePracticeState = ({
         }
     }, [megidoConditions, ownedMegidoIds, showToastMessage, updateMegidoConditions]);
 
-        const handleResolveSquare = useCallback((result, data, square) => {
+        const handleResolveSquare = useCallback((result, data, square, targetedEnemyName) => {
             setHistoryStack(prev => [...prev, { runState, megidoConditions }]);
             let newRunState = { ...runState };
             const isBoss = square.square.type === 'boss';
@@ -178,7 +178,8 @@ const usePracticeState = ({
                         result: 'win',
                         squareId: square.id,
                         floor: floorNum,
-                        formationId: data.id,
+                        formation: data,
+                        enemy: targetedEnemyName,
                         timestamp: new Date().toISOString()
                     }];
                     showToastMessage('勝利！');
@@ -269,10 +270,8 @@ const usePracticeState = ({
                     updateMegidoConditions(megidoIds, 2);
                     newRunState.history = [...newRunState.history, {
                         type: 'battle',
-                        result: 'lose',
-                        squareId: square.id,
-                        floor: String(square.floor.floor),
-                        formationId: data.id,
+                        formation: data,
+                        enemy: targetedEnemyName,
                         timestamp: new Date().toISOString()
                     }];
                     showToastMessage('敗北...');
@@ -289,7 +288,8 @@ const usePracticeState = ({
                         result: 'retreat',
                         squareId: square.id,
                         floor: String(square.floor.floor),
-                        formationId: data.id,
+                        formation: data,
+                        enemy: targetedEnemyName,
                         timestamp: new Date().toISOString()
                     }];
                     showToastMessage('戦闘を棄権しました。');

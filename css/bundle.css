@@ -90,6 +90,9 @@
     
     /* Typography */
     --font-main: 'Noto Sans JP', sans-serif;
+
+    /* Accent Colors */
+    --rich-gold-color: #E7CD9C;
 }
 
 /* ============================================
@@ -1952,7 +1955,7 @@ dialog::backdrop {
     font-weight: 700;
     text-align: center;
     margin-bottom: 1rem;
-    color: var(--primary-accent);
+    color: var(--rich-gold-color);
 }
 
 .practice-action-panel .card-header {
@@ -2566,7 +2569,7 @@ dialog::backdrop {
 
 .search-result-item .formation-name {
     font-weight: 500;
-    color: var(--primary-accent);
+    color: var(--rich-gold-color);
     margin-top: 4px;
 }
 

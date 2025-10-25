@@ -123,8 +123,8 @@ const StrategyGuide = ({ square, targetedEnemy, bossGuide, recommendations, onOp
                 </div>
             )}
 
-            {strategyPoints.map((point, i) => (
-                <div key={i} className="strategy-point-group">
+            {strategyPoints.map((point) => (
+                <div key={point.text} className="strategy-point-group">
                     <p className="strategy-point-text">
                         <span className="material-symbols-outlined">{point.icon || 'check_circle'}</span>
                         {renderDetailWithTooltip(point.text, point.type === 'threat' ? 'text-danger' : 'text-success')}
@@ -158,11 +158,12 @@ const SelectedFormationViewer = ({ formation }) => {
     return (
         <div className="selected-formation-viewer">
             {megidoList.map((megido, index) => {
+                const key = megido ? `${megido.id}-${index}` : index;
                 const styleClass = megido ? getStyleClass(megido.スタイル) : '';
                 const imageUrl = megido && megido.名前 ? `url('asset/メギド/${megido.名前}.png')` : 'none';
 
                 return (
-                    <div key={index} className="formation-slot">
+                    <div key={megido ? `${megido.id}-${index}` : index} className="formation-slot">
                         <div 
                             className={`megido-icon-circle ${styleClass}`}
                             style={{ 
@@ -257,11 +258,15 @@ const PracticeActionPanel = ({
     };
 
     const handlePlanFormation = (formation) => {
+        if (!formation) {
+            showToastMessage('このログには編成情報がありません。');
+            return;
+        }
         if (!targetedEnemy) {
             showToastMessage('計画を設定する敵を選択してください。');
             return;
         }
-        onPlanCombatParty(square.id, targetedEnemy.name, formation);
+        onPlanCombatParty(`${square.floor.floor}-${square.id}`, targetedEnemy.name, targetedSlot, formation.id);
         showToastMessage(`${formation.name}を${square.floor.floor}F-${square.id}の${targetedEnemy.name}への計画に設定しました。`);
     };
 
@@ -290,7 +295,6 @@ const PracticeActionPanel = ({
 
             
             <div className="panel-content">
-                {isLocked && <LockedPanelOverlay text={lockText} />}
 
                 {activeTab === 'info' && (
                     <div className="tab-content-wrapper">
@@ -306,7 +310,7 @@ const PracticeActionPanel = ({
                                     const isTargeted = targetedEnemy?.name === enemyName;
                                     const itemStyle = isTargeted ? { backgroundColor: 'rgba(250, 204, 21, 0.1)', borderLeft: '4px solid #FACC15', paddingLeft: '8px' } : {};
                                     return (
-                                        <div key={index} className={`enemy-item`} style={itemStyle}>
+                                        <div key={enemyName} className={`enemy-item`} style={itemStyle}>
                                             <div className="enemy-name-wrapper" onClick={() => onTargetEnemyChange(enemyName)}>
                                                 {isTargeted && <span className="material-symbols-outlined icon-label" style={{color: '#FACC15'}}>label</span>}
                                                 <span className="enemy-name">{enemyName}</span>
@@ -323,8 +327,8 @@ const PracticeActionPanel = ({
                             {squareData.rules && squareData.rules.length > 0 &&
                                 <div className="rules-card">
                                     <ul className="rules-list">
-                                        {squareData.rules.map((rule, i) => (
-                                            <li key={i} className="rule-item">
+                                        {squareData.rules.map((rule) => (
+                                            <li key={rule} className="rule-item">
                                                 <span className="material-symbols-outlined">{getRuleIcon(rule)}</span>
                                                 <span>{renderRulesWithTooltips(rule)}</span>
                                             </li>
@@ -396,40 +400,44 @@ const PracticeActionPanel = ({
                             </div>
                         </div>
 
-                        {/* Card 4: Challenge Party */}
-                        <div className="card">
-                            <div className="card-header">
-                                <span className="material-symbols-outlined">group</span>
-                                挑戦パーティ
-                            </div>
+                        <div style={{ position: 'relative' }}>
+                            {isLocked && lockText === '解放済み' && <LockedPanelOverlay text={lockText} />}
 
-                            <button onClick={() => setIsFormationModalOpen(true)} className="select-field-btn">
-                                {selectedFormation ? `選択中: ${selectedFormation.name}` : '編成を選択...'}
-                            </button>
-                            
-                            {selectedFormation && (
-                                <SelectedFormationViewer formation={rehydratedSelectedFormation} />
-                            )}
-
-                            {selectedFormation && (
-                                <div style={{marginTop: '12px'}}>
-                                    <textarea value={memoText} onChange={(e) => setMemoText(e.target.value)} className="input-field" rows="3" placeholder="戦術メモ (例: 1T目にスキルが取れなければリタイア)"></textarea>
+                            {/* Card 4: Challenge Party */}
+                            <div className="card">
+                                <div className="card-header">
+                                    <span className="material-symbols-outlined">group</span>
+                                    挑戦パーティ
                                 </div>
-                            )}
-                        </div>
 
-                        {/* Card 4: Record Result */}
-                        <div className="card">
-                            <div className="card-header">
-                                <span className="material-symbols-outlined">check_circle</span>
-                                結果を記録
+                                <button onClick={() => setIsFormationModalOpen(true)} className="select-field-btn">
+                                    {selectedFormation ? `選択中: ${selectedFormation.name}` : '編成を選択...'}
+                                </button>
+                                
+                                {selectedFormation && (
+                                    <SelectedFormationViewer formation={rehydratedSelectedFormation} />
+                                )}
+
+                                {selectedFormation && (
+                                    <div style={{marginTop: '12px'}}>
+                                        <textarea value={memoText} onChange={(e) => setMemoText(e.target.value)} className="input-field" rows="3" placeholder="戦術メモ (例: 1T目にスキルが取れなければリタイア)"></textarea>
+                                    </div>
+                                )}
                             </div>
-                            {isFormationDisabled && <p className="text-danger">この編成には気絶状態のメギドが含まれているため、使用できません。</p>}
-                            {!isResolvable && !isLocked && <p className="text-warning">このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
-                            <div className="button-group">
-                                <button id="win-button" onClick={() => onResolve('win', rehydratedSelectedFormation, square)} disabled={!selectedFormation || isFormationDisabled || !isResolvable} className="btn btn-win">勝利</button>
-                                <button onClick={() => onResolve('lose', rehydratedSelectedFormation, square)} disabled={!selectedFormation || isFormationDisabled || !isResolvable} className="btn btn-lose">敗北</button>
-                                <button onClick={() => onResolve('retreat', rehydratedSelectedFormation, square)} disabled={!selectedFormation || !isResolvable} className="btn btn-retire">リタイア</button>
+
+                            {/* Card 4: Record Result */}
+                            <div className="card">
+                                <div className="card-header">
+                                    <span className="material-symbols-outlined">check_circle</span>
+                                    結果を記録
+                                </div>
+                                {isFormationDisabled && <p className="text-danger">この編成には気絶状態のメギドが含まれているため、使用できません。</p>}
+                                {!isResolvable && !isLocked && <p className="text-warning">このマスはクリア済みのマスに隣接していないため、挑戦結果を記録できません。</p>}
+                                <div className="button-group">
+                                    <button id="win-button" onClick={() => onResolve('win', rehydratedSelectedFormation, square, targetedEnemy?.name)} disabled={!selectedFormation || isFormationDisabled || !isResolvable} className="btn btn-win">勝利</button>
+                                    <button onClick={() => onResolve('lose', rehydratedSelectedFormation, square, targetedEnemy?.name)} disabled={!selectedFormation || isFormationDisabled || !isResolvable} className="btn btn-lose">敗北</button>
+                                    <button onClick={() => onResolve('retreat', rehydratedSelectedFormation, square, targetedEnemy?.name)} disabled={!selectedFormation || !isResolvable} className="btn btn-retire">リタイア</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -448,7 +456,14 @@ const PracticeActionPanel = ({
                                         return (
                                             <div key={logEntry.id} className="log-entry-card">
                                                 <div className="log-entry-header">
-                                                    <span className={`log-result-badge ${logEntry.result}`}>{logEntry.result.toUpperCase()}</span>
+                                                    <div>
+                                                        <span className={`log-result-badge ${logEntry.result}`}>{logEntry.result.toUpperCase()}</span>
+                                                        {logEntry.enemy && <span className="log-enemy-name">vs {logEntry.enemy}</span>}
+                                                        {logEntry.formation?.name 
+                                                            ? <span className="log-formation-name">{logEntry.formation.name}</span>
+                                                            : <span className="log-formation-name-missing">編成情報なし</span>
+                                                        }
+                                                    </div>
                                                     <span className="log-timestamp">{new Date(logEntry.timestamp).toLocaleString()}</span>
                                                 </div>
                                                 <SelectedFormationViewer formation={rehydratedFormation} />

@@ -178,7 +178,6 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
             
             
             <div className="panel-content">
-                {isLocked && <LockedPanelOverlay text={lockText} />}
 
                 {activeTab === 'info' && (
                     <div className="tab-content-wrapper">
@@ -202,77 +201,81 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
                             </select>
                         </div>
 
-                        {/* 3. Auto Assign */}
-                        <div className="card card-accented">
-                            <div className="card-header">おまかせ探索</div>
-                             <div style={{display: 'flex', alignItems: 'flex-end', gap: '1rem'}}>
-                                <div style={{flex: 1}}>
-                                    <label className="label">目標期待度</label>
-                                    <select value={targetExpectation} onChange={e => setTargetExpectation(Number(e.target.value))} className="select-field">
-                                        <option value={3}>3</option>
-                                        <option value={2}>2</option>
-                                        <option value={1}>1</option>
-                                    </select>
+                        <div style={{ position: 'relative' }}>
+                            {isLocked && lockText === '解放済み' && <LockedPanelOverlay text={lockText} />}
+
+                            {/* 3. Auto Assign */}
+                            <div className="card card-accented">
+                                <div className="card-header">おまかせ探索</div>
+                                <div style={{display: 'flex', alignItems: 'flex-end', gap: '1rem'}}>
+                                    <div style={{flex: 1}}>
+                                        <label className="label">目標期待度</label>
+                                        <select value={targetExpectation} onChange={e => setTargetExpectation(Number(e.target.value))} className="select-field">
+                                            <option value={3}>3</option>
+                                            <option value={2}>2</option>
+                                            <option value={1}>1</option>
+                                        </select>
+                                    </div>
+                                    <button onClick={() => handleAutoAssign()} className="btn btn-primary" style={{flex: 2}}>
+                                        <span className="material-symbols-outlined">auto_awesome</span>
+                                        探索パーティを自動編成
+                                    </button>
                                 </div>
-                                <button onClick={() => handleAutoAssign()} className="btn btn-primary" style={{flex: 2}}>
-                                    <span className="material-symbols-outlined">auto_awesome</span>
-                                    探索パーティを自動編成
+                            </div>
+
+                            {/* 4. Tweak Area */}
+                            <div className="card">
+                                <div className="card-header">探索パーティ選択 (1〜3名)</div>
+                                <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
+                                    {practiceParty.map((megido, index) => {
+                                        if (!megido) {
+                                            return <button key={index} className="btn megido-slot-empty" style={{height: '96px'}} onClick={() => setModalState({ isOpen: true, slotIndex: index })}>+</button>;
+                                        }
+                                        const condition = megidoConditions[megido.id] || '絶好調';
+                                        return (
+                                        <div key={index} className="card" style={{height: '96px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: '8px', textAlign: 'center'}}>
+                                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
+                                                <span className={`flex-grow text-center ${getStyleClass(megido.スタイル)}`} style={{fontWeight: 700}} onClick={() => setModalState({ isOpen: true, slotIndex: index })}>{megido.名前}</span>
+                                                <button onClick={(e) => { e.stopPropagation(); setPracticeParty(p => { const newP = [...p]; newP[index] = null; return newP; }); }} className="btn-icon text-danger">×</button>
+                                            </div>
+                                            <span style={{color: 'var(--text-subtle)', fontSize: '12px'}}>{condition}</span>
+                                            <span style={{fontWeight: 500}}>{calculatePower(megido, condition, recommendation)}</span>
+                                        </div>
+                                    )})}
+                                </div>
+                            </div>
+
+                            {/* 5. Reconfirm Goal */}
+                            <div className="card">
+                                <div className="card-header">最終確認</div>
+                                <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr', alignItems: 'center', textAlign: 'center'}}>
+                                     <div className="stat-item">
+                                        <span className="stat-label">合計探索力</span>
+                                        <span className="stat-value" style={{color: displayPower >= requiredPower ? 'var(--primary-accent)' : 'var(--danger-color)'}}>{displayPower}</span>
+                                    </div>
+                                    <div className="stat-item">
+                                        <span className="stat-label">期待度</span>
+                                        <span className="stat-value" style={{color: getRewardColor(expectationLevel)}}>{expectationLevel}</span>
+                                    </div>
+                                </div>
+                                <div style={{fontSize: '12px', textAlign: 'center', padding: '0.75rem', borderTop: '1px solid var(--border-color)', marginTop: '8px', background: 'var(--bg-main)', borderRadius: '0 0 6px 6px'}}>
+                                    <p style={{margin: 0, fontWeight: 700}}>予測報酬</p>
+                                    <p style={{margin: 0, color: getRewardColor(expectationLevel)}}>{getFormattedReward(result, square.square.sub_type)}</p>
+                                </div>
+                            </div>
+
+                            {/* 6. Execution Area */}
+                            <div className="card">
+                                 <div className="card-header">記録</div>
+                                <button 
+                                    id="resolve-square-button" 
+                                    onClick={() => onResolve('explore', { party: practiceParty.filter(m => m), totalPower: displayPower, requiredPower, expectationLevel, result }, square)} 
+                                    disabled={!isReady || !isResolvable} 
+                                    className="btn btn-primary" style={{width: '100%'}}
+                                >
+                                    {isReady ? '探索実行' : '探索メギドを選択してください'}
                                 </button>
                             </div>
-                        </div>
-
-                        {/* 4. Tweak Area */}
-                        <div className="card">
-                            <div className="card-header">探索パーティ選択 (1〜3名)</div>
-                            <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
-                                {practiceParty.map((megido, index) => {
-                                    if (!megido) {
-                                        return <button key={index} className="btn megido-slot-empty" style={{height: '96px'}} onClick={() => setModalState({ isOpen: true, slotIndex: index })}>+</button>;
-                                    }
-                                    const condition = megidoConditions[megido.id] || '絶好調';
-                                    return (
-                                    <div key={index} className="card" style={{height: '96px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', padding: '8px', textAlign: 'center'}}>
-                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%'}}>
-                                            <span className={`flex-grow text-center ${getStyleClass(megido.スタイル)}`} style={{fontWeight: 700}} onClick={() => setModalState({ isOpen: true, slotIndex: index })}>{megido.名前}</span>
-                                            <button onClick={(e) => { e.stopPropagation(); setPracticeParty(p => { const newP = [...p]; newP[index] = null; return newP; }); }} className="btn-icon text-danger">×</button>
-                                        </div>
-                                        <span style={{color: 'var(--text-subtle)', fontSize: '12px'}}>{condition}</span>
-                                        <span style={{fontWeight: 500}}>{calculatePower(megido, condition, recommendation)}</span>
-                                    </div>
-                                )})}
-                            </div>
-                        </div>
-
-                        {/* 5. Reconfirm Goal */}
-                        <div className="card">
-                            <div className="card-header">最終確認</div>
-                            <div className="stats-grid" style={{ gridTemplateColumns: '1fr 1fr', alignItems: 'center', textAlign: 'center'}}>
-                                 <div className="stat-item">
-                                    <span className="stat-label">合計探索力</span>
-                                    <span className="stat-value" style={{color: displayPower >= requiredPower ? 'var(--primary-accent)' : 'var(--danger-color)'}}>{displayPower}</span>
-                                </div>
-                                <div className="stat-item">
-                                    <span className="stat-label">期待度</span>
-                                    <span className="stat-value" style={{color: getRewardColor(expectationLevel)}}>{expectationLevel}</span>
-                                </div>
-                            </div>
-                            <div style={{fontSize: '12px', textAlign: 'center', padding: '0.75rem', borderTop: '1px solid var(--border-color)', marginTop: '8px', background: 'var(--bg-main)', borderRadius: '0 0 6px 6px'}}>
-                                <p style={{margin: 0, fontWeight: 700}}>予測報酬</p>
-                                <p style={{margin: 0, color: getRewardColor(expectationLevel)}}>{getFormattedReward(result, square.square.sub_type)}</p>
-                            </div>
-                        </div>
-
-                        {/* 6. Execution Area */}
-                        <div className="card">
-                             <div className="card-header">記録</div>
-                            <button 
-                                id="resolve-square-button" 
-                                onClick={() => onResolve('explore', { party: practiceParty.filter(m => m), totalPower: displayPower, requiredPower, expectationLevel, result }, square)} 
-                                disabled={!isReady || !isResolvable} 
-                                className="btn btn-primary" style={{width: '100%'}}
-                            >
-                                {isReady ? '探索実行' : '探索メギドを選択してください'}
-                            </button>
                         </div>
                     </div>
                  )}
