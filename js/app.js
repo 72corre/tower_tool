@@ -147,9 +147,13 @@ const RightPanelContent = () => {
 
                                 autoExploreExcludedIds={autoExploreExcludedIds}
 
-                                onToggleAutoExploreExclusion={handleToggleAutoExploreExclusion}
+                                                                onToggleAutoExploreExclusion={handleToggleAutoExploreExclusion}
 
-                            />;
+                                                                                                unlockAchievement={unlockAchievement}
+
+                                                                                                handleIncrementAutoAssignUse={handleIncrementAutoAssignUse}
+
+                                                                                            />;
 
                         } else {
 
@@ -442,6 +446,59 @@ const TowerTool = () => {
     };
 
     const [showSettings, setShowSettings] = useState(false);
+    const [showProfileGenerator, setShowProfileGenerator] = useState(false);
+    const [allAchievements, setAllAchievements] = useState(ACHIEVEMENTS);
+
+    const generateDynamicAchievements = (megidoList) => {
+        const megidoGroups = {};
+        megidoList.forEach(megido => {
+            const baseName = megido.名前.replace(/[RCB]$/, '');
+            if (!megidoGroups[baseName]) {
+                megidoGroups[baseName] = [];
+            }
+            megidoGroups[baseName].push(megido);
+        });
+
+        const dynamicAchievements = {};
+        Object.keys(megidoGroups).forEach(baseName => {
+            const group = megidoGroups[baseName];
+            if (group.length > 1) {
+                const achievementId = `LOVE_${baseName}`;
+                dynamicAchievements[achievementId] = {
+                    id: achievementId,
+                    name: `${baseName}大好き`,
+                    description: `${baseName}を編成した編成を５つ以上登録する`,
+                    type: 'public',
+                    condition: (data) => {
+                        if (!data.formations) return false;
+                        const megidoIdsInGroup = new Set(group.map(m => m.id));
+                        const count = Object.values(data.formations).filter(formation =>
+                            formation.megidoSlots.some(slot => slot && megidoIdsInGroup.has(slot.megidoId))
+                        ).length;
+                        return count >= 5;
+                    }
+                };
+
+                const alwaysTogetherId = `ALWAYS_WITH_${baseName}`;
+                dynamicAchievements[alwaysTogetherId] = {
+                    id: alwaysTogetherId,
+                    name: `${baseName}といつも一緒`,
+                    description: `${baseName}を編成に入れたまま10回戦闘勝利を記録する`,
+                    type: 'public',
+                    condition: (data) => {
+                        if (!data.runState || !data.runState.history) return false;
+                        const megidoIdsInGroup = new Set(group.map(m => m.id));
+                        const count = data.runState.history.filter(h => 
+                            h.type === 'battle' && h.result === 'win' && h.megido.some(id => megidoIdsInGroup.has(id))
+                        ).length;
+                        return count >= 10;
+                    }
+                };
+            }
+        });
+        return dynamicAchievements;
+    };
+
     const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
         const saved = localStorage.getItem('unlockedAchievements');
         return saved ? new Set(JSON.parse(saved)) : new Set();
@@ -462,6 +519,36 @@ const TowerTool = () => {
         const saved = localStorage.getItem('dataManagementCount');
         return saved ? parseInt(saved, 10) : 0;
     });
+    const [autoAssignUseCount, setAutoAssignUseCount] = useState(() => parseInt(localStorage.getItem('autoAssignUseCount') || '0'));
+    const [mapSearchCount, setMapSearchCount] = useState(() => parseInt(localStorage.getItem('mapSearchCount') || '0'));
+    const [aboutPageOpenCount, setAboutPageOpenCount] = useState(() => parseInt(localStorage.getItem('aboutPageOpenCount') || '0'));
+    const [loginData, setLoginData] = useState(() => {
+        const saved = localStorage.getItem('loginData');
+        return saved ? JSON.parse(saved) : { firstLogin: Date.now(), lastLogin: null, consecutiveDays: 0 };
+    });
+
+    useEffect(() => {
+        const today = new Date().setHours(0, 0, 0, 0);
+        const lastLogin = loginData.lastLogin ? new Date(loginData.lastLogin).setHours(0, 0, 0, 0) : null;
+
+        let newConsecutiveDays = loginData.consecutiveDays;
+        if (lastLogin === null || lastLogin === today) {
+            // First login of the day or first ever login
+            if (lastLogin === null) {
+                newConsecutiveDays = 1;
+            }
+        } else if (today - lastLogin === 86400000) {
+            // Consecutive day
+            newConsecutiveDays++;
+        } else {
+            // Missed a day
+            newConsecutiveDays = 1;
+        }
+
+        const newLoginData = { ...loginData, lastLogin: Date.now(), consecutiveDays: newConsecutiveDays };
+        setLoginData(newLoginData);
+        localStorage.setItem('loginData', JSON.stringify(newLoginData));
+    }, []); // Runs once on app load
     const [isLoading, setIsLoading] = useState(true);
     const [activeTab, setActiveTab] = useState(() => {
         const savedTab = localStorage.getItem('ui_activeTab');
@@ -597,6 +684,9 @@ const TowerTool = () => {
             const enemyObjectString = enemyText.substring(enemyText.indexOf('{'));
             window.ENEMY_ALL_DATA = new Function(`return ${enemyObjectString}`)();
 
+            const dynamicAchievements = generateDynamicAchievements(megidoData);
+            setAllAchievements({ ...ACHIEVEMENTS, ...dynamicAchievements });
+
             setIsLoading(false);
         }).catch(error => {
             console.error('Error loading master data:', error);
@@ -605,7 +695,10 @@ const TowerTool = () => {
 
 
 
-    const handleOpenMapSearch = () => setIsMapSearchModalOpen(true);
+    const handleOpenMapSearch = () => {
+        setMapSearchCount(c => c + 1);
+        setIsMapSearchModalOpen(true);
+    };
     const handleCloseMapSearch = () => setIsMapSearchModalOpen(false);
 
     
@@ -793,6 +886,21 @@ const TowerTool = () => {
         [megidoDetails]
     );
 
+    const profileData = useMemo(() => {
+        const maxFloor = Object.keys(floorClearCounts).reduce((max, floor) => Math.max(max, parseInt(floor)), 0);
+        const clearCount = floorClearCounts['35'] || 0;
+        return {
+            ownedMegidoCount: ownedMegidoIds.size,
+            maxFloor,
+            clearCount
+        };
+    }, [ownedMegidoIds, floorClearCounts]);
+
+    const unlockedAchievementsList = useMemo(() => {
+        if (!allAchievements) return [];
+        return Array.from(unlockedAchievements).map(id => allAchievements[id]).filter(Boolean);
+    }, [unlockedAchievements, allAchievements]);
+
     const [bossFormationId, setBossFormationId] = useState(() => localStorage.getItem('bossFormationId') || null);
     const [bossSquadIds, setBossSquadIds] = useState(() => {
         const saved = localStorage.getItem('bossSquadIds');
@@ -951,7 +1059,8 @@ const TowerTool = () => {
         setActiveTab,
         setPracticeView,
         handleMegidoDetailChange,
-        megidoDetails
+        megidoDetails,
+        unlockAchievement
     });
 
     const handleCreateFormationFromSelection = useCallback((selectedIds, tagTarget) => {
@@ -991,7 +1100,7 @@ const TowerTool = () => {
         handlePostFormation,
         handleDeleteCommunityFormation,
         isPosting,
-    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser });
+    } = useCommunityFormations({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser, unlockAchievement });
 
     const handleImportFormation = () => {
         if (!idMaps) {
@@ -1130,6 +1239,7 @@ const TowerTool = () => {
                         const newFormations = { ...formations, [newFormation.id]: newFormation };
                         setFormations(newFormations);
                         localStorage.setItem('formations', JSON.stringify(newFormations));
+                        unlockAchievement('CROSS_DIMENSIONAL_FORMATION');
                         showToastMessage('編成をインポートしました。');
                     } catch (error) {
                         console.error("QRコードの解析または編成の復元に失敗しました:", error);
@@ -1194,7 +1304,7 @@ const TowerTool = () => {
     const handleCloseSettings = () => setShowSettings(false);
 
     const checkAllAchievements = useCallback(() => {
-        if (typeof ACHIEVEMENTS === 'undefined') return;
+        if (!allAchievements) return;
 
         const userData = {
             formations,
@@ -1203,13 +1313,19 @@ const TowerTool = () => {
             floorClearCounts,
             themeToggleCount,
             dataManagementCount,
-            planState
+            autoAssignUseCount,
+            mapSearchCount,
+            aboutPageOpenCount,
+            planState,
+            megidoList,
+            towerMapData: window.TOWER_MAP_DATA,
+            loginData
         };
 
         const newUnlocked = new Set(unlockedAchievements);
         let changed = false;
 
-        for (const ach of Object.values(ACHIEVEMENTS)) {
+        for (const ach of Object.values(allAchievements)) {
             if (ach.condition && !newUnlocked.has(ach.id)) {
                 if (ach.condition(userData)) {
                     newUnlocked.add(ach.id);
@@ -1222,7 +1338,7 @@ const TowerTool = () => {
         if (changed) {
             setUnlockedAchievements(newUnlocked);
         }
-    }, [formations, ownedMegidoIds, unlockedAchievements, winStreak, floorClearCounts, themeToggleCount, dataManagementCount, planState]);
+    }, [formations, ownedMegidoIds, unlockedAchievements, winStreak, floorClearCounts, themeToggleCount, dataManagementCount, planState, allAchievements]);
 
     useEffect(() => {
         checkAllAchievements();
@@ -1241,16 +1357,68 @@ const TowerTool = () => {
     useEffect(() => { localStorage.setItem('floorClearCounts', JSON.stringify(floorClearCounts)); }, [floorClearCounts]);
     useEffect(() => { localStorage.setItem('themeToggleCount', themeToggleCount); }, [themeToggleCount]);
     useEffect(() => { localStorage.setItem('dataManagementCount', dataManagementCount); }, [dataManagementCount]);
+    useEffect(() => { localStorage.setItem('autoAssignUseCount', autoAssignUseCount); }, [autoAssignUseCount]);
+    useEffect(() => { localStorage.setItem('mapSearchCount', mapSearchCount); }, [mapSearchCount]);
+    useEffect(() => { localStorage.setItem('aboutPageOpenCount', aboutPageOpenCount); }, [aboutPageOpenCount]);
+
+    const handleIncrementAutoAssignUse = () => setAutoAssignUseCount(c => c + 1);
+    const handleIncrementAboutPageOpen = () => setAboutPageOpenCount(c => c + 1);
 
     useEffect(() => {
         localStorage.setItem('completedGuideSteps', JSON.stringify(Array.from(completedGuideSteps)));
     }, [completedGuideSteps]);
+
+    useEffect(() => {
+        let voidTimeout;
+        const resetVoidTimeout = () => {
+            clearTimeout(voidTimeout);
+            voidTimeout = setTimeout(() => {
+                unlockAchievement('STARING_INTO_THE_VOID');
+            }, 180000); // 3 minutes
+        };
+
+        window.addEventListener('mousemove', resetVoidTimeout);
+        window.addEventListener('mousedown', resetVoidTimeout);
+        window.addEventListener('keydown', resetVoidTimeout);
+
+        resetVoidTimeout(); // Initial setup
+
+        return () => {
+            clearTimeout(voidTimeout);
+            window.removeEventListener('mousemove', resetVoidTimeout);
+            window.removeEventListener('mousedown', resetVoidTimeout);
+            window.removeEventListener('keydown', resetVoidTimeout);
+        };
+    }, [unlockAchievement]);
+
+    useEffect(() => {
+        const clickTimestamps = [];
+        const clickHandler = () => {
+            const now = Date.now();
+            clickTimestamps.push(now);
+            // Remove clicks older than 1 second
+            while (clickTimestamps.length > 0 && now - clickTimestamps[0] > 1000) {
+                clickTimestamps.shift();
+            }
+            if (clickTimestamps.length >= 10) {
+                unlockAchievement('BUTTON_MASHER');
+                window.removeEventListener('click', clickHandler);
+            }
+        };
+
+        window.addEventListener('click', clickHandler);
+
+        return () => {
+            window.removeEventListener('click', clickHandler);
+        };
+    }, [unlockAchievement]);
 
 
 
 
 
     const handleExportData = () => {
+        unlockAchievement('BE_PREPARED');
         setDataManagementCount(c => c + 1);
 
         const dataToExport = {
@@ -1283,6 +1451,7 @@ const TowerTool = () => {
     };
 
     const handleImportData = () => {
+        unlockAchievement('BEYOND_TIME');
         setDataManagementCount(c => c + 1);
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
@@ -1358,6 +1527,7 @@ const TowerTool = () => {
     };
 
     const handleToggleTheme = () => {
+        unlockAchievement('WELCOME_TO_THE_DARK_SIDE');
         setThemeToggleCount(c => c + 1);
         const newTheme = document.body.className === 'light-mode' ? '' : 'light-mode';
         document.body.className = newTheme;
@@ -1424,6 +1594,16 @@ const TowerTool = () => {
         const localDate = new Date();
         const today = new Date(Date.UTC(localDate.getFullYear(), localDate.getMonth(), localDate.getDate()));
         const currentYear = localDate.getFullYear();
+        const month = localDate.getMonth() + 1;
+        const day = localDate.getDate();
+
+        if (month === 7 && day === 2) {
+            unlockAchievement('MEGIDO_DAY');
+        }
+        if (month === 4 && day === 1) {
+            unlockAchievement('APRIL_FOOLS');
+        }
+
         let todaysEvents = [];
 
         for (const event of MEGIDO_BIRTHDAY_DATA) {
@@ -1651,6 +1831,7 @@ const TowerTool = () => {
         const defaultLogName = `${date.getFullYear()}_${String(date.getMonth() + 1).padStart(2, '0')}_シーズンの記録`;
         const logName = prompt("このログの名前を入力してください:", defaultLogName);
         if (logName) {
+            unlockAchievement('FIRST_SEASON');
             const newLog = { name: logName, date: new Date().toISOString(), runState: runState, megidoConditions: megidoConditions, targetEnemies: targetEnemies, planState: planState };
             const newLogs = [...seasonLogs, newLog];
             setSeasonLogs(newLogs);
@@ -2330,7 +2511,7 @@ const TowerTool = () => {
                 show={showSettings}
                 onClose={handleCloseSettings}
                 unlockedAchievements={unlockedAchievements}
-                achievementsData={typeof ACHIEVEMENTS !== 'undefined' ? ACHIEVEMENTS : {}}
+                achievementsData={allAchievements}
                 onExportData={handleExportData}
                 onImportData={handleImportData}
                 onResetAllData={handleResetAllData}
@@ -2338,6 +2519,15 @@ const TowerTool = () => {
                 isMobileView={isMobileView}
                 isTabletView={isTabletView}
                 onUnlockAchievement={unlockAchievement}
+                onOpenProfileGenerator={() => setShowProfileGenerator(true)}
+                onIncrementAboutPageOpen={handleIncrementAboutPageOpen}
+            />
+            <ProfileCardGenerator
+                isOpen={showProfileGenerator}
+                onClose={() => setShowProfileGenerator(false)}
+                profileData={profileData}
+                megidoList={megidoList || []}
+                achievements={unlockedAchievementsList}
             />
             {showTutorial && (
                 <Tutorial

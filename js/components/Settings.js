@@ -11,21 +11,36 @@ const Settings = ({
     onViewModeChange,
     isMobileView,
     isTabletView,
-    onUnlockAchievement
+    onUnlockAchievement,
+    onOpenProfileGenerator,
+    onIncrementAboutPageOpen
 }) => {
-    const { useState } = React;
+    const { useState, useEffect } = React;
     const [activeSettingsTab, setActiveSettingsTab] = useState('achievements');
+    const [activeAchievementTab, setActiveAchievementTab] = useState('all');
     const [mailSubject, setMailSubject] = useState('不具合報告');
+
+    useEffect(() => {
+        if (activeSettingsTab === 'about') {
+            onIncrementAboutPageOpen();
+        }
+    }, [activeSettingsTab]);
 
     if (!show) {
         return null;
     }
 
+    const achievementCategories = { all: 'すべて', progress: '進行度', collection: '収集', battle: '戦闘', feature: '機能', secret: '秘密' };
+
     const achievementsArray = Object.values(achievementsData);
     const visibleAchievements = achievementsArray.filter(ach => {
-        // In mobile view, hide private achievements entirely
         if (isMobileView && ach.type === 'private') {
             return false;
+        }
+        if (activeAchievementTab !== 'all' && ach.category !== activeAchievementTab) {
+            if (ach.type === 'secret' && activeAchievementTab !== 'secret') return false;
+            if (ach.type !== 'secret' && activeAchievementTab === 'secret') return false;
+            if (activeAchievementTab !== 'all' && ach.category !== activeAchievementTab) return false;
         }
         return ach.type !== 'private' || unlockedAchievements.has(ach.id);
     });
@@ -124,11 +139,41 @@ const Settings = ({
                         >
                             Special Thanks
                         </button>
+                        <button
+                            style={tabButtonStyle}
+                            className={`settings-tab-button ${activeSettingsTab === 'profile' ? 'active' : ''}`}
+                            onClick={() => setActiveSettingsTab('profile')}
+                        >
+                            プロフィール
+                        </button>
                     </div>
                     <div style={mainContentStyle}>
                         {activeSettingsTab === 'achievements' && (
                             <div>
                                 <h3>実績 ({unlockedCount} / {totalAchievements})</h3>
+                                <div className="achievement-tabs" style={{ display: 'flex', marginBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+                                    {Object.entries(achievementCategories).map(([key, name]) => {
+                                        const isActive = activeAchievementTab === key;
+                                        const style = {
+                                            padding: '0.5rem 1rem',
+                                            border: 'none',
+                                            background: isActive ? 'var(--bg-main)' : 'transparent',
+                                            color: isActive ? 'var(--text-main)' : 'var(--text-subtle)',
+                                            borderBottom: isActive ? '2px solid var(--primary-accent)' : '2px solid transparent',
+                                            marginBottom: '-1px',
+                                            cursor: 'pointer'
+                                        };
+                                        return (
+                                            <button 
+                                                key={key} 
+                                                style={style}
+                                                onClick={() => setActiveAchievementTab(key)}
+                                            >
+                                                {name}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                                 <div className="achievement-list">
                                     {visibleAchievements.map(ach => {
                                         const isUnlocked = unlockedAchievements.has(ach.id);
@@ -233,6 +278,15 @@ const Settings = ({
                                 <h3>Special Thanks</h3>
                                 <div className="about-section">
                                     <p>（ここに協力者のお名前を記載します）</p>
+                                </div>
+                            </div>
+                        )}
+                        {activeSettingsTab === 'profile' && (
+                            <div>
+                                <h3>プロフィール</h3>
+                                <p>あなたの星間の塔の攻略状況をまとめたプロフィール画像を生成します。</p>
+                                <div className="settings-actions vertical">
+                                    <button onClick={onOpenProfileGenerator} className="btn btn-primary">プロフィール画像を生成</button>
                                 </div>
                             </div>
                         )}

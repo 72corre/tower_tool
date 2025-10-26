@@ -16,7 +16,7 @@ const decodeFormationTags = (tagValue) => {
     return tags;
 };
 
-const useCommunityFormations = ({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser }) => {
+const useCommunityFormations = ({ formations, setFormations, showToastMessage, megidoDetails, idMaps, currentUser, unlockAchievement }) => {
     const [communityFormationsState, setCommunityFormationsState] = useState({ isOpen: false, floor: null, enemy: null, highlightId: null, initialFilter: '' });
     const [isPosting, setIsPosting] = useState(false);
 
@@ -150,6 +150,7 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
         const newFormations = { ...formations, [newId]: newFormation };
         setFormations(newFormations);
         localStorage.setItem('formations', JSON.stringify(newFormations));
+        unlockAchievement('THANK_YOU');
         showToastMessage('編成を自分のリストにコピーしました。');
         handleCloseCommunityFormations();
     }, [formations, setFormations, showToastMessage, handleCloseCommunityFormations, idMaps]);
@@ -213,6 +214,7 @@ const useCommunityFormations = ({ formations, setFormations, showToastMessage, m
 
             const newDocId = await postCommunityFormation(dataToPost);
             if (newDocId) {
+                unlockAchievement('COURAGEOUS_POST');
                 showToastMessage('編成を投稿しました！');
                 // TODO: 投稿後にリストを再読み込みする
             } else {

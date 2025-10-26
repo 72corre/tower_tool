@@ -1,4 +1,4 @@
-const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveTab, setPracticeView, handleMegidoDetailChange, megidoDetails }) => {
+const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveTab, setPracticeView, handleMegidoDetailChange, megidoDetails, unlockAchievement }) => {
     const { useState, useCallback, useMemo } = React;
 
     const [formations, setFormations] = useState(() => {
@@ -349,6 +349,7 @@ const useFormations = ({ showToastMessage, idMaps, setDisplayedEnemy, setActiveT
     }), []);
 
     const handleGenerateShareImage = useCallback(async (form) => {
+        unlockAchievement('CROSS_DIMENSIONAL_FORMATION');
         showToastMessage('共有用画像を生成中です...');
         const rehydratedForm = rehydrateFormation(form, megidoDetails);
 

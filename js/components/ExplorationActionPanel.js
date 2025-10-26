@@ -1,4 +1,4 @@
-const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable, manualPower, onOpenManualPowerInput, onSetManualPower, autoExploreExcludedIds, onToggleAutoExploreExclusion }) => {
+const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoConditions, onResolve, recommendation, onRecommendationChange, explorationAssignments, onPlanExplorationParty, planState, memos, onSaveMemo, showToastMessage, isLocked, lockText, runState, formations, seasonLogs, isResolvable, manualPower, onOpenManualPowerInput, onSetManualPower, autoExploreExcludedIds, onToggleAutoExploreExclusion, unlockAchievement, handleIncrementAutoAssignUse }) => {
     const { useState, useEffect, useMemo, useCallback } = React;
     const { findOptimalExplorationParty } = useAutoAssign();
     const { detailPanelTab: activeTab, setDetailPanelTab: onTabChange } = useAppContext();
@@ -9,6 +9,7 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
     const [practiceParty, setPracticeParty] = useState([null, null, null]);
 
     const handleAutoAssign = (retryOptions = {}) => {
+        unlockAchievement('AUTO_ASSIGN_DEBUT');
         const { lowerExpectation = false, includeGoodCondition = false } = retryOptions;
 
         let currentTargetExpectation = targetExpectation;
@@ -38,11 +39,17 @@ const ExplorationActionPanel = ({ square, ownedMegidoIds, megidoDetails, megidoC
     };
 
     const handleSelectParty = (party) => {
+        handleIncrementAutoAssignUse();
         const newParty = [null, null, null];
         party.forEach((megido, index) => {
             newParty[index] = megido;
         });
         setPracticeParty(newParty);
+
+        const buneIds = ['祖26_ブネ', '祖26_ブネB'];
+        if (party.some(megido => megido && buneIds.includes(megido.id))) {
+            unlockAchievement('BUNE_AUTO_EXPLORE');
+        }
     };
 
     const handleCloseAutoAssignModal = () => {
