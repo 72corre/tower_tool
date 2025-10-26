@@ -2222,6 +2222,7 @@ const TowerTool = () => {
         communityFormationsState, handleOpenCommunityFormations, handleCloseCommunityFormations, handleCopyCommunityFormation, handlePostFormation, handleDeleteCommunityFormation, isPosting,
         handleCreateFormationFromSelection, // Add this line
         autoExploreExcludedIds, handleToggleAutoExploreExclusion, // Add this line
+        handleIncrementAutoAssignUse,
         handleImportFormation, isQriousLoaded, isHtml5QrLoaded, checkAllAchievements, handleExportData, handleImportData, handleResetAllData, handleToggleTheme, handleViewModeChange,
         handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo, handleScrollToFloor,
         handleSaveLog, handleResetRun, handleUndo,
