@@ -19,7 +19,8 @@ const RightPanelContent = () => {
         openPlannerForSquare, recommendations, memos, onSaveMemo, seasonLogs, isResolvable,
         manualExplorationPowers, onOpenManualPowerInput, onSetManualPower, onPlanExplorationParty,
         formationAssignments,
-        autoExploreExcludedIds, handleToggleAutoExploreExclusion
+        autoExploreExcludedIds, handleToggleAutoExploreExclusion,
+        unlockAchievement, handleIncrementAutoAssignUse
     } = useAppContext();
 
             return (<>
@@ -449,55 +450,7 @@ const TowerTool = () => {
     const [showProfileGenerator, setShowProfileGenerator] = useState(false);
     const [allAchievements, setAllAchievements] = useState(ACHIEVEMENTS);
 
-    const generateDynamicAchievements = (megidoList) => {
-        const megidoGroups = {};
-        megidoList.forEach(megido => {
-            const baseName = megido.名前.replace(/[RCB]$/, '');
-            if (!megidoGroups[baseName]) {
-                megidoGroups[baseName] = [];
-            }
-            megidoGroups[baseName].push(megido);
-        });
 
-        const dynamicAchievements = {};
-        Object.keys(megidoGroups).forEach(baseName => {
-            const group = megidoGroups[baseName];
-            if (group.length > 1) {
-                const achievementId = `LOVE_${baseName}`;
-                dynamicAchievements[achievementId] = {
-                    id: achievementId,
-                    name: `${baseName}大好き`,
-                    description: `${baseName}を編成した編成を５つ以上登録する`,
-                    type: 'public',
-                    condition: (data) => {
-                        if (!data.formations) return false;
-                        const megidoIdsInGroup = new Set(group.map(m => m.id));
-                        const count = Object.values(data.formations).filter(formation =>
-                            formation.megidoSlots.some(slot => slot && megidoIdsInGroup.has(slot.megidoId))
-                        ).length;
-                        return count >= 5;
-                    }
-                };
-
-                const alwaysTogetherId = `ALWAYS_WITH_${baseName}`;
-                dynamicAchievements[alwaysTogetherId] = {
-                    id: alwaysTogetherId,
-                    name: `${baseName}といつも一緒`,
-                    description: `${baseName}を編成に入れたまま10回戦闘勝利を記録する`,
-                    type: 'public',
-                    condition: (data) => {
-                        if (!data.runState || !data.runState.history) return false;
-                        const megidoIdsInGroup = new Set(group.map(m => m.id));
-                        const count = data.runState.history.filter(h => 
-                            h.type === 'battle' && h.result === 'win' && h.megido.some(id => megidoIdsInGroup.has(id))
-                        ).length;
-                        return count >= 10;
-                    }
-                };
-            }
-        });
-        return dynamicAchievements;
-    };
 
     const [unlockedAchievements, setUnlockedAchievements] = useState(() => {
         const saved = localStorage.getItem('unlockedAchievements');
@@ -684,8 +637,7 @@ const TowerTool = () => {
             const enemyObjectString = enemyText.substring(enemyText.indexOf('{'));
             window.ENEMY_ALL_DATA = new Function(`return ${enemyObjectString}`)();
 
-            const dynamicAchievements = generateDynamicAchievements(megidoData);
-            setAllAchievements({ ...ACHIEVEMENTS, ...dynamicAchievements });
+            setAllAchievements(ACHIEVEMENTS);
 
             setIsLoading(false);
         }).catch(error => {

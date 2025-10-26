@@ -136,7 +136,7 @@ const StrategyGuide = ({ square, targetedEnemy, bossGuide, recommendations, onOp
                 {square.square.type === 'boss' && (
                     <button onClick={() => openPlannerForSquare(square.floor.floor, square.id)} className="btn btn-primary">
                         <span className="material-symbols-outlined">edit_note</span>
-                        攻略計画
+                        攻略ヒント
                     </button>
                 )}
                 <button onClick={() => onOpenCommunityFormations(null, targetedEnemy.name)} className="btn btn-highlight">
@@ -310,7 +310,7 @@ const PracticeActionPanel = ({
                                     const isTargeted = targetedEnemy?.name === enemyName;
                                     const itemStyle = isTargeted ? { backgroundColor: 'rgba(250, 204, 21, 0.1)', borderLeft: '4px solid #FACC15', paddingLeft: '8px' } : {};
                                     return (
-                                        <div key={enemyName} className={`enemy-item`} style={itemStyle}>
+                                        <div key={`${enemyName}-${index}`} className={`enemy-item`} style={itemStyle}>
                                             <div className="enemy-name-wrapper" onClick={() => onTargetEnemyChange(enemyName)}>
                                                 {isTargeted && <span className="material-symbols-outlined icon-label" style={{color: '#FACC15'}}>label</span>}
                                                 <span className="enemy-name">{enemyName}</span>
@@ -421,6 +421,7 @@ const PracticeActionPanel = ({
                                 {selectedFormation && (
                                     <div style={{marginTop: '12px'}}>
                                         <textarea value={memoText} onChange={(e) => setMemoText(e.target.value)} className="input-field" rows="3" placeholder="戦術メモ (例: 1T目にスキルが取れなければリタイア)"></textarea>
+                                        <button onClick={() => onSaveFormationMemo(selectedFormation.id, memoText)} className="btn btn-primary" style={{marginTop: '8px'}}>メモを保存</button>
                                     </div>
                                 )}
                             </div>

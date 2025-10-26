@@ -619,6 +619,8 @@ tbody tr:hover {
 .map-node.current-position {
     border: 3px solid var(--primary-accent) !important;
     transform: scale(1.1);
+}
+.map-node.current-position:not(.node-color-start) {
     animation: pulse-border 2s infinite;
 }
 
@@ -656,8 +658,8 @@ tbody tr:hover {
 
 /* State: Cleared (already visited) */
 .node-cleared {
-    /* Dark, unobtrusive circle */
-    border: 2px solid var(--border-color); 
+    /* accent-colored circle */
+    border: 3px solid var(--primary-accent); 
     opacity: 0.6;
 }
 .node-cleared .map-node-icon {

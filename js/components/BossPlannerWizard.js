@@ -187,7 +187,7 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
 
     const headerStyle = {
         borderBottom: '1px solid var(--border-color-light)', paddingBottom: '10px', marginBottom: '20px',
-        display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+        display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative'
     };
 
     const bodyStyle = { overflowY: 'auto', flexGrow: 1, minHeight: '350px', padding: '5px' };
@@ -200,8 +200,8 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
     return e('div', { style: overlayStyle, onClick: onClose },
         e('div', { style: contentStyle, onClick: (e) => e.stopPropagation() },
             e('div', { style: headerStyle },
-                e('h2', { style: { margin: 0 } }, boss ? `${boss.name} 攻略計画` : 'ボス攻略計画'),
-                e('button', { onClick: onClose, className: 'btn btn-ghost p-1 boss-planner-close-button' }, '×')
+                e('h2', { style: { margin: 0, color: 'var(--rich-gold-color)', fontSize: '1.5rem' } }, boss ? `${boss.name} 攻略ヒント` : 'ボス攻略ヒント'),
+                e('button', { onClick: onClose, className: 'btn btn-ghost p-1 boss-planner-close-button', style: { position: 'absolute', right: '20px' } }, '×')
             ),
             e('div', { className: 'tabs', style: { marginBottom: '10px', borderBottom: '1px solid var(--border-color-light)' } },
                 e('button', { 
@@ -214,7 +214,7 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
                         borderBottom: activeTab === 'guide' ? '3px solid var(--primary-accent)' : '3px solid transparent',
                         fontWeight: activeTab === 'guide' ? 'bold' : 'normal', transition: 'all 0.2s ease'
                     }
-                }, '攻略ガイド'),
+                }, '敵情報'),
                 e('button', { 
                     onClick: () => setActiveTab('formation'), 
                     className: `tab-button ${activeTab === 'formation' ? 'active' : ''}`,
@@ -225,7 +225,7 @@ const BossPlannerWizard = ({ isOpen, onClose, boss, guideText, floorNum }) => {
                         borderBottom: activeTab === 'formation' ? '3px solid var(--primary-accent)' : '3px solid transparent',
                         fontWeight: activeTab === 'formation' ? 'bold' : 'normal', transition: 'all 0.2s ease'
                     }
-                }, '戦力分析')
+                }, 'メギド情報')
             ),
             e('div', { style: bodyStyle },
                 activeTab === 'guide' && (() => {
