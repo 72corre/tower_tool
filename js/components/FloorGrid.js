@@ -93,7 +93,7 @@ const MapNode = React.memo(({ squareId, index, floorData, handleSquareClick, act
     );
 });
 
-const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, guidance, highlightedSquares }) => {
+const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, setActivePreviewId, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, memos, activeFloor, targetFloor, selectedSquare, runState, guidance, highlightedSquares, showFloorGuide }) => {
     const containerRef = React.useRef(null);
 
     const isGreyedOut = floorData.floor > targetFloor;
@@ -109,7 +109,11 @@ const FloorGrid = React.memo(({ floorData, handleSquareClick, activePreviewId, s
 
     return (
         <div className={`floor-grid ${activeFloor === floorData.floor ? 'floor-highlight' : ''} ${isGreyedOut ? 'opacity-40' : ''}`}>
-            <h3 className="floor-header">{floorData.floor}階 <span>(テーマ: {floorData.theme})</span></h3>
+            <div className="floor-header" onClick={() => showFloorGuide(floorData)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <h3 style={{ margin: 0 }}>{floorData.floor}階</h3>
+                <span className="material-symbols-outlined" style={{ fontSize: '20px', margin: '0 8px' }}>help</span>
+                <span style={{ fontSize: '14px', fontWeight: 'normal' }}>(テーマ: {floorData.theme})</span>
+            </div>
             <div 
                 ref={containerRef} 
                 style={{
