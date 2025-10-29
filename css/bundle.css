@@ -2897,3 +2897,138 @@ textarea,
 select {
     font-size: 16px !important;
 }
+
+/* ============================================
+   13. Floor Guide Modal
+   ============================================ */
+
+.guide-modal-content {
+    position: relative;
+    background: var(--bg-panel);
+    padding: 1.5rem 2rem;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 5px 25px rgba(0,0,0,0.5);
+}
+
+.guide-modal-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color-light);
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.guide-modal-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--rich-gold-color);
+}
+
+.guide-modal-body {
+    overflow-y: auto;
+    padding-right: 1rem; /* For scrollbar */
+    margin-right: -1rem;
+    line-height: 1.8;
+}
+
+.guide-section {
+    margin-bottom: 2.5rem;
+}
+
+.guide-section-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 1rem;
+}
+
+.guide-section-title h4 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--rich-gold-color);
+}
+
+.guide-section-title .material-symbols-outlined {
+    font-size: 24px;
+    color: var(--rich-gold-color);
+}
+
+.style-chip {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 0px 6px;
+    margin: 0 2px;
+    font-weight: 700;
+    border: 1px solid;
+}
+
+.style-chip.rush-text {
+    border-color: var(--rush-color);
+}
+.style-chip.counter-text {
+    border-color: var(--counter-color);
+}
+.style-chip.burst-text {
+    border-color: var(--burst-color);
+}
+
+.guide-section-content {
+    padding-left: 36px; /* Align with title text */
+}
+
+.guide-paragraph {
+    margin: 0 0 1em 0;
+    color: var(--text-main);
+}
+
+.rule-summary {
+    font-weight: 500;
+    font-size: 1.1em;
+    color: var(--text-main);
+}
+
+.rule-description {
+    margin-top: 0.5rem;
+    padding-left: 1rem;
+    border-left: 3px solid var(--border-color);
+}
+
+.accent-text {
+    color: var(--primary-accent);
+    font-weight: 700;
+}
+
+.enemy-chip {
+    display: inline-block;
+    background-color: var(--bg-main);
+    border: 1px solid var(--border-color-light);
+    border-radius: 16px;
+    padding: 2px 12px;
+    font-size: 0.9em;
+    font-weight: 500;
+    color: var(--text-main);
+    margin: 0 2px;
+    white-space: nowrap;
+}
+
+.close-button {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    color: var(--text-subtle);
+}
+
+.close-button:hover {
+    color: var(--text-main);
+}

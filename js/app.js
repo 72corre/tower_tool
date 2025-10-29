@@ -601,7 +601,7 @@ const TowerTool = () => {
     const [bossGuides, setBossGuides] = useState(null);
     const [floorMessages, setFloorMessages] = useState(null);
     const [highlightedSquares, setHighlightedSquares] = useState(null);
-    const [floorInfoModal, setFloorInfoModal] = useState({ isOpen: false, title: '', message: '' });
+    const [floorGuideModalState, setFloorGuideModalState] = useState({ isOpen: false, floorNum: null });
     const [bossPlannerState, setBossPlannerState] = useState({ isOpen: false, boss: null, recommendations: null, floorNum: null });
     const [glossaryData, setGlossaryData] = useState(null);
     const [shownBossGuides, setShownBossGuides] = useState(() => {
@@ -954,7 +954,6 @@ const TowerTool = () => {
         setActiveTab,
         isLoading,
         floorMessages,
-        setFloorInfoModal,
         setHighlightedSquares
     });
 
@@ -1823,89 +1822,7 @@ const TowerTool = () => {
     };
 
     const showFloorGuide = (floorData) => {
-        const floorNum = floorData.floor;
-        if (!floorMessages || !floorMessages[String(floorNum)]) return;
-
-        const guide = floorMessages[String(floorNum)];
-
-        const styles = {
-            title: { color: '#E7CD9C', fontSize: '24px', fontWeight: 'bold', textAlign: 'center', marginBottom: '24px' },
-            line: { lineHeight: 1.7, margin: '0 0 1em 0' },
-            hr: { border: 'none', borderTop: '1px solid var(--border-color-light)', margin: '24px 0' },
-            heading: { marginTop: '24px', marginBottom: '16px', paddingBottom: '8px', borderBottom: '2px solid var(--border-color-light)', fontSize: '18px', fontWeight: 'bold' },
-            listItemIcon: { backgroundColor: 'var(--bg-surface)', color: 'var(--text-main)', borderRadius: '50%', width: '24px', height: '24px', flexShrink: 0, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginRight: '12px', fontWeight: 'bold' },
-            listItemContainer: { display: 'flex', alignItems: 'center', marginBottom: '12px', paddingLeft: '8px' },
-            enemyChip: { backgroundColor: 'var(--bg-surface)', padding: '4px 12px', borderRadius: '16px', display: 'inline-block', margin: '4px', border: '1px solid var(--border-color-light)', fontSize: '14px' },
-            keywordRush: { color: '#B3B3B5', fontWeight: 'bold' },
-            keywordCounter: { color: '#D9534F', fontWeight: 'bold' },
-            keywordBurst: { color: '#5BC0DE', fontWeight: 'bold' },
-            keywordMerit: { color: '#4CAF50', fontWeight: 'bold' },
-            keywordBoss: { color: '#F9A825', fontSize: '1.1em', fontWeight: 'bold' },
-            keywordDefault: { color: 'var(--primary-accent)', fontWeight: 500 },
-            closeButton: { position: 'absolute', top: '16px', right: '16px', background: 'none', border: 'none', fontSize: '28px', color: 'var(--text-subtle)', cursor: 'pointer', lineHeight: 1 },
-            modalContent: { padding: '2rem', paddingTop: '3rem' } // Increased padding
-        };
-
-        const renderContent = (text) => {
-            const parseInline = (line, isListItem) => {
-                const regex = /(ラッシュ|カウンター|バースト|塔破力回復|コンディション回復|「.*?」)/g;
-                const parts = line.split(regex).filter(Boolean);
-
-                return parts.map((part, index) => {
-                    if (part.startsWith('「') && part.endsWith('」')) {
-                        const keyword = part.slice(1, -1);
-                        if (isListItem) {
-                            return React.createElement('span', { key: index, style: styles.enemyChip }, keyword);
-                        }
-                        if (keyword.startsWith('BOSS')) return React.createElement('span', { key: index, style: styles.keywordBoss }, keyword);
-                        return React.createElement('span', { key: index, style: styles.keywordDefault }, part);
-                    }
-                    if (part === 'ラッシュ') return React.createElement('span', { key: index, style: styles.keywordRush }, part);
-                    if (part === 'カウンター') return React.createElement('span', { key: index, style: styles.keywordCounter }, part);
-                    if (part === 'バースト') return React.createElement('span', { key: index, style: styles.keywordBurst }, part);
-                    if (part === '塔破力回復' || part === 'コンディション回復') {
-                        return React.createElement('span', { key: index, style: styles.keywordMerit }, part, React.createElement('span', {style: {fontSize: '1.2em', marginLeft: '2px'}}, '+'));
-                    }
-                    return part;
-                });
-            };
-
-            const lines = text.split('\n');
-            return lines.map((line, index) => {
-                if (line.startsWith('## ')) {
-                    return React.createElement('h4', { key: index, style: styles.heading }, line.substring(3));
-                }
-                if (line.startsWith('---')) {
-                    return React.createElement('hr', { key: index, style: styles.hr });
-                }
-                const listItemMatch = line.match(/^(①|②|③|④|⑤|□)：/);
-                if (listItemMatch) {
-                    const icon = listItemMatch[1];
-                    const restOfLine = line.substring(listItemMatch[0].length);
-                    return React.createElement('div', { key: index, style: styles.listItemContainer }, 
-                        React.createElement('span', { style: styles.listItemIcon }, icon),
-                        React.createElement('div', { style: { flex: 1, lineHeight: 1.7 } }, parseInline(restOfLine, true))
-                    );
-                }
-                if (line.trim() === '') {
-                    return React.createElement('div', { key: index, style: { height: '1em' } });
-                }
-                return React.createElement('p', { key: index, style: styles.line }, parseInline(line, false));
-            });
-        };
-
-        const modalBody = React.createElement('div', { style: styles.modalContent },
-            React.createElement('button', { style: styles.closeButton, onClick: () => setInfoModalState({ isOpen: false }) }, '×'),
-            React.createElement('h3', { style: styles.title }, guide.title),
-            ...renderContent(guide.message)
-        );
-
-        setInfoModalState({
-            isOpen: true,
-            title: '', // Title is now rendered inside children
-            children: modalBody,
-            onConfirm: null, // Hide default OK button
-        });
+        setFloorGuideModalState({ isOpen: true, floorNum: floorData.floor });
     };
 
     const onCancel = () => {
@@ -2278,7 +2195,7 @@ const TowerTool = () => {
         }
     const contextValue = {
         recommendations,
-        infoModalState, setInfoModalState,
+
         guideStep, setGuideStep,
         isGuideMode,
         bossPlannerState, openPlannerForSquare, openBossPlannerForFloor,
@@ -2354,6 +2271,14 @@ const TowerTool = () => {
             />
 
             <Header />
+            {floorGuideModalState.isOpen && (
+                <FloorGuideModal
+                    floorNum={floorGuideModalState.floorNum}
+                    floorMessages={floorMessages}
+                    onClose={() => setFloorGuideModalState({ isOpen: false, floorNum: null })}
+                />
+            )}
+
             <GuidanceManager
                 isGuideMode={isGuideMode}
                 guideStep={guideStep}
