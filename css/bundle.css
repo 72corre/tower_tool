@@ -63,6 +63,10 @@
     --rush-color: #B3B3B5;
     --counter-color: #F36C21;
     --burst-color: #5BC0DE;
+
+    --rush-color-rgb: 179, 179, 181;
+    --counter-color-rgb: 243, 108, 33;
+    --burst-color-rgb: 91, 192, 222;
     
     /* Colors - Semantic */
     --danger-color: #e53e3e;
@@ -2905,7 +2909,7 @@ select {
 .guide-modal-content {
     position: relative;
     background: var(--bg-panel);
-    padding: 1.5rem 2rem;
+    padding: 24px; /* Increased padding */
     border-radius: 8px;
     width: 90%;
     max-width: 800px;
@@ -2924,6 +2928,7 @@ select {
     border-bottom: 1px solid var(--border-color-light);
     margin-bottom: 1.5rem;
     position: relative;
+    flex-shrink: 0;
 }
 
 .guide-modal-title {
@@ -2935,20 +2940,36 @@ select {
 
 .guide-modal-body {
     overflow-y: auto;
-    padding-right: 1rem; /* For scrollbar */
-    margin-right: -1rem;
-    line-height: 1.8;
+    padding: 4px; /* Add slight padding */
+    line-height: 1.7; /* Increased line-height */
 }
 
+/* Scrollbar Styling */
+.guide-modal-body::-webkit-scrollbar {
+    width: 8px;
+}
+.guide-modal-body::-webkit-scrollbar-track {
+    background: var(--bg-main);
+    border-radius: 4px;
+}
+.guide-modal-body::-webkit-scrollbar-thumb {
+    background: var(--border-color-light);
+    border-radius: 4px;
+}
+.guide-modal-body::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-accent);
+}
+
+
 .guide-section {
-    margin-bottom: 2.5rem;
+    margin-bottom: 1.5rem; /* Adjusted margin */
 }
 
 .guide-section-title {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 1rem;
+    padding: 8px;
 }
 
 .guide-section-title h4 {
@@ -2956,6 +2977,7 @@ select {
     font-size: 18px;
     font-weight: 700;
     color: var(--rich-gold-color);
+    flex-grow: 1;
 }
 
 .guide-section-title .material-symbols-outlined {
@@ -2963,32 +2985,19 @@ select {
     color: var(--rich-gold-color);
 }
 
-.style-chip {
-    display: inline-block;
-    border-radius: 4px;
-    padding: 0px 6px;
-    margin: 0 2px;
-    font-weight: 700;
-    border: 1px solid;
-}
-
-.style-chip.rush-text {
-    border-color: var(--rush-color);
-}
-.style-chip.counter-text {
-    border-color: var(--counter-color);
-}
-.style-chip.burst-text {
-    border-color: var(--burst-color);
-}
-
 .guide-section-content {
-    padding-left: 36px; /* Align with title text */
+    /* Indentation and visual grouping */
+    padding: 1rem 1rem 1rem 2rem;
+    border-top: 1px solid var(--border-color);
+    margin-left: 8px;
+    margin-right: 8px;
+    background-color: rgba(0,0,0,0.1);
 }
 
 .guide-paragraph {
     margin: 0 0 1em 0;
     color: var(--text-main);
+    line-height: 1.8;
 }
 
 .rule-summary {
@@ -3000,7 +3009,6 @@ select {
 .rule-description {
     margin-top: 0.5rem;
     padding-left: 1rem;
-    border-left: 3px solid var(--border-color);
 }
 
 .accent-text {
@@ -3031,4 +3039,27 @@ select {
 
 .close-button:hover {
     color: var(--text-main);
+}
+
+/* Stronger Style Chips */
+.style-chip {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin: 0 2px;
+    font-weight: 700;
+    border: 1px solid;
+}
+
+.style-chip.rush-text {
+    border-color: var(--rush-color);
+    background-color: rgba(var(--rush-color-rgb), 0.15);
+}
+.style-chip.counter-text {
+    border-color: var(--counter-color);
+    background-color: rgba(var(--counter-color-rgb), 0.15);
+}
+.style-chip.burst-text {
+    border-color: var(--burst-color);
+    background-color: rgba(var(--burst-color-rgb), 0.15);
 }

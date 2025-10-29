@@ -80,17 +80,11 @@ const FloorGuideModal = ({ floorNum, floorMessages, onClose }) => {
                     )}
                     {/* Floor Rule */}
                     {floorData.rule && (
-                        <div className="guide-section">
-                            <div className="guide-section-title">
-                                <span className="material-symbols-outlined">{floorData.rule.icon}</span>
-                                <h4>{floorData.rule.title}: {floorData.rule.summary}</h4>
+                        <Section title={`${floorData.rule.title}: ${floorData.rule.summary}`} icon={floorData.rule.icon}>
+                            <div className="rule-description">
+                                <ContentParser content={[floorData.rule.description]} />
                             </div>
-                            <div className="guide-section-content">
-                                <div className="rule-description">
-                                    <ContentParser content={[floorData.rule.description]} />
-                                </div>
-                            </div>
-                        </div>
+                        </Section>
                     )}
 
                     {/* Floor Specific Sections */}
