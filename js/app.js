@@ -2218,7 +2218,7 @@ const TowerTool = () => {
         isMobileView, isTabletView, floorRefs, handleToggleFooter, showToastMessage, unlockAchievement, logAction, handleSelectLog, handleSquareClick,
         megidoDetails, setMegidoDetails, handleMegidoDetailChange, handleMegidoDetailChangeWrapper, handleCheckDistributedMegido, ownedMegidoIds,
         manualExplorationPowers, setManualExplorationPowers, handleSetManualPower, handleOpenManualPowerInput,
-        runState, setRunState, megidoConditions, setMegidoConditions, manualRecovery, setManualRecovery, handleResolveSquare, handleResetRun, handleManualRecovery, handleConditionRecovery, handleUndo,
+        runState, setRunState, megidoConditions, setMegidoConditions, manualRecovery, setManualRecovery, handleResolveSquare, handleResetRun, onManualRecover: handleManualRecovery, handleConditionRecovery, handleUndo,
         planState, setPlanState, planConditions, onPlanExplorationParty, handlePlanCombatParty,
         formationAssignments,
         idMaps, formations, setFormations, editingFormation, setEditingFormation, initialTagTarget, setInitialTagTarget, previousScreen, setPreviousScreen, handleSaveFormation, handleSaveFormationMemo, handleDeleteFormation, handleCopyFormation, handleCreateFormationFromEnemy, handleGenerateShareImage, generatedImageData, showShareModal, setShowShareModal, tweetUrl, setTweetUrl,

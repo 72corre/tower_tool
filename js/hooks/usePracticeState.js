@@ -81,7 +81,16 @@ const usePracticeState = ({
                 if (m && cond !== '絶好調' && ownedMegidoIds.has(id)) {
                     const megidoStyle = m.style ?? m.スタイル;
                     if (megidoStyle) {
-                        const styleKey = megidoStyle.includes('ラッシュ') ? 'R' : megidoStyle.includes('カウンター') ? 'C' : 'B';
+                        const s = String(megidoStyle).toLowerCase();
+                        let styleKey = null;
+                        if (s === 'r' || s.includes('rush') || s.includes('ラッシュ')) {
+                            styleKey = 'R';
+                        } else if (s === 'c' || s.includes('counter') || s.includes('カウンター')) {
+                            styleKey = 'C';
+                        } else if (s === 'b' || s.includes('burst') || s.includes('バースト')) {
+                            styleKey = 'B';
+                        }
+                        
                         if (styleKey === targetStyleKey) {
                             return { id, name: m.名前, condition: cond, style: styleKey };
                         }
@@ -437,9 +446,17 @@ const usePracticeState = ({
         const megidoStyle = megido.style ?? megido.スタイル;
         if (!megidoStyle) return;
         
-        const megidoStyleKey = megidoStyle.includes('ラッシュ') ? 'R' : megidoStyle.includes('カウンター') ? 'C' : 'B';
+        const s = String(megidoStyle).toLowerCase();
+        let megidoStyleKey = null;
+        if (s === 'r' || s.includes('rush') || s.includes('ラッシュ')) {
+            megidoStyleKey = 'R';
+        } else if (s === 'c' || s.includes('counter') || s.includes('カウンター')) {
+            megidoStyleKey = 'C';
+        } else if (s === 'b' || s.includes('burst') || s.includes('バースト')) {
+            megidoStyleKey = 'B';
+        }
 
-        if (megidoStyleKey === manualRecovery.style) {
+        if (megidoStyleKey && megidoStyleKey === manualRecovery.style) {
             updateMegidoConditions([megidoId], manualRecovery.recoveryAmount);
             const newPoints = manualRecovery.points - 1;
             if (newPoints > 0) {

@@ -275,6 +275,11 @@ const ResourceDashboard = () => {
                         <span className="summary-style-c">C: {fatiguedMegido.C.length}</span>
                         <span className="summary-style-b">B: {fatiguedMegido.B.length}</span>
                     </div>
+                    {manualRecovery && (
+                        <span style={{ color: 'var(--primary-accent)', fontWeight: 700 }}>
+                            手動回復入力待ち
+                        </span>
+                    )}
                 </div>
                 <div className="dashboard-toggle">{isFooterCollapsed ? '∨' : '∧'}</div>
             </div>
