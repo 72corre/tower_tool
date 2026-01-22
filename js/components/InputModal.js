@@ -30,7 +30,7 @@ const InputModal = ({ isOpen, onClose, onConfirm, title, message, inputValue: in
                     type="number"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    className="w-32 mx-auto block text-center text-xl font-bold bg-background-dark text-white border border-white/20 rounded-md p-2 focus:ring-2 focus:ring-primary focus:border-primary"
+                    className="w-32 mx-auto block text-center text-xl font-bold bg-gray-800 text-white border border-white/20 rounded-md p-2 focus:ring-2 focus:ring-primary focus:border-primary"
                     autoFocus
                     onKeyPress={(e) => {
                         if (e.key === 'Enter') {

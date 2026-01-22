@@ -10,7 +10,7 @@ const FilterControls = ({ filters = {}, onFilterChange, onBulkCheck, onCheckDist
     const FilterItem = ({ label, value, onChange, children }) => (
         <div className="flex flex-col gap-1">
             <label className="label mb-0 text-sm font-medium">{label}</label>
-            <select value={value} onChange={onChange} className="select-field w-full">
+            <select value={value} onChange={onChange} className="select-field w-full bg-gray-800 text-white">
                 {children}
             </select>
         </div>
@@ -88,7 +88,7 @@ const FilterControls = ({ filters = {}, onFilterChange, onBulkCheck, onCheckDist
                     placeholder={getPlaceholderText()}
                     value={filters.text || ''}
                     onChange={e => onFilterChange('text', e.target.value)}
-                    className="input-field w-full"
+                    className="input-field w-full bg-gray-800 text-white"
                 />
                 <div className="flex items-center gap-2">
                     <label className="label mb-0 text-sm" htmlFor={`exact-match-checkbox-${filterType}`}>完全一致:</label>

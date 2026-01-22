@@ -345,7 +345,7 @@ const FormationManager = (props) => {
                         placeholder="名前またはタグで検索..."
                         value={tagSearch.text}
                         onChange={e => setTagSearch({ text: e.target.value, exactMatch: tagSearch.exactMatch })}
-                        className="input-field" 
+                        className="input-field bg-gray-800 text-white" 
                         style={{flexGrow: 1}}
                     />
                     <div className="flex items-center gap-1">

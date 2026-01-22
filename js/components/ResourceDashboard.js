@@ -4,10 +4,20 @@ const ResourceDashboard = () => {
 
     const normalizeStyleKey = (style) => {
         if (!style) return null;
-        const s = String(style).toLowerCase();
-        if (s === 'r' || s.includes('rush') || s.includes('ラッシュ')) return 'R';
-        if (s === 'c' || s.includes('counter') || s.includes('カウンター')) return 'C';
-        if (s === 'b' || s.includes('burst') || s.includes('バースト')) return 'B';
+        const s = String(style).trim().toLowerCase();
+        const rushKeys = ['r', 'rush', 'ラッシュ'];
+        const counterKeys = ['c', 'counter', 'カウンター'];
+        const burstKeys = ['b', 'burst', 'バースト'];
+
+        if (rushKeys.includes(s)) return 'R';
+        if (counterKeys.includes(s)) return 'C';
+        if (burstKeys.includes(s)) return 'B';
+
+        // Fallback for partial matches, just in case
+        if (s.includes('rush') || s.includes('ラッシュ')) return 'R';
+        if (s.includes('counter') || s.includes('カウンター')) return 'C';
+        if (s.includes('burst') || s.includes('バースト')) return 'B';
+        
         return null;
     };
 
@@ -105,7 +115,8 @@ const ResourceDashboard = () => {
         Object.keys(megidoConditions).forEach(id => {
             const cond = megidoConditions[id];
             if (cond && cond !== "絶好調" && ownedMegidoIds?.has(String(id))) {
-                const m = COMPLETE_MEGIDO_LIST.find(x => String(x.id) === String(id));
+                const baseId = String(id).split('_')[0]; // Extract base ID
+                const m = COMPLETE_MEGIDO_LIST.find(x => String(x.id) === String(baseId));
                 if (m) {
                     const styleKey = normalizeStyleKey(m.style ?? m.スタイル);
                     if (styleKey) {
@@ -173,7 +184,9 @@ const ResourceDashboard = () => {
     
     const getGaugeValue = (value, max) => Math.max(0, Math.min(100, (value / max) * 100));
     const getDistanceGaugeValue = (distance, max) => Math.max(0, Math.min(100, (1 - (distance / max)) * 100));
-
+    
+    const extendedReachableFloorValue = parseInt(extendedReachableFloor, 10);
+    const allowedRetriesValue = parseInt(allowedRetries, 10);
 
     return (
         <footer className={`z-30 bg-background-dark/95 ios-blur border-t border-primary/20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] flex flex-col max-h-[65vh] shrink-0 ${isFooterCollapsed ? '' : 'is-expanded'}`}>
@@ -185,7 +198,7 @@ const ResourceDashboard = () => {
                             <span className="text-primary font-bold">{runState.towerPower || 0}</span>
                         </div>
                         <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary" style={{ width: `${getGaugeValue(runState.towerPower, 100)}%` }}></div>
+                            <div className="h-full bg-primary" style={{ width: `${getGaugeValue(runState.towerPower || 0, 100)}%` }}></div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-0.5">
@@ -194,7 +207,7 @@ const ResourceDashboard = () => {
                             <span className="text-primary font-bold">{extendedReachableFloor}F</span>
                         </div>
                         <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary/60" style={{ width: `${getGaugeValue(extendedReachableFloor, 35)}%` }}></div>
+                            <div className="h-full bg-primary/60" style={{ width: `${getGaugeValue(isNaN(extendedReachableFloorValue) ? 0 : extendedReachableFloorValue, 35)}%` }}></div>
                         </div>
                     </div>
                     <div className="flex flex-col gap-0.5">
@@ -203,7 +216,7 @@ const ResourceDashboard = () => {
                             <span className="text-primary font-bold">{allowedRetries}回</span>
                         </div>
                         <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary/40" style={{ width: `${getGaugeValue(allowedRetries, 50)}%` }}></div>
+                            <div className="h-full bg-primary/40" style={{ width: `${getGaugeValue(isNaN(allowedRetriesValue) ? 0 : allowedRetriesValue, 50)}%` }}></div>
                         </div>
                     </div>
                     <div className="flex items-center justify-between text-[9px] font-mono">

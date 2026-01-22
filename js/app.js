@@ -25,7 +25,7 @@ const RightPanelContent = () => {
 
             return (<>
 
-            <div className="tab-content" style={{marginTop: '0.5rem', height: '100%'}}>
+            <div className="tab-content" style={{height: '100%'}}>
 
                 <div style={{ display: activeTab === 'details' ? 'block' : 'none', height: '100%' }}>
 
@@ -2300,7 +2300,7 @@ const TowerTool = () => {
                     </div>
                 </nav>
             )}
-            <div className="main-content relative hex-grid">
+            <div className="main-content relative hex-grid" style={{ marginTop: 0 }}>
                 <InfoModal
                     isOpen={infoModalState.isOpen}
                     title={infoModalState.title}

@@ -113,7 +113,7 @@ const Header = () => {
     );
 
     return (
-        <header className="bg-background-dark/95 ios-blur border-b border-white/10 z-20 shrink-0">
+        <header className="bg-background-dark/95 ios-blur border-b border-white/10 z-20 shrink-0 sticky top-0" style={{ marginBottom: 0 }}>
             <div className="flex items-center justify-between px-1 py-1">
                 {/* Left Buttons */}
                 <div className="flex items-center">
@@ -134,7 +134,7 @@ const Header = () => {
 
                 {/* Central Floor Level Button */}
                 <button onClick={() => setIsFloorModalOpen(true)} className="flex flex-col items-center justify-center px-3 py-1 bg-white/5 rounded-xl border border-white/5 active:scale-95 transition-all">
-                    <span className="text-[6px] uppercase tracking-[0.2em] text-primary/60 font-bold">Floor Level</span>
+                    
                     <div className="flex items-center gap-1">
                         <h1 className="text-white text-[12px] font-bold tracking-tight text-glow leading-tight whitespace-nowrap">
                             {runState?.currentPosition?.floor || '-'}F / {currentFloorInfo.title}
@@ -157,7 +157,7 @@ const Header = () => {
             </div>
 
             {/* Tab Navigation */}
-            <div className="px-4 pb-2 pt-1">
+            <div className="px-4 pb-2 pt-0">
                 <div className="flex h-12 items-center justify-center rounded-lg bg-card-dark/50 p-1 border border-white/5">
                     <Tab value="details" icon="explore" label="マップ" />
                     <Tab value="ownership" icon="person_check" label="メギド" />

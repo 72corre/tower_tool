@@ -271,7 +271,7 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
             <div className="card" style={{display: 'flex', flexDirection: 'column', gap: '16px'}}>
                 <div className="form-section">
                     <label className="label">編成名</label>
-                    <input type="text" placeholder="未入力で自動命名" value={formation.name || ''} onChange={e => setFormation(f => ({...f, name: e.target.value}))} className="input-field" />
+                    <input type="text" placeholder="未入力で自動命名" value={formation.name || ''} onChange={e => setFormation(f => ({...f, name: e.target.value}))} className="input-field bg-gray-800 text-white" />
                 </div>
                 <div className="card">
                     <label className="label">ターゲット選択（自動タグ用）</label>
@@ -296,11 +296,11 @@ const FormationEditor = React.memo(({ formation: initialFormation, onSave, onCan
                 </div>
                 <div className="form-section">
                     <label className="label">カスタムタグ（カンマ区切り）</label>
-                    <input type="text" value={customTags} onChange={e => setCustomTags(e.target.value)} className="input-field" />
+                    <input type="text" value={customTags} onChange={e => setCustomTags(e.target.value)} className="input-field bg-gray-800 text-white" />
                 </div>
                 <div className="form-section">
                     <label className="label">メモ</label>
-                    <textarea value={formation.notes || ''} onChange={e => setFormation(f => ({...f, notes: e.target.value}))} className="input-field" rows="3"></textarea>
+                    <textarea value={formation.notes || ''} onChange={e => setFormation(f => ({...f, notes: e.target.value}))} className="input-field bg-gray-800 text-white" rows="3"></textarea>
                 </div>
                 <div className="form-section">
                     <label className="flex items-center gap-2 cursor-pointer">
