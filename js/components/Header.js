@@ -1,7 +1,5 @@
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
-
-
 const floorMenuItems = [
     { key: 1, title: '1F', description: 'まずはこれがオススメ。Ωアバドンを倒しに行きます' },
     { key: 5, title: '5F', description: '１階まで登れたら、次はこれ。ディジィースプーを倒しに行きます' },
@@ -9,16 +7,91 @@ const floorMenuItems = [
     { key: 15, title: '15F', description: 'かなり慣れた人向け。デメタスを倒しに行きます。' },
     { key: 20, title: '20F', description: '魔喰機・無限を倒しに行きます' },
     { key: 25, title: '25F', description: 'グリードベアを倒しに行きます。' },
-    { key: 30, title: '30F', description: 'グジグランズを倒しに行きます' },
+    { key: 30, title: '30F', description: '30F' },
     { key: 31, title: '31F', description: '最難関です。あともう一息！' },
     { key: 35, title: '35F', description: 'これであなたも星間の塔マスター！契りのドゥーエを倒しに行きます' },
 ];
 
+const HeaderButton = ({ onClick, icon, text, title, className = "", children }) => (
+    <button onClick={onClick} className={`flex flex-col items-center justify-center min-w-[44px] py-1 hover:bg-white/5 rounded-lg transition-colors ${className}`} title={title}>
+        {icon && <span className="material-symbols-outlined text-primary text-[20px]">{icon}</span>}
+        {children}
+        <span className="text-[7px] text-primary/80 mt-0.5 font-bold">{text}</span>
+    </button>
+);
 
+const AuthContent = ({ currentUser, onSignIn, onSignOut, setIsAuthModalOpen }) => {
+    if (currentUser) {
+        return (
+            <div className="text-center">
+                <img src={currentUser.photoURL} alt={currentUser.displayName} className="w-16 h-16 rounded-full mx-auto mb-4" />
+                <p>{currentUser.displayName}としてログイン中</p>
+                <button onClick={() => { onSignOut(); setIsAuthModalOpen(false); }} className="btn bg-red-600 text-white mt-4">ログアウト</button>
+            </div>
+        );
+    } else {
+        return (
+            <div className="flex flex-col gap-4">
+                <button onClick={() => { onSignIn('google'); setIsAuthModalOpen(false); }} className="btn bg-blue-600 text-white">Googleでログイン</button>
+                <button onClick={() => { onSignIn('twitter'); setIsAuthModalOpen(false); }} className="btn bg-blue-400 text-white">Twitterでログイン</button>
+            </div>
+        );
+    }
+};
 
-const DesktopHeader = () => {
-    const { targetFloor, handleTargetFloorChange: onTargetFloorChange, handleOpenSettings: onOpenSettings, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, runState, handleScrollToFloor, guideStep, setGuideStep } = useAppContext();
-    const [isFloorModalOpen, setIsFloorModalOpen] = React.useState(false);
+const FloorSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }) => {
+    if (!isOpen) return null;
+    return (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]" onClick={onClose}>
+            <div className="bg-card-dark rounded-lg p-6 shadow-lg border border-primary/20 max-h-[85vh] overflow-y-auto w-11/12 md:w-1/2 lg:w-1/3" onClick={(e) => e.stopPropagation()}>
+                <h3 className="text-lg font-bold text-white text-center mb-4">目標階層を選択</h3>
+                <div className="grid grid-cols-1 gap-3">
+                    {menuItems.map(item => (
+                        <button
+                            key={item.key}
+                            className={`p-3 rounded-md text-left transition-colors ${currentKey === item.key ? 'bg-primary text-background-dark font-bold' : 'bg-white/5 text-white hover:bg-white/10'}`}
+                            onClick={() => {
+                                onSelect(item.key);
+                                onClose();
+                            }}
+                        >
+                            <strong className="text-sm">{item.title}</strong>
+                            <span className="block text-xs text-white/70">{item.description}</span>
+                        </button>
+                    ))}
+                </div>
+                <button onClick={onClose} className="btn bg-gray-700 text-white w-full mt-4">閉じる</button>
+            </div>
+        </div>
+    );
+};
+
+const Header = () => {
+    const { 
+        targetFloor, handleTargetFloorChange: onTargetFloorChange, 
+        handleOpenSettings: onOpenSettings, 
+        currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, 
+        handleOpenMapSearch: onOpenMapSearch, 
+        runState, handleOpenRecoveryModal,
+        activeTab, handleTabClick,
+        handleSaveLog, handleUndo, handleResetRun
+    } = useAppContext();
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const menuRef = useRef(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setIsMenuOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [menuRef]);
 
     const processedFloorMenuItems = useMemo(() => {
         return floorMenuItems.map(item => {
@@ -31,303 +104,82 @@ const DesktopHeader = () => {
 
     const currentFloorInfo = processedFloorMenuItems.find(item => item.key === targetFloor) || { key: targetFloor, title: `${targetFloor}F` };
 
-    const FloorSelectionModal = ({ isOpen, onClose, onSelect, currentKey, menuItems }) => {
-        if (!isOpen) return null;
-        return (
-            <div className="mobile-modal-overlay" onClick={onClose}>
-                <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0, width: 'min(500px, 90vw)'}}>
-                    <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
-                        <h3 style={{marginTop: 0, textAlign: 'center'}}>目標階層を選択</h3>
-                    </div>
-                    <div className="floor-selection-list" style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
-                        {menuItems.map(item => (
-                            <button
-                                key={item.key}
-                                className={`modal-item-btn ${currentKey === item.key ? 'selected' : ''}`}
-                                onClick={() => {
-                                    onSelect(item.key);
-                                    onClose();
-                                }}
-                            >
-                                <strong style={{fontSize: '1.1rem'}}>{item.title}</strong>
-                                <span style={{fontSize: '0.8rem', color: 'var(--text-subtle)'}}>{item.description}</span>
-                            </button>
-                        ))}
-                    </div>
-                </div>
-            </div>
-        );
-    };
-
-    const handleRedisplayGuide = () => {
-        const currentStep = guideStep;
-        setGuideStep(null); // 一時的にステップをnullにしてから
-        setTimeout(() => {
-            setGuideStep(currentStep); // すぐに元に戻すことで、UIの再表示をトリガーする
-        }, 10);
-    };
+    const Tab = ({ value, icon, label }) => (
+        <label className={`flex flex-col cursor-pointer h-full grow items-center justify-center rounded-md px-2 font-bold transition-all duration-200 ${activeTab === value ? 'bg-primary text-background-dark' : 'text-primary/70'}`}>
+            <span className="material-symbols-outlined text-[18px]">{icon}</span>
+            <span className="text-[9px]">{label}</span>
+            <input checked={activeTab === value} onChange={() => handleTabClick(value)} className="hidden" name="nav" type="radio" value={value}/>
+        </label>
+    );
 
     return (
-        <header className="main-header">
-            <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: '16px' }}>
-                <h1>星間の塔 攻略支援ツール</h1>
-                
-                {isGuideMode && (
-                    <button className="btn btn-primary" onClick={handleRedisplayGuide}>
-                        ガイド再表示
-                    </button>
-                )}
-
-                <div style={{ flexGrow: 1 }}></div>
-
-                
-                
-                    <button className="btn btn-ghost" onClick={() => handleScrollToFloor(runState.currentPosition.floor)}>
-                        現在: {runState.currentPosition.floor}F
-                    </button>
-                
-                <button className="btn btn-ghost" onClick={() => setIsFloorModalOpen(true)}>
-                    目標: {currentFloorInfo.title}
-                </button>
-                
-                <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                    <span className="material-symbols-outlined">settings</span>
-                </button>
-                <button id="map-search-button" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
-                    <span className="material-symbols-outlined">search</span>
-                </button>
-                
-                {currentUser ? (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '4px', border: '1px solid var(--border-color)', borderRadius: '99px' }}>
-                        <img src={currentUser.photoURL} alt={currentUser.displayName} style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
-                        <span style={{ fontSize: '12px', fontWeight: 500, marginRight: '8px' }}>{currentUser.displayName}</span>
-                        <button onClick={onSignOut} className="btn btn-secondary btn-small">ログアウト</button>
+        <header className="bg-background-dark/95 ios-blur border-b border-white/10 z-20 shrink-0">
+            <div className="flex items-center justify-between px-1 py-1">
+                {/* Left Buttons */}
+                <div className="flex items-center">
+                    <HeaderButton onClick={onOpenSettings} icon="settings" text="設定" title="設定" />
+                    <div className="relative" ref={menuRef}>
+                        <HeaderButton onClick={() => setIsMenuOpen(prev => !prev)} icon="menu" text="メニュー" title="メニュー" />
+                        {isMenuOpen && (
+                            <div className="absolute left-0 mt-2 w-48 bg-card-dark rounded-lg shadow-lg py-1 z-50 border border-white/10">
+                                <button onClick={() => { handleOpenRecoveryModal(); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-white hover:bg-white/10">緊急回復</button>
+                                <div className="border-t border-white/10 my-1"></div>
+                                <button onClick={() => { handleSaveLog(); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-white hover:bg-white/10">ログの保存</button>
+                                <button onClick={() => { handleUndo(); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-white hover:bg-white/10">アンドゥ</button>
+                                <button onClick={() => { handleResetRun(false); setIsMenuOpen(false); }} className="block w-full text-left px-4 py-2 text-red-400 hover:bg-red-500/50">挑戦をリタイア</button>
+                            </div>
+                        )}
                     </div>
-                ) : (
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                         <button onClick={() => onSignIn('google')} className="btn btn-secondary btn-small">Googleログイン</button>
-                         <button onClick={() => onSignIn('twitter')} className="btn btn-secondary btn-small">Twitterログイン</button>
-                    </div>
-                )}
+                </div>
 
-                <FloorSelectionModal
-                    isOpen={isFloorModalOpen}
-                    onClose={() => setIsFloorModalOpen(false)}
-                    onSelect={onTargetFloorChange}
-                    currentKey={targetFloor}
-                    menuItems={processedFloorMenuItems}
-                />
+                {/* Central Floor Level Button */}
+                <button onClick={() => setIsFloorModalOpen(true)} className="flex flex-col items-center justify-center px-3 py-1 bg-white/5 rounded-xl border border-white/5 active:scale-95 transition-all">
+                    <span className="text-[6px] uppercase tracking-[0.2em] text-primary/60 font-bold">Floor Level</span>
+                    <div className="flex items-center gap-1">
+                        <h1 className="text-white text-[12px] font-bold tracking-tight text-glow leading-tight whitespace-nowrap">
+                            {runState?.currentPosition?.floor || '-'}F / {currentFloorInfo.title}
+                        </h1>
+                        <span className="material-symbols-outlined text-primary text-xs">unfold_more</span>
+                    </div>
+                </button>
+
+                {/* Right Buttons */}
+                <div className="flex items-center">
+                    <HeaderButton onClick={onOpenMapSearch} icon="search" text="検索" title="マス検索" />
+                    {currentUser ? (
+                        <HeaderButton onClick={() => setIsAuthModalOpen(true)} text="ユーザー" title="ユーザー情報">
+                            <img src={currentUser.photoURL} alt="ユーザー情報" className="w-5 h-5 rounded-full" />
+                        </HeaderButton>
+                    ) : (
+                        <HeaderButton onClick={() => setIsAuthModalOpen(true)} icon="account_circle" text="ログイン" title="ログイン" />
+                    )}
+                </div>
             </div>
+
+            {/* Tab Navigation */}
+            <div className="px-4 pb-2 pt-1">
+                <div className="flex h-12 items-center justify-center rounded-lg bg-card-dark/50 p-1 border border-white/5">
+                    <Tab value="details" icon="explore" label="マップ" />
+                    <Tab value="ownership" icon="person_check" label="メギド" />
+                    <Tab value="formation" icon="groups" label="編成" />
+                </div>
+            </div>
+
+            <FloorSelectionModal
+                isOpen={isFloorModalOpen}
+                onClose={() => setIsFloorModalOpen(false)}
+                onSelect={onTargetFloorChange}
+                currentKey={targetFloor}
+                menuItems={processedFloorMenuItems}
+            />
+            {isAuthModalOpen && (
+                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]" onClick={() => setIsAuthModalOpen(false)}>
+                    <div className="bg-card-dark rounded-lg p-6 shadow-lg border border-primary/20 max-h-[85vh] overflow-y-auto w-11/12 md:w-1/2 lg:w-1/3" onClick={(e) => e.stopPropagation()}>
+                        <AuthContent currentUser={currentUser} onSignIn={onSignIn} onSignOut={onSignOut} setIsAuthModalOpen={setIsAuthModalOpen} />
+                        <button onClick={() => setIsAuthModalOpen(false)} className="btn bg-gray-700 text-white w-full mt-4">閉じる</button>
+                    </div>
+                </div>
+            )}
         </header>
     );
-};
-
-const MobileHeader = () => {
-    const { targetFloor, handleTargetFloorChange: onTargetFloorChange, activeTab, handleTabClick, handleSaveLog, handleResetRun, handleUndo, handleOpenSettings: onOpenSettings, runState, seasonLogs, selectedLog, onSelectLog, currentUser, handleSignIn: onSignIn, handleSignOut: onSignOut, handleOpenMapSearch: onOpenMapSearch, isGuideMode, handleScrollToFloor } = useAppContext();
-    const [isActionsMenuOpen, setIsActionsMenuOpen] = useState(false);
-    const [isFloorModalOpen, setIsFloorModalOpen] = useState(false);
-    const [isLogSelectionOpen, setIsLogSelectionOpen] = useState(false);
-    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-    const processedFloorMenuItems = useMemo(() => {
-        return floorMenuItems.map(item => {
-            if (item.key <= 20) {
-                return { ...item, title: `${item.title}（ガイド付き）` };
-            }
-            return item;
-        });
-    }, []);
-
-
-
-    const getTitle = () => {
-        switch (activeTab) {
-            case 'details':
-                const currentFloor = runState?.currentPosition?.floor || '-';
-                return (
-                    <>
-                        <button className="header-current-floor-btn" onClick={() => handleScrollToFloor(currentFloor)}>
-                            {currentFloor}F
-                        </button>
-                        <span style={{ margin: '0 4px' }}> / </span>
-                        <button className="header-target-floor-btn" onClick={() => setIsFloorModalOpen(true)}>
-                            目標:{targetFloor}F
-                        </button>
-                    </>
-                );
-            case 'ownership':
-                return '所持メギド管理';
-            case 'formation':
-                return '編成管理';
-            case 'summary':
-                return 'シーズンサマリー';
-            case 'all_summary':
-                return '通算サマリー';
-            default:
-                return '星間の塔 攻略支援ツール';
-        }
-    };
-    
-
-
-    const AuthContent = () => {
-        if (currentUser) {
-            return (
-                <div style={{textAlign: 'center'}}>
-                    <img src={currentUser.photoURL} alt={currentUser.displayName} style={{width: '64px', height: '64px', borderRadius: '50%', margin: '0 auto 1rem'}} />
-                    <p>{currentUser.displayName}としてログイン中</p>
-                    <button onClick={() => { onSignOut(); setIsAuthModalOpen(false); }} className="btn btn-danger">ログアウト</button>
-                </div>
-            );
-        } else {
-            return (
-                <div style={{display: 'flex', flexDirection: 'column', gap: '1rem'}}>
-                    <button onClick={() => { onSignIn('google'); setIsAuthModalOpen(false); }} className="btn btn-secondary">Googleでログイン</button>
-                    <button onClick={() => { onSignIn('twitter'); setIsAuthModalOpen(false); }} className="btn btn-secondary">Twitterでログイン</button>
-                </div>
-            );
-        }
-    };
-
-    return (
-        <div className="mobile-header-container">
-            <div className="mobile-header-top-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <button onClick={onOpenSettings} className="btn-icon" title="設定">
-                        <span className="material-symbols-outlined">settings</span>
-                    </button>
-                    
-                </div>
-
-                <div style={{ flex: '0 1 auto', textAlign: 'center', minWidth: 0 }}>
-                    <div 
-                        className="mobile-header-title"
-                    >
-                        {getTitle()}
-                    </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <button id="map-search-button-mobile" className="btn-icon" title="マス検索" onClick={onOpenMapSearch}>
-                        <span className="material-symbols-outlined">search</span>
-                    </button>
-                    {currentUser ? (
-                        <button onClick={() => setIsAuthModalOpen(true)} className="btn-icon">
-                            <img src={currentUser.photoURL} alt="ユーザー情報" style={{width: '28px', height: '28px', borderRadius: '50%'}} />
-                        </button>
-                    ) : (
-                        <button onClick={() => setIsAuthModalOpen(true)} className="btn-icon" title="ログイン">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" style={{width: '24px', height: '24px'}}><path d="M12 2.5a5.5 5.5 0 0 1 3.096 10.047 9.005 9.005 0 0 1 5.9 8.181.75.75 0 1 1-1.499.044 7.5 7.5 0 0 0-14.993 0 .75.75 0 0 1-1.5-.045 9.005 9.005 0 0 1 5.9-8.181A5.5 5.5 0 0 1 12 2.5ZM8 8a4 4 0 1 0 8 0 4 4 0 0 0-8 0Z" /></svg>
-                        </button>
-                    )}
-                    {activeTab === 'details' && (
-                        <>
-                            <button onClick={() => setIsActionsMenuOpen(true)} className="btn-icon"><span className="material-symbols-outlined">more_vert</span></button>
-                            {isActionsMenuOpen && (
-                                <div className="mobile-actions-menu-overlay" onClick={() => setIsActionsMenuOpen(false)}></div>
-                            )}
-                            {isActionsMenuOpen && (
-                                <div className="mobile-actions-menu">
-                                    <button onClick={() => { handleSaveLog(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">挑戦ログを保存</button>
-                                    <button onClick={() => { handleUndo(); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item">アンドゥ</button>
-                                    <button onClick={() => { handleResetRun(false); setIsActionsMenuOpen(false); }} className="mobile-actions-menu-item danger">挑戦をリタイア</button>
-                                </div>
-                            )}
-                        </>
-                    )}
-                </div>
-            </div>
-            <div className="mobile-header-tabs">
-                 
-                    <>
-                        <button id="mobile-details-tab-button" onClick={() => handleTabClick('details')} className={`mobile-tab-button ${activeTab === 'details' ? 'active' : ''}`}>
-                            <span className="material-symbols-outlined">explore</span>
-                            <span>マップ</span>
-                        </button>
-                        <button id="mobile-ownership-tab-button" onClick={() => handleTabClick('ownership')} className={`mobile-tab-button ${activeTab === 'ownership' ? 'active' : ''}`}>
-                            <span className="material-symbols-outlined">person_check</span>
-                            <span>所持メギド</span>
-                        </button>
-                        <button id="mobile-formation-tab-button" onClick={() => handleTabClick('formation')} className={`mobile-tab-button ${activeTab === 'formation' ? 'active' : ''}`}>
-                            <span className="material-symbols-outlined">groups</span>
-                            <span>編成</span>
-                        </button>                    </>
-                 
-            </div>
-
-
-
-            {isAuthModalOpen && (
-                <div className="mobile-modal-overlay" onClick={() => setIsAuthModalOpen(false)}>
-                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()}>
-                        <AuthContent />
-                    </div>
-                </div>
-            )}
-
-            {isLogSelectionOpen && (
-                 <div className="mobile-modal-overlay" onClick={() => setIsLogSelectionOpen(false)}>
-                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
-                        <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
-                            <h3 style={{marginTop: 0, textAlign: 'center'}}>ログを選択</h3>
-                        </div>
-                        <div style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
-                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                                {seasonLogs.map(log => (
-                                    <button
-                                        key={log.name}
-                                        className={`modal-item-btn ${selectedLog?.name === log.name ? 'selected' : ''}`}
-                                        onClick={() => {
-                                            onSelectLog(log);
-                                            setIsLogSelectionOpen(false);
-                                        }}
-                                        style={{ flex: '1 1 auto' }}
-                                    >
-                                        {log.name}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                        <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {isFloorModalOpen && (
-                <div className="mobile-modal-overlay" onClick={() => setIsFloorModalOpen(false)}>
-                    <div className="mobile-modal-content" onClick={(e) => e.stopPropagation()} style={{display: 'flex', flexDirection: 'column', maxHeight: '85vh', padding: 0}}>
-                        <div style={{ flexShrink: 0, padding: '1rem 1rem 0 1rem' }}>
-                            <h3 style={{marginTop: 0, textAlign: 'center'}}>目標階層を選択</h3>
-                        </div>
-                        <div className="floor-selection-list" style={{ flexGrow: 1, overflowY: 'auto', padding: '1rem' }}>
-                            {processedFloorMenuItems.map(item => (
-                                <button
-                                    key={item.key}
-                                    className={`modal-item-btn ${targetFloor === item.key ? 'selected' : ''}`}
-                                    onClick={() => {
-                                        onTargetFloorChange(item.key);
-                                        setIsFloorModalOpen(false);
-                                    }}
-                                >
-                                    <strong style={{fontSize: '1.1rem'}}>{item.title}</strong>
-                                    <span style={{fontSize: '0.8rem', color: 'var(--text-subtle)'}}>{item.description}</span>
-                                </button>
-                            ))}
-                        </div>
-                        <div style={{ flexShrink: 0, padding: '1rem', textAlign: 'center', borderTop: '1px solid var(--border-color-light)' }}>
-                        </div>
-                    </div>
-                </div>
-            )}
-        </div>
-    );
-};
-
-const Header = () => {
-    const { isMobileView } = useAppContext();
-    if (isMobileView) {
-        return <MobileHeader />;
-    }
-    return <DesktopHeader />;
 };

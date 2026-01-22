@@ -8,62 +8,39 @@ const InputModal = ({ isOpen, onClose, onConfirm, title, message, inputValue: in
     }, [isOpen, initialValue]);
 
     const handleConfirm = () => {
-        const numberValue = parseInt(inputValue, 10);
-        if (!isNaN(numberValue)) {
-            onConfirm(numberValue);
-        }
-        onClose();
+        onConfirm(inputValue);
     };
-
+    
     if (!isOpen) {
         return null;
     }
 
-    const backdropStyle = {
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0, 0, 0, 0.6)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1200
-    };
-
-    const dialogStyle = {
-        zIndex: 1201,
-        borderRadius: '8px',
-        border: '1px solid #444',
-        padding: '1.5rem',
-        width: '400px',
-        maxWidth: '90vw'
-    };
-
-    const inputStyle = {
-        width: '100px',
-        textAlign: 'center',
-        fontSize: '1.2rem',
-        margin: '1rem auto',
-        display: 'block'
-    };
-
     return (
-        <div style={backdropStyle} onClick={onClose}>
-            <div className="card" style={dialogStyle} onClick={e => e.stopPropagation()}>
-                <h3 className="card-header">{title}</h3>
-                <p style={{textAlign: 'center', marginBottom: '1rem'}}>{message}</p>
+        <div 
+            className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1200]"
+            onClick={onClose}
+        >
+            <div 
+                className="bg-card-dark rounded-lg p-6 shadow-lg border border-primary/20 w-full max-w-sm"
+                onClick={e => e.stopPropagation()}
+            >
+                <h3 className="text-lg font-bold text-white text-center mb-2">{title}</h3>
+                <p className="text-white/80 text-center mb-4">{message}</p>
                 <input
                     type="number"
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
-                    className="input-field"
-                    style={inputStyle}
+                    className="w-32 mx-auto block text-center text-xl font-bold bg-background-dark text-white border border-white/20 rounded-md p-2 focus:ring-2 focus:ring-primary focus:border-primary"
                     autoFocus
+                    onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                            handleConfirm();
+                        }
+                    }}
                 />
-                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                    <button onClick={handleConfirm} className="btn btn-primary">確定</button>
+                <div className="mt-6 flex justify-end gap-3">
+                    <button onClick={onClose} className="px-4 py-2 bg-gray-600/50 text-white rounded-md hover:bg-gray-600 transition-colors">キャンセル</button>
+                    <button onClick={handleConfirm} className="px-4 py-2 bg-primary text-background-dark font-bold rounded-md hover:bg-primary/80 transition-colors">確定</button>
                 </div>
             </div>
         </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="ja" class="dark">
 <head>
     <meta charset="UTF-8">
     <script>
@@ -12,23 +12,40 @@
     </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>星間の塔 攻略支援ツール ver.20251002</title>
-    <script src="https://cdn.tailwindcss.com" defer></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries" defer></script>
     <link rel="stylesheet" href="css/bundle.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Spline+Sans:wght@300;400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
     <link rel="preload" href="asset/maps/floor-1.svg" as="image">
-    <style>
-        .mobile-tab-button {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#70f0df",
+                        "background-light": "#f6f8f8",
+                        "background-dark": "#0a0f0e",
+                        "card-dark": "#162a27",
+                        "status-6": "#F07070", // 絶好調
+                        "status-5": "#F0A070", // 好調
+                        "status-4": "#F0E070", // 普通
+                        "status-3": "#70F0E0", // 不調
+                        "status-2": "#010066", // 絶不調
+                        "status-1": "#6c6c6c", // 気絶
+                    },
+                    fontFamily: {
+                        "display": ["Spline Sans", "Noto Sans JP", "sans-serif"],
+                        "japanese": ["Noto Sans JP", "sans-serif"]
+                    },
+                },
+            },
         }
-    </style>
+    </script>
 </head>
-<body>
+<body class="bg-background-dark text-slate-200 antialiased overflow-hidden h-screen flex flex-col">
     <div id="root"></div>
     <div id="qr-reader-div" style="display: none;"></div>
 

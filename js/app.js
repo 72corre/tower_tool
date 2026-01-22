@@ -284,7 +284,7 @@ const MapContent = () => {
     return (
         <React.Fragment>
             {typeof TOWER_MAP_DATA !== 'undefined' && TOWER_MAP_DATA.map(floor => (
-                <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor} style={{ scrollSnapAlign: 'start', padding: '0.5rem 0' }}>
+                <div ref={el => floorRefs.current[floor.floor] = el} key={floor.floor} style={{ scrollSnapAlign: 'start' }}>
                     <FloorGrid
                         key={floor.floor}
                         floorData={floor}
@@ -934,7 +934,8 @@ const TowerTool = () => {
         handleResetRun, 
         handleManualRecovery, 
         handleConditionRecovery, 
-        handleUndo 
+        handleUndo,
+        handleOpenRecoveryModal 
     } = usePracticeState({
         megidoDetails,
         ownedMegidoIds,
@@ -2228,7 +2229,7 @@ const TowerTool = () => {
         handleIncrementAutoAssignUse,
         handleImportFormation, isQriousLoaded, isHtml5QrLoaded, checkAllAchievements, handleExportData, handleImportData, handleResetAllData, handleToggleTheme, handleViewModeChange,
         handleTabClick, onCancel, getSquareStyle, getSquareColorClass, getSquareColorRgbVarName, onTargetSelect, handleTargetFloorChange, onRecommendationChange, handleTargetEnemyChange, onSaveMemo, handleScrollToFloor, showFloorGuide,
-        handleSaveLog, handleResetRun, handleUndo,
+        handleSaveLog, handleResetRun, handleUndo, handleOpenRecoveryModal,
         generateEventTweetUrl, handleCloseEventToast, towerConnections, handleCancelFormationEdit,
         COMPLETE_MEGIDO_LIST: megidoList,
         glossaryData, // Add glossaryData to the context
@@ -2293,17 +2294,13 @@ const TowerTool = () => {
                         <button id="tab-button-formation" onClick={() => handleTabClick('formation')} className={`tab-button ${activeTab === 'formation' ? 'active' : ''}`}><span className="material-symbols-outlined">groups</span>編成管理</button>
                     </div>
                     <div className="desktop-nav-actions">
-                        
-                            <>
-                                <button onClick={handleSaveLog} className="btn btn-ghost record">記録</button>
-                                <button onClick={handleUndo} className="btn btn-ghost undo">アンドゥ</button>
-                                <button onClick={() => handleResetRun(false)} className="btn btn-ghost retire">リタイア</button>
-                            </>
-                        
+                        <button onClick={handleSaveLog} className="btn btn-ghost record">記録</button>
+                        <button onClick={handleUndo} className="btn btn-ghost undo">アンドゥ</button>
+                        <button onClick={() => handleResetRun(false)} className="btn btn-ghost retire">リタイア</button>
                     </div>
                 </nav>
             )}
-            <div className="main-content">
+            <div className="main-content relative hex-grid">
                 <InfoModal
                     isOpen={infoModalState.isOpen}
                     title={infoModalState.title}

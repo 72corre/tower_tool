@@ -1,5 +1,5 @@
 const ResourceDashboard = () => {
-    const { runState, megidoConditions, ownedMegidoIds, planState, formations, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, targetFloor } = useAppContext();
+    const { runState, megidoConditions, ownedMegidoIds, planState, formations, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, targetFloor, handleOpenRecoveryModal } = useAppContext();
     const { useMemo } = React;
 
     const normalizeStyleKey = (style) => {
@@ -159,135 +159,133 @@ const ResourceDashboard = () => {
     const styleMap = { "ラッシュ": "R", "カウンター": "C", "バースト": "B" };
     const styleDataMap = { 'R': 'ラッシュ', 'C': 'カウンター', 'B': 'バースト' };
 
-    const renderPracticeMode = () => {
-        const closestStyledRecoveryStyle = styleDataMap[recoveryInfo.styled?.style] || recoveryInfo.styled?.style;
-        return (
-            <>
-                <div className="card" style={{ gridColumn: '1 / -1' }}>
-                    <span style={{ marginLeft: '16px' }}>次のランダム回復: <span style={{ fontWeight: 700 }}>{recoveryInfo.random.floor}F</span> (あと{isFinite(recoveryInfo.random.distance) ? recoveryInfo.random.distance : '?'}F)</span>
-                    <br />
-                    <span style={{ marginLeft: '16px' }}>次のスタイル回復: <span style={{ fontWeight: 700 }}>{recoveryInfo.styled.floor}F ({closestStyledRecoveryStyle})</span> (あと{isFinite(recoveryInfo.styled.distance) ? recoveryInfo.styled.distance : '?'}F)</span>
-                </div>
-                <div className="fatigue-container" style={{ gridColumn: '1 / -1' }}>
-                    {['ラッシュ', 'カウンター', 'バースト'].map(style => {
-                        const styleKey = styleMap[style];
-                        const isClosestStyle = style === closestStyledRecoveryStyle;
-                        const fatiguedList = fatiguedMegido[styleKey] || [];
-                        const capacity = isClosestStyle ? recoveryInfo.styled.capacity : 0;
-                        const remaining = capacity - fatiguedList.length;
-                        let capacityText = '', textColor = 'var(--text-subtle)';
-                        if (isClosestStyle) {
-                            if (remaining >= 0) {
-                                capacityText = `(あと${remaining}体)`;
-                                textColor = 'var(--success-color)';
-                            } else {
-                                capacityText = `(${Math.abs(remaining)}体超過)`;
-                                textColor = 'var(--danger-color)';
-                            }
-                        }
-
-                        return (
-                            <div key={style} className="card fatigue-group" style={{ borderColor: isClosestStyle ? 'var(--primary-accent)' : 'var(--border-color-light)' }}>
-                                <h4 className={getStyleClass(style)} style={{ fontWeight: 700, textAlign: 'center' }}>
-                                    {style} ({fatiguedList.length})
-                                    {isClosestStyle && <span style={{ marginLeft: '8px', fontSize: '12px', color: textColor }}>{capacityText} / {capacity}</span>}
-                                    {manualRecovery && manualRecovery.style === styleKey && 
-                                        <span style={{ display: 'block', fontSize: '12px', color: 'var(--primary-accent)' }}>手動回復: 残り{manualRecovery.points}人</span>
-                                    }
-                                </h4>
-                                <ul className="fatigue-list">
-                                    {fatiguedList.map(m => {
-                                        const isManualRecoverable = manualRecovery && manualRecovery.style === styleKey;
-                                        return (
-                                            <li 
-                                                key={m.id} 
-                                                title={`${m.name} (${m.condition})`}
-                                                onClick={() => isManualRecoverable && onManualRecover(m.id)}
-                                                style={{ cursor: isManualRecoverable ? 'pointer' : 'default' }}
-                                            >
-                                                <span className={getStyleClass(style)}>{m.name}</span> <span style={{ color: 'var(--text-subtle)' }}>({m.condition})</span>
-                                            </li>
-                                        )
-                                    })}
-                                </ul>
-                            </div>
-                        );
-                    })}
-                </div>
-            </>
-        );
+    const getConditionStatusClass = (condition) => {
+        switch(condition) {
+            case '絶好調': return 'status-6';
+            case '好調': return 'status-5';
+            case '普通': return 'status-4';
+            case '不調': return 'status-3';
+            case '絶不調': return 'status-2';
+            case '気絶': return 'status-1';
+            default: return '';
+        }
     };
+    
+    const getGaugeValue = (value, max) => Math.max(0, Math.min(100, (value / max) * 100));
+    const getDistanceGaugeValue = (distance, max) => Math.max(0, Math.min(100, (1 - (distance / max)) * 100));
 
-    const renderPlanMode = () => {
-        const styleNameMap = { rush: 'ラッシュ', counter: 'カウンター', burst: 'バースト' };
-        if (!planConditions || !planConditions.fatigueByGroup || !planConditions.megidoConditionsBySection) return null;
 
-        const cardPadding = isMobileView ? '4px' : '8px';
-        const titleFontSize = isMobileView ? '0.9rem' : '1.1rem';
-        const pFontSize = isMobileView ? '10px' : '12px';
-        const fatigueListGap = isMobileView ? '2px 4px' : '4px 8px';
-        const sectionMarginTop = isMobileView ? '4px' : '8px';
-
-        return (
-            <div style={{ display: 'flex', flexDirection: 'row', gap: isMobileView ? '4px' : '8px' }}>
-                {Object.keys(SIMULATED_CONDITION_SECTIONS).map(styleKey => (
-                    <div key={styleKey} className="card" style={{ padding: cardPadding, marginBottom: '8px', flex: 1 }}>
-                        <h4 className={getStyleClass(styleNameMap[styleKey])} style={{ fontWeight: 700, textAlign: 'center', fontSize: titleFontSize, margin: '4px 0' }}>{styleNameMap[styleKey]}</h4>
-                        {SIMULATED_CONDITION_SECTIONS[styleKey].map((section, index) => {
-                            const groupKey = `${section.start}-${section.end}`;
-                            const groupData = planConditions.fatigueByGroup[groupKey] || { used: 0, capacity: section.limit };
-                            const sectionMegidoData = planConditions.megidoConditionsBySection[groupKey] || {};
-                            const fatiguedMegidoList = Object.values(sectionMegidoData);
-
-                            const usageRate = groupData.capacity > 0 ? (groupData.used / groupData.capacity) * 100 : 0;
-                            let barColor = 'var(--success-color)';
-                            if (usageRate > 80) barColor = 'var(--danger-color)';
-                            else if (usageRate > 50) barColor = 'var(--warning-color)';
+    return (
+        <footer className={`z-30 bg-background-dark/95 ios-blur border-t border-primary/20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] flex flex-col max-h-[65vh] shrink-0 ${isFooterCollapsed ? '' : 'is-expanded'}`}>
+            <div onClick={handleToggleFooter} className="px-4 py-2 bg-card-dark/40 flex items-center justify-between gap-2 border-b border-white/5 cursor-pointer active:bg-white/5">
+                <div className="grid grid-cols-2 flex-1 gap-x-3 gap-y-1">
+                    <div className="flex flex-col gap-0.5">
+                        <div className="flex justify-between items-center text-[9px]">
+                            <span className="text-slate-400">塔破力</span>
+                            <span className="text-primary font-bold">{runState.towerPower || 0}</span>
+                        </div>
+                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary" style={{ width: `${getGaugeValue(runState.towerPower, 100)}%` }}></div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <div className="flex justify-between items-center text-[9px]">
+                            <span className="text-slate-400">予測</span>
+                            <span className="text-primary font-bold">{extendedReachableFloor}F</span>
+                        </div>
+                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary/60" style={{ width: `${getGaugeValue(extendedReachableFloor, 35)}%` }}></div>
+                        </div>
+                    </div>
+                    <div className="flex flex-col gap-0.5">
+                        <div className="flex justify-between items-center text-[9px]">
+                            <span className="text-slate-400">リタイア可</span>
+                            <span className="text-primary font-bold">{allowedRetries}回</span>
+                        </div>
+                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary/40" style={{ width: `${getGaugeValue(allowedRetries, 50)}%` }}></div>
+                        </div>
+                    </div>
+                    <div className="flex items-center justify-between text-[9px] font-mono">
+                        <span className="text-slate-500">疲労状態</span>
+                        <div className="flex gap-2 font-bold">
+                            <span style={{color: 'var(--rush-color)'}}>R:{fatiguedMegido.R.length}</span>
+                            <span style={{color: 'var(--counter-color)'}}>C:{fatiguedMegido.C.length}</span>
+                            <span style={{color: 'var(--burst-color)'}}>B:{fatiguedMegido.B.length}</span>
+                        </div>
+                    </div>
+                </div>
+                <div className="ml-1 p-1 flex flex-col items-center">
+                    <span className="material-symbols-outlined text-primary text-[24px]">{isFooterCollapsed ? 'keyboard_arrow_up' : 'keyboard_arrow_down'}</span>
+                    <span className="text-[6px] text-primary/60 font-bold uppercase">{isFooterCollapsed ? 'OPEN' : 'CLOSE'}</span>
+                </div>
+            </div>
+            {!isFooterCollapsed && (
+                <div className="flex-1 overflow-y-auto px-2 py-3 space-y-3">
+                    <section className="grid grid-cols-2 gap-2 px-2">
+                        <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[9px] text-slate-400">次のランダム回復</span>
+                                <span className="text-[10px] font-bold text-white">{recoveryInfo.random.floor}F <span className="text-primary/70 text-[8px] ml-0.5">(あと{isFinite(recoveryInfo.random.distance) ? recoveryInfo.random.distance : '?'}F)</span></span>
+                            </div>
+                            <div className="mt-1 h-1 w-full bg-black/40 rounded-full overflow-hidden">
+                                <div className="h-full bg-primary shadow-[0_0_8px_#70f0df]" style={{ width: `${getDistanceGaugeValue(recoveryInfo.random.distance, 10)}%` }}></div>
+                            </div>
+                        </div>
+                        <div className="bg-white/5 rounded-lg p-2 border border-white/5">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[9px] text-slate-400">次のスタイル回復</span>
+                                <span className="text-[10px] font-bold text-white">{recoveryInfo.styled.floor}F <span className="text-primary/70 text-[8px] ml-0.5">({styleDataMap[recoveryInfo.styled?.style] || '?'})</span></span>
+                            </div>
+                            <div className="mt-1 h-1 w-full bg-black/40 rounded-full overflow-hidden">
+                                <div className="h-full bg-primary/30" style={{ width: `${getDistanceGaugeValue(recoveryInfo.styled.distance, 10)}%` }}></div>
+                            </div>
+                        </div>
+                    </section>
+                    <section className="grid grid-cols-3 gap-2 px-1">
+                        {['ラッシュ', 'カウンター', 'バースト'].map(style => {
+                            const styleKey = style.charAt(0);
+                            const fatiguedList = fatiguedMegido[styleKey] || [];
+                            const isClosestStyle = styleKey === (recoveryInfo.styled?.style || '').charAt(0);
+                            const capacity = isClosestStyle ? recoveryInfo.styled.capacity : 0;
+                            const remaining = capacity - fatiguedList.length;
+                            let capacityText = '';
+                            if (isClosestStyle) {
+                                if (remaining >= 0) {
+                                    capacityText = `残${remaining}体`;
+                                } else {
+                                    capacityText = `${Math.abs(remaining)}体超過`;
+                                }
+                            }
 
                             return (
-                                <div key={index} style={{ marginTop: sectionMarginTop, paddingTop: '4px', borderTop: '1px solid var(--border-color)', backgroundColor: (planState.activeFloor >= section.start && planState.activeFloor <= section.end) ? 'rgba(112, 240, 224, 0.1)' : 'transparent', borderRadius: '4px', padding: '4px' }}>
-                                    <p style={{ fontSize: pFontSize, fontWeight: 500, margin: '0 0 4px 0' }}>{section.start}F - {section.end}F ({groupData.used}/{groupData.capacity})</p>
-                                    <div className="progress-bar"><div className="progress-bar-inner" style={{ width: `${usageRate}%`, backgroundColor: barColor }}></div></div>
-                                    <div className="fatigue-list" style={{ display: 'flex', flexWrap: 'wrap', gap: fatigueListGap, marginTop: '4px', fontSize: pFontSize }}>
-                                        {fatiguedMegidoList.map(({ megido, fatigue }) => {
-                                            return <span key={megido.id}>{megido.名前}({getNextCondition('絶好調', fatigue)})</span>
-                                        })}
+                                <div key={style} className={`bg-card-dark/60 rounded-xl border ${isClosestStyle ? 'border-primary/30' : 'border-white/10'} flex flex-col min-h-[160px] overflow-hidden`}>
+                                    <div className={`p-2 border-b ${isClosestStyle ? 'border-primary/20 bg-primary/10' : 'border-white/5 bg-white/5'} text-center shrink-0`}>
+                                        <span className={`text-[9px] ${isClosestStyle ? 'text-primary' : 'text-slate-400'} font-bold block`}>{style}</span>
+                                        <span className="text-[10px] font-bold text-white leading-none">{fatiguedList.length} / {capacity > 0 ? capacity : fatiguedList.length}</span>
+                                        {isClosestStyle && <span className="text-[7px] text-primary/50 block mt-0.5">{capacityText}</span>}
+                                        {manualRecovery && manualRecovery.style === styleKey && 
+                                            <span className="text-[7px] text-primary block mt-0.5">手動回復: 残り{manualRecovery.points}人</span>
+                                        }
+                                    </div>
+                                    <div className="p-1 space-y-1 overflow-y-auto style-box-scroll max-h-[120px]">
+                                        {fatiguedList.length > 0 ? fatiguedList.map(m => (
+                                            <div key={m.id} className={`flex flex-col gap-0.5 p-1 bg-white/5 rounded text-center border-l-2 border-${getConditionStatusClass(m.condition)}`}
+                                                onClick={() => manualRecovery && manualRecovery.style === styleKey && onManualRecover(m.id)}
+                                                style={{ cursor: manualRecovery && manualRecovery.style === styleKey ? 'pointer' : 'default' }}>
+                                                <span className="text-[8px] truncate font-medium">{m.name}</span>
+                                                <span className={`text-[7px] px-1 py-0 bg-${getConditionStatusClass(m.condition)}/20 text-${getConditionStatusClass(m.condition)} rounded-sm font-bold`}>{m.condition}</span>
+                                            </div>
+                                        )) : (
+                                            <p className="text-slate-500 text-[8px] text-center p-2">該当なし</p>
+                                        )}
                                     </div>
                                 </div>
                             );
                         })}
-                    </div>
-                ))}
-            </div>
-        );
-    };
-
-    return (
-        <div className={`resource-dashboard ${isFooterCollapsed ? 'is-collapsed' : ''}`}>
-            <div className="dashboard-header" onClick={handleToggleFooter}>
-                 <div className="dashboard-summary-info" style={{ display: 'flex', flexWrap: 'wrap', gap: '0 16px', alignItems: 'center' }}>
-                    <span>塔破力: <span style={{ fontWeight: 700, color: 'var(--danger-color)' }}>{runState.towerPower || 30}</span></span>
-                    <span>回復込予測: <span style={{ fontWeight: 700, color: 'var(--primary-accent)' }}>{extendedReachableFloor}F</span></span>
-                    <span>許容リタイア: <span style={{ fontWeight: 700 }}>{allowedRetries}</span>回</span>
-                    <div className="fatigue-summary" style={{ display: 'flex', gap: '8px' }}>
-                        <span>疲労:</span>
-                        <span className="summary-style-r">R: {fatiguedMegido.R.length}</span>
-                        <span className="summary-style-c">C: {fatiguedMegido.C.length}</span>
-                        <span className="summary-style-b">B: {fatiguedMegido.B.length}</span>
-                    </div>
-                    {manualRecovery && (
-                        <span style={{ color: 'var(--primary-accent)', fontWeight: 700 }}>
-                            手動回復入力待ち
-                        </span>
-                    )}
-                </div>
-                <div className="dashboard-toggle">{isFooterCollapsed ? '∨' : '∧'}</div>
-            </div>
-            {!isFooterCollapsed && (
-                <div className="dashboard-content">
-                    {renderPracticeMode()}
+                    </section>
                 </div>
             )}
-        </div>
+        </footer>
     );
 };
