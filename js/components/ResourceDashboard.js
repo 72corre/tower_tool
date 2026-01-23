@@ -1,4 +1,4 @@
-const ResourceDashboard = () => {
+function ResourceDashboard() {
     const { runState, megidoConditions, ownedMegidoIds, planState, formations, megidoDetails, manualRecovery, onManualRecover, planConditions, isMobileView, isFooterCollapsed, handleToggleFooter, COMPLETE_MEGIDO_LIST, TOWER_MAP_DATA, CONDITION_ORDER, getStyleClass, getNextCondition, SIMULATED_CONDITION_SECTIONS, targetFloor, handleOpenRecoveryModal } = useAppContext();
     const { useMemo } = React;
 
@@ -108,20 +108,48 @@ const ResourceDashboard = () => {
 
     const fatiguedMegido = useMemo(() => {
         const fatigued = { R: [], C: [], B: [] };
+        console.log("DEBUG fatiguedMegido calculation START");
+        console.log("  megidoConditions:", megidoConditions);
+        console.log("  ownedMegidoIds:", ownedMegidoIds);
+        console.log("  COMPLETE_MEGIDO_LIST (first 5):", COMPLETE_MEGIDO_LIST?.slice(0, 5));
+        
         if (!megidoConditions || !COMPLETE_MEGIDO_LIST) {
+            console.log("DEBUG: megidoConditions or COMPLETE_MEGIDO_LIST is missing.");
             return fatigued;
         }
 
         Object.keys(megidoConditions).forEach(id => {
             const cond = megidoConditions[id];
-            if (cond && cond !== "絶好調" && ownedMegidoIds?.has(String(id))) {
-                const baseId = String(id).split('_')[0]; // Extract base ID
-                const m = COMPLETE_MEGIDO_LIST.find(x => String(x.id) === String(baseId));
+            const hasOwnedMegido = ownedMegidoIds?.has(String(id));
+            console.log(`DEBUG: Processing Megido ID: ${id}, Condition: ${cond}, Owned: ${hasOwnedMegido}`);
+
+            if (cond && cond !== "絶好調" && hasOwnedMegido) {
+                const idStr = String(id);
+                // 修正: baseId ではなく idStr を使って COMPLETE_MEGIDO_LIST を検索
+                const m = COMPLETE_MEGIDO_LIST.find(x => String(x.id) === idStr);
+                console.log(`  Found Megido (m) using idStr "${idStr}":`, m); // ログも修正
+                
                 if (m) {
-                    const styleKey = normalizeStyleKey(m.style ?? m.スタイル);
-                    if (styleKey) {
-                        fatigued[styleKey].push({ id: m.id, name: m.名前 ?? m.name, condition: cond });
+                    const idParts = idStr.split('_'); // スタイル判定のために必要
+                    let styleKey = null;
+
+                    if (idParts.length > 1) {
+                        const styleSuffix = idParts[1].toUpperCase();
+                        if (['R', 'C', 'B'].includes(styleSuffix)) {
+                            styleKey = styleSuffix;
+                        }
                     }
+                    
+                    if (!styleKey) {
+                        styleKey = normalizeStyleKey(m.style ?? m.スタイル);
+                    }
+                    console.log(`  Derived StyleKey: ${styleKey}`);
+
+                    if (styleKey) {
+                        fatigued[styleKey].push({ id: idStr, name: m.名前 ?? m.name, condition: cond });
+                    }
+                } else {
+                    console.warn(`  WARNING: Megido with ID "${idStr}" found in megidoConditions but not in COMPLETE_MEGIDO_LIST.`);
                 }
             }
         });
@@ -131,37 +159,72 @@ const ResourceDashboard = () => {
         fatigued.C.sort((a, b) => condIndex(b.condition) - condIndex(a.condition));
         fatigued.B.sort((a, b) => condIndex(b.condition) - condIndex(a.condition));
         
+        console.log("DEBUG fatiguedMegido calculation END, Result:", fatigued);
         return fatigued;
     }, [megidoConditions, ownedMegidoIds, COMPLETE_MEGIDO_LIST, CONDITION_ORDER]);
 
     const recoveryInfo = useMemo(() => {
-        const result = { random: { floor: '---', distance: Infinity }, styled: { floor: '---', style: '---', distance: Infinity, capacity: 0 } };
+        const result = { 
+            random: { floor: '---', distance: Infinity }, 
+            styled: { 
+                R: { floor: '---', distance: Infinity, capacity: 0 }, 
+                C: { floor: '---', distance: Infinity, capacity: 0 }, 
+                B: { floor: '---', distance: Infinity, capacity: 0 } 
+            } 
+        };
         if (typeof TOWER_MAP_DATA === 'undefined' || !runState) return result;
         const currentFloor = runState.highestFloorReached;
-        let foundRandom = false, foundStyled = false;
+        
+        // 各スタイルとランダム回復について、最初に見つかったものを記録するフラグ
+        const found = { R: false, C: false, B: false, RANDOM: false }; 
+
         for (let i = currentFloor - 1; i < TOWER_MAP_DATA.length; i++) {
-            if (foundRandom && foundStyled) break;
+            // すべての種類の回復マスが見つかっていればループを抜ける
+            if (found.R && found.C && found.B && found.RANDOM) break;
+
             const floorData = TOWER_MAP_DATA[i];
             if (!floorData) continue;
             const clearedInFloor = runState.cleared[String(i + 1)] || [];
+
             for (const [squareId, square] of Object.entries(floorData.squares)) {
                 if (square.type === 'explore' && square.sub_type === 'recovery' && !clearedInFloor.includes(squareId)) {
                     const distance = floorData.floor - currentFloor;
-                    if (square.style === 'RANDOM' && !foundRandom) {
+                    
+                    if (square.style === 'RANDOM' && !found.RANDOM) {
                         result.random = { floor: floorData.floor, distance };
-                        foundRandom = true;
-                    } else if (square.style !== 'RANDOM' && !foundStyled) {
-                        const requiredPower = getRequiredExplorationPower({ ...square, floor: floorData });
-                        const reward = EXPLORATION_REWARDS[requiredPower]?.[3]?.condition || '0';
-                        const capacity = parseInt(reward.replace(/[^0-9]/g, '')) || 0;
-                        result.styled = { floor: floorData.floor, style: square.style, distance, capacity };
-                        foundStyled = true;
+                        found.RANDOM = true;
+                    } else if (square.style !== 'RANDOM') {
+                        const styleKey = square.style.charAt(0); // RUSH -> R, COUNTER -> C, BURST -> B
+                        if (['R', 'C', 'B'].includes(styleKey) && !found[styleKey]) {
+                            // EXPLORATION_REWARDSが未定義なので、ここも注意が必要。
+                            // getRequiredExplorationPower は定義されている前提。
+                            const requiredPower = getRequiredExplorationPower({ ...square, floor: floorData });
+                            const reward = EXPLORATION_REWARDS[requiredPower]?.[3]?.condition || '0'; 
+                            let capacity = parseInt(reward.replace(/[^0-9]/g, '')) || 0;
+                            
+                            result.styled[styleKey] = { floor: floorData.floor, style: styleKey, distance, capacity };
+                            found[styleKey] = true;
+                        }
                     }
                 }
             }
         }
+        console.log("DEBUG: recoveryInfo calculation END, Result:", result);
         return result;
     }, [runState, TOWER_MAP_DATA]);
+
+    const closestStyledRecovery = useMemo(() => {
+        let closest = { floor: '---', style: '---', distance: Infinity, capacity: 0 };
+        // recoveryInfo.styled の R, C, B の中から最も距離が短いものを探す
+        ['R', 'C', 'B'].forEach(styleKey => {
+            const currentRecovery = recoveryInfo.styled[styleKey];
+            if (currentRecovery.floor !== '---' && currentRecovery.distance < closest.distance) {
+                closest = currentRecovery;
+            }
+        });
+        console.log("DEBUG: closestStyledRecovery:", closest);
+        return closest;
+    }, [recoveryInfo.styled]);
 
     if (!runState) {
         return null;
@@ -189,7 +252,7 @@ const ResourceDashboard = () => {
     const allowedRetriesValue = parseInt(allowedRetries, 10);
 
     return (
-        <footer className={`z-30 bg-background-dark/95 ios-blur border-t border-primary/20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] flex flex-col max-h-[65vh] shrink-0 ${isFooterCollapsed ? '' : 'is-expanded'}`}>
+        <div className={`z-30 bg-background-dark/95 ios-blur border-t border-primary/20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] flex flex-col max-h-[65vh] shrink-0 ${isFooterCollapsed ? '' : 'is-expanded'}`}>
             <div onClick={handleToggleFooter} className="px-4 py-2 bg-card-dark/40 flex items-center justify-between gap-2 border-b border-white/5 cursor-pointer active:bg-white/5">
                 <div className="grid grid-cols-2 flex-1 gap-x-3 gap-y-1">
                     <div className="flex flex-col gap-0.5">
@@ -248,22 +311,37 @@ const ResourceDashboard = () => {
                         <div className="bg-white/5 rounded-lg p-2 border border-white/5">
                             <div className="flex justify-between items-center">
                                 <span className="text-[9px] text-slate-400">次のスタイル回復</span>
-                                <span className="text-[10px] font-bold text-white">{recoveryInfo.styled.floor}F <span className="text-primary/70 text-[8px] ml-0.5">({styleDataMap[recoveryInfo.styled?.style] || '?'})</span></span>
+                                <span className="text-[10px] font-bold text-white">{closestStyledRecovery.floor}F <span className="text-primary/70 text-[8px] ml-0.5">({styleDataMap[closestStyledRecovery.style] || '?'})</span></span>
                             </div>
                             <div className="mt-1 h-1 w-full bg-black/40 rounded-full overflow-hidden">
-                                <div className="h-full bg-primary/30" style={{ width: `${getDistanceGaugeValue(recoveryInfo.styled.distance, 10)}%` }}></div>
+                                <div className="h-full bg-primary/30" style={{ width: `${getDistanceGaugeValue(closestStyledRecovery.distance, 10)}%` }}></div>
                             </div>
                         </div>
                     </section>
                     <section className="grid grid-cols-3 gap-2 px-1">
-                        {['ラッシュ', 'カウンター', 'バースト'].map(style => {
-                            const styleKey = style.charAt(0);
+                        {['ラッシュ', 'カウンター', 'バースト'].map(fullStyleName => {
+                            const styleKey = fullStyleName === 'ラッシュ' ? 'R' : fullStyleName === 'カウンター' ? 'C' : 'B';
                             const fatiguedList = fatiguedMegido[styleKey] || [];
-                            const isClosestStyle = styleKey === (recoveryInfo.styled?.style || '').charAt(0);
-                            const capacity = isClosestStyle ? recoveryInfo.styled.capacity : 0;
-                            const remaining = capacity - fatiguedList.length;
+                            const styledRecovery = recoveryInfo.styled[styleKey]; // 各スタイルごとの回復情報
+                            let originalCapacity = styledRecovery.capacity; // 元の回復できるメギド数
+
+                            let displayCapacity = originalCapacity;
+                            // ユーザーの要望「階数に応じて回復期待値を固定」を適用
+                            if (styledRecovery.floor !== '---') { // 回復マスが見つかっている場合
+                                if (styledRecovery.floor <= 20) { // 20階以下の場合
+                                    displayCapacity = 20; // 一律20と表示
+                                } else { // 21階以上の場合
+                                    displayCapacity = 15; // 一律15と表示
+                                }
+                            }
+
+                            // ここで displayCapacity を使用
+                            const capacity = displayCapacity;
+                            const isClosestStyle = styledRecovery.floor !== '---';
+                            
                             let capacityText = '';
                             if (isClosestStyle) {
+                                const remaining = capacity - fatiguedList.length;
                                 if (remaining >= 0) {
                                     capacityText = `残${remaining}体`;
                                 } else {
@@ -272,9 +350,9 @@ const ResourceDashboard = () => {
                             }
 
                             return (
-                                <div key={style} className={`bg-card-dark/60 rounded-xl border ${isClosestStyle ? 'border-primary/30' : 'border-white/10'} flex flex-col min-h-[160px] overflow-hidden`}>
+                                <div key={fullStyleName} className={`bg-card-dark/60 rounded-xl border ${isClosestStyle ? 'border-primary/30' : 'border-white/10'} flex flex-col min-h-[160px] overflow-hidden`}>
                                     <div className={`p-2 border-b ${isClosestStyle ? 'border-primary/20 bg-primary/10' : 'border-white/5 bg-white/5'} text-center shrink-0`}>
-                                        <span className={`text-[9px] ${isClosestStyle ? 'text-primary' : 'text-slate-400'} font-bold block`}>{style}</span>
+                                        <span className={`text-[9px] ${isClosestStyle ? 'text-primary' : 'text-slate-400'} font-bold block`}>{fullStyleName}</span>
                                         <span className="text-[10px] font-bold text-white leading-none">{fatiguedList.length} / {capacity > 0 ? capacity : fatiguedList.length}</span>
                                         {isClosestStyle && <span className="text-[7px] text-primary/50 block mt-0.5">{capacityText}</span>}
                                         {manualRecovery && manualRecovery.style === styleKey && 
@@ -299,6 +377,8 @@ const ResourceDashboard = () => {
                     </section>
                 </div>
             )}
-        </footer>
+        </div>
     );
-};
+}
+
+window.ResourceDashboard = ResourceDashboard;

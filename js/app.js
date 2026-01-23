@@ -835,10 +835,11 @@ const TowerTool = () => {
         handleCheckDistributedMegido 
     } = useMegido({ showToastMessage });
 
-    const ownedMegidoIds = useMemo(() => 
-        new Set(Object.keys(megidoDetails).filter(id => megidoDetails[id] && megidoDetails[id].owned)),
-        [megidoDetails]
-    );
+    const ownedMegidoIds = useMemo(() => {
+        const ids = new Set(Object.keys(megidoDetails).filter(id => megidoDetails[id] && megidoDetails[id].owned));
+        console.log("DEBUG: ownedMegidoIds calculated:", Array.from(ids));
+        return ids;
+    }, [megidoDetails]);
 
     const profileData = useMemo(() => {
         const maxFloor = Object.keys(floorClearCounts).reduce((max, floor) => Math.max(max, parseInt(floor)), 0);
@@ -2383,7 +2384,20 @@ const TowerTool = () => {
                 <div className="desktop-dashboard-footer">
                     {mode === 'plan' ? 
                         <PlanModeDashboard planConditions={planConditions} planState={planState} isMobileView={isMobileView} /> :
-                        <ResourceDashboard />
+                        <ResourceDashboard 
+                            runState={runState}
+                            megidoConditions={megidoConditions}
+                            ownedMegidoIds={ownedMegidoIds}
+                            planState={planState}
+                            formations={formations}
+                            megidoDetails={megidoDetails}
+                            manualRecovery={manualRecovery}
+                            onManualRecover={handleManualRecovery}
+                            isMobileView={isMobileView}
+                            isCollapsed={isFooterCollapsed}
+                            onToggleCollapse={handleToggleFooter}
+                            planConditions={planConditions}
+                        />
                     }
                 </div>
             )}

@@ -539,8 +539,8 @@ const usePracticeState = ({
             setMegidoConditions(JSON.parse(savedConditions));
         } else {
             const initialConditions = {};
-            Object.keys(megidoDetails).forEach(id => {
-                if(megidoDetails[id]?.owned) initialConditions[id] = '絶好調';
+            ownedMegidoIds.forEach(id => {
+                initialConditions[id] = '絶好調';
             });
             setMegidoConditions(initialConditions);
         }
@@ -560,7 +560,7 @@ const usePracticeState = ({
         } else {
             handleResetRun(true);
         }
-    }, [isLoading, megidoDetails]);
+    }, [isLoading, ownedMegidoIds]);
 
     useEffect(() => {
         if (Object.keys(megidoConditions).length > 0) {
