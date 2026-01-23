@@ -81,23 +81,34 @@ function ResourceDashboard() {
 
         let retries = 0;
         const target = parseInt(targetFloor, 10);
+        // 目標階が設定されており、現在の階層から35階の範囲内にある場合のみ計算
         if (target && target >= runState.currentPosition.floor && target <= 35) {
+            // 現在の塔破力で目標階に到達できない場合はリタイア不可
             if (target > extendedReachableFloor) {
                 retries = 0;
             } else {
-                for (let n = 0; n < runState.towerPower; n++) {
+                // リタイア回数を1ずつ増やし、塔破力を1ずつ減らしてシミュレーション
+                for (let n = 1; n <= runState.towerPower; n++) {
+                    // リタイア後の塔破力で到達可能な階層を計算
                     const newReachable = runOptimisticSimulation(runState.towerPower - n);
+                    // 到達可能な階層が目標階を下回ったら、その一つ前のリタイア回数が最大許容数
                     if (newReachable < target) {
-                        retries = n > 0 ? n - 1 : 0;
+                        retries = n - 1;
                         break;
                     }
+                    // 塔破力が1以下になる場合は、それが限界
                     if (runState.towerPower - n <= 1) {
+                         retries = n;
+                         break;
+                    }
+                    // 最後のnまで到達できた場合
+                    if (n === runState.towerPower) {
                         retries = n;
-                        break;
                     }
                 }
             }
         } else {
+            // 目標階が設定されていない場合は計算しない
             retries = '--';
         }
 
@@ -146,7 +157,7 @@ function ResourceDashboard() {
                     console.log(`  Derived StyleKey: ${styleKey}`);
 
                     if (styleKey) {
-                        fatigued[styleKey].push({ id: idStr, name: m.名前 ?? m.name, condition: cond });
+                        fatigued[styleKey].push({ id: idStr, name: m.名前 ?? m.name, condition: cond, style: styleKey }); // スタイル情報も追加
                     }
                 } else {
                     console.warn(`  WARNING: Megido with ID "${idStr}" found in megidoConditions but not in COMPLETE_MEGIDO_LIST.`);
@@ -232,6 +243,14 @@ function ResourceDashboard() {
 
     const styleMap = { "ラッシュ": "R", "カウンター": "C", "バースト": "B" };
     const styleDataMap = { 'R': 'ラッシュ', 'C': 'カウンター', 'B': 'バースト' };
+    const styleColorMap = { // CSS変数名をJavaScriptで使えるようにマップ
+        'R': 'var(--rush-color)',
+        'C': 'var(--counter-color)',
+        'B': 'var(--burst-color)',
+    };
+    const warningColor = 'var(--warning-color)';
+    const dangerColor = 'var(--danger-color)';
+
 
     const getConditionStatusClass = (condition) => {
         switch(condition) {
@@ -250,6 +269,44 @@ function ResourceDashboard() {
     
     const extendedReachableFloorValue = parseInt(extendedReachableFloor, 10);
     const allowedRetriesValue = parseInt(allowedRetries, 10);
+
+    // ヘッダーの疲労状態ゲージ用のデータ計算
+    const fatigueGaugeData = useMemo(() => {
+        const data = {};
+        ['R', 'C', 'B'].forEach(styleKey => {
+            const fatiguedCount = fatiguedMegido[styleKey]?.length || 0;
+            const styledRecovery = recoveryInfo.styled[styleKey];
+            let displayCapacity = styledRecovery.capacity;
+
+            // 回復マスが見つからない場合は、一旦fatiguedCountをそのまま表示
+            if (styledRecovery.floor === '---') {
+                displayCapacity = fatiguedCount > 0 ? fatiguedCount : 1; // 0除算回避
+            } else if (styledRecovery.floor <= 20) {
+                displayCapacity = 20;
+            } else { // 21階以上
+                displayCapacity = 15;
+            }
+            
+            const percentage = displayCapacity > 0 ? (fatiguedCount / displayCapacity) * 100 : 0;
+            
+            let color = styleColorMap[styleKey]; // スタイルに応じた色
+
+            if (fatiguedCount > displayCapacity) {
+                color = dangerColor; // 超過
+            } else if (percentage > 80) {
+                color = warningColor; // 80%超
+            }
+            
+            data[styleKey] = {
+                count: fatiguedCount,
+                capacity: displayCapacity,
+                percentage: percentage,
+                color: color
+            };
+        });
+        return data;
+    }, [fatiguedMegido, recoveryInfo.styled, styleColorMap, warningColor, dangerColor]);
+
 
     return (
         <div className={`z-30 bg-background-dark/95 ios-blur border-t border-primary/20 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] flex flex-col max-h-[65vh] shrink-0 ${isFooterCollapsed ? '' : 'is-expanded'}`}>
@@ -275,19 +332,29 @@ function ResourceDashboard() {
                     </div>
                     <div className="flex flex-col gap-0.5">
                         <div className="flex justify-between items-center text-[9px]">
-                            <span className="text-slate-400">リタイア可</span>
+                            <span className="text-slate-400">予測リタイヤ許容数</span>
                             <span className="text-primary font-bold">{allowedRetries}回</span>
                         </div>
                         <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
                             <div className="h-full bg-primary/40" style={{ width: `${getGaugeValue(isNaN(allowedRetriesValue) ? 0 : allowedRetriesValue, 50)}%` }}></div>
                         </div>
                     </div>
-                    <div className="flex items-center justify-between text-[9px] font-mono">
-                        <span className="text-slate-500">疲労状態</span>
-                        <div className="flex gap-2 font-bold">
-                            <span style={{color: 'var(--rush-color)'}}>R:{fatiguedMegido.R.length}</span>
-                            <span style={{color: 'var(--counter-color)'}}>C:{fatiguedMegido.C.length}</span>
-                            <span style={{color: 'var(--burst-color)'}}>B:{fatiguedMegido.B.length}</span>
+                    {/* 疲労状態 */}
+                    <div className="flex flex-col gap-0.5">
+                        <div className="grid grid-cols-3 gap-1 text-[9px] w-full">
+                            {['R', 'C', 'B'].map(styleKey => (
+                                <div key={styleKey} className="flex justify-between items-center">
+                                    <span className="font-bold" style={{color: styleColorMap[styleKey]}}>{styleKey}</span>
+                                    <span className="text-white">{fatigueGaugeData[styleKey].count}<span className="text-slate-500">/{fatigueGaugeData[styleKey].capacity}</span></span>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="grid grid-cols-3 gap-1 h-1 w-full">
+                            {['R', 'C', 'B'].map(styleKey => (
+                                <div key={styleKey} className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                    <div className="h-full rounded-full" style={{ width: `${fatigueGaugeData[styleKey].percentage}%`, backgroundColor: fatigueGaugeData[styleKey].color }}></div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -349,6 +416,15 @@ function ResourceDashboard() {
                                 }
                             }
 
+                            // ゲージの色を決定
+                            const percentage = capacity > 0 ? (fatiguedList.length / capacity) * 100 : 0;
+                            let gaugeColor = styleColorMap[styleKey];
+                            if (fatiguedList.length > capacity) {
+                                gaugeColor = dangerColor;
+                            } else if (percentage > 80) {
+                                gaugeColor = warningColor;
+                            }
+
                             return (
                                 <div key={fullStyleName} className={`bg-card-dark/60 rounded-xl border ${isClosestStyle ? 'border-primary/30' : 'border-white/10'} flex flex-col min-h-[160px] overflow-hidden`}>
                                     <div className={`p-2 border-b ${isClosestStyle ? 'border-primary/20 bg-primary/10' : 'border-white/5 bg-white/5'} text-center shrink-0`}>
@@ -358,13 +434,17 @@ function ResourceDashboard() {
                                         {manualRecovery && manualRecovery.style === styleKey && 
                                             <span className="text-[7px] text-primary block mt-0.5">手動回復: 残り{manualRecovery.points}人</span>
                                         }
+                                        {/* 回復可能数ゲージ */}
+                                        <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden mt-1">
+                                            <div className="h-full rounded-full" style={{ width: `${percentage}%`, backgroundColor: gaugeColor }}></div>
+                                        </div>
                                     </div>
                                     <div className="p-1 space-y-1 overflow-y-auto style-box-scroll max-h-[120px]">
                                         {fatiguedList.length > 0 ? fatiguedList.map(m => (
-                                            <div key={m.id} className={`flex flex-col gap-0.5 p-1 bg-white/5 rounded text-center border-l-2 border-${getConditionStatusClass(m.condition)}`}
+                                            <div key={m.id} className={`flex flex-col gap-0.5 p-1 bg-white/5 rounded text-center border-l-2`}
                                                 onClick={() => manualRecovery && manualRecovery.style === styleKey && onManualRecover(m.id)}
-                                                style={{ cursor: manualRecovery && manualRecovery.style === styleKey ? 'pointer' : 'default' }}>
-                                                <span className="text-[8px] truncate font-medium">{m.name}</span>
+                                                style={{ cursor: manualRecovery && manualRecovery.style === styleKey ? 'pointer' : 'default', borderColor: `var(--${styleDataMap[m.style]?.toLowerCase()}-color)`, backgroundColor: `var(--${styleDataMap[m.style]?.toLowerCase()}-color)0F` }}>
+                                                <span className="text-[8px] truncate font-medium" style={{ color: `var(--${styleDataMap[m.style]?.toLowerCase()}-color)` }}>{m.name}</span>
                                                 <span className={`text-[7px] px-1 py-0 bg-${getConditionStatusClass(m.condition)}/20 text-${getConditionStatusClass(m.condition)} rounded-sm font-bold`}>{m.condition}</span>
                                             </div>
                                         )) : (
