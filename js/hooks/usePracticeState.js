@@ -79,7 +79,7 @@ const usePracticeState = ({
         });
     }, [showToastMessage]);
 
-    const handleConditionRecovery = useCallback((style, capacity, floor, amount) => {
+    const handleConditionRecovery = useCallback((style, capacity, floor, amount, expectationLevel) => { // expectationLevel added
         const recoveryAmount = amount ? -amount : (floor <= 20 ? -1 : -2);
         const targetStyleKey = style.slice(0, 1);
 
@@ -347,18 +347,27 @@ const usePracticeState = ({
                     setModalState(prev => ({ ...prev, isOpen: false })); 
                 } });
             } else if (squareSubType === 'recovery') {
-                const isSpecialCase = square.floor.floor >= 1 && square.floor.floor <= 10 && data.expectationLevel === 3;
+                const isSpecialCase = square.floor.floor >= 1 && square.floor.floor <= 20 && data.expectationLevel === 3;
 
                 if (squareStyle === 'RANDOM') {
                     setRecoveryModalState({
                         isOpen: true,
                         title: 'ランダムコンディション回復',
                         message: 'ゲーム内で指定された回復スタイルを選択し、回復可能な人数を入力してください。',
-                        showRecoveryAmountInput: isSpecialCase,
                         onConfirm: (styleKey, capacity, recoveryAmount) => {
                             if (styleKey && !isNaN(capacity) && capacity > 0) {
                                 const fullStyleName = styleKey === 'R' ? 'RUSH' : styleKey === 'C' ? 'COUNTER' : 'BURST';
-                                handleConditionRecovery(fullStyleName, capacity, square.floor.floor, isSpecialCase ? recoveryAmount : null);
+                                let finalCapacity = capacity;
+                                let finalRecoveryAmount = isSpecialCase ? recoveryAmount : null;
+
+                                // If it's a special case (expectation 3 on floors <= 20) and 2 stages are selected,
+                                // force capacity to 20 Megido and ensure 2 stages of recovery.
+                                if (isSpecialCase && finalRecoveryAmount === 2) {
+                                    finalCapacity = 20;
+                                    showToastMessage('期待度3で2段階回復を選択！20体のメギドに適用されます。');
+                                }
+
+                                handleConditionRecovery(fullStyleName, finalCapacity, square.floor.floor, finalRecoveryAmount, data.expectationLevel);
                             }
                             setRecoveryModalState({ isOpen: false });
                         }
@@ -369,10 +378,19 @@ const usePracticeState = ({
                         title: 'コンディション回復',
                         message: '回復可能な人数を入力してください。',
                         fixedStyle: square.square.style.slice(0, 1),
-                        showRecoveryAmountInput: isSpecialCase,
                         onConfirm: (styleKey, capacity, recoveryAmount) => {
                             if (!isNaN(capacity) && capacity > 0) {
-                                handleConditionRecovery(square.square.style, capacity, square.floor.floor, isSpecialCase ? recoveryAmount : null);
+                                let finalCapacity = capacity;
+                                let finalRecoveryAmount = isSpecialCase ? recoveryAmount : null;
+
+                                // If it's a special case (expectation 3 on floors <= 20) and 2 stages are selected,
+                                // force capacity to 20 Megido and ensure 2 stages of recovery.
+                                if (isSpecialCase && finalRecoveryAmount === 2) {
+                                    finalCapacity = 20;
+                                    showToastMessage('期待度3で2段階回復を選択！20体のメギドに適用されます。');
+                                }
+
+                                handleConditionRecovery(square.square.style, finalCapacity, square.floor.floor, finalRecoveryAmount, data.expectationLevel);
                             }
                             setRecoveryModalState({ isOpen: false });
                         }
@@ -487,7 +505,7 @@ const usePracticeState = ({
             onConfirm: (styleKey, capacity) => {
                 if (styleKey && !isNaN(capacity) && capacity > 0) {
                     const fullStyleName = styleKey === 'R' ? 'RUSH' : styleKey === 'C' ? 'COUNTER' : 'BURST';
-                    handleConditionRecovery(fullStyleName, capacity, runState.highestFloorReached, null);
+                    handleConditionRecovery(fullStyleName, capacity, runState.highestFloorReached, null, undefined);
                 }
                 setRecoveryModalState({ isOpen: false });
             }

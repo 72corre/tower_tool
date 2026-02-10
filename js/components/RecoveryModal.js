@@ -1,20 +1,22 @@
-const RecoveryModal = ({ isOpen, onClose, onConfirm, title, message, showNumberInput = true, numberInputPlaceholder = "回復人数", showRecoveryAmountInput = false, fixedStyle = null }) => {
+const RecoveryModal = ({ isOpen, onClose, onConfirm, title, message, showNumberInput = true, numberInputPlaceholder = "回復人数", fixedStyle = null }) => {
     const [inputValue, setInputValue] = React.useState('');
     const [selectedStyle, setSelectedStyle] = React.useState(null);
-    const [recoveryAmount, setRecoveryAmount] = React.useState(1);
+    // Use true for 2-stage if checked, false for 1-stage if unchecked
+    const [isTwoStageRecovery, setIsTwoStageRecovery] = React.useState(false); 
 
     React.useEffect(() => {
         if (isOpen) {
             setInputValue('');
             setSelectedStyle(fixedStyle);
-            setRecoveryAmount(1);
+            setIsTwoStageRecovery(false); // Default to 1-stage
         }
     }, [isOpen, fixedStyle]);
 
     const handleConfirm = () => {
         const numberValue = showNumberInput ? parseInt(inputValue, 10) : null;
+        const finalRecoveryAmount = isTwoStageRecovery ? 2 : 1;
         if (selectedStyle && (!showNumberInput || (!isNaN(numberValue) && numberValue > 0))) {
-            onConfirm(selectedStyle, numberValue, recoveryAmount);
+            onConfirm(selectedStyle, numberValue, finalRecoveryAmount);
         }
         onClose();
     };
@@ -82,33 +84,16 @@ const RecoveryModal = ({ isOpen, onClose, onConfirm, title, message, showNumberI
                     />
                 )}
 
-                {showRecoveryAmountInput && (
-                    <div style={{ margin: '16px 0' }}>
-                        <p>回復段階:</p>
-                        <div style={{ display: 'flex', gap: '16px' }}>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <input
-                                    type="radio"
-                                    name="recoveryAmount"
-                                    value={1}
-                                    checked={recoveryAmount === 1}
-                                    onChange={() => setRecoveryAmount(1)}
-                                />
-                                1段階
-                            </label>
-                            <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                <input
-                                    type="radio"
-                                    name="recoveryAmount"
-                                    value={2}
-                                    checked={recoveryAmount === 2}
-                                    onChange={() => setRecoveryAmount(2)}
-                                />
-                                2段階
-                            </label>
-                        </div>
-                    </div>
-                )}
+                <div style={{ margin: '16px 0' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <input
+                            type="checkbox"
+                            checked={isTwoStageRecovery}
+                            onChange={(e) => setIsTwoStageRecovery(e.target.checked)}
+                        />
+                        2段階回復
+                    </label>
+                </div>
 
                 <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
                     <button 

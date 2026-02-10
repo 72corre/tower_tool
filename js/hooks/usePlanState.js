@@ -83,7 +83,7 @@ const usePlanState = ({ formations, megidoDetails, showToastMessage }) => {
                 const megidoUsedInThisSection = new Set();
 
                 // Apply recovery at the START of the section
-                const recoveryAmount = section.start >= 21 ? 2 : 1;
+                const recoveryAmount = section.start <= 20 ? 2 : 1;
                 const extraRecovery = (style === 'burst' && section.start === 19) ? 2 : 0;
                 ownedMegido.forEach(id => {
                     const megidoInfo = COMPLETE_MEGIDO_LIST.find(m => String(m.id) === id);
