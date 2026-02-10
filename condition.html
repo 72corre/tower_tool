@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>星間の塔ナビ</title>
+    <style>
+        :root {
+            --rush-color: #B3B3B5;
+            --counter-color: #F36C21;
+            --burst-color: #5BC0DE;
+            --rich-gold-color: #E7CD9C;
+            --success-color: #48bb78;
+            --warning-color: #ecc94b;
+            --danger-color: #e53e3e;
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --grid-gap: 16px;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: #f8fafc;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            display: grid;
+            place-items: center;
+            height: 100dvh;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 340px;
+            padding: var(--grid-gap);
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+            display: grid;
+            grid-template-rows: auto auto 1fr auto;
+            gap: var(--grid-gap);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .header {
+            text-align: center;
+            display: grid;
+            gap: 4px;
+        }
+
+        .floor-label {
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: #94a3b8;
+            letter-spacing: 0.1em;
+        }
+
+        .floor-display {
+            font-size: 4.5rem;
+            font-weight: 900;
+            color: var(--rich-gold-color);
+            line-height: 1;
+            text-shadow: 0 0 20px rgba(231, 205, 156, 0.3);
+        }
+
+        .current-recovery {
+            min-height: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .badge {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(0,0,0,0.4);
+            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .stats-grid {
+            display: grid;
+            gap: 16px;
+        }
+
+        .style-row {
+            display: grid;
+            gap: 6px;
+        }
+
+        .style-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            /* 次が最後バッジが出ても高さが変わらないように固定 */
+            height: 24px; 
+        }
+
+        .style-name {
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .next-floor-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .next-floor-text {
+            font-size: 1.1rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .last-tag {
+            background: var(--danger-color);
+            color: white;
+            font-size: 0.6rem;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+            white-space: nowrap;
+        }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+
+        .progress-container {
+            height: 6px;
+            background: #0f172a;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s;
+        }
+
+        .slider-wrapper {
+            padding: 10px 0;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            height: 6px;
+            appearance: none;
+            background: #334155;
+            border-radius: 5px;
+            outline: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            background: var(--rich-gold-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card" id="touchArea">
+        <div class="header">
+            <div class="floor-label">現在階</div>
+            <div class="floor-display" id="floorNum">1</div>
+            <div class="current-recovery" id="currentRecovery"></div>
+        </div>
+
+        <div class="stats-grid" id="stats"></div>
+
+        <div class="slider-wrapper">
+            <input type="range" id="slider" min="1" max="35" value="1">
+        </div>
+
+        <div class="footer">
+            スワイプ：階数移動<br>
+            バー：残り回復マスの数
+        </div>
+    </div>
+</div>
+
+<script>
+    const data = {
+        rush: [5, 21, 27],
+        counter: [11, 21, 27, 29],
+        burst: [16, 18, 18, 28],
+        random: [1, 7, 10, 13, 15, 20, 22, 25, 25, 26, 31]
+    };
+
+    const config = {
+        rush: { color: 'var(--rush-color)', label: 'ラッシュ' },
+        counter: { color: 'var(--counter-color)', label: 'カウンター' },
+        burst: { color: 'var(--burst-color)', label: 'バースト' },
+        random: { color: '#ffffff', label: 'ランダム' }
+    };
+
+    const slider = document.getElementById('slider');
+    const floorDisplay = document.getElementById('floorNum');
+    const statsContainer = document.getElementById('stats');
+    const currentRecContainer = document.getElementById('currentRecovery');
+
+    let currentFloor = parseInt(localStorage.getItem('hoshikan_floor_v3')) || 1;
+    slider.value = currentFloor;
+
+    function getBarColor(percent) {
+        if (percent >= 60) return 'var(--success-color)';
+        if (percent >= 30) return 'var(--warning-color)';
+        return 'var(--danger-color)';
+    }
+
+    function update() {
+        currentFloor = parseInt(slider.value);
+        floorDisplay.innerText = currentFloor;
+        localStorage.setItem('hoshikan_floor_v3', currentFloor);
+
+        let currentHits = [];
+        for (let style in data) {
+            const matches = data[style].filter(f => f === currentFloor).length;
+            if (matches > 0) {
+                const countText = matches > 1 ? `×${matches}` : "";
+                currentHits.push(`<span class="badge" style="color:${config[style].color}">${config[style].label}${countText}</span>`);
+            }
+        }
+        currentRecContainer.innerHTML = currentHits.join("");
+
+        let html = '';
+        for (let style in data) {
+            const list = data[style];
+            const total = list.length;
+            const remaining = list.filter(f => f > currentFloor).length;
+            const nextFloor = list.find(f => f > currentFloor);
+            
+            const percent = (remaining / total) * 100;
+            const barColor = getBarColor(percent);
+            const isLast = (remaining === 1);
+
+            let nextContent = '';
+            if (!nextFloor) {
+                nextContent = `<span class="next-floor-text" style="color:#64748b">終了</span>`;
+            } else {
+                nextContent = `
+                    <div class="next-floor-wrapper">
+                        <span class="next-floor-text" style="color:${isLast ? 'var(--danger-color)' : '#fff'}">${nextFloor}F</span>
+                        ${isLast ? '<span class="last-tag">次が最後</span>' : ''}
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="style-row">
+                    <div class="style-info">
+                        <span class="style-name" style="color:${config[style].color}">${config[style].label}</span>
+                        ${nextContent}
+                    </div>
+                    <div class="progress-container">
+                        <div class="progress-bar" style="width:${percent}%; background-color:${barColor}"></div>
+                    </div>
+                </div>
+            `;
+        }
+        statsContainer.innerHTML = html;
+    }
+
+    // スワイプ操作
+    let startX, startY;
+    document.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+    });
+
+    document.addEventListener('touchend', e => {
+        const diffX = e.changedTouches[0].clientX - startX;
+        const diffY = e.changedTouches[0].clientY - startY;
+        const threshold = 40;
+
+        if (Math.abs(diffX) > threshold || Math.abs(diffY) > threshold) {
+            if (diffX > threshold || diffY < -threshold) {
+                if (currentFloor < 35) slider.value = currentFloor + 1;
+            } else {
+                if (currentFloor > 1) slider.value = currentFloor - 1;
+            }
+            update();
+        }
+    });
+
+    slider.oninput = update;
+    update();
+</script>
+</body>
+</html>
