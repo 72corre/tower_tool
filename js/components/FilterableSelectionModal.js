@@ -2,6 +2,17 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, primaryItemsHe
     const { useMemo, useState, useEffect, useRef } = React;
     const dialogRef = useRef(null);
     const [filters, setFilters] = useState({ text: '', style: 'All', clock: 'All', class: 'All', race: 'All', lineage: 'All', exactMatch: false });
+    const [debouncedSearchText, setDebouncedSearchText] = useState('');
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearchText(filters.text);
+        }, 300); // 300ms debounce delay
+
+        return () => {
+            clearTimeout(handler);
+        };
+    }, [filters.text]);
 
     useEffect(() => {
         if (isOpen) {
@@ -13,13 +24,14 @@ const FilterableSelectionModal = ({ title, items, secondaryItems, primaryItemsHe
             dialogRef.current?.close();
             // Reset filters on close
             setFilters({ text: '', style: 'All', clock: 'All', class: 'All', race: 'All', lineage: 'All', exactMatch: false });
+            setDebouncedSearchText(''); // Reset debounced text as well
         }
     }, [isOpen, initialSearch]);
 
     const filterLogic = (item) => {
-        const searchText = hiraganaToKatakana(filters.text.toLowerCase());
+        const searchText = hiraganaToKatakana(debouncedSearchText.toLowerCase());
         
-        let searchMatch = filters.text === '';
+        let searchMatch = debouncedSearchText === '';
         if (!searchMatch) {
             const name = hiraganaToKatakana((item.名前 || item.name || '').toLowerCase());
             if (isFormationSearch) {

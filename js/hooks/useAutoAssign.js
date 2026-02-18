@@ -76,7 +76,8 @@ const useAutoAssign = () => {
             .map(megido => {
                 const condition = megidoConditions[String(megido.id)] || '絶好調';
                 const power = calculatePower(megido, condition, recommendation);
-                return { ...megido, power };
+                const baseName = getBaseMegidoName(megido.名前); // Add baseName here
+                return { ...megido, power, baseName };
             });
 
         // 3. Combination Search
@@ -116,6 +117,10 @@ const useAutoAssign = () => {
         if (allCandidatesSorted.length > 1) {
             for (let i = 0; i < allCandidatesSorted.length; i++) {
                 for (let j = i + 1; j < allCandidatesSorted.length; j++) {
+                    // Check for duplicate base names
+                    if (allCandidatesSorted[i].baseName === allCandidatesSorted[j].baseName) {
+                        continue; // Skip this combination
+                    }
                     const party = [allCandidatesSorted[i], allCandidatesSorted[j]];
                     const totalPower = party[0].power + party[1].power;
                     if (totalPower >= targetPower) {
@@ -135,8 +140,17 @@ const useAutoAssign = () => {
             for (let i = 0; i < allCandidatesSorted.length; i++) {
                 if (foundCombinations.length >= 5) break;
                 for (let j = i + 1; j < allCandidatesSorted.length; j++) {
+                    // Check for duplicate base names (first two megido)
+                    if (allCandidatesSorted[i].baseName === allCandidatesSorted[j].baseName) {
+                        continue;
+                    }
                     if (foundCombinations.length >= 5) break;
                     for (let k = j + 1; k < allCandidatesSorted.length; k++) {
+                        // Check for duplicate base names (third megido against first two)
+                        if (allCandidatesSorted[i].baseName === allCandidatesSorted[k].baseName ||
+                            allCandidatesSorted[j].baseName === allCandidatesSorted[k].baseName) {
+                            continue;
+                        }
                         const party = [allCandidatesSorted[i], allCandidatesSorted[j], allCandidatesSorted[k]];
                         const totalPower = party[0].power + party[1].power + party[2].power;
                         if (totalPower >= targetPower) {
