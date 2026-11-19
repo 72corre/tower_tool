@@ -569,6 +569,19 @@ button:disabled { opacity: 0.4; cursor: default; }
 
 /* M6 のエディタ */
 .build-warn { font-size: 15px; font-weight: 700; color: var(--danger); margin: 8px 0; }
+/* 編成エディタの思考順の並び（2026-11-19）: 節の見出し、ターゲット節の
+   ギミック、保存ボタンの直上の警告箱 */
+.build-section-title { font-size: 15px; font-weight: 700; margin: 10px 0 6px; }
+.build-autotags { align-items: center; }
+.build-gimmick { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
+.build-gimmick-title { font-size: 13px; font-weight: 700; }
+.build-gimmick-floor { font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 8px; }
+.build-bottom { display: flex; flex-direction: column; gap: 8px; }
+.build-warnings {
+  border: 1px solid #b7791f; background: rgba(231, 205, 156, 0.12);
+  border-radius: 8px; padding: 8px 10px;
+}
+.build-warn-line { font-size: 13px; font-weight: 700; color: var(--accent); margin: 3px 0; }
 .build-slot-main {
   width: 100%; background: none; border: none; border-radius: 0;
   padding: 0; color: inherit; text-align: center;
@@ -608,13 +621,45 @@ button:disabled { opacity: 0.4; cursor: default; }
 }
 .unlock-guide-note { color: var(--muted); font-size: 13px; margin-top: 6px; }
 
-/* 探索の結果の入力（2026-11-19 の作り直し）: 色は選ばせない。結果の
-   選択肢ボタンと、選択中（selected）の見分け。記録ボタンは主役の扱い。 */
-.result-opt-btn { flex: 1; padding: 12px 6px; font-weight: 700; }
-.buff-result-btn { flex: 1 1 30%; padding: 12px 6px; font-weight: 700; }
-.result-opt-btn.selected, .buff-result-btn.selected, .style-btn.selected {
+/* 探索の結果の入力（ゲームの結果画面の写し取り形）: 結果の行は文の
+   形で並び、行の中の数が候補チップになる。色は選ばせない。記録ボタン
+   は主役の扱い。 */
+.style-btn.selected {
   background: var(--accent); color: var(--accent-text); border-color: var(--accent);
 }
+.result-lines { display: flex; flex-direction: column; gap: 10px; }
+.result-line { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; }
+.result-sentence { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; }
+.result-bullet { color: var(--muted); }
+.result-value { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.result-chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.result-chip {
+  min-width: 44px; padding: 8px 10px; font-weight: 700; font-size: 16px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+}
+.result-chip.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.result-num-input {
+  width: 84px; padding: 8px; font-size: 16px; text-align: center;
+  border: 1px solid var(--border); border-radius: 8px;
+}
+.result-unit { color: var(--muted); }
+.result-custom-toggle {
+  padding: 6px 8px; font-size: 13px; color: var(--muted);
+  background: none; border: none; text-decoration: underline;
+}
+.result-pick-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.result-pick-label { font-size: 13px; color: var(--muted); }
+.result-line-remove {
+  margin-top: 8px; padding: 4px 8px; font-size: 13px; color: var(--muted);
+  background: none; border: none; text-decoration: underline;
+}
+.bonus-add-row { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.bonus-add-btn {
+  padding: 10px; font-weight: 700; text-align: left;
+  border: 1px dashed var(--border); border-radius: 8px; background: var(--surface-muted);
+}
+.btn-fix-apply { display: block; width: 100%; padding: 12px; font-weight: 700; margin: 10px 0; }
+.btn-fix-apply:disabled { opacity: 0.4; }
 .sheet-action-btn.act-explore-record { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .sheet-action-btn.act-explore-record:disabled { background: var(--surface-muted); color: var(--muted); border-color: var(--border); }
 
@@ -905,6 +950,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 .counter-candidates { font-size: 13px; margin: 2px 0; }
 .counter-weak { font-size: 13px; color: var(--exp-1); margin: 2px 0; }
 .counter-immune { font-size: 13px; color: var(--muted); margin: 2px 0; }
+.resist-key { font-size: 12px; color: var(--muted); margin: 2px 0; }
 .demand-warn { font-size: 13px; color: var(--stage-2); margin: 6px 0; }
 
 /* 編成のカバー表示（M5） */
@@ -920,8 +966,11 @@ button:disabled { opacity: 0.4; cursor: default; }
 .me-fit { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
 .me-fit-title { font-size: 13px; color: var(--muted); font-weight: 700; }
 .me-fit-name { font-size: 16px; font-weight: 700; margin: 2px 0; }
+.me-fit-sub-title { font-size: 14px; font-weight: 700; margin: 10px 0 2px; }
 .me-fit-line { font-size: 13px; margin: 3px 0; }
 .cand-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+/* 非直観的な仕組みの1行注記（M4 の敵ブロック・M6 のエディタ） */
+.mech-note { font-size: 12px; color: var(--muted); margin: 4px 0; padding-left: 8px; border-left: 3px solid var(--accent); }
 
 /* ==== M7 の転換（入口は空の枠）・おすすめ転記・並走の警告 ==== */
 /* おすすめの転記: ゲーム画面の表示を写す機械的な入力。流れの頭に置く */
@@ -36916,6 +36965,232 @@ window.__PREVIEW_DATA__ = {
   }
  }
 },
+"mechanic-notes.v1.json": {
+  "kind": "mechanic-notes",
+  "version": 1,
+  "source": "build/data/abilities の能力原文へのキーワード検出（generate-mechanic-notes.mjs）",
+  "notes": {
+    "宵06_モレク": [
+      "kyousen"
+    ],
+    "真02_ニバスB": [
+      "music"
+    ],
+    "真04_ユフィールC": [
+      "necro"
+    ],
+    "真08_ロキ": [
+      "music",
+      "dangeki"
+    ],
+    "真08_ロキR": [
+      "music"
+    ],
+    "真10_グリマルキン": [
+      "ereki"
+    ],
+    "真10_グリマルキンR": [
+      "fimpulse"
+    ],
+    "真11_コルソンR": [
+      "corsonr"
+    ],
+    "真15_サタナキアB": [
+      "satanakiaB"
+    ],
+    "真16_タナトス": [
+      "necro"
+    ],
+    "真17_ティアマト": [
+      "berserk"
+    ],
+    "真18_ブニB": [
+      "hadan"
+    ],
+    "真29_アルマロス": [
+      "necro"
+    ],
+    "真32_ガギゾン": [
+      "toudo"
+    ],
+    "真34_マスティマ": [
+      "necro"
+    ],
+    "真35_ブリフォー": [
+      "colosseo"
+    ],
+    "真42_ルキフゲス": [
+      "hadan"
+    ],
+    "真45_チェルノボグ": [
+      "necro"
+    ],
+    "真47_ヴェルドレ": [
+      "music"
+    ],
+    "真49_サタナイル": [
+      "music"
+    ],
+    "真52_ジズ": [
+      "music"
+    ],
+    "真52_ジズR": [
+      "music"
+    ],
+    "真53_ベバル": [
+      "music"
+    ],
+    "真53_ベバルC": [
+      "music",
+      "dangeki"
+    ],
+    "真54_アバラム": [
+      "music"
+    ],
+    "真54_アバラムC": [
+      "music",
+      "dangeki"
+    ],
+    "真56_バロール": [
+      "colosseo"
+    ],
+    "真57_ベヒモスB": [
+      "hadan"
+    ],
+    "真58_ダゴン": [
+      "berserk"
+    ],
+    "真63_アマゼロトB": [
+      "toudo"
+    ],
+    "真64_プロメテウス": [
+      "music"
+    ],
+    "真64_プロメテウスC": [
+      "music",
+      "dangeki"
+    ],
+    "真67_ルシファー": [
+      "fimpulse"
+    ],
+    "真70_アスラフィル": [
+      "music"
+    ],
+    "真71_アクィエルB": [
+      "necro"
+    ],
+    "真72_ゲイボルグ": [
+      "colosseo"
+    ],
+    "祖08_バルバトス": [
+      "music"
+    ],
+    "祖08_バルバトスR": [
+      "music"
+    ],
+    "祖11_グシオン": [
+      "music"
+    ],
+    "祖11_グシオンB": [
+      "music"
+    ],
+    "祖13_ベレト": [
+      "voltage",
+      "berserk"
+    ],
+    "祖16_ゼパルC": [
+      "berserk"
+    ],
+    "祖17_ボティスR": [
+      "colosseo"
+    ],
+    "祖19_サレオスC": [
+      "voltage",
+      "berserk"
+    ],
+    "祖21_モラクス": [
+      "hadan"
+    ],
+    "祖22_イポスC": [
+      "voltage",
+      "berserk"
+    ],
+    "祖26_ブネB": [
+      "hadan"
+    ],
+    "祖30_フォルネウスB": [
+      "necro"
+    ],
+    "祖33_ガープR": [
+      "colosseo"
+    ],
+    "祖34_フルフルC": [
+      "ereki"
+    ],
+    "祖38_ハルファスR": [
+      "fimpulse"
+    ],
+    "祖46_ビフロンスC": [
+      "necro"
+    ],
+    "祖49_クロケル": [
+      "music"
+    ],
+    "祖49_クロケルR": [
+      "music"
+    ],
+    "祖50_フルカスC": [
+      "voltage",
+      "berserk"
+    ],
+    "祖52_アロケルR": [
+      "colosseo"
+    ],
+    "祖54_ムルムル": [
+      "music"
+    ],
+    "祖54_ムルムルC": [
+      "music",
+      "dangeki"
+    ],
+    "祖55_オロバスC": [
+      "necro"
+    ],
+    "祖57_オセC": [
+      "voltage",
+      "berserk"
+    ],
+    "祖59_オリアス": [
+      "necro"
+    ],
+    "祖61_ザガンR": [
+      "colosseo"
+    ],
+    "祖62_ウァラク": [
+      "music"
+    ],
+    "祖62_ウァラクC": [
+      "music",
+      "dangeki"
+    ],
+    "祖66_キマリスC": [
+      "necro"
+    ],
+    "祖67_アムドゥスキアスB": [
+      "necro"
+    ],
+    "祖68_ベリアル": [
+      "belial"
+    ],
+    "祖69_デカラビアB": [
+      "necro"
+    ],
+    "祖72_アンドロマリウスC": [
+      "necro"
+    ]
+  }
+}
+,
 "reishou.v1.json": {
   "kind": "reishou",
   "version": 1,
@@ -45833,7 +46108,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "神特効で削る",
-     "basis": "種族は龍/神。神への特効手段が索引にある（龍への特効は索引に無い）",
+     "basis": "種族は龍/神。神への特効手段がある（龍への特効手段は無い）",
      "classRef": "race:神",
      "meansEffects": [
       "bonus:race:神"
@@ -47073,7 +47348,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行特効で削る",
-     "basis": "種族は龍/飛行。飛行への特効手段が索引にある（龍への特効は索引に無い）",
+     "basis": "種族は龍/飛行。飛行への特効手段がある（龍への特効手段は無い）",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行"
@@ -47176,7 +47451,7 @@ window.__PREVIEW_DATA__ = {
    "effectiveTactics": [
     {
      "label": "即死への耐性と蘇生の備え",
-     "basis": "奥義の即死はランダム単体で防ぎきれない。耐性を持つ者を立てるか、蘇生手段を用意する",
+     "basis": "奥義の即死はランダム単体で、かばうでは受けられない。耐性を持つ者を立てるか、蘇生手段を用意する",
      "classRef": "ailment:即死",
      "meansEffects": [
       "resist:即死",
@@ -47366,7 +47641,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "束縛・弱体を入れる／死者特効で削る",
-     "basis": "束縛・弱体が◎。種族は死者/大幻獣で、死者への特効手段が索引にある",
+     "basis": "束縛・弱体が◎。種族は死者/大幻獣で、死者への特効手段がある",
      "classRef": "race:死者",
      "meansEffects": [
       "inflict:束縛",
@@ -48054,7 +48329,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "短期決戦＋死者特効",
-     "basis": "Wiki攻略: 敵HPは高くなく地形も有効で、短期決戦を目指す方が良いとされる。種族は龍/死者/大幻獣で、死者への特効手段が索引にある",
+     "basis": "Wiki攻略: 敵HPは高くなく地形も有効で、短期決戦を目指す方が良いとされる。種族は龍/死者/大幻獣で、死者への特効手段がある",
      "classRef": "race:死者",
      "meansEffects": [
       "bonus:race:死者"
@@ -48534,7 +48809,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "物体・飛行特効で削る",
-     "basis": "種族は物体/飛行。両方の特効手段が索引にある",
+     "basis": "種族は物体/飛行。両方の特効手段がある",
      "classRef": "race:物体",
      "meansEffects": [
       "bonus:race:物体",
@@ -50235,7 +50510,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行・物体特効で削る",
-     "basis": "種族は飛行/物体/大幻獣。飛行と物体の特効手段が索引にある",
+     "basis": "種族は飛行/物体/大幻獣。飛行と物体の特効手段がある",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行",
@@ -50686,7 +50961,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "獣人特効で削る",
-     "basis": "種族は獣人/大幻獣。獣人への特効手段が索引にある",
+     "basis": "種族は獣人/大幻獣。獣人への特効手段がある",
      "classRef": "race:獣人",
      "meansEffects": [
       "bonus:race:獣人"
@@ -50924,7 +51199,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行特効で削る",
-     "basis": "種族は龍/飛行。飛行への特効手段が索引にある（龍への特効は索引に無い）",
+     "basis": "種族は龍/飛行。飛行への特効手段がある（龍への特効手段は無い）",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行"
@@ -51625,7 +51900,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行・悪魔特効で削る",
-     "basis": "種族は飛行/悪魔。両方の特効手段が索引にある",
+     "basis": "種族は飛行/悪魔。両方の特効手段がある",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行",
@@ -51846,7 +52121,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "死者・飛行特効で削る",
-     "basis": "種族は龍/飛行/死者。死者と飛行の特効手段が索引にある（龍への特効は索引に無い）",
+     "basis": "種族は龍/飛行/死者。死者と飛行の特効手段がある（龍への特効手段は無い）",
      "classRef": "race:死者",
      "meansEffects": [
       "bonus:race:死者",
@@ -52944,7 +53219,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "種族特効",
-     "basis": "種族は古代生物だが、古代生物への特効手段は索引に無い"
+     "basis": "種族は古代生物だが、古代生物への特効手段は無い"
     }
    ],
    "authorNote": "脅威の主体は共出現する取り巻き（メインクエスト版ステージではウゴカーズ/ネテバッカ）。塔の出現マスでは構成が異なる場合がある",
@@ -53166,7 +53441,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行特効で削る",
-     "basis": "種族は龍/飛行。飛行への特効手段が索引にある（龍への特効は索引に無い）",
+     "basis": "種族は龍/飛行。飛行への特効手段がある（龍への特効手段は無い）",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行"
@@ -53845,7 +54120,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "海洋生物特効で削る",
-     "basis": "種族は不定形/海洋生物。海洋生物への特効手段が索引にある（不定形への特効は索引に無い）",
+     "basis": "種族は不定形/海洋生物。海洋生物への特効手段がある（不定形への特効手段は無い）",
      "classRef": "race:海洋生物",
      "meansEffects": [
       "bonus:race:海洋生物"
@@ -54051,7 +54326,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行特効で削る",
-     "basis": "種族は飛行/不定形/大幻獣。飛行への特効手段が索引にある",
+     "basis": "種族は飛行/不定形/大幻獣。飛行への特効手段がある",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行"
@@ -54900,7 +55175,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "完殺・執心を入れる／神特効で削る",
-     "basis": "完殺・執心が◎。種族は龍/神で、神への特効手段が索引にある（龍への特効は索引に無い）",
+     "basis": "完殺・執心が◎。種族は龍/神で、神への特効手段がある（龍への特効手段は無い）",
      "classRef": "race:神",
      "meansEffects": [
       "inflict:完殺",
@@ -55923,7 +56198,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行特効で削る",
-     "basis": "種族は龍/飛行。飛行への特効手段が索引にある（龍への特効は索引に無い）",
+     "basis": "種族は龍/飛行。飛行への特効手段がある（龍への特効手段は無い）",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行"
@@ -56072,7 +56347,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "海洋生物特効で削る",
-     "basis": "種族は海洋生物/大幻獣。海洋生物への特効手段が索引にある",
+     "basis": "種族は海洋生物/大幻獣。海洋生物への特効手段がある",
      "classRef": "race:海洋生物",
      "meansEffects": [
       "bonus:race:海洋生物"
@@ -56277,7 +56552,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "種族特効",
-     "basis": "種族は龍のみで、龍への特効手段は索引に無い"
+     "basis": "種族は龍のみで、龍への特効手段は無い"
     }
    ],
    "sources": {
@@ -56705,7 +56980,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "海洋生物特効で削る",
-     "basis": "種族は海洋生物/大幻獣。海洋生物への特効手段が索引にある",
+     "basis": "種族は海洋生物/大幻獣。海洋生物への特効手段がある",
      "classRef": "race:海洋生物",
      "meansEffects": [
       "bonus:race:海洋生物"
@@ -56950,7 +57225,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "植物特効で削る",
-     "basis": "種族は植物/大幻獣。植物への特効手段が索引にある",
+     "basis": "種族は植物/大幻獣。植物への特効手段がある",
      "classRef": "race:植物",
      "meansEffects": [
       "bonus:race:植物"
@@ -57140,7 +57415,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "毒・完殺・執心を入れる／飛行特効で削る",
-     "basis": "31階版の耐性表で毒・完殺・執心・覚醒ゲージ低下が◎。種族は龍/飛行で、飛行への特効手段が索引にある",
+     "basis": "31階版の耐性表で毒・完殺・執心・覚醒ゲージ低下が◎。種族は龍/飛行で、飛行への特効手段がある",
      "classRef": "race:飛行",
      "meansEffects": [
       "inflict:毒",
@@ -57437,7 +57712,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "虫・飛行特効で削る",
-     "basis": "種族は虫/多足類/飛行。虫と飛行の特効手段が索引にある（多足類への特効は索引に無い）",
+     "basis": "種族は虫/多足類/飛行。虫と飛行の特効手段がある（多足類への特効手段は無い）",
      "classRef": "race:虫",
      "meansEffects": [
       "bonus:race:虫",
@@ -57826,7 +58101,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "種族特効",
-     "basis": "種族は古代生物のみで、古代生物への特効手段は索引に無い"
+     "basis": "種族は古代生物のみで、古代生物への特効手段は無い"
     }
    ],
    "sources": {
@@ -57988,7 +58263,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行・海洋生物特効で削る",
-     "basis": "種族は飛行/海洋生物/大幻獣。飛行と海洋生物の特効手段が索引にある",
+     "basis": "種族は飛行/海洋生物/大幻獣。飛行と海洋生物の特効手段がある",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行",
@@ -58161,7 +58436,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "死者特効で削る",
-     "basis": "種族は死者/大幻獣。死者への特効手段が索引にある",
+     "basis": "種族は死者/大幻獣。死者への特効手段がある",
      "classRef": "race:死者",
      "meansEffects": [
       "bonus:race:死者"
@@ -58342,7 +58617,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "死者特効で削る／完殺・執心を入れる",
-     "basis": "種族は死者/大幻獣で死者特効の手段が索引にある。31階版の耐性表で完殺・執心が◎",
+     "basis": "種族は死者/大幻獣で死者特効の手段がある。31階版の耐性表で完殺・執心が◎",
      "classRef": "race:死者",
      "meansEffects": [
       "bonus:race:死者",
@@ -58505,7 +58780,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "悪魔・死者特効で削る",
-     "basis": "種族は悪魔/死者。どちらの特効手段も索引にある",
+     "basis": "種族は悪魔/死者。どちらの特効手段もある",
      "classRef": "race:悪魔",
      "meansEffects": [
       "bonus:race:悪魔",
@@ -58786,7 +59061,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "悪魔特効で削る",
-     "basis": "種族は悪魔。Wiki攻略では感電×悪魔特効のオーブも火力の軸に挙げられている。悪魔特効の手段が索引にある",
+     "basis": "種族は悪魔。Wiki攻略では感電×悪魔特効のオーブも火力の軸に挙げられている。悪魔特効の手段がある",
      "classRef": "race:悪魔",
      "meansEffects": [
       "bonus:race:悪魔"
@@ -58971,7 +59246,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "植物特効で削る／完殺・執心・覚醒操作を入れる",
-     "basis": "種族は植物/大幻獣で植物特効の手段が索引にある。完殺・執心・覚醒ゲージ低下が◎",
+     "basis": "種族は植物/大幻獣で植物特効の手段がある。完殺・執心・覚醒ゲージ低下が◎",
      "classRef": "race:植物",
      "meansEffects": [
       "bonus:race:植物",
@@ -59164,7 +59439,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "植物特効で削る／完殺・執心・覚醒操作を入れる",
-     "basis": "種族は植物/大幻獣で植物特効の手段が索引にある。31階版の耐性表で完殺・執心・覚醒ゲージ低下が◎",
+     "basis": "種族は植物/大幻獣で植物特効の手段がある。31階版の耐性表で完殺・執心・覚醒ゲージ低下が◎",
      "classRef": "race:植物",
      "meansEffects": [
       "bonus:race:植物",
@@ -59635,7 +59910,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "悪魔特効で削る",
-     "basis": "種族は悪魔。悪魔特効の手段が索引にある",
+     "basis": "種族は悪魔。悪魔特効の手段がある",
      "classRef": "race:悪魔",
      "meansEffects": [
       "bonus:race:悪魔"
@@ -59773,7 +60048,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "悪魔・物体特効で削る",
-     "basis": "種族は物体/悪魔/大幻獣。悪魔と物体への特効手段が索引にある（大幻獣への特効は索引に無い）",
+     "basis": "種族は物体/悪魔/大幻獣。悪魔と物体への特効手段がある（大幻獣への特効手段は無い）",
      "classRef": "race:悪魔",
      "meansEffects": [
       "bonus:race:悪魔",
@@ -60158,7 +60433,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "悪魔・死者特効で削る",
-     "basis": "種族は悪魔/死者。どちらの特効手段も索引にある",
+     "basis": "種族は悪魔/死者。どちらの特効手段もある",
      "classRef": "race:悪魔",
      "meansEffects": [
       "bonus:race:悪魔",
@@ -60398,7 +60673,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "悪魔特効で削る",
-     "basis": "種族は悪魔。悪魔特効の手段が索引にある",
+     "basis": "種族は悪魔。悪魔特効の手段がある",
      "classRef": "race:悪魔",
      "meansEffects": [
       "bonus:race:悪魔"
@@ -61009,7 +61284,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "飛行・物体特効で削る",
-     "basis": "種族は飛行/物体/大幻獣。飛行と物体への特効手段が索引にある（大幻獣への特効は索引に無い）",
+     "basis": "種族は飛行/物体/大幻獣。飛行と物体への特効手段がある（大幻獣への特効手段は無い）",
      "classRef": "race:飛行",
      "meansEffects": [
       "bonus:race:飛行",
@@ -61163,7 +61438,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "獣特効で削る",
-     "basis": "種族は獣。獣への特効手段が索引にある",
+     "basis": "種族は獣。獣への特効手段がある",
      "classRef": "race:獣",
      "meansEffects": [
       "bonus:race:獣"
@@ -180403,6 +180678,11 @@ window.__PREVIEW_DATA__ = {
       loadMeData() {
         return load(`me.v${DATA_VERSION}.json`);
       },
+      // 非直観的な仕組みの注記の検出結果（M6 の候補注記。能力原文への
+      // キーワード検出で生成した、メギドID → 注記キーの対応）。
+      loadMechanicNotes() {
+        return load(`mechanic-notes.v${DATA_VERSION}.json`);
+      },
       // 霊宝マスタ（reishouId → 名前・系譜・効果・ステータス修正値・大きさ。
       // 装備の表示と選択、探索力の計算で使う）。
       loadReishou() {
@@ -180842,7 +181122,7 @@ window.__PREVIEW_DATA__ = {
           if (typeof op.buffPower === "number") state.towerPower += op.buffPower;
         }
         if (def.subType === "recovery") {
-          const spec = recoverySpec(structure, def.recommendedPower, op.box, op.recoveryVariant || 0);
+          const spec = typeof op.recoveryCount === "number" && typeof op.recoveryStages === "number" ? { count: op.recoveryCount, stages: op.recoveryStages } : recoverySpec(structure, def.recommendedPower, op.box, op.recoveryVariant || 0);
           const style = def.styleKind === "fixed" ? def.style : op.style;
           state.recoveryPending = null;
           if (spec && style) {
@@ -180891,29 +181171,6 @@ window.__PREVIEW_DATA__ = {
       BUFF_STATS.map((k) => [k, k in BUFF_CAPS ? Math.min(BUFF_CAPS[k], state.buffRaw[s][k]) : state.buffRaw[s][k]])
     )]));
     return state;
-  }
-  function buffResultOptions(structure, box, stat) {
-    const table = structure.explorationModel && structure.explorationModel.buffBoxEffects || {};
-    const list = table[box] || [];
-    return list.map((raw) => {
-      const parts = String(raw).split("+");
-      const primary = Number.parseFloat(parts[0]);
-      const gains = [{ stat, pct: primary }];
-      let power = 0;
-      const labelParts = [`${BUFF_STAT_LABEL[stat]}+${primary}%`];
-      for (const extra of parts.slice(1)) {
-        const dmg = extra.match(/^ダメージ上昇(\d+)%$/);
-        const pow = extra.match(/^塔破力(\d+)$/);
-        if (dmg) {
-          gains.push({ stat: "dmg", pct: Number(dmg[1]) });
-          labelParts.push(`ダメージ上昇+${dmg[1]}%`);
-        } else if (pow) {
-          power = Number(pow[1]);
-          labelParts.push(`塔破力+${pow[1]}`);
-        }
-      }
-      return { label: labelParts.join("・"), gains, power };
-    });
   }
   function buffOutcomeFor({ structure, megidoBasics, megidoDetails, ops }, squareId) {
     let idx = -1;
@@ -181830,9 +182087,11 @@ window.__PREVIEW_DATA__ = {
         b.classList.toggle("ov-open", !sheet.hidden || !full.hidden);
       }
     };
+    let closeRequest = null;
     const closeFull = () => {
       full.hidden = true;
       clear(full);
+      closeRequest = null;
       sync();
     };
     const close = () => {
@@ -181840,12 +182099,23 @@ window.__PREVIEW_DATA__ = {
       clear(sheet);
       closeFull();
     };
-    backdrop.addEventListener("click", close);
+    backdrop.addEventListener("click", () => {
+      if (closeRequest) closeRequest();
+      else close();
+    });
     const withClose = (container, content, className, extras) => {
       clear(container);
       const bar = el("div", "overlay-bar");
-      const closeBtn = el("button", "overlay-close", "閉じる");
-      closeBtn.addEventListener("click", close);
+      const onCloseRequest = extras && typeof extras.onCloseRequest === "function" ? extras.onCloseRequest : null;
+      const closeBtn = el(
+        "button",
+        "overlay-close",
+        extras && extras.closeLabel || (onCloseRequest ? "戻る" : "閉じる")
+      );
+      closeBtn.addEventListener("click", () => {
+        if (onCloseRequest) onCloseRequest();
+        else close();
+      });
       bar.append(closeBtn);
       container.append(bar);
       if (extras && extras.top) container.append(extras.top);
@@ -181871,11 +182141,13 @@ window.__PREVIEW_DATA__ = {
         close();
         sheet.hidden = false;
         withClose(sheet, content, "sheet-body", extras);
+        closeRequest = extras && typeof extras.onCloseRequest === "function" ? extras.onCloseRequest : null;
         sync();
       },
       openFull(content, extras) {
         full.hidden = false;
         withClose(full, content, "full-body", extras);
+        closeRequest = extras && typeof extras.onCloseRequest === "function" ? extras.onCloseRequest : null;
         sync();
       }
     };
@@ -183214,6 +183486,350 @@ window.__PREVIEW_DATA__ = {
       };
     });
   }
+  function expandBoxValues(raw) {
+    if (raw == null) return [];
+    if (Array.isArray(raw)) {
+      const out = [];
+      for (let v = raw[0]; v <= raw[1]; v += 1) out.push(v);
+      return out;
+    }
+    return [raw];
+  }
+  function resultCandidates({ explorationModel, def, boxes }) {
+    const model = explorationModel || {};
+    if (def.subType === "tower_power") {
+      const table = model.towerPowerRecovery[String(def.recommendedPower)] || {};
+      const values = [];
+      for (const box of boxes) {
+        for (const num of expandBoxValues(table[box])) values.push({ num, box });
+      }
+      return { kind: "tower_power", values };
+    }
+    if (def.subType === "recovery") {
+      const table = model.conditionRecovery[String(def.recommendedPower)] || {};
+      const scales = [];
+      for (const box of boxes) {
+        const entry = table[box];
+        if (entry == null) continue;
+        if (Array.isArray(entry)) {
+          entry.forEach((e, i) => scales.push({ box, variant: i, count: e.count, stages: e.stages }));
+        } else {
+          scales.push({ box, variant: null, count: entry.count, stages: entry.stages });
+        }
+      }
+      return { kind: "recovery", scales };
+    }
+    if (BUFF_SUBTYPES.has(def.subType)) {
+      const table = model.buffBoxEffects || {};
+      const mainByPct = /* @__PURE__ */ new Map();
+      const dmg = /* @__PURE__ */ new Set();
+      const power = /* @__PURE__ */ new Set();
+      for (const box of boxes) {
+        for (const raw of table[box] || []) {
+          const parsed = parseBuffRaw(raw);
+          if (!Number.isFinite(parsed.pct)) continue;
+          if (!mainByPct.has(parsed.pct)) mainByPct.set(parsed.pct, []);
+          mainByPct.get(parsed.pct).push(box);
+          for (const extra of parsed.extras) {
+            const d = String(extra).match(/^ダメージ上昇(\d+)%$/);
+            const p = String(extra).match(/^塔破力(\d+)$/);
+            if (d) dmg.add(Number(d[1]));
+            if (p) power.add(Number(p[1]));
+          }
+        }
+      }
+      return {
+        kind: "buff",
+        main: [...mainByPct.entries()].sort((a, b) => a[0] - b[0]).map(([num, bs]) => ({ num, boxes: bs })),
+        dmgPcts: [...dmg].sort((a, b) => a - b),
+        powerAmounts: [...power].sort((a, b) => a - b)
+      };
+    }
+    return { kind: "none" };
+  }
+  function emptyResultForm() {
+    return {
+      powerKey: null,
+      powerCustom: false,
+      powerValue: "",
+      scaleKey: null,
+      scaleCustom: false,
+      scaleCount: "",
+      scaleStages: "",
+      style: null,
+      buffStat: null,
+      buffPctKey: null,
+      buffCustom: false,
+      buffValue: "",
+      bonusDmg: null,
+      bonusPower: null
+    };
+  }
+  var parseFormNum = (s) => {
+    if (s == null) return null;
+    const t = String(s).trim();
+    if (t === "") return null;
+    const n = Number(t);
+    return Number.isFinite(n) && n >= 0 ? n : null;
+  };
+  function effFromCandidates(cands, key, keyOf) {
+    if (key != null) return cands.find((c) => keyOf(c) === key) || null;
+    return cands.length === 1 ? cands[0] : null;
+  }
+  function inferPowerBox(cands, boxes, value) {
+    const hit = cands.find((c) => c.num === value);
+    if (hit) return hit.box;
+    if (boxes.length === 1) return boxes[0];
+    const redNums = cands.filter((c) => c.box === "赤").map((c) => c.num);
+    if (redNums.length > 0 && value > Math.max(...redNums)) return "虹";
+    return boxes[0];
+  }
+  function inferBuffBox(cands, boxes, pct, hasBonus) {
+    if (hasBonus) return "虹";
+    if (boxes.length === 1) return boxes[0];
+    const hit = cands.find((c) => c.num === pct);
+    if (hit) {
+      if (hit.boxes.includes("虹") && !hit.boxes.includes("赤")) return "虹";
+      return "赤";
+    }
+    return pct >= 10 ? "虹" : "赤";
+  }
+  function effBonusValue(lineState, nums) {
+    if (!lineState) return null;
+    if (lineState.custom || nums.length === 0) return parseFormNum(lineState.value);
+    const sel = effFromCandidates(
+      nums.map((num) => ({ num })),
+      lineState.key,
+      (c) => `n${c.num}`
+    );
+    return sel ? sel.num : null;
+  }
+  function resultFormVm({ explorationModel, def, boxes, form }) {
+    const cands = resultCandidates({ explorationModel, def, boxes });
+    const styleName = def.styleKind === "fixed" ? STYLE_NAME[def.style] : null;
+    if (cands.kind === "tower_power") {
+      const keyOf = (c) => `v${c.num}`;
+      const noCands = cands.values.length === 0;
+      const useCustom = form.powerCustom || noCands;
+      let eff = null;
+      if (useCustom) {
+        const v = parseFormNum(form.powerValue);
+        if (v != null) eff = { num: v, box: inferPowerBox(cands.values, boxes, v) };
+      } else {
+        eff = effFromCandidates(cands.values, form.powerKey, keyOf);
+      }
+      const missingText = eff ? null : useCustom ? "画面に出た数を入れてください" : "どれだけ回復したか選んでください";
+      return {
+        lines: [{
+          kind: "power",
+          candidates: cands.values.map((c) => ({
+            key: keyOf(c),
+            label: String(c.num),
+            selected: !useCustom && eff != null && eff.num === c.num
+          })),
+          customActive: useCustom,
+          customValue: form.powerValue,
+          noCandidates: noCands
+        }],
+        bonusAdd: null,
+        canRecord: Boolean(eff),
+        missingText,
+        commit: eff ? { box: eff.box, style: null, recoveryVariant: null, powerGain: eff.num } : null
+      };
+    }
+    if (cands.kind === "recovery") {
+      const keyOf = (c) => `${c.box}:${c.variant == null ? "s" : c.variant}`;
+      const noCands = cands.scales.length === 0;
+      const useCustom = form.scaleCustom || noCands;
+      let eff = null;
+      if (useCustom) {
+        const count = parseFormNum(form.scaleCount);
+        const stages = parseFormNum(form.scaleStages);
+        if (count != null && stages != null) {
+          const hit = cands.scales.find((s) => s.count === count && s.stages === stages);
+          eff = hit ? { ...hit, override: false } : { box: boxes[0], variant: null, count, stages, override: true };
+        }
+      } else {
+        eff = effFromCandidates(cands.scales, form.scaleKey, keyOf);
+      }
+      const needStyle = def.styleKind === "random";
+      let missingText = null;
+      if (!eff) {
+        missingText = useCustom ? "回復した体数と段階を入れてください" : "どれくらい回復したか選んでください";
+      } else if (needStyle && !form.style) {
+        missingText = "回復したスタイルを選んでください";
+      }
+      const commit = eff && !missingText ? {
+        box: eff.box,
+        style: needStyle ? form.style : null,
+        recoveryVariant: eff.override ? null : eff.variant,
+        ...eff.override ? { recoveryCount: eff.count, recoveryStages: eff.stages } : {}
+      } : null;
+      return {
+        lines: [{
+          kind: "recovery",
+          styleName,
+          styleChips: needStyle ? STYLE_ORDER.map((code) => ({
+            code,
+            label: STYLE_NAME[code],
+            selected: form.style === code
+          })) : null,
+          candidates: cands.scales.map((c) => ({
+            // 候補の表記は、文の中に置かれた時にゲームの結果文
+            // （「…のメギド○体の コンディションが○段階回復した。」）
+            // になる断片の形にする。
+            key: keyOf(c),
+            label: `${c.count}体の コンディションが${c.stages}段階`,
+            selected: !useCustom && eff != null && keyOf(c) === keyOf(eff)
+          })),
+          customActive: useCustom,
+          noCandidates: noCands,
+          countValue: form.scaleCount,
+          stagesValue: form.scaleStages
+        }],
+        bonusAdd: null,
+        canRecord: Boolean(commit),
+        missingText,
+        commit
+      };
+    }
+    if (cands.kind === "buff") {
+      const stat = def.subType === "status_buff" ? form.buffStat : BUFF_STAT_BY_SUBTYPE[def.subType];
+      const keyOf = (c) => `p${c.num}`;
+      const noCands = cands.main.length === 0;
+      const useCustom = form.buffCustom || noCands;
+      let effPct = null;
+      if (useCustom) {
+        effPct = parseFormNum(form.buffValue);
+      } else {
+        const sel = effFromCandidates(cands.main, form.buffPctKey, keyOf);
+        if (sel) effPct = sel.num;
+      }
+      const dmgEff = effBonusValue(form.bonusDmg, cands.dmgPcts);
+      const powerEff = effBonusValue(form.bonusPower, cands.powerAmounts);
+      const bonusIncomplete = form.bonusDmg && dmgEff == null || form.bonusPower && powerEff == null;
+      const hasBonus = dmgEff != null || powerEff != null;
+      let missingText = null;
+      if (!stat) missingText = "上がったステータスを選んでください";
+      else if (effPct == null) {
+        missingText = useCustom ? "画面に出た数を入れてください" : "どれだけ上がったか選んでください";
+      } else if (bonusIncomplete) {
+        const ls = form.bonusDmg && dmgEff == null ? form.bonusDmg : form.bonusPower;
+        const lsNums = ls === form.bonusDmg ? cands.dmgPcts : cands.powerAmounts;
+        missingText = ls.custom || lsNums.length === 0 ? "ボーナスの数を入れてください" : "ボーナスの数を選んでください";
+      }
+      let commit = null;
+      if (stat && effPct != null && !bonusIncomplete) {
+        const gains = [{ stat, pct: effPct }];
+        if (dmgEff != null) gains.push({ stat: "dmg", pct: dmgEff });
+        commit = {
+          box: inferBuffBox(cands.main, boxes, effPct, hasBonus),
+          style: null,
+          recoveryVariant: null,
+          buffGains: gains,
+          buffPower: powerEff != null ? powerEff : 0,
+          buffBonus: hasBonus
+        };
+      }
+      const lines = [{
+        kind: "buffMain",
+        styleName,
+        statName: stat ? BUFF_STAT_LABEL[stat] : null,
+        statChips: def.subType === "status_buff" ? [
+          { code: "hp", label: "HP" },
+          { code: "atk", label: "攻撃力" },
+          { code: "def", label: "防御力" }
+        ].map((s) => ({ ...s, selected: form.buffStat === s.code })) : null,
+        candidates: cands.main.map((c) => ({
+          key: keyOf(c),
+          label: String(c.num),
+          selected: !useCustom && effPct != null && effPct === c.num
+        })),
+        customActive: useCustom,
+        customValue: form.buffValue,
+        noCandidates: noCands
+      }];
+      const bonusLine = (kind, lineState, nums) => ({
+        kind,
+        styleName,
+        candidates: nums.map((num) => ({
+          key: `n${num}`,
+          label: String(num),
+          selected: !lineState.custom && effBonusValue(lineState, nums) === num
+        })),
+        customActive: lineState.custom || nums.length === 0,
+        customValue: lineState.value,
+        noCandidates: nums.length === 0
+      });
+      if (form.bonusDmg) lines.push(bonusLine("bonusDmg", form.bonusDmg, cands.dmgPcts));
+      if (form.bonusPower) lines.push(bonusLine("bonusPower", form.bonusPower, cands.powerAmounts));
+      return {
+        lines,
+        bonusAdd: {
+          dmg: cands.dmgPcts.length > 0 && !form.bonusDmg,
+          power: cands.powerAmounts.length > 0 && !form.bonusPower
+        },
+        canRecord: Boolean(commit),
+        missingText,
+        commit
+      };
+    }
+    return { lines: [], bonusAdd: null, canRecord: false, missingText: null, commit: null };
+  }
+  function resultFormFromOp({ explorationModel, def, boxes, op }) {
+    const form = emptyResultForm();
+    if (!op) return form;
+    const cands = resultCandidates({ explorationModel, def, boxes });
+    if (cands.kind === "tower_power") {
+      const v = typeof op.powerGain === "number" ? op.powerGain : (() => {
+        const table = (explorationModel || {}).towerPowerRecovery[String(def.recommendedPower)] || {};
+        return typeof table[op.box] === "number" ? table[op.box] : null;
+      })();
+      if (v != null) {
+        if (cands.values.some((c) => c.num === v)) form.powerKey = `v${v}`;
+        else {
+          form.powerCustom = true;
+          form.powerValue = String(v);
+        }
+      }
+      return form;
+    }
+    if (cands.kind === "recovery") {
+      form.style = op.style || null;
+      if (typeof op.recoveryCount === "number" && typeof op.recoveryStages === "number") {
+        form.scaleCustom = true;
+        form.scaleCount = String(op.recoveryCount);
+        form.scaleStages = String(op.recoveryStages);
+      } else {
+        const hit = cands.scales.find(
+          (s) => s.box === op.box && (s.variant == null ? op.recoveryVariant == null : s.variant === op.recoveryVariant)
+        );
+        if (hit) form.scaleKey = `${hit.box}:${hit.variant == null ? "s" : hit.variant}`;
+      }
+      return form;
+    }
+    if (cands.kind === "buff") {
+      const gains = Array.isArray(op.buffGains) ? op.buffGains : [];
+      const main = gains.find((g) => g.stat !== "dmg");
+      if (main) {
+        if (def.subType === "status_buff") form.buffStat = main.stat;
+        if (cands.main.some((c) => c.num === main.pct)) form.buffPctKey = `p${main.pct}`;
+        else {
+          form.buffCustom = true;
+          form.buffValue = String(main.pct);
+        }
+      }
+      const dmg = gains.find((g) => g.stat === "dmg");
+      if (dmg) {
+        form.bonusDmg = cands.dmgPcts.includes(dmg.pct) ? { key: `n${dmg.pct}`, custom: false, value: "" } : { key: null, custom: true, value: String(dmg.pct) };
+      }
+      if (typeof op.buffPower === "number" && op.buffPower > 0) {
+        form.bonusPower = cands.powerAmounts.includes(op.buffPower) ? { key: `n${op.buffPower}`, custom: false, value: "" } : { key: null, custom: true, value: String(op.buffPower) };
+      }
+      return form;
+    }
+    return form;
+  }
   function styleFatigueSkew({ megidoBasics, owned, conditionOf }) {
     const order = ["ラッシュ", "カウンター", "バースト"];
     const rows = new Map(order.map((style) => [style, { style, tired: 0, fainted: 0 }]));
@@ -183299,62 +183915,6 @@ window.__PREVIEW_DATA__ = {
       return best;
     }
     return null;
-  }
-  function planExploration({ megidoBasics, megidoDetails, owned, conditionOf, recommendedPower, osusume = null, reishouStatsById = null }) {
-    const target = recommendedPower * EXPECTATION3_FACTOR;
-    const byId = new Map(megidoBasics.megido.map((m) => [m.id, m]));
-    const candidates = [];
-    for (const id of owned) {
-      const m = byId.get(id);
-      if (!m) continue;
-      const stage = conditionOf(id);
-      if (stage >= STAGE_FAINTED) continue;
-      const probe = { style: m.style, className: m.class };
-      const power = explorationPower(megidoBasics, m, ougiLevelOf(megidoDetails, id), stage, osusumeFactor(probe, osusume), reishouStatMods(megidoDetails, id, reishouStatsById));
-      if (power > 0) {
-        candidates.push({
-          id,
-          no: m.no,
-          name: m.name,
-          style: m.style,
-          className: m.class,
-          stage,
-          power,
-          matched: osusumeMatches(probe, osusume),
-          ...osusumeMatchSpread(probe, osusume)
-        });
-      }
-    }
-    candidates.sort((a, b) => a.power - b.power || (a.id < b.id ? -1 : 1));
-    const combo = findMinCombo(candidates, target);
-    if (combo) {
-      return {
-        reached: true,
-        expectation: 3,
-        target,
-        recommendedPower,
-        total: combo.total,
-        members: presentOrder(combo.members)
-      };
-    }
-    const desc = [...candidates].sort((a, b) => b.power - a.power || (a.id < b.id ? -1 : 1));
-    const best = [];
-    const usedNo = /* @__PURE__ */ new Set();
-    for (const c of desc) {
-      if (best.length >= EXPLORE_PARTY_MAX) break;
-      if (usedNo.has(c.no)) continue;
-      usedNo.add(c.no);
-      best.push(c);
-    }
-    const total = best.reduce((sum, c) => sum + c.power, 0);
-    return {
-      reached: false,
-      expectation: total >= recommendedPower ? 2 : 1,
-      target,
-      recommendedPower,
-      total,
-      members: best
-    };
   }
   function planExplorationCandidates({
     megidoBasics,
@@ -183627,6 +184187,125 @@ window.__PREVIEW_DATA__ = {
     if (!threatMethods || threatMethods.length === 0) return true;
     return threatMethods.some((m) => classDef.methods.includes(m));
   }
+  var MEDIUM_ORDER = ["trait", "skill", "awakened_skill", "ougi", "secret_ougi", "reishou"];
+  var MEDIUM_LABEL = {
+    trait: "特性",
+    skill: "スキル",
+    awakened_skill: "覚醒スキル",
+    ougi: "奥義",
+    secret_ougi: "秘奥義",
+    reishou: "専用霊宝"
+  };
+  var MEDIUM_CONDITION = {
+    awakened_skill: "ゲージが要る",
+    ougi: "ゲージが要る",
+    secret_ougi: "ゲージが要る",
+    reishou: "付けた時"
+  };
+  var ACTION_SRCS = /* @__PURE__ */ new Set(["skill", "awakened_skill", "ougi", "secret_ougi"]);
+  function mediaListForVia(via) {
+    const srcs = [...new Set((via || []).map((v) => v.src))];
+    srcs.sort((a, b) => MEDIUM_ORDER.indexOf(a) - MEDIUM_ORDER.indexOf(b));
+    return srcs.filter((s) => MEDIUM_LABEL[s]).map((s) => ({ src: s, label: MEDIUM_LABEL[s], condition: MEDIUM_CONDITION[s] || null }));
+  }
+  function mediaShortForVia(via) {
+    return mediaListForVia(via).map((m) => m.label).join("・");
+  }
+  function methodShortLabel(effectId, effectName) {
+    if (!effectId) return effectName || "";
+    if (effectId.startsWith("resist:")) return `${effectId.slice("resist:".length)}耐性`;
+    if (effectId.startsWith("inflict:")) return `${effectId.slice("inflict:".length)}付与`;
+    if (effectId.startsWith("bonus:race:")) return `${effectId.slice("bonus:race:".length)}特効`;
+    if (effectId.startsWith("bonus:state:")) return `${effectId.slice("bonus:state:".length)}特効`;
+    const MAP = {
+      revive: "蘇生",
+      "cure:ailment": "状態異常の解除",
+      "cure:debuff": "弱体の解除",
+      kabau: "かばう",
+      "kabau:ignore": "かばう無視",
+      "barrier:block": "ダメージブロック",
+      "barrier:count": "回数バリア",
+      "gauge:down": "覚醒ゲージ低下",
+      "photon:destroy": "フォトン破壊",
+      "photon:steal": "フォトン奪取",
+      "photon:destroy-resist": "フォトン破壊耐性",
+      "dispel:buff": "強化解除",
+      heal: "回復",
+      "debuff:atk": "攻撃力低下",
+      "debuff:def": "防御力低下",
+      "debuff:spd": "素早さ低下"
+    };
+    return MAP[effectId] || effectName || effectId;
+  }
+  function viaHasAction(via) {
+    return (via || []).some((v) => ACTION_SRCS.has(v.src));
+  }
+  function isTimingMeans(effectId) {
+    return Boolean(effectId) && (effectId.startsWith("resist:") || effectId === "cure:ailment" || effectId === "cure:debuff" || effectId === "barrier:block" || effectId === "barrier:count");
+  }
+  function speedVerdictOf(spd, enemySpd) {
+    if (typeof spd !== "number" || typeof enemySpd !== "number" || spd === enemySpd) return null;
+    return spd > enemySpd ? "勝てる" : "負ける";
+  }
+  function effectiveSpd(baseSpd, stage) {
+    if (typeof baseSpd !== "number") return null;
+    return stage === 4 ? Math.floor(baseSpd * 0.5) : baseSpd;
+  }
+  function candidateText({ name, means, spd = null, enemySpd = null, orb = false }) {
+    const media = [];
+    const methods = [];
+    let verdict = null;
+    for (const m of means || []) {
+      if (!orb) {
+        for (const med of mediaListForVia(m.via)) {
+          const t = med.condition ? `${med.label}（${med.condition}）` : med.label;
+          if (!media.includes(t)) media.push(t);
+        }
+      }
+      const s = methodShortLabel(m.effectId, m.effectName);
+      if (s && !methods.includes(s)) methods.push(s);
+      if (!verdict && !orb && isTimingMeans(m.effectId) && viaHasAction(m.via)) {
+        verdict = speedVerdictOf(spd, enemySpd);
+      }
+    }
+    const inner = [...orb ? ["オーブ"] : media, ...methods].filter(Boolean).join("・");
+    let text = inner ? `${name}（${inner}）` : name;
+    if (verdict) text += ` 素早さでは${verdict}（${spd}対${enemySpd}）`;
+    return text;
+  }
+  function annotateAuthoredTactic({ tactic, index, spdById = null, conditionOf = null, enemySpd = null }) {
+    const megido = /* @__PURE__ */ new Map();
+    const orbs = /* @__PURE__ */ new Map();
+    const blank = () => ({ means: [], spd: null, unknown: true });
+    for (const m of tactic.means || []) {
+      const effect = index ? index.byEffect.get(m.effect) : null;
+      for (const name of m.megidoExamples || []) {
+        if (!megido.has(name)) megido.set(name, blank());
+        const e = megido.get(name);
+        const holder = effect ? (effect.megido || []).find((h) => h.name === name) : null;
+        if (holder) {
+          e.unknown = false;
+          e.means.push({ effectId: m.effect, effectName: m.effectName || effect && effect.name || "", via: holder.via || [] });
+          const base = spdById ? spdById.get(holder.id) : null;
+          e.spd = effectiveSpd(base, conditionOf ? conditionOf(holder.id) : null);
+        }
+      }
+      for (const name of m.orbExamples || []) {
+        if (!orbs.has(name)) orbs.set(name, blank());
+        const e = orbs.get(name);
+        const holder = effect ? (effect.orbs || []).find((h) => h.name === name) : null;
+        if (holder) {
+          e.unknown = false;
+          e.means.push({ effectId: m.effect, effectName: m.effectName || effect && effect.name || "", via: holder.via || [] });
+        }
+      }
+    }
+    const render = (e, name, orb) => e.unknown ? `${name}（手段の出所は未収録）` : candidateText({ name, means: e.means, spd: e.spd, enemySpd, orb });
+    return {
+      megidoTexts: [...megido.entries()].map(([name, e]) => render(e, name, false)),
+      orbTexts: [...orbs.entries()].map(([name, e]) => render(e, name, true))
+    };
+  }
   function candidatesForClass(classDef, index, owned) {
     const megido = /* @__PURE__ */ new Map();
     const orbs = /* @__PURE__ */ new Map();
@@ -183635,12 +184314,16 @@ window.__PREVIEW_DATA__ = {
       if (!effect) continue;
       for (const h of effect.megido || []) {
         if (owned && !owned.has(h.id)) continue;
-        if (!megido.has(h.id)) megido.set(h.id, { id: h.id, name: h.name, style: h.style, effectNames: [] });
-        megido.get(h.id).effectNames.push(effect.name);
+        if (!megido.has(h.id)) megido.set(h.id, { id: h.id, name: h.name, style: h.style, effectNames: [], means: [] });
+        const e = megido.get(h.id);
+        e.effectNames.push(effect.name);
+        e.means.push({ effectId, effectName: effect.name, via: h.via || [] });
       }
       for (const h of effect.orbs || []) {
-        if (!orbs.has(h.orbId)) orbs.set(h.orbId, { orbId: h.orbId, name: h.name, style: h.style, effectNames: [] });
-        orbs.get(h.orbId).effectNames.push(effect.name);
+        if (!orbs.has(h.orbId)) orbs.set(h.orbId, { orbId: h.orbId, name: h.name, style: h.style, effectNames: [], means: [] });
+        const e = orbs.get(h.orbId);
+        e.effectNames.push(effect.name);
+        e.means.push({ effectId, effectName: effect.name, via: h.via || [] });
       }
     }
     return {
@@ -183668,14 +184351,15 @@ window.__PREVIEW_DATA__ = {
             if (!effect) continue;
             for (const h of effect.megido || []) {
               if (memberIds.has(h.id)) {
-                coveredBy.push(`${h.name}（${effect.name}）`);
+                const viaText = [mediaShortForVia(h.via), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
+                coveredBy.push(viaText ? `${h.name}（${viaText}）` : h.name);
                 if (effectId.startsWith("resist:") && conditionOf && conditionOf(h.id) === 0 && !greatResist.includes(h.name)) {
                   greatResist.push(h.name);
                 }
               }
             }
             for (const h of effect.orbs || []) {
-              if (orbIds.has(h.orbId)) coveredBy.push(`オーブ「${h.name}」（${effect.name}）`);
+              if (orbIds.has(h.orbId)) coveredBy.push(`オーブ「${h.name}」（${methodShortLabel(effectId, effect.name)}）`);
             }
           }
         }
@@ -183741,10 +184425,13 @@ window.__PREVIEW_DATA__ = {
         if (!effect) continue;
         known = true;
         for (const h of effect.megido || []) {
-          if (memberIds.has(h.id)) coveredBy.push(`${h.name}（${effect.name}）`);
+          if (memberIds.has(h.id)) {
+            const viaText = [mediaShortForVia(h.via), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
+            coveredBy.push(viaText ? `${h.name}（${viaText}）` : h.name);
+          }
         }
         for (const h of effect.orbs || []) {
-          if (orbIds.has(h.orbId)) coveredBy.push(`オーブ「${h.name}」（${effect.name}）`);
+          if (orbIds.has(h.orbId)) coveredBy.push(`オーブ「${h.name}」（${methodShortLabel(effectId, effect.name)}）`);
         }
       }
       if (effects.length === 0 || !known) {
@@ -183758,6 +184445,29 @@ window.__PREVIEW_DATA__ = {
         resistUncovered: resist && !covered
       };
     });
+  }
+  var ME_SLOT_KEYS = ["1", "2", "leader", "4", "5"];
+  var ME_SLOT_LABELS = { 1: "枠1", 2: "枠2", leader: "リーダー", 4: "枠4", 5: "枠5" };
+  function summarizeMeEffects(me, members) {
+    const groups = /* @__PURE__ */ new Map();
+    ME_SLOT_KEYS.forEach((key, i) => {
+      const member = members ? members[i] : null;
+      if (!member) return;
+      for (const e of me && me.slots && me.slots[key] || []) {
+        if (!e || typeof e.effect !== "string" || !e.effect) continue;
+        const parts = String(e.condition || "").split("+").map((s) => s.trim()).filter(Boolean);
+        const genderUnknown = parts.some((p) => p === "男性" || p === "女性");
+        const known = parts.filter((p) => p !== "男性" && p !== "女性" && p !== "-");
+        const matches = known.every((p) => p === member.style || p === member.className);
+        if (!matches) continue;
+        const gk = `${e.effect}${genderUnknown ? "g" : ""}`;
+        if (!groups.has(gk)) groups.set(gk, { effect: e.effect, genderUnknown, positions: [] });
+        const g = groups.get(gk);
+        const label = ME_SLOT_LABELS[key];
+        if (!g.positions.includes(label)) g.positions.push(label);
+      }
+    });
+    return [...groups.values()];
   }
   function aggregateDemand({ structure, enemiesByFloor, clsById, index, owned, cleared, isAuthored = null }) {
     const demand = /* @__PURE__ */ new Map();
@@ -183820,6 +184530,64 @@ window.__PREVIEW_DATA__ = {
       if (s.essential) essential += 1;
     }
     return { total, essential };
+  }
+
+  // app/js/mechanics.js
+  var MEGIDO_MECHANIC_NOTES = {
+    ereki: ["エレキ: 雷のヒット回数で育つ固定ダメージ"],
+    music: [
+      "音符は5個で大協奏。攻撃力は4個でほぼ頭打ち、範囲ダメージは伸び続ける",
+      "音符は2ターン（重奏は3ターン）で消える"
+    ],
+    dangeki: ["弾撃: 敵の攻撃力が高いほど痛くなる（自分の攻撃力は無関係）"],
+    voltage: ["ボルテージ: 攻撃する回数で育つ。自傷は階段式に増える"],
+    berserk: ["バーサーク: 解除されても、溜めた上昇分は残る"],
+    necro: ["ネクロ: 軽減はソウル10で頭打ち、能力上昇は15まで伸びる"],
+    fimpulse: [
+      "Fインパルス: エネルギーは編成合計で溜まる",
+      "リリースは回数が階段状に増え、使った人は3ターン弱体化する"
+    ],
+    hadan: ["破断: 防御が高い敵ほど伸びる"],
+    kyousen: ["強染: 行動するほど相手が痛くなる地形"],
+    toudo: ["凍土: 相手のデバフ数で地形ダメージが伸びる"],
+    colosseo: ["コロッセオ: 与ダメージで勝っている間だけ発動する"],
+    corsonr: ["満足度30／60で技が一段ずつ強くなる（点穴の上限も上がる）"],
+    belial: [
+      "点穴10ごとに被ダメージ軽減（最大40%）",
+      "点穴120以上でフォトン容量+1"
+    ],
+    satanakiaB: ["チェイン数で攻撃力が階段状に跳ぶ（最大130%）"]
+  };
+  function mechanicNoteLines(notesData, megidoId) {
+    const keys = notesData && notesData.notes && notesData.notes[megidoId] || [];
+    const lines = [];
+    for (const key of keys) {
+      for (const line of MEGIDO_MECHANIC_NOTES[key] || []) lines.push(line);
+    }
+    return lines;
+  }
+  function kabauPartyNotes(kabauCount) {
+    return kabauCount >= 2 ? ["かばう役が複数いる時、実際にかばうのはランダムで決まります"] : [];
+  }
+  function enemyMechanicNotes(input) {
+    const lines = [];
+    const threatIds = input.threatIds || [];
+    const factTexts = input.factTexts || "";
+    const threatTexts = input.authoredThreatTexts || "";
+    const tacticTexts = input.authoredTacticTexts || "";
+    if (threatIds.includes("ailment:煉獄の炎") || threatTexts.includes("煉獄の炎") || factTexts.includes("煉獄の炎")) {
+      lines.push("煉獄の炎は永続で、ターンごとに増える割合ダメージ");
+    }
+    if (threatIds.includes("tactic:barrier") || threatTexts.includes("回数バリア")) {
+      lines.push("無敵で防いでも、バリアは減る");
+    }
+    if (tacticTexts.includes("狂炎")) {
+      lines.push("狂炎は、殴るほど育つ地形");
+    }
+    if (input.enemyName === "ジニマル" || factTexts.includes("ハイドロアンカー") || threatTexts.includes("ハイドロアンカー") || tacticTexts.includes("ハイドロアンカー")) {
+      lines.push("ハイドロアンカー: ボムが消えても能力低下は残る");
+    }
+    return lines;
   }
 
   // app/js/formations.js
@@ -184199,8 +184967,139 @@ window.__PREVIEW_DATA__ = {
     if (m.matchedStyle) line.append(el3("span", "osu-mark", `${p}オススメスタイルが合致`));
     if (m.matchedClass) line.append(el3("span", "osu-mark", `${p}オススメクラスが合致`));
   }
+  function resultChipRow(line, cb) {
+    const row = el3("span", "result-chips");
+    for (const c of line.candidates) {
+      const btn = el3("button", `result-chip${c.selected ? " selected" : ""}`, c.label);
+      btn.dataset.key = c.key;
+      btn.addEventListener("click", () => cb.onLineChip(line.kind, c.key));
+      row.append(btn);
+    }
+    return row;
+  }
+  function resultNumInput(line, field, value, cb, hooks) {
+    const inp = document.createElement("input");
+    inp.type = "number";
+    inp.className = "result-num-input";
+    inp.inputMode = "numeric";
+    inp.min = "0";
+    if (value != null && value !== "") inp.value = value;
+    inp.placeholder = "画面の数";
+    inp.addEventListener("input", () => {
+      const can = cb.onLineCustomInput(line.kind, field, inp.value, "input");
+      if (hooks && hooks.onValidity) hooks.onValidity(Boolean(can));
+    });
+    inp.addEventListener("change", () => {
+      cb.onLineCustomInput(line.kind, field, inp.value, "change");
+    });
+    return inp;
+  }
+  function resultValuePart(line, cb, hooks) {
+    const wrap = el3("span", "result-value");
+    if (line.customActive) {
+      if (line.kind === "recovery") {
+        wrap.append(resultNumInput(line, "count", line.countValue, cb, hooks));
+        wrap.append(el3("span", "result-unit", "体の コンディションが"));
+        wrap.append(resultNumInput(line, "stages", line.stagesValue, cb, hooks));
+        wrap.append(el3("span", "result-unit", "段階"));
+      } else {
+        wrap.append(resultNumInput(line, "value", line.customValue, cb, hooks));
+      }
+    } else {
+      wrap.append(resultChipRow(line, cb));
+    }
+    if (!line.noCandidates) {
+      const toggle = el3("button", "result-custom-toggle", line.customActive ? "候補に戻す" : "別の数");
+      toggle.addEventListener("click", () => cb.onLineCustomToggle(line.kind));
+      wrap.append(toggle);
+    }
+    return wrap;
+  }
+  function resultPickRow(label, chips, onPick) {
+    const row = el3("div", "result-pick-row");
+    row.append(el3("span", "result-pick-label", label));
+    const wrap = el3("span", "result-chips");
+    for (const c of chips) {
+      const btn = el3("button", `result-chip${c.selected ? " selected" : ""}`, c.label);
+      btn.addEventListener("click", () => onPick(c.code));
+      wrap.append(btn);
+    }
+    row.append(wrap);
+    return row;
+  }
+  function resultLineNode(line, cb, hooks) {
+    const node = el3("div", `result-line kind-${line.kind}`);
+    if (line.kind === "recovery" && line.styleChips) {
+      node.append(resultPickRow("回復したスタイル", line.styleChips, (code) => cb.onLineStyle(code)));
+    }
+    if (line.kind === "buffMain" && line.statChips) {
+      node.append(resultPickRow("上がったステータス", line.statChips, (code) => cb.onLineStat(code)));
+    }
+    const sentence = el3("p", "result-sentence");
+    sentence.append(el3("span", "result-bullet", "・"));
+    if (line.kind === "power") {
+      sentence.append(el3("span", null, "塔破力が"));
+      sentence.append(resultValuePart(line, cb, hooks));
+      sentence.append(el3("span", null, "回復した"));
+    } else if (line.kind === "recovery") {
+      sentence.append(el3("span", null, line.styleName ? `${line.styleName}のメギド` : "メギド"));
+      sentence.append(resultValuePart(line, cb, hooks));
+      sentence.append(el3("span", null, "回復した。"));
+    } else if (line.kind === "buffMain") {
+      sentence.append(el3("span", null, `${line.styleName}の${line.statName || "　"}が`));
+      sentence.append(resultValuePart(line, cb, hooks));
+      sentence.append(el3("span", null, "%上昇"));
+    } else if (line.kind === "bonusDmg") {
+      sentence.append(el3("span", null, `${line.styleName}の単体ダメージが`));
+      sentence.append(resultValuePart(line, cb, hooks));
+      sentence.append(el3("span", null, "%上昇"));
+    } else if (line.kind === "bonusPower") {
+      sentence.append(el3("span", null, "塔破力が"));
+      sentence.append(resultValuePart(line, cb, hooks));
+      sentence.append(el3("span", null, "回復した"));
+    }
+    node.append(sentence);
+    if (line.kind === "bonusDmg" || line.kind === "bonusPower") {
+      const rm = el3("button", "result-line-remove", "行を消す");
+      rm.addEventListener("click", () => cb.onBonusRemove(line.kind === "bonusDmg" ? "dmg" : "power"));
+      node.append(rm);
+    }
+    return node;
+  }
+  function resultLinesSection(spec, cb, hooks) {
+    const sec = section2("探索結果");
+    const list = el3("div", "result-lines");
+    for (const line of spec.lines) list.append(resultLineNode(line, cb, hooks));
+    sec.append(list);
+    if (spec.bonusAdd && (spec.bonusAdd.dmg || spec.bonusAdd.power)) {
+      const row = el3("div", "bonus-add-row");
+      if (spec.bonusAdd.dmg) {
+        const b = el3("button", "bonus-add-btn", "＋ ダメージ上昇のボーナスが出た");
+        b.addEventListener("click", () => cb.onBonusAdd("dmg"));
+        row.append(b);
+      }
+      if (spec.bonusAdd.power) {
+        const b = el3("button", "bonus-add-btn", "＋ 塔破力回復のボーナスが出た");
+        b.addEventListener("click", () => cb.onBonusAdd("power"));
+        row.append(b);
+      }
+      sec.append(row);
+    }
+    if (spec.missingText) {
+      sec.append(el3("p", "sheet-note result-missing", spec.missingText));
+    }
+    return sec;
+  }
   function buildSquareSheet(vm, cb) {
     const content = el3("div", "square-sheet");
+    let recordBtn = null;
+    let fixBtn = null;
+    const recordValidity = (can) => {
+      if (recordBtn) recordBtn.disabled = !can;
+    };
+    const fixValidity = (can) => {
+      if (fixBtn) fixBtn.disabled = !can;
+    };
     if (vm.subView === "fix" && vm.fix) {
       content.append(el3("h2", "sheet-title", `${vm.title} の結果を直す`));
       content.append(el3("p", "sheet-note", `現在の記録: ${vm.fix.currentText}。実際の結果に合わせて付け直してください。`));
@@ -184213,17 +185112,12 @@ window.__PREVIEW_DATA__ = {
           row.append(btn);
         }
         content.append(row);
-      } else if (vm.fix.kind === "explore") {
-        const row = el3("div", "box-row");
-        for (const opt of vm.fix.options || []) {
-          const btn = el3("button", "fix-result-btn", opt.label);
-          btn.dataset.key = opt.key;
-          btn.addEventListener("click", () => cb.onFixExploreResult(opt.key));
-          row.append(btn);
-        }
-        content.append(row);
-      } else {
-        content.append(el3("p", "sheet-note", "バフマスの結果は、上部バーのメニューから「元に戻す」で戻してから付け直してください。"));
+      } else if (vm.fix.kind === "explore" && vm.fixSpec) {
+        content.append(resultLinesSection(vm.fixSpec, cb, { onValidity: fixValidity }));
+        fixBtn = el3("button", "btn-fix-apply", "この内容で付け直す");
+        if (!vm.fixSpec.canRecord) fixBtn.disabled = true;
+        fixBtn.addEventListener("click", () => cb.onFixApply());
+        content.append(fixBtn);
       }
       const back = el3("button", "btn-back", "戻る");
       back.addEventListener("click", cb.onBack);
@@ -184323,9 +185217,9 @@ window.__PREVIEW_DATA__ = {
       content.append(sec);
     }
     if (vm.canFix) {
-      const fixBtn = el3("button", "btn-fix", "結果を直す");
-      fixBtn.addEventListener("click", cb.onShowFix);
-      content.append(fixBtn);
+      const fixBtn2 = el3("button", "btn-fix", "結果を直す");
+      fixBtn2.addEventListener("click", cb.onShowFix);
+      content.append(fixBtn2);
     }
     if (vm.enemyDetails) {
       const sec = section2("敵の情報");
@@ -184352,10 +185246,14 @@ window.__PREVIEW_DATA__ = {
         const block = el3("div", "enemy-block");
         block.append(el3("div", "enemy-name", e.name));
         if (e.raceText) block.append(el3("p", "sheet-note", `種族: ${e.raceText}`));
+        if (e.weakText || e.immuneText) block.append(el3("p", "resist-key", "耐性マーク: ◎＝弱点"));
         if (e.weakText) block.append(el3("p", "counter-weak", `弱点（◎）: ${e.weakText}`));
         if (e.immuneText) block.append(el3("p", "counter-immune", `無効: ${e.immuneText}`));
         if (!e.hasTexts && !e.authored) block.append(el3("p", "sheet-note", "この敵の能力はデータに無いため、種族と耐性から分かる範囲だけを表示しています。"));
         if (e.authored) block.append(authoredContent(e.authored));
+        for (const note of e.mechanicNotes || []) {
+          block.append(el3("p", "mech-note", note));
+        }
         sec.append(block);
       }
       for (const t of vm.counter.threats) {
@@ -184672,60 +185570,7 @@ window.__PREVIEW_DATA__ = {
       content.append(sec);
     }
     if (vm.resultSpec) {
-      const spec = vm.resultSpec;
-      if (spec.outcomeOptions) {
-        const sec = section2(spec.outcomeTitle || "探索の結果");
-        const row = el3("div", "box-row");
-        for (const opt of spec.outcomeOptions) {
-          const btn = el3("button", `result-opt-btn${opt.selected ? " selected" : ""}`, opt.label);
-          btn.dataset.key = opt.key;
-          btn.addEventListener("click", () => cb.onResultOption(opt.key));
-          row.append(btn);
-        }
-        sec.append(row);
-        content.append(sec);
-      }
-      if (spec.buffStatPicker) {
-        const sec = section2("上がったステータス");
-        sec.append(el3("p", "sheet-note", "このマスは上がるステータスがランダムです。ゲームの結果で上がったものを選んでください。"));
-        const row = el3("div", "box-row");
-        for (const s of spec.buffStatPicker.stats) {
-          const btn = el3("button", `style-btn${s.selected ? " selected" : ""}`, s.label);
-          btn.dataset.stat = s.code;
-          btn.addEventListener("click", () => cb.onBuffStat(s.code));
-          row.append(btn);
-        }
-        sec.append(row);
-        content.append(sec);
-      }
-      if (spec.buffOptions) {
-        const sec = section2("どれだけ上がったか");
-        const row = el3("div", "box-row");
-        for (const opt of spec.buffOptions) {
-          const btn = el3("button", `buff-result-btn${opt.selected ? " selected" : ""}`, opt.label);
-          btn.dataset.buffKey = opt.key;
-          btn.addEventListener("click", () => cb.onBuffOption(opt.key));
-          row.append(btn);
-        }
-        sec.append(row);
-        content.append(sec);
-      }
-      if (spec.stylePicker) {
-        const sec = section2("回復したスタイル");
-        sec.append(el3("p", "sheet-note", "ランダム回復のため、ゲームの結果で回復したスタイルを選んでください。"));
-        const row = el3("div", "box-row");
-        for (const s of spec.stylePicker.styles) {
-          const btn = el3("button", `style-btn${s.selected ? " selected" : ""}`, s.label);
-          btn.dataset.style = s.code;
-          btn.addEventListener("click", () => cb.onResultStyle(s.code));
-          row.append(btn);
-        }
-        sec.append(row);
-        content.append(sec);
-      }
-      if (spec.missingText) {
-        content.append(el3("p", "sheet-note result-missing", spec.missingText));
-      }
+      content.append(resultLinesSection(vm.resultSpec, cb, { onValidity: recordValidity }));
     }
     if (vm.recovery) {
       const sec = section2("回復の結果");
@@ -184802,6 +185647,7 @@ window.__PREVIEW_DATA__ = {
         const btn = el3("button", "sheet-action-btn act-explore-record primary", "これで探索を記録する");
         if (!vm.resultSpec.canRecord) btn.disabled = true;
         btn.addEventListener("click", cb.onRecordExplore);
+        recordBtn = btn;
         bar.append(btn);
         actionBar = bar;
       }
@@ -184811,14 +185657,11 @@ window.__PREVIEW_DATA__ = {
   function buildFormationList(vm, cb) {
     if (vm.totalCount === 0) {
       const content2 = el3("div", "formation-empty");
-      content2.append(el3("h2", "sheet-title", "使う編成を、ここで作ります"));
-      content2.append(el3(
-        "p",
-        "sheet-note",
-        "保存されている編成がまだありません。ゲームで組んだ編成をここに写して保存すると、この画面から選んで戦闘を始められます。"
-      ));
+      content2.append(el3("h2", "sheet-title", "編成管理画面"));
+      content2.append(el3("p", "sheet-note", "ここで編成を管理・保存できます。"));
+      content2.append(el3("p", "sheet-note", "保存されている編成はまだありません。"));
       if (typeof cb.onCreateNew === "function") {
-        const createBtn = el3("button", "btn-create-big", "編成を作る");
+        const createBtn = el3("button", "btn-create-big", "編成を作成");
         createBtn.addEventListener("click", cb.onCreateNew);
         content2.append(createBtn);
       }
@@ -184857,6 +185700,10 @@ window.__PREVIEW_DATA__ = {
     top.append(filters);
     top.append(el3("div", "formation-count", `${vm.shownCount} 件（全 ${vm.totalCount} 件）`));
     const content = el3("div", "formation-list");
+    if (vm.mode === "manage") {
+      content.append(el3("h2", "sheet-title", "編成管理画面"));
+      content.append(el3("p", "sheet-note", "ここで編成を管理・保存できます。"));
+    }
     if (vm.rows.length === 0) {
       content.append(el3("p", "sheet-note", "条件に合う編成がありません。"));
     }
@@ -184947,7 +185794,7 @@ window.__PREVIEW_DATA__ = {
     let bottom = null;
     if (typeof cb.onCreateNew === "function") {
       bottom = el3("div", "sheet-actionbar");
-      const createBtn = el3("button", "sheet-action-btn act-create-formation", "新しく編成を組む");
+      const createBtn = el3("button", "sheet-action-btn act-create-formation", "編成を作成");
       createBtn.addEventListener("click", cb.onCreateNew);
       bottom.append(createBtn);
     }
@@ -185034,6 +185881,29 @@ window.__PREVIEW_DATA__ = {
     if (text != null) node.textContent = text;
     return node;
   }
+  function threatBlockNode(t) {
+    const block = el4("div", "threat-block");
+    block.append(el4("div", "threat-name", `${t.name}（${t.enemyName}${t.methodText ? `／${t.methodText}` : ""}）`));
+    if (t.summary) block.append(el4("p", "sheet-note", t.summary));
+    if (t.evidence) block.append(el4("p", "threat-evidence", `根拠: ${t.evidence}`));
+    for (const c of t.classes) {
+      const row = el4("div", "counter-class");
+      row.append(el4("div", "counter-class-label", c.label));
+      if (c.how) row.append(el4("p", "sheet-note", c.how));
+      if (c.methodNote) row.append(el4("p", "sheet-note", `効く条件: ${c.methodNote}`));
+      if (c.candidatesText) row.append(el4("p", "counter-candidates", `候補: ${c.candidatesText}`));
+      if (c.orbsText) row.append(el4("p", "counter-candidates", `オーブ: ${c.orbsText}`));
+      if (!c.candidatesText && !c.orbsText && !c.noteOnly) {
+        row.append(el4("p", "counter-candidates", "候補: 所持している人の中にはいません（マスエフェクト分は未収録）"));
+      }
+      block.append(row);
+    }
+    return block;
+  }
+  function meSummaryLine(line) {
+    const text = `・${line.effect}（${(line.positions || []).join("・")}）` + (line.genderUnknown ? "（性別の条件は判定できない）" : "");
+    return el4("p", "me-fit-line", text);
+  }
   function buildFormationEditor(vm, cb) {
     const top = el4("div", "formation-tools");
     const nameRow = el4("div", "megido-field");
@@ -185048,16 +185918,13 @@ window.__PREVIEW_DATA__ = {
     top.append(nameRow);
     const content = el4("div", "formation-builder");
     content.append(el4("h2", "sheet-title", vm.title));
-    if (vm.leaderMissing) {
-      content.append(el4("p", "build-warn", "リーダー（中央の枠）が空です。リーダーを置くまで保存できません。"));
-    }
     if (vm.target && typeof cb.onOpenEnemyPicker === "function") {
       const target = el4("div", "build-target");
-      target.append(el4("div", "build-target-title", "ターゲット選択（自動タグ用）"));
+      target.append(el4("div", "build-target-title", "使うステージを選ぶ"));
       const enemyBtn = el4(
         "button",
         "btn-target-enemy",
-        vm.target.enemyName || "エネミーを選択..."
+        vm.target.enemyName || "エネミーを選択…"
       );
       enemyBtn.addEventListener("click", cb.onOpenEnemyPicker);
       target.append(enemyBtn);
@@ -185070,31 +185937,44 @@ window.__PREVIEW_DATA__ = {
           checks.append(chip);
         }
         target.append(checks);
+        if (Array.isArray(vm.target.autoTags) && vm.target.autoTags.length > 0) {
+          const tagRow = el4("div", "tag-row build-autotags");
+          tagRow.append(el4("span", "pill-label", "自動で付くタグ"));
+          for (const t of vm.target.autoTags) {
+            tagRow.append(el4("span", `tag-chip tag-${t.category}`, t.text));
+          }
+          target.append(tagRow);
+        }
+        if (vm.target.gimmick && vm.target.gimmick.blocks.length > 0) {
+          const gim = el4("div", "build-gimmick");
+          gim.append(el4("div", "build-gimmick-title", "ギミック"));
+          let derivedShown = false;
+          for (const block of vm.target.gimmick.blocks) {
+            if (block.floor != null) {
+              gim.append(el4("div", "build-gimmick-floor", `${block.floor}F`));
+            }
+            if (block.authored) {
+              gim.append(authoredContent(block.authored));
+            } else {
+              for (const t of block.threats || []) {
+                gim.append(threatBlockNode(t));
+                derivedShown = true;
+              }
+            }
+          }
+          if (derivedShown) {
+            gim.append(el4(
+              "p",
+              "sheet-note",
+              "候補は本体の能力・専用霊宝・オーブから出したもので、マスエフェクト分は未収録です。"
+            ));
+          }
+          target.append(gim);
+        }
       }
       content.append(target);
     }
-    if (typeof cb.onCustomTagsChange === "function") {
-      const field = el4("div", "build-field");
-      field.append(el4("label", "build-field-label", "カスタムタグ（カンマ区切り）"));
-      const input = document.createElement("input");
-      input.className = "build-text-input build-tags-input";
-      input.type = "text";
-      input.value = vm.customTags || "";
-      input.addEventListener("input", () => cb.onCustomTagsChange(input.value));
-      field.append(input);
-      content.append(field);
-    }
-    if (typeof cb.onNotesChange === "function") {
-      const field = el4("div", "build-field");
-      field.append(el4("label", "build-field-label", "メモ"));
-      const input = document.createElement("textarea");
-      input.className = "build-memo-input";
-      input.value = vm.notes || "";
-      input.setAttribute("placeholder", "戦術メモを入力... (例: 1T目にスキルが取れなければリタイア)");
-      input.addEventListener("input", () => cb.onNotesChange(input.value));
-      field.append(input);
-      content.append(field);
-    }
+    content.append(el4("div", "build-section-title", "編成を組む"));
     const grid = el4("div", "slot-grid");
     for (const slot of vm.slots) {
       const cell = el4("div", `slot-cell${slot.isLeader ? " leader" : ""}`);
@@ -185137,14 +186017,60 @@ window.__PREVIEW_DATA__ = {
       if (vm.meFit.state === "loaded") {
         fit.append(el4("div", "me-fit-name", vm.meFit.name));
         if (vm.meFit.summary) fit.append(el4("p", "sheet-note", vm.meFit.summary));
-        for (const line of vm.meFit.slotLines || []) fit.append(el4("p", "me-fit-line", line));
-        if (vm.meFit.subText) fit.append(el4("p", "sheet-note", vm.meFit.subText));
+        const lines = vm.meFit.lines || [];
+        if (lines.length > 0) {
+          for (const line of lines) fit.append(meSummaryLine(line));
+        } else {
+          fit.append(el4("p", "sheet-note", "今のメンバーで効いている効果はありません。"));
+        }
+        if (vm.meFit.sub) {
+          fit.append(el4(
+            "div",
+            "me-fit-sub-title",
+            `サブマスエフェクト${vm.meFit.sub.name ? `: ${vm.meFit.sub.name}` : ""}`
+          ));
+          const subLines = vm.meFit.sub.lines || [];
+          if (subLines.length > 0) {
+            for (const line of subLines) fit.append(meSummaryLine(line));
+          } else {
+            fit.append(el4("p", "sheet-note", "今のメンバーで効いている効果はありません。"));
+          }
+        }
       } else {
         fit.append(el4("p", "sheet-note", "マスエフェクト未収録（取得済みの58/272体分だけが収録されています）"));
       }
       content.append(fit);
     } else if (vm.meNote) {
       content.append(el4("p", "sheet-note", vm.meNote));
+    }
+    if (typeof cb.onCustomTagsChange === "function") {
+      const field = el4("div", "build-field");
+      field.append(el4("label", "build-field-label", "カスタムタグ（カンマ区切り）"));
+      const input = document.createElement("input");
+      input.className = "build-text-input build-tags-input";
+      input.type = "text";
+      input.value = vm.customTags || "";
+      input.addEventListener("input", () => cb.onCustomTagsChange(input.value));
+      field.append(input);
+      content.append(field);
+    }
+    if (typeof cb.onNotesChange === "function") {
+      const field = el4("div", "build-field");
+      field.append(el4("label", "build-field-label", "メモ"));
+      const input = document.createElement("textarea");
+      input.className = "build-memo-input";
+      input.value = vm.notes || "";
+      input.setAttribute("placeholder", "戦術メモを入力... (例: 1T目にスキルが取れなければリタイア)");
+      input.addEventListener("input", () => cb.onNotesChange(input.value));
+      field.append(input);
+      content.append(field);
+    }
+    const bottom = el4("div", "build-bottom");
+    const warnings = vm.warnings || [];
+    if (warnings.length > 0) {
+      const warnBox = el4("div", "build-warnings");
+      for (const w of warnings) warnBox.append(el4("p", "build-warn-line", w));
+      bottom.append(warnBox);
     }
     const actionBar = el4("div", "sheet-actionbar");
     const saveBtn = el4("button", "sheet-action-btn act-save-formation", "保存");
@@ -185154,7 +186080,8 @@ window.__PREVIEW_DATA__ = {
     const cancelBtn = el4("button", "sheet-action-btn act-cancel-build", "やめる");
     cancelBtn.addEventListener("click", cb.onCancel);
     actionBar.append(cancelBtn);
-    return { top, content, actionBar, nameInput };
+    bottom.append(actionBar);
+    return { top, content, actionBar: bottom, nameInput };
   }
   function buildSlotCandidates(vm, cb) {
     const top = el4("div", "formation-tools");
@@ -185509,12 +186436,20 @@ window.__PREVIEW_DATA__ = {
       if (!counterPromise) {
         counterPromise = (async () => {
           try {
-            const [means, classes, me] = await Promise.all([
+            const [means, classes, me, mechanicNotes] = await Promise.all([
               loader.loadMeansIndex(),
               loader.loadCounterClasses(),
-              loader.loadMeData()
+              loader.loadMeData(),
+              // 仕組みの注記は材料が無くても他を巻き込まない（注記が
+              // 出ないだけにする）。
+              loader.loadMechanicNotes().catch(() => null)
             ]);
-            counterData = { index: buildIndex(means), clsById: classesById(classes), meData: me };
+            counterData = {
+              index: buildIndex(means),
+              clsById: classesById(classes),
+              meData: me,
+              mechanicNotes
+            };
           } catch {
             counterData = null;
           }
@@ -185865,6 +186800,41 @@ window.__PREVIEW_DATA__ = {
         meMissing
       };
     }
+    const spdById = new Map([...byId.entries()].map(([id, b]) => [id, b && b.statsStar6 ? b.statsStar6.spd : null]));
+    function enemySpdOf(name, fe = floorEnemies) {
+      if (!fe || !fe.enemies) return null;
+      const fact = fe.enemies[name];
+      if (!fact) return null;
+      const party = (fact.party || []).filter(Boolean);
+      const self = party.find((p) => p.name === name);
+      if (self && typeof self.spd === "number") return self.spd;
+      const spds = party.map((p) => p.spd).filter((v) => typeof v === "number");
+      return spds.length > 0 ? Math.max(...spds) : null;
+    }
+    function mergeSharedPairs(pairs) {
+      const merged = [];
+      for (const p of pairs) {
+        const key = p.responses.map((r) => r.label).join("\0");
+        const found = key ? merged.find((m) => m.key === key) : null;
+        if (found) {
+          found.label = `${found.label}／${p.label}`;
+          if (p.detail) found.detail = [found.detail, p.detail].filter(Boolean).join("\n");
+        } else {
+          merged.push({ ...p, key });
+        }
+      }
+      const seen = /* @__PURE__ */ new Map();
+      for (const m of merged) {
+        m.responses = m.responses.map((r) => {
+          if (seen.has(r.label)) {
+            return { label: r.label, detail: `（「${seen.get(r.label)}」と同じ対策）`, ref: true };
+          }
+          seen.set(r.label, m.label.split("／")[0]);
+          return r;
+        });
+      }
+      return merged.map(({ key, ...rest }) => rest);
+    }
     function authoredPairsVm(entry, threatLabelOf, threatDetailOf, tacticDetailOf) {
       const threats = entry.threats || [];
       const tactics = entry.effectiveTactics || [];
@@ -185874,7 +186844,7 @@ window.__PREVIEW_DATA__ = {
         return t ? { label: t.label, detail: tacticDetailOf(t) } : null;
       };
       if (Array.isArray(entry.pairs)) {
-        const pairs = entry.pairs.map((p) => {
+        const rawPairs = entry.pairs.map((p) => {
           const t = threats.find((x) => threatLabelOf(x) === p.threat);
           return {
             label: p.threat,
@@ -185882,6 +186852,7 @@ window.__PREVIEW_DATA__ = {
             responses: (p.responses || []).map(resolve).filter(Boolean)
           };
         });
+        const pairs = mergeSharedPairs(rawPairs);
         const overall = (entry.overallTactics || []).map(resolve).filter(Boolean);
         return { pairs, overall };
       }
@@ -185899,9 +186870,6 @@ window.__PREVIEW_DATA__ = {
       );
       const notes = [];
       if (entry.versionNote) notes.push(entry.versionNote);
-      if (entry.crossCheck && entry.crossCheck.status) {
-        notes.push(`Wiki照合: ${entry.crossCheck.status}${entry.crossCheck.note ? `（${entry.crossCheck.note}）` : ""}`);
-      }
       return {
         title: "ボス攻略",
         threatPills: (entry.threats || []).map((t) => t.label),
@@ -185912,19 +186880,18 @@ window.__PREVIEW_DATA__ = {
         note: notes.join("\n") || null
       };
     }
-    function enemyAuthoredVm(entry) {
+    function enemyAuthoredVm(entry, opts = {}) {
       const tacticDetailOf = (t) => {
-        const candNames = [];
-        for (const m of t.means || []) {
-          for (const n of m.megidoExamples || []) candNames.push(n);
-        }
-        const orbNames = [];
-        for (const m of t.means || []) {
-          for (const n of m.orbExamples || []) orbNames.push(n);
-        }
+        const ann = annotateAuthoredTactic({
+          tactic: t,
+          index: counterData ? counterData.index : null,
+          spdById,
+          conditionOf: opts.conditionOf || null,
+          enemySpd: typeof opts.enemySpd === "number" ? opts.enemySpd : enemySpdOf(entry.name)
+        });
         const parts = [t.basis || ""];
-        if (candNames.length > 0) parts.push(`候補: ${[...new Set(candNames)].slice(0, 8).join("、")}`);
-        if (orbNames.length > 0) parts.push(`オーブ: ${[...new Set(orbNames)].slice(0, 6).join("、")}`);
+        if (ann.megidoTexts.length > 0) parts.push(`候補: ${ann.megidoTexts.slice(0, 8).join("、")}`);
+        if (ann.orbTexts.length > 0) parts.push(`オーブ: ${ann.orbTexts.slice(0, 6).join("、")}`);
         return parts.filter(Boolean).join("\n");
       };
       const { pairs, overall } = authoredPairsVm(
@@ -185933,10 +186900,6 @@ window.__PREVIEW_DATA__ = {
         (t) => t.basis || "",
         tacticDetailOf
       );
-      const notes = [];
-      if (entry.verification && entry.verification.status) {
-        notes.push(`Wiki照合: ${entry.verification.status}`);
-      }
       return {
         title: "攻略情報",
         threatPills: (entry.threats || []).map((t) => t.name),
@@ -185944,10 +186907,10 @@ window.__PREVIEW_DATA__ = {
         pairs,
         overall,
         ineffectiveItems: (entry.ineffective || []).map((t) => ({ label: t.label, detail: t.basis || "" })),
-        note: notes.join("\n") || null
+        note: null
       };
     }
-    function authoredFor(name, def) {
+    function authoredFor(name, def, opts = {}) {
       const found = authoredEntryFor(
         tacticsData,
         name,
@@ -185955,7 +186918,44 @@ window.__PREVIEW_DATA__ = {
         sheetCtx ? sheetCtx.squareId : null
       );
       if (!found) return null;
-      return found.kind === "boss" ? bossAuthoredVm(found.entry) : enemyAuthoredVm(found.entry);
+      return found.kind === "boss" ? bossAuthoredVm(found.entry) : enemyAuthoredVm(found.entry, opts);
+    }
+    function threatVm(t, derived, fe = floorEnemies) {
+      const threatDef = counterData.clsById.get(t.threatId);
+      const classes = (threatDef ? threatDef.classes : []).filter((c) => classApplies(c, t.methods)).map((c) => {
+        const cand = candidatesForClass(c, counterData.index, derived.owned);
+        const eSpd = enemySpdOf(t.enemyName, fe);
+        const candText = (h, orb) => candidateText({
+          name: h.name,
+          means: h.means,
+          orb,
+          spd: orb ? null : effectiveSpd(spdById.get(h.id), derived.conditionOf(h.id)),
+          enemySpd: eSpd
+        });
+        const megidoText = cand.megido.slice(0, 8).map((h) => candText(h, false)).join("、") + (cand.megido.length > 8 ? `、ほか${cand.megido.length - 8}体` : "");
+        const orbsText = cand.orbs.slice(0, 6).map((h) => candText(h, true)).join("、") + (cand.orbs.length > 6 ? `、ほか${cand.orbs.length - 6}件` : "");
+        let extra = "";
+        if ((c.effects || []).some((e) => e.startsWith("resist:"))) {
+          const great = cand.megido.filter((h) => derived.conditionOf(h.id) === 0).map((h) => h.name);
+          if (great.length > 0) extra = `絶好調で耐性+50%の上乗せがある候補: ${great.slice(0, 4).join("、")}`;
+        }
+        return {
+          label: c.label,
+          how: c.how || "",
+          methodNote: [c.methodNote || "", extra].filter(Boolean).join("。"),
+          noteOnly: cand.noteOnly,
+          candidatesText: megidoText,
+          orbsText
+        };
+      });
+      return {
+        name: t.name,
+        enemyName: t.enemyName,
+        methodText: t.methods.length > 0 ? t.methods.map((m) => METHOD_LABEL[m] || m).join("・") : "",
+        summary: threatDef ? threatDef.summary || "" : "",
+        evidence: t.evidence ? t.evidence.slice(0, 70) : "",
+        classes
+      };
     }
     function counterVm(def, derived) {
       if (!counterData || !floorEnemies) return null;
@@ -185963,45 +186963,50 @@ window.__PREVIEW_DATA__ = {
       if (!found) return null;
       const authoredByEnemy = /* @__PURE__ */ new Map();
       for (const name of def.enemies || []) {
-        authoredByEnemy.set(name, authoredFor(name, def));
+        authoredByEnemy.set(name, authoredFor(name, def, { conditionOf: derived.conditionOf }));
       }
-      const threats = found.threats.filter((t) => !authoredByEnemy.get(t.enemyName)).map((t) => {
-        const threatDef = counterData.clsById.get(t.threatId);
-        const classes = (threatDef ? threatDef.classes : []).filter((c) => classApplies(c, t.methods)).map((c) => {
-          const cand = candidatesForClass(c, counterData.index, derived.owned);
-          const megidoText = cand.megido.slice(0, 8).map((h) => h.name).join("、") + (cand.megido.length > 8 ? `、ほか${cand.megido.length - 8}体` : "");
-          const orbsText = cand.orbs.slice(0, 6).map((h) => h.name).join("、") + (cand.orbs.length > 6 ? `、ほか${cand.orbs.length - 6}件` : "");
-          let extra = "";
-          if ((c.effects || []).some((e) => e.startsWith("resist:"))) {
-            const great = cand.megido.filter((h) => derived.conditionOf(h.id) === 0).map((h) => h.name);
-            if (great.length > 0) extra = `絶好調で耐性+50%の上乗せがある候補: ${great.slice(0, 4).join("、")}`;
+      const threats = found.threats.filter((t) => !authoredByEnemy.get(t.enemyName)).map((t) => threatVm(t, derived));
+      const enemies = found.enemies.map((e) => {
+        const fact = floorEnemies.enemies[e.name];
+        const factParts = [];
+        for (const p of fact && fact.party || []) {
+          if (!p) continue;
+          if (p.trait) factParts.push(p.trait);
+          for (const v of Object.values(p.skills || {})) if (v) factParts.push(String(v));
+        }
+        const raw = authoredEntryFor(
+          tacticsData,
+          e.name,
+          def,
+          sheetCtx ? sheetCtx.squareId : null
+        );
+        const threatTexts = [];
+        const tacticTexts = [];
+        if (raw) {
+          const isBoss = raw.kind === "boss";
+          for (const t of raw.entry.threats || []) {
+            threatTexts.push(isBoss ? `${t.label || ""} ${t.detail || ""}` : `${t.name || ""} ${t.basis || ""}`);
           }
-          return {
-            label: c.label,
-            how: c.how || "",
-            methodNote: [c.methodNote || "", extra].filter(Boolean).join("。"),
-            noteOnly: cand.noteOnly,
-            candidatesText: megidoText,
-            orbsText
-          };
-        });
+          for (const t of raw.entry.effectiveTactics || []) {
+            tacticTexts.push(isBoss ? `${t.label || ""} ${t.detail || ""}` : `${t.label || ""} ${t.basis || ""}`);
+          }
+        }
         return {
-          name: t.name,
-          enemyName: t.enemyName,
-          methodText: t.methods.length > 0 ? t.methods.map((m) => METHOD_LABEL[m] || m).join("・") : "",
-          summary: threatDef ? threatDef.summary || "" : "",
-          evidence: t.evidence ? t.evidence.slice(0, 70) : "",
-          classes
+          name: e.name,
+          raceText: e.races.join("・"),
+          weakText: e.weak.join("、"),
+          immuneText: e.immune.join("、"),
+          hasTexts: e.hasTexts,
+          authored: authoredByEnemy.get(e.name) || null,
+          mechanicNotes: enemyMechanicNotes({
+            enemyName: e.name,
+            threatIds: found.threats.filter((t) => t.enemyName === e.name).map((t) => t.threatId),
+            factTexts: factParts.join("\n"),
+            authoredThreatTexts: threatTexts.join("\n"),
+            authoredTacticTexts: tacticTexts.join("\n")
+          })
         };
       });
-      const enemies = found.enemies.map((e) => ({
-        name: e.name,
-        raceText: e.races.join("・"),
-        weakText: e.weak.join("、"),
-        immuneText: e.immune.join("、"),
-        hasTexts: e.hasTexts,
-        authored: authoredByEnemy.get(e.name) || null
-      }));
       const demandWarnings = [];
       for (const t of found.threats.filter((x) => !authoredByEnemy.get(x.enemyName))) {
         const threatDef = counterData.clsById.get(t.threatId);
@@ -186018,6 +187023,102 @@ window.__PREVIEW_DATA__ = {
         }
       }
       return { enemies, threats, demandWarnings };
+    }
+    function targetFloorsOf() {
+      if (!buildCtx || !buildCtx.targetEnemy) return [];
+      if (buildCtx.targetFloors.size > 0) return [...buildCtx.targetFloors].sort((a, b) => a - b);
+      return floorsForEnemy(structure, buildCtx.targetEnemy);
+    }
+    function* targetSquares() {
+      for (const floor of targetFloorsOf()) {
+        const fe = allFloorsEnemies ? allFloorsEnemies.get(floor) : null;
+        const fd = floorData(structure, floor);
+        if (!fe || !fd) continue;
+        for (const [squareId, def] of Object.entries(fd.squares)) {
+          if (!def || def.type !== "battle" && def.type !== "boss") continue;
+          if (!(def.enemies || []).includes(buildCtx.targetEnemy)) continue;
+          yield { floor, fe, squareId, def };
+        }
+      }
+    }
+    function targetGimmickVm(derived) {
+      if (!buildCtx || !buildCtx.targetEnemy || !counterData || !structure) return null;
+      const blocks = [];
+      const seenEntries = /* @__PURE__ */ new Set();
+      const derivedThreats = [];
+      const seenThreats = /* @__PURE__ */ new Set();
+      for (const { floor, fe, squareId, def } of targetSquares()) {
+        const raw = tacticsData ? authoredEntryFor(tacticsData, buildCtx.targetEnemy, def, squareId) : null;
+        if (raw) {
+          if (seenEntries.has(raw.entry)) continue;
+          seenEntries.add(raw.entry);
+          blocks.push({
+            floor,
+            authored: raw.kind === "boss" ? bossAuthoredVm(raw.entry) : enemyAuthoredVm(raw.entry, {
+              conditionOf: derived.conditionOf,
+              enemySpd: enemySpdOf(buildCtx.targetEnemy, fe)
+            }),
+            threats: []
+          });
+          continue;
+        }
+        const found = threatsForSquare({ def, floorEnemies: fe, clsById: counterData.clsById });
+        if (!found) continue;
+        for (const t of found.threats) {
+          if (t.enemyName !== buildCtx.targetEnemy) continue;
+          if (seenThreats.has(t.threatId)) continue;
+          seenThreats.add(t.threatId);
+          derivedThreats.push(threatVm(t, derived, fe));
+        }
+      }
+      if (derivedThreats.length > 0) blocks.push({ floor: null, authored: null, threats: derivedThreats });
+      if (blocks.length === 0) return null;
+      if (blocks.length === 1) blocks[0].floor = null;
+      return { blocks };
+    }
+    function targetAnswersById(derived) {
+      const answers = /* @__PURE__ */ new Map();
+      if (!buildCtx || !buildCtx.targetEnemy || !counterData || !structure) return answers;
+      const push = (id, label) => {
+        if (!id || !label) return;
+        if (!answers.has(id)) answers.set(id, []);
+        const list = answers.get(id);
+        if (!list.includes(label)) list.push(label);
+      };
+      const handled = /* @__PURE__ */ new Set();
+      for (const { fe, squareId, def } of targetSquares()) {
+        const raw = tacticsData ? authoredEntryFor(tacticsData, buildCtx.targetEnemy, def, squareId) : null;
+        if (raw) {
+          if (handled.has(raw.entry)) continue;
+          handled.add(raw.entry);
+          if (raw.kind !== "enemy" || !counterData.index) continue;
+          for (const tactic of raw.entry.effectiveTactics || []) {
+            for (const m of tactic.means || []) {
+              const effect = counterData.index.byEffect.get(m.effect);
+              if (!effect) continue;
+              for (const h of effect.megido || []) {
+                if (derived.owned && !derived.owned.has(h.id)) continue;
+                push(h.id, tactic.label);
+              }
+            }
+          }
+          continue;
+        }
+        const found = threatsForSquare({ def, floorEnemies: fe, clsById: counterData.clsById });
+        if (!found) continue;
+        for (const t of found.threats) {
+          if (t.enemyName !== buildCtx.targetEnemy) continue;
+          const threatDef = counterData.clsById.get(t.threatId);
+          if (!threatDef) continue;
+          for (const c of threatDef.classes) {
+            if (!classApplies(c, t.methods)) continue;
+            for (const h of candidatesForClass(c, counterData.index, derived.owned).megido) {
+              push(h.id, t.name);
+            }
+          }
+        }
+      }
+      return answers;
     }
     function exploreMemberFacts(m, demand, plans) {
       const counts = demandCounts(demand, m.id, sheetCtx.floor);
@@ -186151,132 +187252,72 @@ window.__PREVIEW_DATA__ = {
         canAdd: ctx.planMembers.length < EXPLORE_PARTY_MAX
       };
     }
-    function resultEntryFor(def, expectation) {
-      const standardBox = BOXES_BY_EXPECTATION[expectation][0];
-      let upswingScales = null;
-      if (expectation === 3 && def.subType === "recovery") {
-        const table = structure.explorationModel.conditionRecovery[String(def.recommendedPower)];
-        const entry = table ? table["虹"] : null;
-        if (Array.isArray(entry) && entry.length > 1) {
-          upswingScales = entry.map((e, i) => ({
-            variant: i,
-            label: `${e.count}体×${e.stages}段階`
-          }));
-        }
-      }
-      return { expectation, standardBox, upswing: expectation === 3, upswingScales };
-    }
     function resultSpecVm(def, expectation) {
       const ctx = sheetCtx;
-      const model = structure.explorationModel;
-      const standardBox = BOXES_BY_EXPECTATION[expectation][0];
-      if (!ctx.resultPick || ctx.resultPick.expectation !== expectation) {
-        ctx.resultPick = {
-          expectation,
-          outcomeKey: null,
-          style: null,
-          buffStat: null,
-          buffOption: null
-        };
+      if (!ctx.resultForm || ctx.resultFormExpectation !== expectation) {
+        ctx.resultForm = emptyResultForm();
+        ctx.resultFormExpectation = expectation;
       }
-      const pick = ctx.resultPick;
-      const isBuff = BUFF_SUBTYPES.has(def.subType);
-      const isRecovery = def.subType === "recovery";
-      const optionDefs = [];
-      let outcomeTitle = null;
-      if (expectation === 3 && isRecovery) {
-        outcomeTitle = "どれくらい回復したか";
-        const table = model.conditionRecovery[String(def.recommendedPower)] || {};
-        const scaleLabel = (e) => `${e.count}体×${e.stages}段階の回復`;
-        if (table[standardBox]) {
-          optionDefs.push({ key: "standard", box: standardBox, recoveryVariant: null, label: scaleLabel(table[standardBox]) });
-        }
-        const rainbow = table["虹"];
-        if (Array.isArray(rainbow)) {
-          rainbow.forEach((e, i) => optionDefs.push({
-            key: `upswing-${i}`,
-            box: "虹",
-            recoveryVariant: i,
-            label: scaleLabel(e)
-          }));
-        } else if (rainbow) {
-          optionDefs.push({ key: "upswing", box: "虹", recoveryVariant: null, label: scaleLabel(rainbow) });
-        }
-      } else if (expectation === 3 && def.subType === "tower_power") {
-        outcomeTitle = "どれだけ戻ったか";
-        const table = model.towerPowerRecovery[String(def.recommendedPower)] || {};
-        const valText = (v) => Array.isArray(v) ? `${v[0]}〜${v[1]}` : `${v}`;
-        if (table[standardBox] != null) {
-          optionDefs.push({ key: "standard", box: standardBox, recoveryVariant: null, label: `塔破力 ${valText(table[standardBox])} 回復` });
-        }
-        if (table["虹"] != null) {
-          optionDefs.push({ key: "upswing", box: "虹", recoveryVariant: null, label: `塔破力 ${valText(table["虹"])} 回復` });
-        }
-      } else if (expectation === 3 && isBuff) {
-        outcomeTitle = "探索の結果";
-        const statName = def.subType === "status_buff" ? "ステータス" : BUFF_STAT_LABEL[BUFF_STAT_BY_SUBTYPE[def.subType]];
-        optionDefs.push({ key: "standard", box: "赤", recoveryVariant: null, label: `${statName}の上昇` });
-        optionDefs.push({ key: "upswing", box: "虹", recoveryVariant: null, label: "ランダムのボーナス" });
+      const vm = resultFormVm({
+        explorationModel: structure.explorationModel,
+        def,
+        boxes: BOXES_BY_EXPECTATION[expectation] || [],
+        form: ctx.resultForm
+      });
+      ctx.resultCommit = vm.commit;
+      return vm;
+    }
+    function refreshResultCommit(def, expectation) {
+      const ctx = sheetCtx;
+      if (!ctx || !ctx.resultForm) return false;
+      const vm = resultFormVm({
+        explorationModel: structure.explorationModel,
+        def,
+        boxes: BOXES_BY_EXPECTATION[expectation] || [],
+        form: ctx.resultForm
+      });
+      ctx.resultCommit = vm.commit;
+      return vm.canRecord;
+    }
+    const RESULT_FIX_BOXES = ["緑", "青", "赤", "虹"];
+    function fixSpecVm(def) {
+      const ctx = sheetCtx;
+      if (!ctx.fixForm) return null;
+      const vm = resultFormVm({
+        explorationModel: structure.explorationModel,
+        def,
+        boxes: RESULT_FIX_BOXES,
+        form: ctx.fixForm
+      });
+      ctx.fixCommit = vm.commit;
+      return vm;
+    }
+    function refreshFixCommit(def) {
+      const ctx = sheetCtx;
+      if (!ctx || !ctx.fixForm) return false;
+      const vm = resultFormVm({
+        explorationModel: structure.explorationModel,
+        def,
+        boxes: RESULT_FIX_BOXES,
+        form: ctx.fixForm
+      });
+      ctx.fixCommit = vm.commit;
+      return vm.canRecord;
+    }
+    function resultFormTarget() {
+      const ctx = sheetCtx;
+      if (!ctx) return null;
+      const fd = floorData(structure, ctx.floor);
+      const def = fd ? fd.squares[ctx.squareId] : null;
+      if (!def) return null;
+      if (ctx.subView === "fix" && ctx.fixForm) {
+        return { form: ctx.fixForm, refresh: () => refreshFixCommit(def) };
       }
-      ctx.resultOptions = optionDefs;
-      const chosen = optionDefs.find((o) => o.key === pick.outcomeKey) || null;
-      const effBox = optionDefs.length > 0 ? chosen ? chosen.box : null : standardBox;
-      const buffStat = isBuff ? def.subType === "status_buff" ? pick.buffStat : BUFF_STAT_BY_SUBTYPE[def.subType] : null;
-      const buffOptions = isBuff && effBox && buffStat ? buffResultOptions(structure, effBox, buffStat).map((o, i) => ({ key: String(i), label: o.label, selected: pick.buffOption === i })) : null;
-      let missingText = null;
-      if (optionDefs.length > 0 && !chosen) {
-        missingText = isBuff ? "どちらの結果か選んでください" : isRecovery ? "どれくらい回復したか選んでください" : "どれだけ戻ったか選んでください";
-      } else if (isBuff && def.subType === "status_buff" && effBox && !buffStat) {
-        missingText = "上がったステータスを選んでください";
-      } else if (isBuff && effBox && buffStat && pick.buffOption == null) {
-        missingText = "どれだけ上がったか選んでください";
-      } else if (isRecovery && def.styleKind === "random" && effBox && !pick.style) {
-        missingText = "回復したスタイルを選んでください";
+      if (ctx.resultForm) {
+        const expectation = ctx.resultFormExpectation;
+        return { form: ctx.resultForm, refresh: () => refreshResultCommit(def, expectation) };
       }
-      let commit = null;
-      if (!missingText && effBox) {
-        if (isBuff) {
-          const opt = buffResultOptions(structure, effBox, buffStat)[pick.buffOption];
-          commit = {
-            box: effBox,
-            style: null,
-            recoveryVariant: null,
-            buffGains: opt.gains,
-            buffPower: opt.power,
-            buffBonus: opt.gains.some((g) => g.stat === "dmg") || opt.power > 0
-          };
-        } else if (isRecovery) {
-          commit = {
-            box: effBox,
-            style: def.styleKind === "random" ? pick.style : null,
-            recoveryVariant: chosen ? chosen.recoveryVariant : null
-          };
-        } else {
-          commit = { box: effBox, style: null, recoveryVariant: null };
-        }
-      }
-      ctx.resultCommit = commit;
-      return {
-        outcomeOptions: optionDefs.length > 0 ? optionDefs.map((o) => ({ key: o.key, label: o.label, selected: pick.outcomeKey === o.key })) : null,
-        outcomeTitle,
-        stylePicker: isRecovery && def.styleKind === "random" && effBox ? {
-          styles: STYLE_ORDER.map((c) => ({
-            code: c,
-            label: STYLE_NAME[c],
-            selected: pick.style === c
-          }))
-        } : null,
-        buffStatPicker: isBuff && def.subType === "status_buff" && effBox ? {
-          stats: [
-            { code: "hp", label: "HP" },
-            { code: "atk", label: "攻撃力" },
-            { code: "def", label: "防御力" }
-          ].map((s) => ({ ...s, selected: pick.buffStat === s.code }))
-        } : null,
-        buffOptions,
-        canRecord: Boolean(commit),
-        missingText
-      };
+      return null;
     }
     function exploreOutcomeVm() {
       const ctx = sheetCtx;
@@ -186602,39 +187643,30 @@ window.__PREVIEW_DATA__ = {
       const lastEntry = entries[entries.length - 1];
       const canFix = !viewOnly && entries.length > 0;
       let fix = null;
+      let fixSpec = null;
       if (canFix && lastEntry) {
         if (lastEntry.kind === "battle") {
           fix = { kind: "battle", currentText: RESULT_TEXT[lastEntry.result] };
-        } else if (BUFF_SUBTYPES.has(def.subType)) {
-          fix = { kind: "buff", currentText: `探索（${exploreEffectLabel(lastEntry)}）` };
         } else {
-          const plan = planExploration({
-            megidoBasics,
-            megidoDetails: formationsData.megidoDetails,
-            owned: derived.owned,
-            conditionOf: derived.conditionOf,
-            recommendedPower: def.recommendedPower,
-            reishouStatsById: reishouStatsMap()
+          const fixOps = currentOps(history);
+          let lastOp = null;
+          fixOps.forEach((op) => {
+            if (op.type === "explore" && op.squareId === ctx.squareId) lastOp = op;
           });
-          const re = resultEntryFor(def, plan.expectation);
-          const map = { standard: { box: re.standardBox } };
-          const options = [{ key: "standard", label: "標準の効果" }];
-          if (re.upswing) {
-            if (re.upswingScales) {
-              for (const s of re.upswingScales) {
-                map[`upswing-${s.variant}`] = { box: "虹", recoveryVariant: s.variant };
-                options.push({ key: `upswing-${s.variant}`, label: `多めに効いた（${s.label}）` });
-              }
-            } else {
-              map.upswing = { box: "虹" };
-              options.push({ key: "upswing", label: "多めに効いた効果" });
-            }
+          if (!ctx.fixForm || ctx.fixFormSquareId !== ctx.squareId || ctx.fixFormOp !== lastOp) {
+            ctx.fixForm = resultFormFromOp({
+              explorationModel: structure.explorationModel,
+              def,
+              boxes: RESULT_FIX_BOXES,
+              op: lastOp
+            });
+            ctx.fixFormSquareId = ctx.squareId;
+            ctx.fixFormOp = lastOp;
           }
-          ctx.fixResultMap = map;
+          fixSpec = fixSpecVm(def);
           fix = {
             kind: "explore",
-            currentText: `探索（${exploreEffectLabel(lastEntry)}）`,
-            options
+            currentText: `探索（${exploreEffectLabel(lastEntry)}）`
           };
         }
       }
@@ -186680,6 +187712,7 @@ window.__PREVIEW_DATA__ = {
         floorOverview: def.type === "start" ? floorOverviewVm(fd) : null,
         canFix,
         fix,
+        fixSpec,
         postResult: ctx.postResult ? {
           resultLabel: `${RESULT_TEXT[ctx.postResult]}を付けました`,
           lines: [
@@ -186713,9 +187746,14 @@ window.__PREVIEW_DATA__ = {
         formationId: null,
         subView: null,
         // 探索の結果の入力の途中状態（resultSpecVm が管理する）。
-        resultPick: null,
-        resultOptions: null,
+        resultForm: null,
+        resultFormExpectation: null,
         resultCommit: null,
+        // 結果を直す（H2）側のフォームの途中状態。
+        fixForm: null,
+        fixFormSquareId: null,
+        fixFormOp: null,
+        fixCommit: null,
         boundaryPicks: /* @__PURE__ */ new Set(),
         currentPending: null,
         postResult: null,
@@ -186812,13 +187850,16 @@ window.__PREVIEW_DATA__ = {
       };
       if (style) op.style = style;
       if (extra.recoveryVariant != null) op.recoveryVariant = extra.recoveryVariant;
+      if (typeof extra.powerGain === "number") op.powerGain = extra.powerGain;
+      if (typeof extra.recoveryCount === "number") op.recoveryCount = extra.recoveryCount;
+      if (typeof extra.recoveryStages === "number") op.recoveryStages = extra.recoveryStages;
       if (extra.buffGains) op.buffGains = extra.buffGains;
       if (extra.buffPower) op.buffPower = extra.buffPower;
       if (extra.buffBonus != null) op.buffBonus = extra.buffBonus;
       history = applyOp(history, op);
       await saveRun(backend, history);
-      ctx.resultPick = null;
-      ctx.resultOptions = null;
+      ctx.resultForm = null;
+      ctx.resultFormExpectation = null;
       ctx.resultCommit = null;
       await update();
       if (def.subType === "recovery") {
@@ -186852,16 +187893,31 @@ window.__PREVIEW_DATA__ = {
       await update();
       renderSquareSheet();
     }
-    async function fixLatestExploreBox(box, recoveryVariant) {
+    async function fixLatestExplore() {
       const ctx = sheetCtx;
-      if (!ctx) return;
+      if (!ctx || !ctx.fixCommit) return;
+      const c = ctx.fixCommit;
       const ok = rewriteLatestOp(
         (op) => op.type === "explore" && op.squareId === ctx.squareId,
-        { box, recoveryVariant }
+        {
+          box: c.box,
+          style: c.style || void 0,
+          recoveryVariant: c.recoveryVariant != null ? c.recoveryVariant : void 0,
+          recoveryCount: typeof c.recoveryCount === "number" ? c.recoveryCount : void 0,
+          recoveryStages: typeof c.recoveryStages === "number" ? c.recoveryStages : void 0,
+          powerGain: typeof c.powerGain === "number" ? c.powerGain : void 0,
+          buffGains: c.buffGains || void 0,
+          buffPower: typeof c.buffPower === "number" && c.buffPower > 0 ? c.buffPower : void 0,
+          buffBonus: c.buffBonus != null ? c.buffBonus : void 0
+        }
       );
       if (!ok) return;
       await saveRun(backend, history);
       ctx.subView = null;
+      ctx.fixForm = null;
+      ctx.fixFormSquareId = null;
+      ctx.fixFormOp = null;
+      ctx.fixCommit = null;
       await update();
       renderSquareSheet();
     }
@@ -186913,33 +187969,76 @@ window.__PREVIEW_DATA__ = {
       onOpenSquareGuide: (squareId) => openSquare(squareId),
       onResult: (result) => commitBattle(result),
       onCloseSheet: () => closeSquareSheet(),
-      // 探索の結果の入力（2026-11-19 の作り直し）: 選択肢を選ぶ操作は
-      // 途中状態（ctx.resultPick）を変えるだけで、記録はしない。記録の
-      // 実行は onRecordExplore（下部バーの「これで探索を記録する」）だけ。
-      onResultOption: (key) => {
-        const ctx = sheetCtx;
-        if (!ctx || !ctx.resultPick) return;
-        if (!(ctx.resultOptions || []).some((o) => o.key === key)) return;
-        ctx.resultPick.outcomeKey = key;
+      // 探索の結果の入力（写し取り形）: 行の候補を選ぶ・行を足す等の
+      // 操作は途中状態（ctx.resultForm / ctx.fixForm）を変えるだけで、
+      // 記録はしない。記録の実行は onRecordExplore（下部バーの
+      // 「これで探索を記録する」）だけ。数入力は再描画せず、記録ボタン
+      // の有効・無効だけをその場で切り替える（戻り値で渡す）。
+      onLineChip: (lineKind, key) => {
+        const t = resultFormTarget();
+        if (!t) return;
+        const f = t.form;
+        if (lineKind === "power") f.powerKey = key;
+        else if (lineKind === "recovery") f.scaleKey = key;
+        else if (lineKind === "buffMain") f.buffPctKey = key;
+        else if (lineKind === "bonusDmg" && f.bonusDmg) f.bonusDmg.key = key;
+        else if (lineKind === "bonusPower" && f.bonusPower) f.bonusPower.key = key;
         renderSquareSheet();
       },
-      onResultStyle: (code) => {
-        const ctx = sheetCtx;
-        if (!ctx || !ctx.resultPick) return;
-        ctx.resultPick.style = code;
+      onLineCustomToggle: (lineKind) => {
+        const t = resultFormTarget();
+        if (!t) return;
+        const f = t.form;
+        const flip = (obj, prop) => {
+          obj[prop] = !obj[prop];
+        };
+        if (lineKind === "power") flip(f, "powerCustom");
+        else if (lineKind === "recovery") flip(f, "scaleCustom");
+        else if (lineKind === "buffMain") flip(f, "buffCustom");
+        else if (lineKind === "bonusDmg" && f.bonusDmg) f.bonusDmg.custom = !f.bonusDmg.custom;
+        else if (lineKind === "bonusPower" && f.bonusPower) f.bonusPower.custom = !f.bonusPower.custom;
         renderSquareSheet();
       },
-      onBuffStat: (code) => {
-        const ctx = sheetCtx;
-        if (!ctx || !ctx.resultPick) return;
-        ctx.resultPick.buffStat = code;
-        ctx.resultPick.buffOption = null;
+      // 数入力は 'input' の間も確定（change）でも再描画しない。材料の
+      // 組み立て直しと記録ボタンの有効・無効の切り替え（戻り値）だけを
+      // 行う。再描画すると、入力からボタンへ移るタップの途中でボタンが
+      // 差し替わり、タップが飲まれるため。
+      onLineCustomInput: (lineKind, field, value) => {
+        const t = resultFormTarget();
+        if (!t) return false;
+        const f = t.form;
+        if (lineKind === "power") f.powerValue = value;
+        else if (lineKind === "recovery" && field === "count") f.scaleCount = value;
+        else if (lineKind === "recovery" && field === "stages") f.scaleStages = value;
+        else if (lineKind === "buffMain") f.buffValue = value;
+        else if (lineKind === "bonusDmg" && f.bonusDmg) f.bonusDmg.value = value;
+        else if (lineKind === "bonusPower" && f.bonusPower) f.bonusPower.value = value;
+        return t.refresh();
+      },
+      onLineStat: (code) => {
+        const t = resultFormTarget();
+        if (!t) return;
+        t.form.buffStat = code;
         renderSquareSheet();
       },
-      onBuffOption: (key) => {
-        const ctx = sheetCtx;
-        if (!ctx || !ctx.resultPick) return;
-        ctx.resultPick.buffOption = Number(key);
+      onLineStyle: (code) => {
+        const t = resultFormTarget();
+        if (!t) return;
+        t.form.style = code;
+        renderSquareSheet();
+      },
+      onBonusAdd: (kind) => {
+        const t = resultFormTarget();
+        if (!t) return;
+        if (kind === "dmg" && !t.form.bonusDmg) t.form.bonusDmg = { key: null, custom: false, value: "" };
+        if (kind === "power" && !t.form.bonusPower) t.form.bonusPower = { key: null, custom: false, value: "" };
+        renderSquareSheet();
+      },
+      onBonusRemove: (kind) => {
+        const t = resultFormTarget();
+        if (!t) return;
+        if (kind === "dmg") t.form.bonusDmg = null;
+        if (kind === "power") t.form.bonusPower = null;
         renderSquareSheet();
       },
       onRecordExplore: () => {
@@ -186948,6 +188047,9 @@ window.__PREVIEW_DATA__ = {
         const c = ctx.resultCommit;
         commitExplore(c.box, c.style, {
           recoveryVariant: c.recoveryVariant,
+          powerGain: c.powerGain,
+          recoveryCount: c.recoveryCount,
+          recoveryStages: c.recoveryStages,
           buffGains: c.buffGains,
           buffPower: c.buffPower,
           buffBonus: c.buffBonus
@@ -187034,10 +188136,7 @@ window.__PREVIEW_DATA__ = {
         renderSquareSheet();
       },
       onFixResult: (result) => fixLatestBattle(result),
-      onFixExploreResult: (key) => {
-        const r = sheetCtx && sheetCtx.fixResultMap ? sheetCtx.fixResultMap[key] : null;
-        if (r) fixLatestExploreBox(r.box, r.recoveryVariant);
-      },
+      onFixApply: () => fixLatestExplore(),
       onShowHistory: () => {
         sheetCtx.subView = "history";
         renderSquareSheet();
@@ -187392,22 +188491,43 @@ window.__PREVIEW_DATA__ = {
         enemyQuery: "",
         enemyFocusSearch: false,
         pickingEnemy: false,
+        view: "main",
+        // 表示中の下位ビュー（main/slot/orb/enemy）。再描画の振り分けに使う
         returnToSheet: Boolean(preset && preset.returnToSheet)
       };
       renderBuilder();
+      const gen = buildCtx.gen;
+      Promise.all([ensureAllFloors(), ensureTactics()]).then(() => {
+        if (buildCtx && buildCtx.gen === gen) rerenderBuildView();
+      }).catch(() => {
+      });
+    }
+    function rerenderBuildView() {
+      if (!buildCtx) return;
+      if (buildCtx.view === "slot") renderSlotCandidates();
+      else if (buildCtx.view === "orb") renderOrbPicker();
+      else if (buildCtx.view === "enemy") renderEnemyPicker();
+      else renderBuilder();
     }
     function renderBuilder() {
       if (!buildCtx) return;
+      buildCtx.view = "main";
       const derived = derive();
+      const leaderMissing = !canSaveFormation(buildCtx.slots);
+      const warnings = [];
+      if (leaderMissing) {
+        warnings.push("リーダー（中央の枠）が空です。リーダーを置くまで保存できません。");
+      }
+      warnings.push(...kabauPartyNotes(buildCtx.slots.filter((s) => s.megidoId && counterData && (counterData.index.byMegido.get(s.megidoId) || []).some((m) => m.effectId === "kabau")).length));
       const vm = {
-        title: buildCtx.mode === "edit" ? "編成を編集する" : "編成を組む",
+        // 新規の画面名は入口のボタンと同じ「編成を作成」（節の見出し
+        // 「編成を組む」と二重にしない）。
+        title: buildCtx.mode === "edit" ? "編成を編集する" : "編成を作成",
         name: buildCtx.name,
-        namePlaceholder: buildCtx.targetEnemy && buildCtx.targetFloors.length > 0 ? `例: ${autoFormationName({
-          slots: buildCtx.slots,
-          byId,
-          enemyName: buildCtx.targetEnemy,
-          floors: buildCtx.targetFloors
-        })}` : `例: ${defaultFormationName(buildCtx.slots, byId)}`,
+        // プレースホルダは対策編成の名前の例（2026-11-19 ユーザー指示）。
+        // 空のまま保存した時は、リーダーのメギド名などから自動で付ける
+        // （saveFormation の自動命名）。
+        namePlaceholder: "例: ○○対策編",
         slots: buildCtx.slots.map((slot, index) => {
           const m = slot.megidoId ? byId.get(slot.megidoId) : null;
           return {
@@ -187428,11 +188548,23 @@ window.__PREVIEW_DATA__ = {
         }),
         target: {
           enemyName: buildCtx.targetEnemy,
-          floors: buildCtx.targetEnemy ? floorsForEnemy(structure, buildCtx.targetEnemy).map((floor) => ({ floor, on: buildCtx.targetFloors.includes(floor) })) : []
+          floors: buildCtx.targetEnemy ? floorsForEnemy(structure, buildCtx.targetEnemy).map((floor) => ({ floor, on: buildCtx.targetFloors.includes(floor) })) : [],
+          // 選んだら自動で付くタグ（保存のたびに作り直される側。カスタム
+          // タグとは別に、付く内容を先に見せる）。
+          autoTags: buildCtx.targetEnemy ? buildAutoTags({
+            slots: buildCtx.slots,
+            byId,
+            enemyName: buildCtx.targetEnemy,
+            floors: [...buildCtx.targetFloors].sort((a, b) => a - b),
+            structure
+          }) : [],
+          // その敵のギミック（M4 と同じ材料・同じ形）。
+          gimmick: buildCtx.targetEnemy ? targetGimmickVm(derived) : null
         },
         customTags: buildCtx.customTags,
         notes: buildCtx.notes,
-        leaderMissing: !canSaveFormation(buildCtx.slots),
+        warnings,
+        leaderMissing,
         meFit: meFitVm(),
         meNote: buildCtx.slots[2] && buildCtx.slots[2].megidoId ? null : "リーダーを置くと、そのリーダーのマスエフェクトがここに出ます。未収録のメギドは「マスエフェクト未収録」と表示されます。"
       };
@@ -187445,6 +188577,7 @@ window.__PREVIEW_DATA__ = {
     }
     function renderEnemyPicker() {
       if (!buildCtx) return;
+      buildCtx.view = "enemy";
       const all = allEnemyNames(structure);
       const q = normalizeSearchText(buildCtx.enemyQuery.trim());
       const rows = all.filter((e) => !q || normalizeSearchText(e.name).includes(q)).map((e) => ({
@@ -187459,7 +188592,11 @@ window.__PREVIEW_DATA__ = {
         totalCount: all.length
       };
       const { top, content, searchInput } = buildEnemyPicker(vm, enemyPickerCallbacks);
-      overlay.openFull(content, { top, scrollKey: `build:${buildCtx.gen}:enemy` });
+      overlay.openFull(content, {
+        top,
+        scrollKey: `build:${buildCtx.gen}:enemy`,
+        onCloseRequest: () => enemyPickerCallbacks.onBack()
+      });
       if (buildCtx.enemyFocusSearch && searchInput && typeof searchInput.focus === "function") {
         searchInput.focus();
         if (typeof searchInput.setSelectionRange === "function") {
@@ -187554,7 +188691,10 @@ window.__PREVIEW_DATA__ = {
       overlay.openFull(content, {
         top,
         bottom,
-        scrollKey: reishouPickCtx.scrollKey
+        scrollKey: reishouPickCtx.scrollKey,
+        // バー右上のボタンも、ピッカー内の「完了」と同じく呼び出し元へ
+        // 戻るだけにする（編成全体やメギド画面を閉じない）。
+        onCloseRequest: () => reishouPickerCallbacks.onDone()
       });
       if (reishouPickCtx.focusSearch && searchInput && typeof searchInput.focus === "function") {
         searchInput.focus();
@@ -187610,38 +188750,26 @@ window.__PREVIEW_DATA__ = {
       if (!counterData || !counterData.meData) return { leaderName, state: "missing" };
       const rec = counterData.meData.megido[leaderSlot.megidoId];
       if (!rec || !rec.massEffect) return { leaderName, state: "missing" };
-      const me = rec.massEffect;
-      const slotLines = [];
-      ["1", "2", "leader", "4", "5"].forEach((key, i) => {
-        const entries = me.slots && me.slots[key] || [];
-        const member = buildCtx.slots[i].megidoId ? byId.get(buildCtx.slots[i].megidoId) : null;
-        const label = key === "leader" ? "リーダー" : `枠${key}`;
-        for (const e of entries) {
-          let mark = "";
-          if (member) {
-            const parts = String(e.condition || "").split("+").map((s) => s.trim()).filter(Boolean);
-            const genderPart = parts.some((p) => p === "男性" || p === "女性");
-            const knownParts = parts.filter((p) => p !== "男性" && p !== "女性" && p !== "-");
-            const matches = knownParts.every((p) => p === member.style || p === member.class);
-            if (!e.condition || e.condition === "-" || knownParts.length === 0) mark = "（無条件）";
-            else if (matches && !genderPart) mark = `（${member.name}に合う）`;
-            else if (matches && genderPart) mark = "（性別の条件は判定できない）";
-            else mark = "（今のメンバーには合わない）";
-          }
-          slotLines.push(`${label}［条件: ${e.condition || "-"}］: ${e.effect}${mark}`);
-        }
+      const members = buildCtx.slots.map((s) => {
+        const m = s.megidoId ? byId.get(s.megidoId) : null;
+        return m ? { style: m.style, className: m.class } : null;
       });
+      const sub = rec.subMassEffect && rec.subMassEffect.slots ? {
+        name: rec.subMassEffect.name || null,
+        lines: summarizeMeEffects(rec.subMassEffect, members)
+      } : null;
       return {
         leaderName,
         state: "loaded",
-        name: me.name,
-        summary: me.summary || null,
-        slotLines,
-        subText: rec.subMassEffect && rec.subMassEffect.name ? `サブマスエフェクト: ${rec.subMassEffect.name}` : null
+        name: rec.massEffect.name,
+        summary: rec.massEffect.summary || null,
+        lines: summarizeMeEffects(rec.massEffect, members),
+        sub
       };
     }
     function renderSlotCandidates() {
       if (!buildCtx || buildCtx.slotIndex === null) return;
+      buildCtx.view = "slot";
       const derived = derive();
       const all = slotCandidates({
         megidoBasics,
@@ -187679,18 +188807,29 @@ window.__PREVIEW_DATA__ = {
           }
         }
       }
+      const targetAnswers = buildCtx.targetEnemy ? targetAnswersById(derived) : null;
       const demand = currentDemand(derived);
       const noteLinesFor = (r) => {
         const lines = [];
         if (!counterData) return lines;
         const hit = answersById ? answersById.get(r.id) : null;
         if (hit && hit.size > 0) lines.push(`このマスの脅威への対応: ${[...hit].join("、")}`);
+        const tHit = targetAnswers ? targetAnswers.get(r.id) : null;
+        if (tHit && tHit.length > 0) {
+          const sameAsSquare = hit && [...hit].join("、") === tHit.join("、");
+          if (!sameAsSquare) lines.push(`ターゲットへの対応: ${tHit.join("、")}`);
+        }
         const means = counterData.index.byMegido.get(r.id) || [];
         if (means.length > 0) {
-          lines.push(`手段: ${means.slice(0, 4).map((m) => m.effectName).join("、")}${means.length > 4 ? `、ほか${means.length - 4}件` : ""}（マスエフェクト分は未収録）`);
+          const meansText = means.slice(0, 4).map((m) => {
+            const media = mediaShortForVia(m.via);
+            return media ? `${m.effectName}（${media}）` : m.effectName;
+          }).join("、");
+          lines.push(`手段: ${meansText}${means.length > 4 ? `、ほか${means.length - 4}件` : ""}（マスエフェクト分は未収録）`);
         }
         const w = demandWeight(demand, r.id, sheetCtx ? sheetCtx.floor : derived.currentFloor);
         if (w > 0) lines.push("需要: この先のマスでも対策の候補になります");
+        lines.push(...mechanicNoteLines(counterData.mechanicNotes, r.id));
         return lines;
       };
       const vm = {
@@ -187706,7 +188845,12 @@ window.__PREVIEW_DATA__ = {
       const { top, content, searchInput } = buildSlotCandidates(vm, slotCandidateCallbacks);
       overlay.openFull(content, {
         top,
-        scrollKey: `build:${buildCtx.gen}:slot:${buildCtx.slotIndex}`
+        scrollKey: `build:${buildCtx.gen}:slot:${buildCtx.slotIndex}`,
+        // ピッカー表示中の「閉じる」は、このピッカーだけを閉じて編成に
+        // 戻る（編成全体は閉じない）。文言も「戻る」で区別する。
+        onCloseRequest: () => {
+          if (buildCtx) renderBuilder();
+        }
       });
       if (buildCtx.focusSearch && searchInput && typeof searchInput.focus === "function") {
         searchInput.focus();
@@ -187719,6 +188863,7 @@ window.__PREVIEW_DATA__ = {
     }
     function renderOrbPicker() {
       if (!buildCtx || buildCtx.slotIndex === null) return;
+      buildCtx.view = "orb";
       const slot = buildCtx.slots[buildCtx.slotIndex];
       const member = slot.megidoId ? byId.get(slot.megidoId) : null;
       if (!member) {
@@ -187759,7 +188904,10 @@ window.__PREVIEW_DATA__ = {
       const { top, content, searchInput } = buildOrbPicker(vm, orbPickerCallbacks);
       overlay.openFull(content, {
         top,
-        scrollKey: `build:${buildCtx.gen}:orb:${buildCtx.slotIndex}`
+        scrollKey: `build:${buildCtx.gen}:orb:${buildCtx.slotIndex}`,
+        onCloseRequest: () => {
+          if (buildCtx) renderBuilder();
+        }
       });
       if (buildCtx.orbFocusSearch && searchInput && typeof searchInput.focus === "function") {
         searchInput.focus();
