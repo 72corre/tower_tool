@@ -110,8 +110,15 @@ button:disabled { opacity: 0.4; cursor: default; }
 .tabbar-menu-row.row-report::before { content: "\E560"; } /* rate_review */
 
 /* 上の帯（固定）: 検索だけの細い帯（フッター2段型の確定、2026-11-20）。
-   区画タブとメニューはタブバー（下）へ移した。オーバーレイより上に
-   残るため、シートを開いても検索の入口は見えたままになる。 */
+   区画タブとメニューはタブバー（下）へ移した。
+   検索帯を出すのはマップ画面の時だけ（2026-11-20 ユーザー指示で
+   「全画面常駐」を上書き）。ほかの区画（body.band-off）と、
+   オーバーレイが開いている間（body.ov-open）は、帯の高さ
+   （--topbar-h）ごと畳み、本文とオーバーレイは画面の上端から
+   使えるようにする。検索の入口自体はフッターの検索マスに残る。 */
+body.band-off { --topbar-h: 0px; }
+body.ov-open { --topbar-h: 0px; }
+body.band-off .topbar, body.ov-open .topbar { display: none; }
 .topbar {
   position: fixed;
   top: 0; left: 0; right: 0;
@@ -361,9 +368,12 @@ button:disabled { opacity: 0.4; cursor: default; }
 .overlay-bar {
   display: flex;
   justify-content: flex-end;
-  padding: 8px 10px;
+  padding: 4px 10px;
   border-bottom: 1px solid var(--border);
 }
+/* 閉じる帯はボタン1つだけの行なので、帯とボタン自体を細くする
+   （2026-11-20、編成エディタの固定家具の痩せさせに合わせ全画面共通）。 */
+.overlay-close { padding: 5px 14px; font-size: 13px; }
 .sheet-body, .full-body {
   overflow-y: auto;
   padding: 10px 14px 24px;
@@ -418,26 +428,45 @@ button:disabled { opacity: 0.4; cursor: default; }
 .enemy-block { padding: 6px 0; border-bottom: 1px solid var(--border); }
 .enemy-name { font-weight: 700; }
 
-/* 開始前の確認（M8）: 5枠を位置どおりに */
+/* 開始前の確認（M8）と編成エディタの5枠: 5体横一列が絶対条件
+   （2026-11-20 ユーザー裁定: メギドは5体の並びが編成で最も重要。
+   2段組みは却下）。390px では1枠が約70pxしかないため、並びは
+   変えずに中身を圧縮して収める:
+   - 列は minmax(0, 1fr) で均等にし、枠の余白と列間を詰める。
+   - 顔は小さくし、スタイル×クラスの複合アイコンは顔の右下の
+     バッジに重ねる（アイコンの行を別に取らない）。
+   - 名前・オーブ名・霊宝名など割ってはいけない文字は nowrap に
+     し、枠幅を超える分は views.js の fit-x が表示時に実測して
+     横方向だけ縮める（単語の途中で割らないための最終手段。
+     縮むのは最長名など一部だけ）。 */
 .slot-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
   margin-bottom: 8px;
 }
 .slot-cell {
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 6px 4px;
+  padding: 6px 1px;
   text-align: center;
   min-height: 74px;
 }
 .slot-cell.leader { border-color: var(--accent); }
-.slot-pos { font-size: 11px; color: var(--muted); }
+.slot-pos { font-size: 10px; color: var(--muted); }
 .slot-cell.leader .slot-pos { color: var(--accent); font-weight: 700; }
-.slot-name { font-weight: 700; font-size: 13px; word-break: break-all; }
-.slot-style { font-size: 11px; color: var(--muted); }
-.slot-orb { font-size: 11px; margin-top: 2px; }
+.slot-name { font-weight: 700; font-size: 12px; white-space: nowrap; }
+.slot-grid .fit-x { display: block; transform-origin: center; white-space: nowrap; }
+.slot-style { font-size: 10px; color: var(--muted); }
+.slot-cell .style-chip { font-size: 10px; padding: 0 5px; }
+/* クラス／段階はチップの行に食い込ませず、必ず自分の行に置く
+   （食い込むとクラス名が単語の途中で割れる）。クラスと段階も
+   それぞれ別の行（並べると 9 文字で枠幅を超えるため）。 */
+.slot-style-meta { display: block; }
+.slot-style-class { display: block; }
+.slot-style-stage { display: block; }
+.slot-orb { font-size: 10.5px; margin-top: 2px; white-space: nowrap; }
 
 /* 探索（M7）と回復（M9） */
 .plan-member { margin: 2px 0; }
@@ -462,6 +491,9 @@ button:disabled { opacity: 0.4; cursor: default; }
   border-bottom: 1px solid var(--border);
   background: var(--bg);
 }
+/* （編成名の固定部を痩せさせる .build-tools は、2026-11-20 に
+   編成名の入力自体をエディタから撤去したため削除した。編成名は
+   保存ボタン→「編成名を決める」段で決める。） */
 .formation-search {
   width: 100%;
   font: inherit;
@@ -620,11 +652,24 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* 編成エディタの思考順の並び（2026-11-19）: 節の見出し、ターゲット節の
    ギミック、保存ボタンの直上の警告箱 */
 .build-section-title { font-size: 15px; font-weight: 700; margin: 10px 0 6px; }
+/* 見出し＋同じ行の右側に注記（2026-11-20、枠の節から採用）:
+   注記は見出しより小さい字で右に寄せる。 */
+.build-section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin: 10px 0 6px; }
+.build-section-head .build-section-title { margin: 0; }
+.build-section-note { font-size: 11px; color: var(--muted); text-align: right; }
+/* 保存できない理由はボタン自体の文面に出す（2026-11-20）:
+   主文の下に理由を小さい字で添える。 */
+.act-save-main { display: block; }
+.act-save-reason { display: block; font-size: 11px; font-weight: 400; margin-top: 1px; }
 .build-autotags { align-items: center; }
 .build-gimmick { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
 .build-gimmick-title { font-size: 13px; font-weight: 700; }
 .build-gimmick-floor { font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 8px; }
 .build-bottom { display: flex; flex-direction: column; gap: 8px; }
+/* エディタ下部の保存バーも上下を詰める（2026-11-20、固定家具の
+   痩せさせ）。ほかのシートの実行バーは従来どおり。 */
+.build-bottom .sheet-actionbar { padding: 6px 14px calc(6px + env(safe-area-inset-bottom)); }
+.build-bottom .sheet-action-btn { padding: 10px; }
 .build-warnings {
   border: 1px solid #b7791f; background: rgba(231, 205, 156, 0.12);
   border-radius: 8px; padding: 8px 10px;
@@ -634,7 +679,10 @@ button:disabled { opacity: 0.4; cursor: default; }
   width: 100%; background: none; border: none; border-radius: 0;
   padding: 0; color: inherit; text-align: center;
 }
-.build-slot-orb { width: 100%; margin-top: 5px; font-size: 11px; padding: 5px 4px; }
+.build-slot-orb { width: 100%; margin-top: 5px; font-size: 10px; padding: 4px 1px; }
+/* オーブ名は単語の途中で割らない（名前は自分の行に置き、枠幅を
+   超える分は fit-x が横に縮める）。 */
+.slot-orb-name { white-space: nowrap; }
 .build-name-input { flex: 1; margin-bottom: 0; }
 
 /* 表示の組み直し（続く便）: 原則8の階層化と各画面の再構成 */
@@ -1032,6 +1080,8 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* 素早さの変化の統一表記（2026-11-19）: 上昇は緑、低下は赤。
    矢印（↑↓）と対で使い、ピッカーのプレビュー行と内訳の各補正に
    同じ対応で付ける。色は既存パレットの --ok / --danger。 */
+/* 素早さ内訳の補正は1要素ずつ割らずに、・の境目だけで行を分ける。 */
+.spd-part { white-space: nowrap; }
 .spd-up { color: var(--ok); }
 .spd-down { color: var(--danger); }
 
@@ -1046,6 +1096,8 @@ button:disabled { opacity: 0.4; cursor: default; }
 .slot-me-cond { font-size: 10px; color: var(--muted); margin-top: 2px; word-break: break-all; }
 .slot-me-match { font-size: 10px; color: var(--accent); font-weight: 700; margin-top: 2px; }
 .slot-reishou4 { font-size: 10px; color: var(--accent); font-weight: 700; margin-top: 2px; }
+.slot-reishou4-line { display: block; }
+.slot-reishou4-name { display: block; white-space: nowrap; }
 .cand-me-match { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 2px; }
 /* 戦旗の条件チェック（2026-11-20）: ME 要約と同じ枠の見た目で、
    保持者ごとに付与先・条件の成否・効果を小さく出す */
@@ -1103,7 +1155,8 @@ button:disabled { opacity: 0.4; cursor: default; }
    寸法は表示箇所ごとに固定し、レイアウトを動かさない */
 .ui-icon { flex: none; }
 .osu-chip-icon { width: 19px; height: 19px; }
-.slot-sc-icon { width: 18px; height: 18px; margin-right: 4px; vertical-align: -4px; }
+/* （旧 .slot-sc-icon は枠の行内アイコン用だった。2026-11-20 に
+   顔のバッジ（.slot-sc-badge）へ移したため削除。） */
 .cand-sc-icon { width: 22px; height: 22px; margin-right: 2px; vertical-align: middle; }
 .osu-mark { font-size: 11px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 7px; margin-left: 6px; white-space: nowrap; }
 
@@ -1161,7 +1214,20 @@ button:disabled { opacity: 0.4; cursor: default; }
 .face-wrap.st-counter { border-color: var(--style-counter); }
 .face-wrap.st-burst { border-color: var(--style-burst); }
 .face-wrap .face-icon { width: 44px; height: 44px; }
-.cond-row .face-wrap .face-icon, .slot-cell .face-wrap .face-icon { width: 48px; height: 48px; }
+.cond-row .face-wrap .face-icon { width: 48px; height: 48px; }
+/* 枠の中の顔は 5 体横一列に収めるため小さくする（2026-11-20）。 */
+.slot-cell .face-wrap .face-icon { width: 36px; height: 36px; }
+/* スタイル×クラスの複合アイコンのバッジ（枠の中だけ）: 顔の右下に
+   重ね、アイコン用の行を取らない。文字のチップとクラス名は
+   従来どおり併記される（アイコンは文字の添え）。 */
+.slot-face-box { position: relative; display: inline-block; line-height: 0; }
+.slot-sc-badge {
+  position: absolute; right: -4px; bottom: -3px;
+  width: 17px; height: 17px; border-radius: 50%;
+  background: var(--bg); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+}
+.slot-sc-badge-img { width: 13px; height: 13px; }
 .plan-cand-member .face-icon, .plan-slot-btn .face-icon,
 .formation-member .face-icon, .cand-name .face-icon { width: 32px; height: 32px; }
 
@@ -1251,11 +1317,11 @@ button:disabled { opacity: 0.4; cursor: default; }
 .formation-notes { font-size: 13px; color: var(--text); background: var(--surface-muted); border-radius: 6px; padding: 6px 8px; margin-top: 6px; white-space: pre-line; }
 .formation-actions .btn-formation-copy, .formation-actions .btn-formation-memo { font-size: 13px; padding: 6px 10px; }
 .slot-reishou { font-size: 12px; color: var(--muted); }
-.slot-buff { font-size: 12px; color: var(--accent); }
+.slot-buff { font-size: 10px; color: var(--accent); white-space: nowrap; }
 /* 実効素早さの数値（編成エディタの枠・開始前の確認）: 値が主、
    内訳は下に小さく */
 .slot-spd { font-size: 12px; margin-top: 2px; }
-.slot-spd-detail { display: block; font-size: 10px; color: var(--muted); }
+.slot-spd-detail { display: block; font-size: 9.5px; color: var(--muted); }
 .formation-member-reishou { color: var(--muted); font-size: 12px; }
 
 /* 過去編成の再選択（シート先頭の手渡しから） */
@@ -1282,7 +1348,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 .build-field-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
 .build-text-input, .build-memo-input { width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 14px; }
 .build-memo-input { min-height: 64px; resize: vertical; }
-.build-slot-reishou { font-size: 11px; padding: 5px 4px; margin-top: 4px; width: 100%; text-align: left; }
+.build-slot-reishou { font-size: 10px; padding: 4px 1px; margin-top: 4px; width: 100%; text-align: left; }
 /* 枠の霊宝の圧縮表示（2026-11-19）: 個数のチップ＋専用霊宝の印＋
    素早さに効く分だけの注記。印は小さな枠つき1文字、注記は名前＋
    ↑↓と色つきの数値（内訳と同じ統一表記）。 */
@@ -1294,6 +1360,8 @@ button:disabled { opacity: 0.4; cursor: default; }
   border-radius: 4px; vertical-align: 1px;
 }
 .reishou-spd-note { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
+/* 霊宝名は単語の途中で割らない（入りきらない時は名前ごと次の行へ）。 */
+.reishou-spd-note-name { white-space: nowrap; }
 .reishou-spd-note.inline { display: inline; font-size: 12px; margin-top: 0; }
 
 /* 霊宝ピッカー */
@@ -243499,6 +243567,17 @@ window.__PREVIEW_DATA__ = {
     wrap.append(faceIconImg(name));
     return wrap;
   }
+  function faceWithStyleClassBadge(name, styleName, className) {
+    const box = el("span", "slot-face-box");
+    box.append(faceWithStyle(name, styleName));
+    const icon = styleClassIconImg(styleName, className, "slot-sc-badge-img");
+    if (icon) {
+      const badge = el("span", "slot-sc-badge");
+      badge.append(icon);
+      box.append(badge);
+    }
+    return box;
+  }
   var STYLE_ICON_FILE = { ラッシュ: "style-rush", カウンター: "style-counter", バースト: "style-burst" };
   var CLASS_ICON_FILE = { ファイター: "class-fighter", トルーパー: "class-trooper", スナイパー: "class-sniper" };
   var STYLE_ICON_SLUG = { ラッシュ: "rush", カウンター: "counter", バースト: "burst" };
@@ -243962,6 +244041,25 @@ window.__PREVIEW_DATA__ = {
     wrap.append(prev, title, next);
     root.append(wrap);
   }
+  function fitSlotText(scope) {
+    if (!scope || typeof scope.querySelectorAll !== "function") return;
+    let nodes;
+    try {
+      nodes = scope.querySelectorAll(".slot-grid .fit-x");
+    } catch (e) {
+      return;
+    }
+    if (!nodes || typeof nodes.forEach !== "function") return;
+    nodes.forEach((node) => {
+      if (!node.style) return;
+      node.style.transform = "";
+      const w = node.clientWidth || 0;
+      const sw = node.scrollWidth || 0;
+      if (w > 0 && sw > w) {
+        node.style.transform = `scaleX(${(w / sw).toFixed(3)})`;
+      }
+    });
+  }
   function createOverlay(root, { onClose } = {}) {
     clear(root);
     const backdrop = el("div", "overlay-backdrop");
@@ -243972,6 +244070,12 @@ window.__PREVIEW_DATA__ = {
     full.hidden = true;
     root.append(backdrop, sheet, full);
     let wasOpen = false;
+    if (typeof window !== "undefined" && typeof window.addEventListener === "function") {
+      window.addEventListener("resize", () => {
+        fitSlotText(sheet);
+        fitSlotText(full);
+      });
+    }
     const scrollMem = { "sheet-body": /* @__PURE__ */ new Map(), "full-body": /* @__PURE__ */ new Map() };
     const sync = () => {
       backdrop.hidden = sheet.hidden && full.hidden;
@@ -244027,6 +244131,10 @@ window.__PREVIEW_DATA__ = {
         }, { passive: true });
       }
       if (extras && extras.bottom) container.append(extras.bottom);
+      fitSlotText(container);
+      if (typeof requestAnimationFrame === "function") {
+        requestAnimationFrame(() => fitSlotText(container));
+      }
     };
     return {
       close,
@@ -244675,7 +244783,7 @@ window.__PREVIEW_DATA__ = {
       if (Array.isArray(d.demandLines) && d.demandLines.length > 0) {
         for (const line of d.demandLines) wrap.append(el2("p", "sheet-note", line));
       } else {
-        wrap.append(el2("p", "sheet-note", "需要: 未集計（集計の材料の読み込みが終わると件数が出ます）"));
+        wrap.append(el2("p", "sheet-note", "候補: 集計中（読み込みが終わると出ます）"));
       }
     }
     return wrap;
@@ -246247,6 +246355,103 @@ window.__PREVIEW_DATA__ = {
     }
     return best;
   }
+  var RESTRICTION_RULE_MARK = "進化度・レベル制限";
+  var RESTRICTION_31F = { star: 2.5, level: 23 };
+  function restrictionOf(def) {
+    if (!def || !Array.isArray(def.rules)) return null;
+    const rule = def.rules.find((r) => String(r).includes(RESTRICTION_RULE_MARK));
+    if (rule === void 0) return null;
+    const text = String(rule);
+    const m = text.match(/(\d+(?:\.\d+)?)\s*[/／]\s*Lv\s*(\d+)/);
+    if (!m) return { ...RESTRICTION_31F };
+    return { star: Number(m[1]), level: Number(m[2]) };
+  }
+  function isRestrictedDef(def) {
+    return restrictionOf(def) !== null;
+  }
+  function normalizeRestriction(restricted) {
+    if (!restricted) return null;
+    if (restricted === true) return RESTRICTION_31F;
+    return restricted;
+  }
+  var UNLOCK_STAR = {
+    trait: 2,
+    // 特性
+    awakenedSkill: 3,
+    // 覚醒スキル
+    skillPlus: 4,
+    // スキル+
+    awakenedPlus: 5,
+    // 覚醒スキル+
+    subMe: 5,
+    // 第3ME
+    ougiPlus: 6,
+    // 奥義+
+    secretOugi: 6
+    // 秘奥義
+  };
+  var DEDICATED_REISHOU_STAR = 3;
+  var DEDICATED_REISHOU_LEVEL = 30;
+  function plusFormCount(label) {
+    const runs = String(label || "").match(/[＋+]+(?=[」）\s（]|$)/g);
+    if (!runs) return 0;
+    return Math.max(...runs.map((r) => r.length));
+  }
+  function viaUsableRestricted(v, restriction) {
+    if (!v) return false;
+    const prof = normalizeRestriction(restriction) || RESTRICTION_31F;
+    if (viaNeedLevel(v) > 0) return false;
+    const label = v.label || "";
+    if (v.src === "orb_skill" || v.src === "orb_trait" || label === "オーブスキル" || label === "オーブ特性") return true;
+    if (v.src === "me") return true;
+    const star = prof.star;
+    const dedicatedOk = star >= DEDICATED_REISHOU_STAR && prof.level >= DEDICATED_REISHOU_LEVEL;
+    if (v.src === "reishou") return dedicatedOk;
+    if (/専用霊宝「[^」]*」装備時/.test(label)) return dedicatedOk;
+    if (v.src === "subme") return star >= UNLOCK_STAR.subMe;
+    if (v.src === "secret_ougi") return star >= UNLOCK_STAR.secretOugi;
+    const plusCount = plusFormCount(label);
+    if (plusCount >= 2) return false;
+    const plus = plusCount === 1;
+    if (v.src === "trait") return star >= UNLOCK_STAR.trait;
+    if (v.src === "skill") return plus ? star >= UNLOCK_STAR.skillPlus : true;
+    if (v.src === "awakened_skill") {
+      return plus ? star >= UNLOCK_STAR.awakenedPlus : star >= UNLOCK_STAR.awakenedSkill;
+    }
+    if (v.src === "ougi") return plus ? star >= UNLOCK_STAR.ougiPlus : true;
+    return true;
+  }
+  function restrictedVias(via, restriction) {
+    const prof = normalizeRestriction(restriction) || RESTRICTION_31F;
+    return (via || []).filter((v) => viaUsableRestricted(v, prof));
+  }
+  var RESTRICTED_EFFECTS_EXACT = /* @__PURE__ */ new Set([
+    "revive",
+    "revive:auto",
+    "kabau",
+    "barrier",
+    "barrier:block",
+    "barrier:count",
+    "cure:ailment",
+    "cure:debuff",
+    "prevent:ailment",
+    "photon:destroy",
+    "photon:steal",
+    "photon:destroy-resist",
+    "gauge:down",
+    "debuff:atk",
+    "debuff:def",
+    "debuff:spd"
+  ]);
+  var RESTRICTED_INFLICT_EXCLUDED = /* @__PURE__ */ new Set(["inflict:点穴", "inflict:エレキ", "inflict:ハイドロボム"]);
+  function effectAllowedRestricted(effectId) {
+    if (!effectId) return false;
+    if (RESTRICTED_EFFECTS_EXACT.has(effectId)) return true;
+    if (effectId.startsWith("resist:")) return true;
+    if (effectId.startsWith("terrain:")) return true;
+    if (effectId.startsWith("inflict:")) return !RESTRICTED_INFLICT_EXCLUDED.has(effectId);
+    return false;
+  }
   function classesById(classesData) {
     const map = /* @__PURE__ */ new Map();
     for (const t of classesData && classesData.threats || []) map.set(t.id, t);
@@ -246468,11 +246673,13 @@ window.__PREVIEW_DATA__ = {
     else if (!orb && typeof spd === "number") text += ` 素早さ${spd}`;
     return text;
   }
-  function annotateAuthoredTactic({ tactic, index, spdById = null, conditionOf = null, enemySpd = null, levelOf = null }) {
+  function annotateAuthoredTactic({ tactic, index, spdById = null, conditionOf = null, enemySpd = null, levelOf = null, restricted = false }) {
+    const prof = normalizeRestriction(restricted);
     const megido = /* @__PURE__ */ new Map();
     const orbs = /* @__PURE__ */ new Map();
-    const blank = () => ({ means: [], spd: null, unknown: true });
+    const blank = () => ({ means: [], spd: null, unknown: true, onlyRestricted: false });
     for (const m of tactic.means || []) {
+      if (prof && !effectAllowedRestricted(m.effect)) continue;
       const effect = index ? index.byEffect.get(m.effect) : null;
       for (const name of m.megidoExamples || []) {
         if (!megido.has(name)) megido.set(name, blank());
@@ -246481,14 +246688,19 @@ window.__PREVIEW_DATA__ = {
         const meHolder = !holder && effect ? (effect.megidoMe || []).find((h) => h.name === name) : null;
         const found = holder || meHolder;
         if (found) {
+          const via = prof ? restrictedVias(found.via || [], prof) : found.via || [];
+          if (prof && via.length === 0) {
+            e.onlyRestricted = true;
+            continue;
+          }
           e.unknown = false;
           const level = levelOf ? levelOf(found.id) : null;
-          const locked = lockedLevel(found.via || [], level);
+          const locked = lockedLevel(via, level);
           e.means.push({
             effectId: m.effect,
             effectName: m.effectName || effect && effect.name || "",
-            via: found.via || [],
-            value: meansValue(usableVias(found.via || [], level)),
+            via,
+            value: meansValue(usableVias(via, level)),
             ...locked !== null ? { locked } : {}
           });
           const base = spdById ? spdById.get(found.id) : null;
@@ -246500,8 +246712,13 @@ window.__PREVIEW_DATA__ = {
         const e = orbs.get(name);
         const holder = effect ? (effect.orbs || []).find((h) => h.name === name) : null;
         if (holder) {
+          const via = prof ? restrictedVias(holder.via || [], prof) : holder.via || [];
+          if (prof && via.length === 0) {
+            e.onlyRestricted = true;
+            continue;
+          }
           e.unknown = false;
-          e.means.push({ effectId: m.effect, effectName: m.effectName || effect && effect.name || "", via: holder.via || [] });
+          e.means.push({ effectId: m.effect, effectName: m.effectName || effect && effect.name || "", via });
         }
       }
     }
@@ -246513,9 +246730,10 @@ window.__PREVIEW_DATA__ = {
       orb,
       resistTotal: resistTotalOf(e.means)
     });
+    const visible = ([, e]) => !(prof && e.unknown && e.onlyRestricted);
     return {
-      megidoTexts: [...megido.entries()].map(([name, e]) => render(e, name, false)),
-      orbTexts: [...orbs.entries()].map(([name, e]) => render(e, name, true))
+      megidoTexts: [...megido.entries()].filter(visible).map(([name, e]) => render(e, name, false)),
+      orbTexts: [...orbs.entries()].filter(visible).map(([name, e]) => render(e, name, true))
     };
   }
   function resistTotalOf(means) {
@@ -246531,18 +246749,21 @@ window.__PREVIEW_DATA__ = {
     }
     return any ? Math.min(100, total) : null;
   }
-  function candidatesForClass(classDef, index, owned, levelOf = null, { enemyFact = null } = {}) {
+  function candidatesForClass(classDef, index, owned, levelOf = null, { enemyFact = null, restricted = false } = {}) {
+    const prof = normalizeRestriction(restricted);
     const megido = /* @__PURE__ */ new Map();
     const orbs = /* @__PURE__ */ new Map();
+    const viaFor = (h) => prof ? restrictedVias(h.via || [], prof) : h.via || [];
     const pushMeans = (entry, effect, effectId, h, fromMe) => {
+      const via = viaFor(h);
       const level = levelOf ? levelOf(h.id) : null;
-      const locked = lockedLevel(h.via || [], level);
+      const locked = lockedLevel(via, level);
       entry.effectNames.push(effect.name);
       entry.means.push({
         effectId,
         effectName: effect.name,
-        via: h.via || [],
-        value: meansValue(usableVias(h.via || [], level)),
+        via,
+        value: meansValue(usableVias(via, level)),
         fromMe,
         ...locked !== null ? { locked } : {}
       });
@@ -246550,23 +246771,27 @@ window.__PREVIEW_DATA__ = {
     };
     for (const effectId of classDef.effects || []) {
       if (enemyFact && effectInvalidAgainst(enemyFact, effectId)) continue;
+      if (prof && !effectAllowedRestricted(effectId)) continue;
       const effect = index.byEffect.get(effectId);
       if (!effect) continue;
       for (const h of effect.megido || []) {
         if (owned && !owned.has(h.id)) continue;
+        if (prof && viaFor(h).length === 0) continue;
         if (!megido.has(h.id)) megido.set(h.id, { id: h.id, name: h.name, style: h.style, effectNames: [], means: [], fromMe: false });
         pushMeans(megido.get(h.id), effect, effectId, h, false);
       }
       for (const h of effect.megidoMe || []) {
         if (owned && !owned.has(h.id)) continue;
+        if (prof && viaFor(h).length === 0) continue;
         if (!megido.has(h.id)) megido.set(h.id, { id: h.id, name: h.name, style: h.style, effectNames: [], means: [], fromMe: false });
         pushMeans(megido.get(h.id), effect, effectId, h, true);
       }
       for (const h of effect.orbs || []) {
+        if (prof && viaFor(h).length === 0) continue;
         if (!orbs.has(h.orbId)) orbs.set(h.orbId, { orbId: h.orbId, name: h.name, style: h.style, effectNames: [], means: [], fromMe: false });
         const e = orbs.get(h.orbId);
         e.effectNames.push(effect.name);
-        e.means.push({ effectId, effectName: effect.name, via: h.via || [], value: meansValue(h.via || []), fromMe: false });
+        e.means.push({ effectId, effectName: effect.name, via: viaFor(h), value: meansValue(viaFor(h)), fromMe: false });
       }
     }
     for (const e of [...megido.values(), ...orbs.values()]) {
@@ -246711,7 +246936,8 @@ window.__PREVIEW_DATA__ = {
     }
     return false;
   }
-  function formationCoverage({ formation, threats, clsById, index, conditionOf = null, levelOf = null, styleClassOf = null, enemyFact = null }) {
+  function formationCoverage({ formation, threats, clsById, index, conditionOf = null, levelOf = null, styleClassOf = null, enemyFact = null, restricted = false }) {
+    const prof = normalizeRestriction(restricted);
     const memberIds = /* @__PURE__ */ new Set();
     const orbIds = /* @__PURE__ */ new Set();
     for (const slot of formation.slots || []) {
@@ -246727,12 +246953,14 @@ window.__PREVIEW_DATA__ = {
           if (!classApplies(classDef, t.methods)) continue;
           for (const effectId of classDef.effects || []) {
             if (enemyFact && effectInvalidAgainst(enemyFact, effectId)) continue;
+            if (prof && !effectAllowedRestricted(effectId)) continue;
             const effect = index.byEffect.get(effectId);
             if (!effect) continue;
             for (const h of effect.megido || []) {
               if (memberIds.has(h.id)) {
                 if (lockedLevel(h.via || [], levelOf ? levelOf(h.id) : null) !== null) continue;
-                const viaText = [mediaShortForVia(h.via), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
+                if (prof && restrictedVias(h.via || [], prof).length === 0) continue;
+                const viaText = [mediaShortForVia(prof ? restrictedVias(h.via || [], prof) : h.via || []), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
                 coveredBy.push(viaText ? `${h.name}（${viaText}）` : h.name);
                 if (effectId.startsWith("resist:") && conditionOf && conditionOf(h.id) === 0 && !greatResist.includes(h.name)) {
                   greatResist.push(h.name);
@@ -246741,10 +246969,12 @@ window.__PREVIEW_DATA__ = {
             }
             for (const h of effect.megidoMe || []) {
               if (!meHolderWorks({ holder: h, formation, styleClassOf })) continue;
-              const viaText = [mediaShortForVia(h.via), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
+              if (prof && restrictedVias(h.via || [], prof).length === 0) continue;
+              const viaText = [mediaShortForVia(prof ? restrictedVias(h.via || [], prof) : h.via || []), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
               coveredBy.push(viaText ? `${h.name}（${viaText}）` : h.name);
             }
             for (const h of effect.orbs || []) {
+              if (prof && restrictedVias(h.via || [], prof).length === 0) continue;
               if (orbIds.has(h.orbId)) coveredBy.push(`オーブ「${h.name}」（${methodShortLabel(effectId, effect.name)}）`);
             }
           }
@@ -246790,7 +247020,8 @@ window.__PREVIEW_DATA__ = {
     if (b) return { kind: "boss", entry: b };
     return null;
   }
-  function authoredCoverage({ authored, formation, index, levelOf = null, styleClassOf = null, enemyFact = null }) {
+  function authoredCoverage({ authored, formation, index, levelOf = null, styleClassOf = null, enemyFact = null, restricted = false }) {
+    const prof = normalizeRestriction(restricted);
     const memberIds = /* @__PURE__ */ new Set();
     const orbIds = /* @__PURE__ */ new Set();
     for (const slot of formation.slots || []) {
@@ -246808,22 +247039,26 @@ window.__PREVIEW_DATA__ = {
       for (const effectId of effects) {
         if (effectId.startsWith("resist:")) resist = true;
         if (enemyFact && effectInvalidAgainst(enemyFact, effectId)) continue;
+        if (prof && !effectAllowedRestricted(effectId)) continue;
         const effect = index.byEffect.get(effectId);
         if (!effect) continue;
         known = true;
         for (const h of effect.megido || []) {
           if (memberIds.has(h.id)) {
             if (lockedLevel(h.via || [], levelOf ? levelOf(h.id) : null) !== null) continue;
-            const viaText = [mediaShortForVia(h.via), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
+            if (prof && restrictedVias(h.via || [], prof).length === 0) continue;
+            const viaText = [mediaShortForVia(prof ? restrictedVias(h.via || [], prof) : h.via || []), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
             coveredBy.push(viaText ? `${h.name}（${viaText}）` : h.name);
           }
         }
         for (const h of effect.megidoMe || []) {
           if (!meHolderWorks({ holder: h, formation, styleClassOf })) continue;
-          const viaText = [mediaShortForVia(h.via), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
+          if (prof && restrictedVias(h.via || [], prof).length === 0) continue;
+          const viaText = [mediaShortForVia(prof ? restrictedVias(h.via || [], prof) : h.via || []), methodShortLabel(effectId, effect.name)].filter(Boolean).join("・");
           coveredBy.push(viaText ? `${h.name}（${viaText}）` : h.name);
         }
         for (const h of effect.orbs || []) {
+          if (prof && restrictedVias(h.via || [], prof).length === 0) continue;
           if (orbIds.has(h.orbId)) coveredBy.push(`オーブ「${h.name}」（${methodShortLabel(effectId, effect.name)}）`);
         }
       }
@@ -246839,10 +247074,10 @@ window.__PREVIEW_DATA__ = {
       };
     });
   }
-  function authoredPairCoverage({ authored, formation, index, levelOf = null, styleClassOf = null, enemyFact = null }) {
+  function authoredPairCoverage({ authored, formation, index, levelOf = null, styleClassOf = null, enemyFact = null, restricted = false }) {
     if (!authored || authored.kind === "boss") return [];
     const entry = authored.entry;
-    const lines = authoredCoverage({ authored, formation, index, levelOf, styleClassOf, enemyFact });
+    const lines = authoredCoverage({ authored, formation, index, levelOf, styleClassOf, enemyFact, restricted });
     const pairs = Array.isArray(entry.pairs) ? entry.pairs : null;
     if (!pairs) {
       return lines.filter((l) => l.label && l.covered !== null).map((l) => ({ label: l.label, kind: null, covered: l.covered, coveredBy: l.coveredBy }));
@@ -247115,10 +247350,12 @@ window.__PREVIEW_DATA__ = {
     }
     return out;
   }
-  function authoredTacticCandidates({ tactic, index, owned = null, levelOf = null }) {
+  function authoredTacticCandidates({ tactic, index, owned = null, levelOf = null, restricted = false }) {
+    const prof = normalizeRestriction(restricted);
     const megido = /* @__PURE__ */ new Map();
     const orbs = /* @__PURE__ */ new Map();
     for (const m of tactic.means || []) {
+      if (prof && !effectAllowedRestricted(m.effect)) continue;
       const effect = index ? index.byEffect.get(m.effect) : null;
       for (const name of m.megidoExamples || []) {
         if (!megido.has(name)) megido.set(name, { id: null, name, means: [], unknown: true });
@@ -247128,15 +247365,17 @@ window.__PREVIEW_DATA__ = {
         const found = holder || meHolder;
         if (found) {
           if (owned && !owned.has(found.id)) continue;
+          const via = prof ? restrictedVias(found.via || [], prof) : found.via || [];
+          if (prof && via.length === 0) continue;
           e.id = found.id;
           e.unknown = false;
           const level = levelOf ? levelOf(found.id) : null;
-          const locked = lockedLevel(found.via || [], level);
+          const locked = lockedLevel(via, level);
           e.means.push({
             effectId: m.effect,
             effectName: m.effectName || effect && effect.name || "",
-            via: found.via || [],
-            value: meansValue(usableVias(found.via || [], level)),
+            via,
+            value: meansValue(usableVias(via, level)),
             fromMe: Boolean(meHolder),
             ...locked !== null ? { locked } : {}
           });
@@ -247147,9 +247386,11 @@ window.__PREVIEW_DATA__ = {
         const e = orbs.get(name);
         const holder = effect ? (effect.orbs || []).find((h) => h.name === name) : null;
         if (holder) {
+          const via = prof ? restrictedVias(holder.via || [], prof) : holder.via || [];
+          if (prof && via.length === 0) continue;
           e.orbId = holder.orbId;
           e.unknown = false;
-          e.means.push({ effectId: m.effect, effectName: m.effectName || effect && effect.name || "", via: holder.via || [] });
+          e.means.push({ effectId: m.effect, effectName: m.effectName || effect && effect.name || "", via });
         }
       }
     }
@@ -247160,7 +247401,8 @@ window.__PREVIEW_DATA__ = {
     if (means.length === 0) return true;
     return means.some((m) => typeof m.locked !== "number");
   }
-  function threatAnswerBlocks({ threat, fact, authored, clsById, index, owned = null, levelOf = null }) {
+  function threatAnswerBlocks({ threat, fact, authored, clsById, index, owned = null, levelOf = null, restricted = false }) {
+    const prof = normalizeRestriction(restricted);
     const blocks = [];
     const byClass = /* @__PURE__ */ new Map();
     const pushBlock = (b) => {
@@ -247183,7 +247425,8 @@ window.__PREVIEW_DATA__ = {
       if (threatDef) {
         for (const classDef of threatDef.classes) {
           if (!classApplies(classDef, derived.methods)) continue;
-          const cands = candidatesForClass(classDef, index, owned, levelOf, { enemyFact: fact });
+          const cands = candidatesForClass(classDef, index, owned, levelOf, { enemyFact: fact, restricted: prof });
+          if (prof && cands.megido.length === 0 && cands.orbs.length === 0) continue;
           pushBlock({
             classId: classDef.id,
             label: classDef.label,
@@ -247203,7 +247446,8 @@ window.__PREVIEW_DATA__ = {
       for (const resp of threat.pair.responses || []) {
         const tactic = byLabel.get(resp);
         if (!tactic || !(tactic.meansEffects || []).length) continue;
-        const cands = authoredTacticCandidates({ tactic, index, owned, levelOf });
+        const cands = authoredTacticCandidates({ tactic, index, owned, levelOf, restricted: prof });
+        if (prof && !cands.megido.some((c) => c.id) && !cands.orbs.some((c) => c.orbId)) continue;
         let classDef = null;
         if (tactic.classRef && clsById.has(tactic.classRef)) {
           const refDef = clsById.get(tactic.classRef);
@@ -247224,7 +247468,8 @@ window.__PREVIEW_DATA__ = {
     }
     return blocks;
   }
-  function pickerAnswersForEnemy({ fact, authored, clsById, index, owned = null, levelOf = null, threatLevels = null, stateCtx = null }) {
+  function pickerAnswersForEnemy({ fact, authored, clsById, index, owned = null, levelOf = null, threatLevels = null, stateCtx = null, restricted = false }) {
+    const prof = normalizeRestriction(restricted);
     const megido = /* @__PURE__ */ new Map();
     const orbs = /* @__PURE__ */ new Map();
     const push = (map, key, label) => {
@@ -247237,7 +247482,7 @@ window.__PREVIEW_DATA__ = {
     if (!isBoss && fact) {
       const threats = enemyThreatsUnified({ fact, authored, clsById, threatLevels });
       for (const t of threats) {
-        const blocks = threatAnswerBlocks({ threat: t, fact, authored, clsById, index, owned, levelOf });
+        const blocks = threatAnswerBlocks({ threat: t, fact, authored, clsById, index, owned, levelOf, restricted: prof });
         for (const b of blocks) {
           for (const c of b.megido) {
             if (!candidateUsable(c)) continue;
@@ -247246,11 +247491,13 @@ window.__PREVIEW_DATA__ = {
           for (const c of b.orbs) push(orbs, c.orbId, b.tacticLabel || t.label);
         }
       }
-      const race = raceBonusAnswers({ fact, index, owned });
-      for (const [id, labels] of race.megido) for (const l of labels) push(megido, id, l);
-      for (const [id, labels] of race.orbs) for (const l of labels) push(orbs, id, l);
+      if (!prof) {
+        const race = raceBonusAnswers({ fact, index, owned });
+        for (const [id, labels] of race.megido) for (const l of labels) push(megido, id, l);
+        for (const [id, labels] of race.orbs) for (const l of labels) push(orbs, id, l);
+      }
     }
-    if (stateCtx && fact) {
+    if (stateCtx && fact && !prof) {
       const state = stateBonusAnswers({ fact, index, owned, ...stateCtx });
       for (const [id, labels] of state.megido) for (const l of labels) push(megido, id, l);
       for (const [id, labels] of state.orbs) for (const l of labels) push(orbs, id, l);
@@ -247313,8 +247560,9 @@ window.__PREVIEW_DATA__ = {
           const authored = tactics ? authoredEntryFor(tactics, name, fullDef, squareId) : null;
           if (authored && authored.kind === "boss") continue;
           const threats = enemyThreatsUnified({ fact, authored, clsById });
+          const restricted = restrictionOf(def);
           for (const t of threats) {
-            const blocks = threatAnswerBlocks({ threat: t, fact, authored, clsById, index, owned, levelOf });
+            const blocks = threatAnswerBlocks({ threat: t, fact, authored, clsById, index, owned, levelOf, restricted });
             const candidateIds = /* @__PURE__ */ new Set();
             for (const b of blocks) {
               for (const c of b.megido) if (candidateUsable(c)) candidateIds.add(c.id);
@@ -247325,7 +247573,7 @@ window.__PREVIEW_DATA__ = {
               const key = `${squareId}:${id}`;
               if (countedHere.has(key)) continue;
               countedHere.add(key);
-              bump(id, { floor: fd.floor, squareId, threatName: t.label, essential });
+              bump(id, { floor: fd.floor, squareId, threatName: t.label, enemyName: name, essential });
             }
           }
         }
@@ -250820,7 +251068,7 @@ window.__PREVIEW_DATA__ = {
         line.append(spdSegSpan(seg));
       });
       if ((note.segments || []).length > 0) line.append(el3("span", "", " "));
-      line.append(el3("span", "reishou-spd-note-name", note.name));
+      line.append(el3("span", "reishou-spd-note-name fit-x", note.name));
       wrap.append(line);
     }
     return wrap;
@@ -251295,12 +251543,10 @@ window.__PREVIEW_DATA__ = {
       for (const slot of vm.confirmation.slots) {
         const cell = el3("div", `slot-cell${slot.isLeader ? " leader" : ""}`);
         cell.append(el3("div", "slot-pos", slot.label));
-        if (slot.name) cell.append(faceWithStyle(slot.name, slot.style));
-        cell.append(el3("div", "slot-name", slot.name || "（空き）"));
+        if (slot.name) cell.append(faceWithStyleClassBadge(slot.name, slot.style, slot.className));
+        cell.append(el3("div", "slot-name fit-x", slot.name || "（空き）"));
         if (slot.style) {
           const styleLine = el3("div", "slot-style");
-          const scIcon = styleClassIconImg(slot.style, slot.className, "ui-icon slot-sc-icon");
-          if (scIcon) styleLine.append(scIcon);
           styleLine.append(styleChip(slot.style));
           cell.append(styleLine);
         }
@@ -251313,8 +251559,8 @@ window.__PREVIEW_DATA__ = {
           }
           cell.append(spdLine);
         }
-        cell.append(el3("div", "slot-orb", slot.orbText));
-        if (slot.buffText) cell.append(el3("div", "slot-buff", `塔効果: ${slot.buffText}`));
+        cell.append(el3("div", "slot-orb fit-x", slot.orbText));
+        if (slot.buffText) cell.append(el3("div", "slot-buff fit-x", `塔効果: ${slot.buffText}`));
         if (slot.reishouSummary) cell.append(reishouSummaryNode(slot.reishouSummary));
         grid.append(cell);
       }
@@ -252011,7 +252257,7 @@ window.__PREVIEW_DATA__ = {
         line.append(el4("span", `spd-part${spdDirClass(seg.dir)}`, spdDirText(seg.text, seg.dir)));
       });
       if ((note.segments || []).length > 0) line.append(el4("span", "", " "));
-      line.append(el4("span", "reishou-spd-note-name", note.name));
+      line.append(el4("span", "reishou-spd-note-name fit-x", note.name));
       wrap.append(line);
     }
     return wrap;
@@ -252540,17 +252786,6 @@ window.__PREVIEW_DATA__ = {
     return sec;
   }
   function buildFormationEditor(vm, cb) {
-    const top = el4("div", "formation-tools");
-    const nameRow = el4("div", "megido-field");
-    nameRow.append(el4("span", "megido-field-label", "編成名"));
-    const nameInput = document.createElement("input");
-    nameInput.className = "formation-search build-name-input";
-    nameInput.type = "text";
-    nameInput.value = vm.name;
-    nameInput.setAttribute("placeholder", vm.namePlaceholder);
-    nameInput.addEventListener("input", () => cb.onNameChange(nameInput.value));
-    nameRow.append(nameInput);
-    top.append(nameRow);
     const content = el4("div", "formation-builder");
     content.append(el4("h2", "sheet-title", vm.title));
     if (vm.target && typeof cb.onOpenEnemyPicker === "function") {
@@ -252604,25 +252839,27 @@ window.__PREVIEW_DATA__ = {
       }
       content.append(target);
     }
-    content.append(el4("div", "build-section-title", "編成を組む"));
+    const slotHead = el4("div", "build-section-head");
+    slotHead.append(el4("span", "build-section-title", "メギドを選択"));
+    slotHead.append(el4("span", "build-section-note", "枠をタップするとメギドを選択できます"));
+    content.append(slotHead);
     const grid = el4("div", "slot-grid");
     for (const slot of vm.slots) {
       const cell = el4("div", `slot-cell${slot.isLeader ? " leader" : ""}`);
       const main = el4("button", "build-slot-main");
       main.dataset.slotIndex = String(slot.index);
       main.append(el4("div", "slot-pos", slot.isLeader ? "リーダー" : `枠${slot.label}`));
-      if (slot.filled && slot.name) main.append(faceWithStyle(slot.name, slot.style));
-      main.append(el4("div", "slot-name", slot.filled ? slot.name : "（空き）"));
+      if (slot.filled && slot.name) main.append(faceWithStyleClassBadge(slot.name, slot.style, slot.className));
+      main.append(el4("div", "slot-name fit-x", slot.filled ? slot.name : "（空き）"));
       if (!slot.filled && slot.meCondText) {
         main.append(el4("div", "slot-me-cond", `ME条件: ${slot.meCondText}`));
       }
       if (slot.filled && slot.style) {
         const styleLine = el4("div", "slot-style");
-        const scIcon = styleClassIconImg(slot.style, slot.className, "ui-icon slot-sc-icon");
-        if (scIcon) styleLine.append(scIcon);
         styleLine.append(styleChip(slot.style));
-        const meta = el4("span", "slot-style-meta", ` ${slot.className || ""}／`);
-        meta.append(el4("span", `sc-${slot.stage}`, slot.stageLabel || ""));
+        const meta = el4("span", "slot-style-meta");
+        meta.append(el4("span", "slot-style-class", slot.className || ""));
+        meta.append(el4("span", `slot-style-stage sc-${slot.stage}`, slot.stageLabel || ""));
         styleLine.append(meta);
         main.append(styleLine);
       } else if (slot.filled) {
@@ -252639,15 +252876,20 @@ window.__PREVIEW_DATA__ = {
         main.append(spdBox);
       }
       if (slot.filled && slot.meMatch) {
-        main.append(el4("div", "slot-me-match", "✓ ME条件に合う"));
+        main.append(el4("div", "slot-me-match fit-x", "✓ ME条件に合う"));
       }
       if (slot.filled && slot.reishou4Text) {
-        main.append(el4("div", "slot-reishou4", `✓ 第2特性「${slot.reishou4Text}」発動中`));
+        const r4 = el4("div", "slot-reishou4");
+        r4.append(el4("span", "slot-reishou4-line fit-x", "✓ 第2特性 発動中"));
+        r4.append(el4("span", "slot-reishou4-name fit-x", `「${slot.reishou4Text}」`));
+        main.append(r4);
       }
       main.addEventListener("click", () => cb.onSlotTap(slot.index));
       cell.append(main);
       if (slot.filled) {
-        const orbBtn = el4("button", "build-slot-orb", `オーブ: ${slot.orbText}`);
+        const orbBtn = el4("button", "build-slot-orb");
+        orbBtn.append(el4("span", "slot-orb-label", "オーブ: "));
+        orbBtn.append(el4("span", "slot-orb-name fit-x", slot.orbText));
         orbBtn.dataset.slotIndex = String(slot.index);
         orbBtn.addEventListener("click", () => cb.onOrbTap(slot.index));
         cell.append(orbBtn);
@@ -252662,7 +252904,6 @@ window.__PREVIEW_DATA__ = {
       grid.append(cell);
     }
     content.append(grid);
-    content.append(el4("p", "sheet-note", "枠をタップすると、その枠のメンバーを選べます。"));
     if (vm.gimmickStatus && vm.gimmickStatus.rows.length > 0) {
       const sec = el4("div", "gimmick-status");
       const head = el4("div", "build-section-title", "ギミックの対策状況");
@@ -252841,15 +253082,48 @@ window.__PREVIEW_DATA__ = {
       bottom.append(warnBox);
     }
     const actionBar = el4("div", "sheet-actionbar");
-    const saveBtn = el4("button", "sheet-action-btn act-save-formation", "保存");
-    saveBtn.disabled = vm.leaderMissing;
+    const saveBtn = el4("button", "sheet-action-btn act-save-formation");
+    if (vm.leaderMissing) {
+      saveBtn.disabled = true;
+      saveBtn.append(el4("span", "act-save-main", "保存できません"));
+      saveBtn.append(el4(
+        "span",
+        "act-save-reason",
+        vm.saveBlockReason || "リーダー（中央の枠）が空です"
+      ));
+    } else {
+      saveBtn.textContent = "保存";
+    }
     saveBtn.addEventListener("click", cb.onSave);
     actionBar.append(saveBtn);
     const cancelBtn = el4("button", "sheet-action-btn act-cancel-build", "やめる");
     cancelBtn.addEventListener("click", cb.onCancel);
     actionBar.append(cancelBtn);
     bottom.append(actionBar);
-    return { top, content, actionBar: bottom, nameInput };
+    return { content, actionBar: bottom };
+  }
+  function buildFormationNameStep(vm, cb) {
+    const content = el4("div", "formation-builder");
+    content.append(el4("h2", "sheet-title", "編成名を決める"));
+    const field = el4("div", "megido-field");
+    field.append(el4("span", "megido-field-label", "編成名"));
+    const nameInput = document.createElement("input");
+    nameInput.className = "formation-search build-name-input";
+    nameInput.type = "text";
+    nameInput.value = vm.name || "";
+    nameInput.setAttribute("placeholder", vm.namePlaceholder || "");
+    nameInput.addEventListener("input", () => cb.onNameChange(nameInput.value));
+    field.append(nameInput);
+    content.append(field);
+    content.append(el4("p", "sheet-note", "空のまま保存すると、自動で名前が付きます。"));
+    const actionBar = el4("div", "sheet-actionbar");
+    const confirmBtn = el4("button", "sheet-action-btn act-confirm-name", "この名前で保存");
+    confirmBtn.addEventListener("click", () => cb.onConfirm());
+    actionBar.append(confirmBtn);
+    const backBtn = el4("button", "sheet-action-btn act-name-back", "戻る");
+    backBtn.addEventListener("click", () => cb.onBack());
+    actionBar.append(backBtn);
+    return { content, actionBar, nameInput };
   }
   function buildSlotCandidates(vm, cb) {
     const top = el4("div", "formation-tools");
@@ -253832,7 +254106,7 @@ window.__PREVIEW_DATA__ = {
       const rules = (def.rules || []).filter((r) => r && r !== "なし");
       return { rules, enemies };
     }
-    function confirmationVm(formation, derived, fastestEnemy = null) {
+    function confirmationVm(formation, derived, fastestEnemy = null, restricted = false) {
       const members = membersWithEquipment(formationMembers(formation, byId));
       const leader = members.find((m) => m.isLeader);
       let meName = null;
@@ -253871,7 +254145,7 @@ window.__PREVIEW_DATA__ = {
         };
       });
       let spdSummary = null;
-      if (fastestEnemy) {
+      if (fastestEnemy && !restricted) {
         const cmp = compareSpeeds({
           allies: members.map((m, i) => ({ name: m.name, spd: spdValues[i] })),
           enemies: [fastestEnemy]
@@ -254203,6 +254477,7 @@ window.__PREVIEW_DATA__ = {
       const tacticDetailOf = (t) => {
         const parts = [t.detail || ""];
         const label = t.label || "";
+        if (opts.restricted) return parts.filter(Boolean).join("\n");
         if (label.includes("点穴")) parts.push(...tenanaVsEnemyLines(hp));
         if (label.includes("エレキ")) parts.push(...erekiVsEnemyLines(hp));
         if (label.includes("ハイドロボム") || label.includes("錬ボム") || (t.detail || "").includes("ハイドロボム")) {
@@ -254230,20 +254505,24 @@ window.__PREVIEW_DATA__ = {
     }
     function enemyAuthoredVm(entry, opts = {}) {
       const tacticDetailOf = (t) => {
+        const restricted = Boolean(opts.restricted);
         const ann = annotateAuthoredTactic({
           tactic: t,
           index: counterData ? counterData.index : null,
-          spdById: correctedSpdById(),
+          spdById: restricted ? null : correctedSpdById(),
           conditionOf: opts.conditionOf || null,
           levelOf: opts.levelOf || null,
-          enemySpd: typeof opts.enemySpd === "number" ? opts.enemySpd : enemySpdOf(entry.name)
+          enemySpd: restricted ? null : typeof opts.enemySpd === "number" ? opts.enemySpd : enemySpdOf(entry.name),
+          // 形の可否はマスごとの段階で決まるため、真偽ではなく
+          // 段階そのものを演算へ渡す（counter.js が正規化する）。
+          restricted: opts.restricted
         });
         const parts = [t.basis || ""];
         if (ann.megidoTexts.length > 0) parts.push(`候補: ${ann.megidoTexts.slice(0, 8).join("、")}`);
         if (ann.orbTexts.length > 0) parts.push(`オーブ: ${ann.orbTexts.slice(0, 6).join("、")}`);
         const label = t.label || "";
-        if (label.includes("点穴")) parts.push(...tenanaVsEnemyLines(opts.enemyHp));
-        if (label.includes("ハイドロボム") || label.includes("錬ボム")) {
+        if (!restricted && label.includes("点穴")) parts.push(...tenanaVsEnemyLines(opts.enemyHp));
+        if (!restricted && (label.includes("ハイドロボム") || label.includes("錬ボム"))) {
           parts.push(...hbombCalibrationLines(entry.name));
         }
         return parts.filter(Boolean).join("\n");
@@ -254273,21 +254552,22 @@ window.__PREVIEW_DATA__ = {
       );
       if (!found) return null;
       const rules = def ? def.rules : null;
+      const restricted = restrictionOf(def);
       const enemyHp = typeof opts.enemyHp === "number" ? opts.enemyHp : enemyHpOf(name, floorEnemies, rules);
       const enemySpd = typeof opts.enemySpd === "number" ? opts.enemySpd : enemySpdOf(name, floorEnemies, rules);
-      return found.kind === "boss" ? bossAuthoredVm(found.entry, { name, enemyHp }) : enemyAuthoredVm(found.entry, { ...opts, enemyHp, enemySpd });
+      return found.kind === "boss" ? bossAuthoredVm(found.entry, { name, enemyHp, restricted }) : enemyAuthoredVm(found.entry, { ...opts, enemyHp, enemySpd, restricted });
     }
-    function threatVm(t, derived, fe = floorEnemies, rules = null) {
+    function threatVm(t, derived, fe = floorEnemies, rules = null, restricted = false) {
       const threatDef = counterData.clsById.get(t.threatId);
       const enemyFact = fe && fe.enemies ? fe.enemies[t.enemyName] : null;
       const classes = (threatDef ? threatDef.classes : []).filter((c) => classApplies(c, t.methods)).map((c) => {
-        const cand = candidatesForClass(c, counterData.index, derived.owned, levelOf, { enemyFact });
-        const eSpd = enemySpdOf(t.enemyName, fe, rules);
+        const cand = candidatesForClass(c, counterData.index, derived.owned, levelOf, { enemyFact, restricted });
+        const eSpd = restricted ? null : enemySpdOf(t.enemyName, fe, rules);
         const candText = (h, orb) => candidateText({
           name: h.name,
           means: h.means,
           orb,
-          spd: orb ? null : effSpdStandalone(h.id, derived.conditionOf(h.id)),
+          spd: orb || restricted ? null : effSpdStandalone(h.id, derived.conditionOf(h.id)),
           enemySpd: eSpd,
           resistTotal: typeof h.resistTotal === "number" ? h.resistTotal : null,
           resistBonus: !orb && derived.conditionOf(h.id) === 0 ? 50 : 0
@@ -254314,6 +254594,7 @@ window.__PREVIEW_DATA__ = {
     }
     function enemySheetExtras({ name, fact, raw, def, derived }) {
       const clsByIdL = counterData.clsById;
+      const restricted = restrictionOf(def);
       const unified = enemyThreatsUnified({
         fact,
         authored: raw,
@@ -254327,7 +254608,7 @@ window.__PREVIEW_DATA__ = {
         for (const s of srcs) {
           const label = s ? s.leader ? `本体（${s.member}）` : s.member : "敵全体";
           if (!bySource.has(label)) bySource.set(label, []);
-          const vm = threatVm({ ...t.derived, enemyName: name }, derived, floorEnemies, def.rules);
+          const vm = threatVm({ ...t.derived, enemyName: name }, derived, floorEnemies, def.rules, restricted);
           vm.level = t.level;
           bySource.get(label).push(vm);
         }
@@ -254338,13 +254619,13 @@ window.__PREVIEW_DATA__ = {
       if (demand) {
         for (const [id, d] of demand) if (d.essential > 0) essentialIds.add(id);
       }
-      const eSpd = enemySpdOf(name, floorEnemies, def.rules);
+      const eSpd = restricted ? null : enemySpdOf(name, floorEnemies, def.rules);
       const candText = (h, orb) => {
         const text = candidateText({
           name: h.name,
           means: h.means,
           orb,
-          spd: orb ? null : effSpdStandalone(h.id, derived.conditionOf(h.id)),
+          spd: orb || restricted ? null : effSpdStandalone(h.id, derived.conditionOf(h.id)),
           enemySpd: eSpd,
           resistTotal: typeof h.resistTotal === "number" ? h.resistTotal : null,
           resistBonus: !orb && h.id && derived.conditionOf(h.id) === 0 ? 50 : 0
@@ -254390,7 +254671,8 @@ window.__PREVIEW_DATA__ = {
           clsById: clsByIdL,
           index: counterData.index,
           owned: derived.owned,
-          levelOf
+          levelOf,
+          restricted
         })) {
           addBlock(b, t.label, t.level);
         }
@@ -254567,7 +254849,8 @@ window.__PREVIEW_DATA__ = {
             clsById: counterData.clsById,
             index: counterData.index,
             owned: derived.owned,
-            levelOf
+            levelOf,
+            restricted: restrictionOf(def)
           });
           const ids = /* @__PURE__ */ new Set();
           for (const b of blocks) {
@@ -254582,6 +254865,18 @@ window.__PREVIEW_DATA__ = {
       }
       const enemyTab = sheetCtx && enemies.some((e) => e.name === sheetCtx.enemyTab) ? sheetCtx.enemyTab : enemies.length > 0 ? enemies[0].name : null;
       return { enemies, enemyTab, demandWarnings };
+    }
+    function targetRestriction() {
+      if (!buildCtx || !buildCtx.targetEnemy) return null;
+      for (const { def } of targetSquares()) {
+        const r = restrictionOf(def);
+        if (r) return r;
+      }
+      if (/（31階）$/.test(buildCtx.targetEnemy)) return RESTRICTION_31F;
+      return null;
+    }
+    function targetRestricted() {
+      return targetRestriction() !== null;
     }
     function targetFloorsOf() {
       if (!buildCtx || !buildCtx.targetEnemy) return [];
@@ -254608,6 +254903,7 @@ window.__PREVIEW_DATA__ = {
       let firstRaw = null;
       let firstFe = null;
       let firstRules = null;
+      let firstDef = null;
       for (const { floor, fe, squareId, def } of targetSquares()) {
         const raw = tacticsData ? authoredEntryFor(tacticsData, buildCtx.targetEnemy, def, squareId) : null;
         const fact = fe && fe.enemies ? fe.enemies[buildCtx.targetEnemy] : null;
@@ -254616,6 +254912,7 @@ window.__PREVIEW_DATA__ = {
           firstRaw = raw;
           firstFe = fe;
           firstRules = def.rules;
+          firstDef = def;
         }
         if (raw) {
           if (seenEntries.has(raw.entry)) continue;
@@ -254624,11 +254921,13 @@ window.__PREVIEW_DATA__ = {
             floor,
             authored: raw.kind === "boss" ? bossAuthoredVm(raw.entry, {
               name: buildCtx.targetEnemy,
-              enemyHp: enemyHpOf(buildCtx.targetEnemy, fe, def.rules)
+              enemyHp: enemyHpOf(buildCtx.targetEnemy, fe, def.rules),
+              restricted: restrictionOf(def)
             }) : enemyAuthoredVm(raw.entry, {
               conditionOf: derived.conditionOf,
               enemySpd: enemySpdOf(buildCtx.targetEnemy, fe, def.rules),
-              enemyHp: enemyHpOf(buildCtx.targetEnemy, fe, def.rules)
+              enemyHp: enemyHpOf(buildCtx.targetEnemy, fe, def.rules),
+              restricted: restrictionOf(def)
             }),
             threats: []
           });
@@ -254645,7 +254944,7 @@ window.__PREVIEW_DATA__ = {
         });
         for (const t of unified) {
           if (t.source !== "derived") continue;
-          const vm = threatVm({ ...t.derived, enemyName: buildCtx.targetEnemy }, derived, firstFe, firstRules);
+          const vm = threatVm({ ...t.derived, enemyName: buildCtx.targetEnemy }, derived, firstFe, firstRules, restrictionOf(firstDef));
           vm.level = t.level;
           derivedThreats.push(vm);
         }
@@ -254684,7 +254983,8 @@ window.__PREVIEW_DATA__ = {
               index: counterData.index,
               levelOf,
               styleClassOf,
-              enemyFact: fact
+              enemyFact: fact,
+              restricted: restrictionOf(def)
             })) {
               rows.push({
                 label: r.label,
@@ -254722,7 +255022,8 @@ window.__PREVIEW_DATA__ = {
           conditionOf: derived.conditionOf,
           levelOf,
           styleClassOf,
-          enemyFact: statusFact
+          enemyFact: statusFact,
+          restricted: targetRestriction()
         });
         for (const c of coverage) {
           const threatDef = counterData.clsById.get(c.threatId);
@@ -254780,7 +255081,8 @@ window.__PREVIEW_DATA__ = {
           owned: derived.owned,
           levelOf,
           threatLevels: counterData.threatLevels,
-          stateCtx
+          stateCtx,
+          restricted: restrictionOf(def)
         }));
       }
       return { megido, orbs };
@@ -255404,8 +255706,9 @@ window.__PREVIEW_DATA__ = {
           }
         }
       }
-      const confirmation = isBattle && formation ? confirmationVm(formation, derived, fastestEnemy) : null;
-      if (confirmation) {
+      const squareRestricted = isRestrictedDef(def);
+      const confirmation = isBattle && formation ? confirmationVm(formation, derived, fastestEnemy, squareRestricted) : null;
+      if (confirmation && !squareRestricted) {
         const slotsLike = formation.slots.map((s) => ({
           megidoId: s.megidoId || null,
           orbId: s.orbId || null
@@ -255994,7 +256297,8 @@ window.__PREVIEW_DATA__ = {
                   conditionOf: derived.conditionOf,
                   levelOf,
                   styleClassOf,
-                  enemyFact: fact
+                  enemyFact: fact,
+                  restricted: restrictionOf(def)
                 })),
                 authored: [...authoredByEnemy.entries()].map(([enemyName, a]) => ({
                   enemyName,
@@ -256005,7 +256309,8 @@ window.__PREVIEW_DATA__ = {
                     index: counterData.index,
                     levelOf,
                     styleClassOf,
-                    enemyFact: floorEnemies.enemies[enemyName] || null
+                    enemyFact: floorEnemies.enemies[enemyName] || null,
+                    restricted: restrictionOf(def)
                   })
                 }))
               }
@@ -257648,24 +257953,19 @@ window.__PREVIEW_DATA__ = {
       const meHints = meHintsVm();
       const leaderMissing = !canSaveFormation(buildCtx.slots);
       const warnings = [];
-      if (leaderMissing) {
-        warnings.push("リーダー（中央の枠）が空です。リーダーを置くまで保存できません。");
-      }
       warnings.push(...kabauPartyNotes(buildCtx.slots.filter((s) => s.megidoId && counterData && (counterData.index.byMegido.get(s.megidoId) || []).some((m) => m.effectId === "kabau")).length));
       warnings.push(...tranceConflictLines(tranceFamiliesInFormation(
         counterData ? counterData.mechanicNotes : null,
         buildCtx.slots.filter((s) => s.megidoId).map((s) => s.megidoId),
         buildCtx.slots[2] ? buildCtx.slots[2].megidoId : null
       )));
+      const restricted = targetRestricted();
       const vm = {
         // 新規の画面名は入口のボタンと同じ「編成を作成」（節の見出し
-        // 「編成を組む」と二重にしない）。
+        // 「メギドを選択」と二重にしない）。
         title: buildCtx.mode === "edit" ? "編成を編集する" : "編成を作成",
-        name: buildCtx.name,
-        // プレースホルダは対策編成の名前の例（2026-11-19 ユーザー指示）。
-        // 空のまま保存した時は、リーダーのメギド名などから自動で付ける
-        // （saveFormation の自動命名）。
-        namePlaceholder: "例: ○○対策編",
+        // 保存できない理由は保存ボタンの文面に出す（2026-11-20）。
+        saveBlockReason: leaderMissing ? "リーダー（中央の枠）が空です" : null,
         slots: buildCtx.slots.map((slot, index) => {
           const m = slot.megidoId ? byId.get(slot.megidoId) : null;
           const spdR = slot.megidoId ? effSpdInFormation(slot.megidoId, index, buildCtx.slots, derived.conditionOf(slot.megidoId)) : null;
@@ -257689,8 +257989,9 @@ window.__PREVIEW_DATA__ = {
             meCondText: meHints[index] && meHints[index].condText ? meHints[index].condText : null,
             meMatch: Boolean(meHints[index] && meHints[index].match),
             // 霊宝4つ装備が条件の第2特性（候補2）: 凸の解禁と装備数
-            // の両方を満たす時だけ、発動中の印を枠に出す。
-            reishou4Text: slot.megidoId && reishou4Active(slot.megidoId, levelOf(slot.megidoId), equipmentOf(slot.megidoId).length) ? reishou4TraitName(slot.megidoId) : null
+            // の両方を満たす時だけ、発動中の印を枠に出す。制限下では
+            // 霊宝自体が使えないため出さない。
+            reishou4Text: !restricted && slot.megidoId && reishou4Active(slot.megidoId, levelOf(slot.megidoId), equipmentOf(slot.megidoId).length) ? reishou4TraitName(slot.megidoId) : null
           };
         }),
         target: {
@@ -257712,25 +258013,57 @@ window.__PREVIEW_DATA__ = {
         gimmickStatus: buildCtx.targetEnemy ? targetGimmickStatusVm(derived) : null,
         customTags: buildCtx.customTags,
         notes: buildCtx.notes,
-        chain: chainSectionVm(derived),
-        hbomb: hbombSectionVm(),
-        kyoen: kyoenSectionVm(),
+        chain: restricted ? null : chainSectionVm(derived),
+        hbomb: restricted ? null : hbombSectionVm(),
+        kyoen: restricted ? null : kyoenSectionVm(),
         warnings,
         leaderMissing,
         meFit: meFitVm(),
-        flag: flagVm(),
-        hadanJiware: hadanJiwareVm(),
-        withstand: withstandVm(),
-        damageEstimate: damageEstimateVm(),
+        flag: restricted ? null : flagVm(),
+        hadanJiware: restricted ? null : hadanJiwareVm(),
+        withstand: restricted ? null : withstandVm(),
+        damageEstimate: restricted ? null : damageEstimateVm(),
         meNote: buildCtx.slots[2] && buildCtx.slots[2].megidoId ? null : "リーダーを置くと、そのリーダーのマスエフェクトがここに出ます。"
       };
-      const { top, content, actionBar } = buildFormationEditor(vm, builderCallbacks);
+      const { content, actionBar } = buildFormationEditor(vm, builderCallbacks);
       overlay.openFull(content, {
-        top,
         bottom: actionBar,
         scrollKey: `build:${buildCtx.gen}:main`
       });
     }
+    function renderNameStep() {
+      if (!buildCtx) return;
+      buildCtx.view = "name";
+      const vm = {
+        name: buildCtx.name,
+        // プレースホルダは対策編成の名前の例（2026-11-19 ユーザー指示）。
+        // 空のまま保存した時は、リーダーのメギド名などから自動で付ける
+        // （saveFormation の自動命名）。
+        namePlaceholder: "例: ○○対策編"
+      };
+      const { content, actionBar, nameInput } = buildFormationNameStep(vm, nameStepCallbacks);
+      overlay.openFull(content, {
+        bottom: actionBar,
+        scrollKey: `build:${buildCtx.gen}:name`,
+        onCloseRequest: () => nameStepCallbacks.onBack()
+      });
+      if (nameInput && typeof nameInput.focus === "function") {
+        nameInput.focus();
+        if (typeof nameInput.setSelectionRange === "function") {
+          const len = nameInput.value.length;
+          nameInput.setSelectionRange(len, len);
+        }
+      }
+    }
+    const nameStepCallbacks = {
+      onNameChange: (text) => {
+        if (buildCtx) buildCtx.name = text;
+      },
+      onConfirm: () => saveFormation(),
+      onBack: () => {
+        if (buildCtx) renderBuilder();
+      }
+    };
     function renderEnemyPicker() {
       if (!buildCtx) return;
       buildCtx.view = "enemy";
@@ -257838,7 +258171,7 @@ window.__PREVIEW_DATA__ = {
         return effSpdStandalone(member.id, spdStage, equipIds);
       };
       const currentSpd = spdWithEquip(picked);
-      const spdCmp = inFormation && typeof currentSpd === "number" ? compareSpeeds({
+      const spdCmp = inFormation && typeof currentSpd === "number" && !targetRestricted() ? compareSpeeds({
         allies: [{ name: member.name, spd: currentSpd }],
         enemies: targetSquareEnemies()
       }) : null;
@@ -258004,7 +258337,7 @@ window.__PREVIEW_DATA__ = {
         const m = s.megidoId ? byId.get(s.megidoId) : null;
         return m ? { style: m.style, className: m.class, gender: m.gender } : null;
       });
-      const occ = subMeOccurrenceFor(buildCtx.slots);
+      const occ = targetRestricted() ? { status: "none" } : subMeOccurrenceFor(buildCtx.slots);
       const nameOf2 = (id) => {
         const b = byId.get(id);
         return b ? b.name : id;
@@ -258330,7 +258663,8 @@ window.__PREVIEW_DATA__ = {
               index: counterData.index,
               owned: null,
               levelOf,
-              threatLevels: counterData.threatLevels
+              threatLevels: counterData.threatLevels,
+              restricted: restrictionOf(def)
             });
             for (const [id, labels] of ans.megido) {
               if (!answersById.has(id)) answersById.set(id, /* @__PURE__ */ new Set());
@@ -258494,7 +258828,7 @@ window.__PREVIEW_DATA__ = {
         memberStage
       );
       const spdEnemies = targetSquareEnemies();
-      const spdCmp = memberSpdR ? compareSpeeds({
+      const spdCmp = memberSpdR && !targetRestricted() ? compareSpeeds({
         allies: [{ name: member.name, spd: memberSpdR.value }],
         enemies: spdEnemies
       }) : null;
@@ -258673,9 +259007,6 @@ window.__PREVIEW_DATA__ = {
       }
     }
     const builderCallbacks = {
-      onNameChange: (text) => {
-        if (buildCtx) buildCtx.name = text;
-      },
       onCustomTagsChange: (text) => {
         if (buildCtx) buildCtx.customTags = text;
       },
@@ -258724,7 +259055,11 @@ window.__PREVIEW_DATA__ = {
           }
         });
       },
-      onSave: () => saveFormation(),
+      // 保存ボタンは直接保存せず、「編成名を決める」段へ進む
+      // （2026-11-20 ユーザー指示）。保存の完了は段の確定で行う。
+      onSave: () => {
+        if (buildCtx) renderNameStep();
+      },
       onCancel: () => {
         const returnToSheet = buildCtx && buildCtx.returnToSheet;
         buildCtx = null;
@@ -259177,9 +259512,13 @@ window.__PREVIEW_DATA__ = {
     };
     const REPORT_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSezdFqszf2kdl-3dq7lk80OpbdixwhW3BIBSoOQ30N_kRxqow/viewform";
     const renderNav = () => {
-      renderHeader(topbarEl, {}, {
+      const bandOnMap = section3 === "map";
+      renderHeader(topbarEl, {}, bandOnMap ? {
         onSearch: () => openSearchView()
-      });
+      } : {});
+      if (typeof document !== "undefined" && document.body && document.body.classList) {
+        document.body.classList.toggle("band-off", !bandOnMap);
+      }
       renderTabBar(tabbarEl, {
         section: section3,
         searchActive: Boolean(searchCtx),
@@ -260086,13 +260425,18 @@ window.__PREVIEW_DATA__ = {
       const demandLinesOf = (id) => {
         if (!demand) return null;
         const d = demand.get(id);
-        const lines = [
-          `需要: 次の回復マスまでの未処理の戦闘マス ${d ? d.total : 0} 件で対策の候補（うち候補が2体以下の必須級 ${d ? d.essential : 0} 件）`,
-          "需要は本体・専用霊宝・オーブ・マスエフェクト由来の候補で数えています（マスエフェクト由来はリーダーに置いた場合）"
-        ];
-        if (d && d.spots.length > 0) {
-          lines.push(`候補になるマスの例: ${d.spots.slice(0, 3).map((sp) => `${sp.floor}F（${sp.threatName}）`).join("、")}`);
+        if (!d || d.total === 0) return ["今の範囲では候補になるマスはありません"];
+        const lines = [`候補: 未処理の戦闘マス ${d.total} 件（必須級 ${d.essential} 件）`];
+        const seen = /* @__PURE__ */ new Set();
+        const examples = [];
+        for (const sp of d.spots) {
+          const label = `${sp.floor}F ${sp.enemyName || sp.threatName}`;
+          if (seen.has(label)) continue;
+          seen.add(label);
+          examples.push(label);
+          if (examples.length >= 3) break;
         }
+        if (examples.length > 0) lines.push(`例: ${examples.join("、")}`);
         return lines;
       };
       const removedRows = megidoBasics.megido.filter((m) => !derived.owned.has(m.id)).map((m) => ({ id: m.id, name: m.name, style: m.style, className: m.class })).sort(byName);
