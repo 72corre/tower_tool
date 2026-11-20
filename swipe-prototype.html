@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ピッカー スワイプ試作</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    background: #f2f2f5; color: #1c1c22; max-width: 480px; margin: 0 auto;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  header {
+    position: sticky; top: 0; z-index: 20; background: #fff;
+    border-bottom: 1px solid #ddd; padding: 10px 12px 8px;
+  }
+  header h1 { font-size: 16px; margin-bottom: 8px; }
+  .seg { display: flex; border: 1px solid #888; border-radius: 8px; overflow: hidden; }
+  .seg button {
+    flex: 1; padding: 9px 4px; font-size: 14px; background: #fff; border: 0;
+    touch-action: manipulation; cursor: pointer;
+  }
+  .seg button.on { background: #33507a; color: #fff; font-weight: 700; }
+  .hint { font-size: 12.5px; color: #444; margin-top: 8px; line-height: 1.5; }
+  .bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 8px; font-size: 12.5px; color: #555; min-height: 30px;
+  }
+  #resetBtn {
+    font-size: 12.5px; padding: 5px 10px; border: 1px solid #888; border-radius: 6px;
+    background: #fff; touch-action: manipulation;
+  }
+  #log { font-size: 12.5px; color: #33507a; }
+  main { padding: 8px 0 120px; }
+  .wrap {
+    position: relative; overflow: hidden; background: #fff;
+    border-bottom: 1px solid #e3e3e8;
+  }
+  .reveal {
+    position: absolute; top: 0; bottom: 0; width: 96px;
+    display: flex; align-items: center; font-size: 13px; font-weight: 700; color: #fff;
+    padding: 0 12px; opacity: 0;
+  }
+  .reveal.detail { left: 0; background: #33507a; justify-content: flex-start; }
+  .reveal.hide { right: 0; background: #b03a2e; justify-content: flex-end; }
+  .row {
+    position: relative; display: flex; align-items: center; gap: 10px;
+    height: 60px; padding: 0 14px; background: #fff;
+    touch-action: pan-y; user-select: none; -webkit-user-select: none;
+    -webkit-touch-callout: none; will-change: transform; z-index: 1;
+  }
+  .row.armed { box-shadow: 0 4px 14px rgba(0,0,0,.28); z-index: 3; }
+  .row.sel { background: #eaf1fb; }
+  .face {
+    flex: 0 0 auto; width: 40px; height: 40px; border-radius: 50%;
+    background: #5b7299; color: #fff; display: flex; align-items: center; justify-content: center;
+    font-size: 17px; font-weight: 700;
+  }
+  .row[data-style="ラッシュ"] .face { background: #a8542f; }
+  .row[data-style="バースト"] .face { background: #7a4a86; }
+  .nm { font-size: 15.5px; font-weight: 600; }
+  .meta { font-size: 12px; color: #666; margin-top: 1px; }
+  .tags { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+  .pill {
+    font-size: 11px; padding: 2px 8px; border-radius: 999px; display: none;
+  }
+  .pill.sel { background: #33507a; color: #fff; }
+  .pill.det { background: #e8e2c8; color: #5c5320; }
+  .row.sel .pill.sel { display: inline-block; }
+  .row.hasdet .pill.det { display: inline-block; }
+  #toast {
+    position: fixed; left: 50%; transform: translateX(-50%) translateY(20px);
+    bottom: 22px; z-index: 40; background: #22242a; color: #fff; border-radius: 10px;
+    padding: 11px 14px; font-size: 13.5px; display: flex; gap: 14px; align-items: center;
+    opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s;
+    width: max-content; max-width: 92vw;
+  }
+  #toast.show { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+  #toast button {
+    background: none; border: 0; color: #9ec2ff; font-size: 13.5px; font-weight: 700;
+    touch-action: manipulation; padding: 2px;
+  }
+  #backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.38); z-index: 30;
+    opacity: 0; pointer-events: none; transition: opacity .18s;
+  }
+  #backdrop.show { opacity: 1; pointer-events: auto; }
+  #sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 31; background: #fff;
+    border-radius: 16px 16px 0 0; padding: 16px 16px 26px; max-width: 480px; margin: 0 auto;
+    transform: translateY(105%); transition: transform .22s ease;
+    max-height: 78vh; overflow-y: auto;
+  }
+  #sheet.show { transform: translateY(0); }
+  #sheet h2 { font-size: 16px; margin-bottom: 4px; }
+  #sheet .smeta { font-size: 12.5px; color: #666; margin-bottom: 12px; }
+  .field {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-top: 1px solid #eee;
+  }
+  .field label { font-size: 14px; }
+  .stepper { display: flex; align-items: center; gap: 12px; }
+  .stepper button {
+    width: 34px; height: 34px; border-radius: 50%; border: 1px solid #888;
+    background: #fff; font-size: 17px; touch-action: manipulation;
+  }
+  .stepper .val { font-size: 15px; font-weight: 700; min-width: 22px; text-align: center; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+  .chips button {
+    padding: 6px 10px; border-radius: 999px; border: 1px solid #999; background: #fff;
+    font-size: 13px; touch-action: manipulation;
+  }
+  .chips button.on { background: #33507a; color: #fff; border-color: #33507a; font-weight: 700; }
+  .sheetBtns { display: flex; gap: 10px; margin-top: 18px; }
+  .sheetBtns button {
+    flex: 1; padding: 12px; border-radius: 10px; font-size: 14.5px; touch-action: manipulation;
+  }
+  #sheetHide { background: #fff; border: 1px solid #b03a2e; color: #b03a2e; font-weight: 700; }
+  #sheetClose { background: #33507a; border: 0; color: #fff; font-weight: 700; }
+  footer { padding: 0 14px 30px; font-size: 12px; color: #777; line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <h1>ピッカー スワイプ試作</h1>
+  <div class="seg">
+    <button id="modeA" class="on">A：単純スワイプ</button>
+    <button id="modeB">B：長押し→スワイプ</button>
+  </div>
+  <p class="hint" id="hint"></p>
+  <div class="bar"><span id="log">操作するとここに結果が出ます</span><button id="resetBtn">全員戻す</button></div>
+</header>
+<main id="list"></main>
+<footer>
+  試作用の表示：外した人数 <span id="hcount">0</span> 人。<br>
+  確かめてほしいこと：縦スクロールの途中で誤って横に動かないか／連続タップで画面が拡大しないか／何人か続けて外すテンポ。
+</footer>
+
+<div id="toast"><span id="toastMsg"></span><button id="undoBtn">元に戻す</button></div>
+<div id="backdrop"></div>
+<section id="sheet" aria-hidden="true">
+  <h2 id="sName"></h2>
+  <p class="smeta" id="sMeta"></p>
+  <div class="field"><label>奥義レベル</label>
+    <div class="stepper"><button data-step="ougi" data-d="-1">−</button><span class="val" id="vOugi">3</span><button data-step="ougi" data-d="1">＋</button></div>
+  </div>
+  <div class="field"><label>凸</label>
+    <div class="stepper"><button data-step="totsu" data-d="-1">−</button><span class="val" id="vTotsu">0</span><button data-step="totsu" data-d="1">＋</button></div>
+  </div>
+  <div class="field"><label>専用霊宝</label>
+    <div class="chips" id="cSenyo"><button data-v="1" class="on">あり</button><button data-v="0">なし</button></div>
+  </div>
+  <div class="field"><label>絆霊宝</label>
+    <div class="chips" id="cKizuna"><button data-v="0" class="on">なし</button><button data-v="1">＊1</button><button data-v="2">＊2</button><button data-v="3">＊3</button><button data-v="4">＊4</button></div>
+  </div>
+  <div class="field"><label>魔重解放</label>
+    <div class="chips" id="cMaju"><button data-v="0" class="on">なし</button><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>
+  </div>
+  <div class="sheetBtns">
+    <button id="sheetHide">候補から外す</button>
+    <button id="sheetClose">閉じる</button>
+  </div>
+</section>
+
+<script>
+"use strict";
+const DATA = [
+  ["バルバトス","カウンター","スナイパー"],["モラクス","バースト","ファイター"],
+  ["ブネ","ラッシュ","ファイター"],["ウェパル","ラッシュ","トルーパー"],
+  ["シャックス","カウンター","ファイター"],["ガープ","カウンター","ファイター"],
+  ["マルコシアス","カウンター","スナイパー"],["パイモン","ラッシュ","ファイター"],
+  ["ベレト","カウンター","トルーパー"],["バラム","カウンター","ファイター"],
+  ["アスモデウス","バースト","ファイター"],["ベリアル","ラッシュ","スナイパー"],
+  ["ジズ","バースト","スナイパー"],["プルフラス","ラッシュ","ファイター"],
+  ["カスピエル","バースト","トルーパー"],["フォラス","バースト","スナイパー"],
+  ["グシオン","カウンター","スナイパー"],["シトリー","カウンター","トルーパー"]
+];
+const DEF = () => ({ ougi: 3, totsu: 0, senyo: 1, kizuna: 0, maju: 0 });
+const state = DATA.map(DEF);
+let mode = "A", hiddenCount = 0, lastHidden = null, toastTimer = null, cur = -1;
+
+const list = document.getElementById("list");
+const logEl = document.getElementById("log");
+const hintEl = document.getElementById("hint");
+function setLog(t){ logEl.textContent = t; }
+function setHint(){
+  hintEl.textContent = mode === "A"
+    ? "タップで選択／左スワイプで候補から外す／右スワイプで詳細。縦スクロールも普通にできます。"
+    : "少し長押しして行が浮いたら、左右にスワイプ。タップで選択、縦スクロールも普通にできます。";
+}
+setHint();
+
+DATA.forEach((d, i) => {
+  const wrap = document.createElement("div"); wrap.className = "wrap"; wrap.id = "w" + i;
+  wrap.innerHTML =
+    '<div class="reveal detail">詳細</div><div class="reveal hide">候補から外す</div>' +
+    '<div class="row" data-style="' + d[1] + '">' +
+      '<div class="face">' + d[0].slice(0,1) + '</div>' +
+      '<div><div class="nm">' + d[0] + '</div><div class="meta">' + d[1] + '／' + d[2] + '</div></div>' +
+      '<div class="tags"><span class="pill det">詳細あり</span><span class="pill sel">選択中</span></div>' +
+    '</div>';
+  list.appendChild(wrap);
+  attach(wrap.querySelector(".row"), wrap, i);
+});
+
+function attach(row, wrap, i){
+  let sx = 0, sy = 0, dx = 0, locked = false, armed = false, holdTimer = null, downT = 0;
+  const revD = wrap.querySelector(".reveal.detail"), revH = wrap.querySelector(".reveal.hide");
+  function reset(anim){
+    row.style.transition = anim ? "transform .2s ease" : "none";
+    row.style.transform = "translateX(0)";
+    revD.style.opacity = 0; revH.style.opacity = 0;
+    setTimeout(() => { row.style.transition = "none"; }, 210);
+  }
+  row.addEventListener("pointerdown", e => {
+    sx = e.clientX; sy = e.clientY; dx = 0; locked = false; armed = false; downT = Date.now();
+    row.setPointerCapture(e.pointerId);
+    if (mode === "B"){
+      holdTimer = setTimeout(() => {
+        armed = true; row.classList.add("armed");
+        row.style.transform = "scale(1.02)";
+        setLog(DATA[i][0] + "：掴んだ（このまま左右へ）");
+        if (navigator.vibrate) navigator.vibrate(10);
+      }, 280);
+    }
+  });
+  row.addEventListener("pointermove", e => {
+    const mx = e.clientX - sx, my = e.clientY - sy;
+    if (mode === "B" && !armed){
+      if (Math.abs(mx) > 10 || Math.abs(my) > 10) clearTimeout(holdTimer);
+      return;
+    }
+    if (!locked){
+      if (Math.abs(mx) > 10 && Math.abs(mx) > Math.abs(my)) locked = true;
+      else return;
+    }
+    dx = Math.max(-130, Math.min(130, mx));
+    row.style.transition = "none";
+    row.style.transform = "translateX(" + dx + "px)" + (armed ? " scale(1.02)" : "");
+    revD.style.opacity = dx > 8 ? Math.min(1, dx / 80) : 0;
+    revH.style.opacity = dx < -8 ? Math.min(1, -dx / 80) : 0;
+  });
+  function finish(commit){
+    clearTimeout(holdTimer);
+    row.classList.remove("armed");
+    if (locked && dx <= -80){ hideRow(i); reset(false); return; }
+    if (locked && dx >= 80){ reset(true); openSheet(i); return; }
+    if (commit && !locked && !armed && Date.now() - downT < 600){
+      row.classList.toggle("sel");
+      setLog(DATA[i][0] + (row.classList.contains("sel") ? "：選択" : "：選択を解除"));
+    }
+    reset(true);
+  }
+  row.addEventListener("pointerup", () => finish(true));
+  row.addEventListener("pointercancel", () => finish(false));
+}
+
+function hideRow(i){
+  const wrap = document.getElementById("w" + i);
+  wrap.style.display = "none";
+  hiddenCount++; document.getElementById("hcount").textContent = hiddenCount;
+  lastHidden = i;
+  setLog(DATA[i][0] + "：候補から外しました");
+  const t = document.getElementById("toast");
+  document.getElementById("toastMsg").textContent = DATA[i][0] + "を候補から外しました";
+  t.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove("show"), 4500);
+}
+document.getElementById("undoBtn").addEventListener("click", () => {
+  if (lastHidden == null) return;
+  const wrap = document.getElementById("w" + lastHidden);
+  wrap.style.display = ""; wrap.querySelector(".row").style.transform = "translateX(0)";
+  hiddenCount--; document.getElementById("hcount").textContent = hiddenCount;
+  setLog(DATA[lastHidden][0] + "：戻しました");
+  lastHidden = null;
+  document.getElementById("toast").classList.remove("show");
+});
+document.getElementById("resetBtn").addEventListener("click", () => {
+  document.querySelectorAll(".wrap").forEach(w => { w.style.display = ""; });
+  hiddenCount = 0; document.getElementById("hcount").textContent = 0;
+  setLog("全員戻しました");
+});
+document.getElementById("modeA").addEventListener("click", () => setMode("A"));
+document.getElementById("modeB").addEventListener("click", () => setMode("B"));
+function setMode(m){
+  mode = m;
+  document.getElementById("modeA").classList.toggle("on", m === "A");
+  document.getElementById("modeB").classList.toggle("on", m === "B");
+  setHint(); setLog(m === "A" ? "A：単純スワイプ" : "B：長押し→スワイプ");
+}
+
+/* 詳細シート（試作用：値は端末に保存しません） */
+const sheet = document.getElementById("sheet"), backdrop = document.getElementById("backdrop");
+function chipWire(id, key){
+  const box = document.getElementById(id);
+  box.querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    if (cur < 0) return;
+    state[cur][key] = Number(b.dataset.v);
+    box.querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b));
+    markDet();
+  }));
+}
+chipWire("cSenyo", "senyo"); chipWire("cKizuna", "kizuna"); chipWire("cMaju", "maju");
+document.querySelectorAll("[data-step]").forEach(b => b.addEventListener("click", () => {
+  if (cur < 0) return;
+  const key = b.dataset.step, d = Number(b.dataset.d);
+  const max = key === "ougi" ? 11 : 5;
+  state[cur][key] = Math.max(key === "ougi" ? 1 : 0, Math.min(max, state[cur][key] + d));
+  document.getElementById(key === "ougi" ? "vOugi" : "vTotsu").textContent = state[cur][key];
+  markDet();
+}));
+function markDet(){
+  if (cur < 0) return;
+  const s = state[cur], d0 = DEF();
+  const diff = s.ougi !== d0.ougi || s.totsu !== d0.totsu || s.senyo !== d0.senyo || s.kizuna !== d0.kizuna || s.maju !== d0.maju;
+  document.querySelector("#w" + cur + " .row").classList.toggle("hasdet", diff);
+}
+function openSheet(i){
+  cur = i; const s = state[i];
+  document.getElementById("sName").textContent = DATA[i][0];
+  document.getElementById("sMeta").textContent = DATA[i][1] + "／" + DATA[i][2];
+  document.getElementById("vOugi").textContent = s.ougi;
+  document.getElementById("vTotsu").textContent = s.totsu;
+  [["cSenyo","senyo"],["cKizuna","kizuna"],["cMaju","maju"]].forEach(([id, key]) => {
+    document.querySelectorAll("#" + id + " button").forEach(b =>
+      b.classList.toggle("on", Number(b.dataset.v) === s[key]));
+  });
+  sheet.classList.add("show"); backdrop.classList.add("show");
+  setLog(DATA[i][0] + "：詳細を開きました");
+}
+function closeSheet(){ sheet.classList.remove("show"); backdrop.classList.remove("show"); }
+document.getElementById("sheetClose").addEventListener("click", closeSheet);
+backdrop.addEventListener("click", closeSheet);
+document.getElementById("sheetHide").addEventListener("click", () => {
+  if (cur >= 0){ const i = cur; closeSheet(); hideRow(i); }
+});
+document.addEventListener("dblclick", e => e.preventDefault());
+list.addEventListener("contextmenu", e => e.preventDefault());
+</script>
+</body>
+</html>
