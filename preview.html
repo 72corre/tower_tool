@@ -22,7 +22,15 @@
   --danger: #e53e3e;
   --ok: #48bb78;
   --topbar-h: 48px;
-  --statebar-h: 60px;
+  --statebar-h: 48px;
+  --tabbar-h: 62px;
+  /* フッター2段（状態行＋タブバー）の公称の高さ。シート／全画面
+     ビューの下端やペインの下端はこの分だけ空ける。実寸は状態行
+     40px＋タブバー63px＝103px（2026-11-20 実ブラウザ計測）で、
+     公称 110px はモックの想定（約110px）に合わせた近似。残りの
+     数pxは、知らせ表示で状態行が伸びた時にシートの下端へ被る
+     余地として持つ。 */
+  --footer-h: calc(var(--statebar-h) + var(--tabbar-h));
 }
 
 * { box-sizing: border-box; }
@@ -56,7 +64,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 
 /* ヘッダーのアイコン（Material Symbols の自己ホストサブセット）。
    文字だけでは無機質で直感的でない、というユーザーの指摘（2026-11-19）
-   への対応。使うグリフ8点だけを含む woff2 を自前に置き、SW の
+   への対応。使うグリフ9点だけを含む woff2 を自前に置き、SW の
    プリキャッシュに入れる（CDN は使わない＝オフラインでも消えない。
    全体の同梱は MB 級になるため不可）。生成手順は
    build/pipeline/subset_icons.py、実測 1,092 bytes。
@@ -65,15 +73,15 @@ button:disabled { opacity: 0.4; cursor: default; }
    では意味が曖昧なため）。色はラベルと同じ色を引き継ぐ。 */
 @font-face {
   font-family: 'Material Symbols Outlined';
-  src: url('data:font/woff2;base64,d09GMgABAAAAAARAAA0AAAAAB2AAAAPrAAL6XgAAAAAAAAAAAAAAAAAAAAAAAAAAHCoGYD9TVEFUcABsEQgKiEiHKwE2AiQDFAsUAAQgBQYHIBvMBUCOwrbtUZyoKrtY/fHw337pfTMTBoUgIxwKlRRV61ih2xWu4MpKEB0fsAWyCP//fy+7r+ukoofKKOlJJWcWAj7bnbgcv9a2sa3LEs3CF2+thXtQGGCY4B7ceZdQ4GOCZG6tnahCULK2q2n16N37BFrNmJNWhXIdmJ7IbagCewWqSmNLyQ9iNjSga2iNHAmA7HZJGyqVCE6/ov9GFffqNmXGIQAB+UE+DYxZFEKzgn4Fy9KPH/8lAjY0HD5C4nRNfRsyks4VlzSgCbJm/cYsCaRoBSE8IKHbDLuyXBkvgnQH4CLP6MrC+p1iP4Be3bL06uCbog/pH+5++v959PPBv1FVBXsLI1tcVzpuc4yyx+wu2MlMHkC6I0R8ehdCC9b0Yoo4ARAvAFI4GqQMBDprdLSWLLQ9rV6NNgMTIf3F39zV1azl7TC0tIO/n6OtqavxSDpdOiktzYRG6cbt5Ob7GPOw9xFueAA99/31eYZHvQ8x5n7Pg3zmIYk/2MUpFcolbBxao832xcoHld8NFEmZNvNHSMe3tHqdhgpOw00cRSZjJWObBEmpdVH8loVRyMwpvfdpUrf+KJpUX2ZH6alNR6DUFluTE0gj1zFBVyDUXGQUx4If9nofhacUoN5zftemHyrZcAbglAmqL7W9emtrxPMXw4f7vSeZ4z0nHvX2LiNU760CET5j4gabxctBm+c4F7SNwD8I2HIGu9Jx0SbRsMqrLdGeZE6i3lNs7wmoHTfzonnMQ/S27KRhm2C2Ysxm6xb9VO0HJ+5/+XT46Vfte/L3FM66ctWwX5pTkPagd+XmQITzY2OPFE7BlQsXPlWKSsQrg50UnXTCtVeykpKFUMtwBLw6x1w/aDqiMSlePlzauHZtY9tP0MwariJ+/yaywuYKNLK++Jyc+L4YvvAtvjfX+9SiRY+Jw93dYLiUy3QeV0m548XFzZeKvDnFx1mHVS2oYjkTYPeccPabLpFE1UDzL+I2cevSQQ8UdbX2iCjO3ibc5N2TeyJ33pjDzqq4+7/imv2eNoccuqLl97eth8xgB6sNdsCNV5mZA6pfL6vG0//my25XLhfzX97096wJU712x9cM0JWO8fFLGT2wBjcf/ckteHcVAOtFsO9H1iIVIzapWXP/hQMnmePu/e9fmlV0jPAtg/UYtZfjjXNrcozFVHQwq00VB1dol7g4FPSvb/b46eH5Q/W+8PR4meUV5vpFCgSRUQI+4nx+VCRfYiqLIotE+AUAPIQTq5pA+p1VkrP4QLZZ8repKT8AvP/rtmJ1+t/8hI1rlEDwmbPlB+dbdEVwjstaVmC12LpBAi3OAAZCAjXKmAUAAAA=') format('woff2');
+  src: url('data:font/woff2;base64,d09GMgABAAAAAATYAA0AAAAACDwAAASDAAL6XgAAAAAAAAAAAAAAAAAAAAAAAAAAHCoGYD9TVEFUcAB0EQgKihSIXQE2AiQDFgsWAAQgBQYHIBuIBlGUCM44iB8L8XaR/YC1dDQVpngn/4M27f3dTS63i0TNIQYZYlpTqLOtk5oLPasZcuJOAJSGxw/3M366TJrOJjobTrwqMSJxgMMJflxcl94JHXgkyKnotgazqcHL94EA8AiPZErLa5shG9szdTw8OQCw2cBFwrFGWm0HLjueWGIAeMeXRIVCUQHjR5qfU7hA225w4WgDQADAGlkjgMAYAsEBHABXDkAq8+fH/5IAVDQWlRKBJkycMpMYMNqh4anEgoUDXANjCQBDPACAQFpgiAI8gyzYhXc1mOsACABbAlcWpCRz6P6Ljiy4jzQfDX7W9ln3Z8+/+O/LZV9e/DnFZgMs3qb/0bsct0+qp+Axw6NGagGBy4hDNhvkZAIPrt2xoKtgsgqbCQB6RiA6gIgs7P08x3KEZzrxIfZOnL0dJ2MENzcO5crFHORyh00ngf1lCWTPkwovye172zSj7FpbpRpqk8xSHTbxBotoFUbM0JsiW3pHrKKFN5j05j6bnEowmwUzI01NhQJ4EvDCtcG8yPgzq1UkoKVNUG/aRuJW9/yNB3nDftfmPsqnZlJHRTWroyifWqTE99uJtwT5yA0w+uu8TCUXRWI3kDk50gHpGTL2JahUUDW1NDeq01IiSNFH0qSdg29RqtQNzcKIWW/i1STH+OHIE1TN+6+SnbjNQ92iPnQFnH6zq4pVMXo/29xPnB5iaHTiC4to9V/UT+KrEQ9yU1x14DYwXpoFw/2c7lG5fjO+uCXeNFzX37CKfIkhUVzkpCiy/ANum7cDgtb/asyxjW2OOnKbudN70yFluIata76nynCTxFvGqzegvy7XZnoNFip8n2rkGDGO8obDniMtcc1rYka+a0w0fjDrTN+ZgVX37qt8d9b0D0fQnOrpRhJ0//xjrfOJHbdx49uifhxy42J96uaY5z34oGZ4eCNMNTgBPtAaHl6ULW2UDm1fMmra3r3T1qOVaQuWjFf++KOyM2FtWWPN/Mzu7sz5nmQkU8q0Vwq9tWnTm8rL8+bhh1Uz79xZulgQ1uvSlrZKhOGlG6KHDqW4+E54f3+Sy3CMRp0LWhD3hpPy9s1VT4O+D9Iz+JAnMUjRCOBD0DulcTqAcs0budNjmHNdLOj5d2hIe4frtMj9W9Cu0KGjwFcJjztKX4MBN2pvXdD+oHyqfHJHtkFt9uqmKxUZnm6J0k9ee1GhX/ePl2lXhumHDG3E29q4S/cknek+8JIcJhQIMAE7PujoWLgjiQUTgyMfvz/Pv7gY699/HBk8MUHxYaCwZ6FmnHdmJmvRLNwjOAZ8XzyzAxWA4GrgqD8WxKjTKqUT95je8yrKLQoM/eWXVpfUNJIp7a6BZkfyfvTqnm5JpTo1tmCmIgPrNH4ZGahbsF8b9H1Q8Hfi6nvBQe93aut7IpLLypJTykqRKy1NSS6lrMJp0Gnw/IBzfh53tBkJAPN3Z3brnbIuee5vDgxrBIDP/w0oUS5G7nz7JuzBACEC3tBe1uhgCPRk6L8L3UFUYjfowrvxFfFMw1t3JBeyBwt+BAAAAA==') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: block;
 }
 .tab-btn::before,
 .topbar-search-btn::before,
-.topbar-menu-btn::before,
-.topbar-menu-row::before {
+.tabbar-menu-btn::before,
+.tabbar-menu-row::before {
   font-family: 'Material Symbols Outlined';
   font-weight: normal;
   font-style: normal;
@@ -88,72 +96,113 @@ button:disabled { opacity: 0.4; cursor: default; }
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
 }
-.tab-btn { display: flex; align-items: center; justify-content: center; gap: 5px; white-space: nowrap; }
 .tab-btn::before { font-size: 20px; }
-/* 狭い幅ではタブのアイコン＋ラベルが横に収まらない（実測: 390px で
-   ラベルが1文字ずつ折り返してヘッダーからはみ出した）。タブだけ
-   「アイコン上・ラベル下」の2段に切り替える（ラベルは消さない）。 */
-@media (max-width: 560px) {
-  .tab-btn { flex-direction: column; gap: 1px; font-size: 12.5px; padding: 3px 2px; }
-  .tab-btn::before { font-size: 19px; }
-}
 .tab-btn[data-section="map"]::before { content: "\E55B"; }       /* map */
 .tab-btn[data-section="formations"]::before { content: "\F233"; } /* groups */
 .tab-btn[data-section="megido"]::before { content: "\E7FD"; }     /* person */
 .tab-btn[data-section="records"]::before { content: "\E889"; }    /* history */
-.topbar .topbar-search-btn,
-.topbar .topbar-menu-btn { display: inline-flex; align-items: center; gap: 4px; }
+.tab-btn[data-section="search"]::before { content: "\E8B6"; }    /* search */
 .topbar-search-btn::before { content: "\E8B6"; font-size: 18px; } /* search */
-.topbar-menu-btn::before { content: "\E5D2"; font-size: 18px; }   /* menu */
-.topbar-menu-row::before { font-size: 18px; vertical-align: -3px; margin-right: 10px; }
-.topbar-menu-row.row-undo::before { content: "\E166"; } /* undo */
-.topbar-menu-row.row-redo::before { content: "\E15A"; } /* redo */
+.tabbar-menu-btn::before { content: "\E5D2"; font-size: 20px; }   /* menu */
+.tabbar-menu-row::before { font-size: 18px; vertical-align: -3px; margin-right: 10px; }
+.tabbar-menu-row.row-undo::before { content: "\E166"; } /* undo */
+.tabbar-menu-row.row-redo::before { content: "\E15A"; } /* redo */
+.tabbar-menu-row.row-report::before { content: "\E560"; } /* rate_review */
 
-/* ヘッダー（固定）: 区画タブ＋メニュー。オーバーレイより上に残り、
-   シートを開いても選択中のタブが見える（現在地が消えない。追記10）。 */
+/* 上の帯（固定）: 検索だけの細い帯（フッター2段型の確定、2026-11-20）。
+   区画タブとメニューはタブバー（下）へ移した。オーバーレイより上に
+   残るため、シートを開いても検索の入口は見えたままになる。 */
 .topbar {
   position: fixed;
   top: 0; left: 0; right: 0;
   height: var(--topbar-h);
   display: flex;
-  align-items: stretch;
-  gap: 6px;
-  padding: 0 6px 0 10px;
+  align-items: center;
+  padding: 6px 10px;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   z-index: 40;
 }
-.tabs { display: flex; flex: 1; min-width: 0; }
-.tab-btn {
+.topbar .topbar-search-btn {
   flex: 1;
-  background: none;
-  border: none;
-  border-radius: 0;
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 100%;
+  padding: 0 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 999px;
   color: var(--muted);
-  font-size: 15px;
-  padding: 6px 2px;
-  box-shadow: inset 0 -3px 0 transparent;
+  font-size: 14px;
+  text-align: left;
 }
-.tab-btn.tab-on {
-  color: var(--text);
-  font-weight: 700;
-  background: rgba(231, 205, 156, 0.07);
-  box-shadow: inset 0 -3px 0 var(--accent);
-}
-.topbar .topbar-menu-btn { align-self: center; padding: 6px 8px; font-size: 13px; }
 
-/* 状態フッター（固定）: 常駐の粒度は現行ツールに合わせる。
-   閉じた状態＝塔破力・予測・予測リタイア許容数・スタイル別使用数。
-   展開部は上へ伸びる（見通しの内訳・次の回復・スタイル別カード）。 */
-.statebar {
+/* フッター2段（固定・全幅）: 上段＝状態フッターの常駐行、下段＝
+   タブバー。シート／全画面ビューより上に描き（z-index 35）、開いて
+   いる間も現在地と状態が見える。≡メニューはこのスタックを基準に
+   上向きに開く（.tabbar-menu）。 */
+.footbar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
+  z-index: 35;
+  background: var(--surface);
+}
+
+/* 状態フッター（2段の上段）: 常駐の粒度は現行ツールに合わせる。
+   閉じた状態＝塔破力・予測・予測リタイア許容数・スタイル別使用数。
+   展開部は上へ伸びる（見通しの内訳・次の回復・スタイル別カード）。
+   安全領域の下余白はタブバー側が持つ。 */
+.statebar {
   background: var(--surface);
   border-top: 1px solid var(--border);
-  padding: 6px 10px calc(6px + env(safe-area-inset-bottom, 0px));
-  z-index: 25;
+  padding: 6px 10px;
   font-size: 13px;
 }
+
+/* タブバー（2段の下段）: 四角5つ（マップ／編成／メギド／記録／検索）
+   ＋≡。四角はアイコン上・ラベル下の2段で、選択中はアクセント色で
+   塗る（現在地の色が常時見える）。 */
+.tabbar {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom, 0px));
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.tab-squares { display: flex; flex: 1; gap: 6px; min-width: 0; }
+.tab-btn {
+  flex: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  min-height: 50px;
+  padding: 4px 2px;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.tab-btn.tab-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+.tabbar-menu-btn {
+  flex: 0 0 52px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  min-height: 50px;
+  padding: 4px 2px;
+  background: none;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+.tabbar-menu-btn[aria-expanded="true"] { color: var(--text); border-color: var(--accent); }
 .statebar-notice { color: var(--accent); font-weight: 700; margin-bottom: 4px; font-size: 12.5px; }
 .statebar-main {
   display: flex; align-items: center; gap: 10px;
@@ -199,7 +248,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* 区画ビュー（main の中身）: ヘッダーと状態フッターの間をスクロールする */
 .view-area {
   padding-top: var(--topbar-h);
-  padding-bottom: calc(var(--statebar-h) + 16px);
+  padding-bottom: calc(var(--footer-h) + 16px);
   min-height: 100dvh;
 }
 .section-top {
@@ -208,7 +257,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 }
 .section-body { padding: 6px 14px 24px; }
 .section-bottom {
-  position: sticky; bottom: var(--statebar-h); z-index: 6;
+  position: sticky; bottom: var(--footer-h); z-index: 6;
   background: var(--bg); padding: 6px 14px;
 }
 
@@ -282,17 +331,18 @@ button:disabled { opacity: 0.4; cursor: default; }
   font-size: 13px;
 }
 
-/* シート／全画面ビュー: ヘッダーの下から開く（タブが見えたままになる） */
+/* シート／全画面ビュー: 上の帯の下からフッター2段の上までの範囲に
+   開く（タブバーの四角＝現在地と、状態行が見えたままになる） */
 .overlay-backdrop {
   position: fixed;
-  top: var(--topbar-h); left: 0; right: 0; bottom: 0;
+  top: var(--topbar-h); left: 0; right: 0; bottom: var(--footer-h);
   background: rgba(0, 0, 0, 0.55);
   z-index: 30;
 }
 .overlay-sheet {
   position: fixed;
-  left: 0; right: 0; bottom: 0;
-  height: min(85dvh, calc(100dvh - var(--topbar-h) - 12px));
+  left: 0; right: 0; bottom: var(--footer-h);
+  height: min(85dvh, calc(100dvh - var(--topbar-h) - var(--footer-h) - 12px));
   background: var(--surface);
   border-top: 1px solid var(--border);
   border-radius: 14px 14px 0 0;
@@ -302,7 +352,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 }
 .overlay-full {
   position: fixed;
-  top: var(--topbar-h); left: 0; right: 0; bottom: 0;
+  top: var(--topbar-h); left: 0; right: 0; bottom: var(--footer-h);
   background: var(--bg);
   z-index: 32;
   display: flex;
@@ -589,18 +639,21 @@ button:disabled { opacity: 0.4; cursor: default; }
 
 /* 表示の組み直し（続く便）: 原則8の階層化と各画面の再構成 */
 
-/* 上部バーのメニュー（原則3改訂）: 元に戻す・やり直しはメニューの中の行 */
-.topbar-menu {
-  position: fixed; top: calc(var(--topbar-h) + 4px); right: 8px; z-index: 25;
-  min-width: 190px; background: var(--surface); border: 1px solid var(--border);
+/* タブバーの≡メニュー（原則3改訂）: 元に戻す・やり直しはメニューの
+   中の行。フッター2段（.footbar）を基準に、その上へ上向きに開く。 */
+.tabbar-menu {
+  position: absolute; bottom: calc(100% + 4px); right: 6px;
+  min-width: 220px; background: var(--surface); border: 1px solid var(--border);
   border-radius: 8px; box-shadow: var(--shadow, 0 4px 16px rgba(0, 0, 0, 0.35));
   padding: 4px;
 }
-.topbar-menu-row {
+.tabbar-menu-row {
   display: block; width: 100%; text-align: left; padding: 12px 14px;
-  background: none; border: none; color: inherit; font-size: 14px;
+  background: none; border: none; color: inherit; font-size: 14px; cursor: pointer;
 }
-.topbar-menu-row:disabled { opacity: 0.4; }
+.tabbar-menu-row:disabled { opacity: 0.4; }
+.tabbar-menu-row input[type="file"] { display: none; }
+.tabbar-menu-sep { border-top: 1px solid var(--border); margin: 4px 2px; }
 
 /* マップの階層化: 未解放のマスはラベルを小さく落とす */
 .square.state-locked .sq-label { font-size: 10px; }
@@ -681,9 +734,9 @@ button:disabled { opacity: 0.4; cursor: default; }
 
 /* 段階ピッカーの固定パネル（コンディションの直し・途中開始で共通） */
 .stage-panel {
-  position: fixed; left: 0; right: 0; bottom: 0; z-index: 45;
+  position: fixed; left: 0; right: 0; bottom: var(--footer-h); z-index: 45;
   background: var(--surface); border-top: 2px solid var(--accent);
-  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  padding: 10px 12px;
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
 }
 .stage-panel-title { font-weight: 700; margin-bottom: 8px; }
@@ -1149,6 +1202,34 @@ button:disabled { opacity: 0.4; cursor: default; }
 .authored-pair { margin: 10px 0; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
 .authored-pair:last-child { border-bottom: none; padding-bottom: 0; }
 .authored-pair-threat { margin: 0 0 4px; }
+/* 原資料の脅威は痛い所として赤字で出す（敵シート作り直し、2026-11-20）。 */
+.authored-threat-text .authored-item-label,
+.authored-threat-text .authored-item-detail { color: #f6b8b3; }
+.authored-threat-text .authored-item-label { color: var(--danger); }
+
+/* 敵シートの種タブ（1マス複数種の切り替え、2026-11-20）。 */
+.enemy-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+.enemy-tab { font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text); }
+.enemy-tab.selected { border-color: var(--accent); color: var(--accent); box-shadow: inset 0 -3px 0 var(--accent); }
+
+/* 種族チップ: 飛行だけを強調色にする（相談 5-9、シート側のみ）。 */
+.race-chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin: 4px 0; }
+.race-chips-label { font-size: 13px; color: var(--muted); }
+.race-chip { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--text); }
+.race-chip-fly { border-color: var(--accent); color: var(--accent); }
+
+/* 脅威の発生源の見出し（本体／取り巻き別、2026-11-20）。 */
+.threat-source-label { font-size: 13px; font-weight: 800; margin: 12px 0 4px; }
+
+/* 答えカルーセル: 戦略タイプ別のブロックを横スクロールで並べる。 */
+.answer-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px; }
+.carousel-block { flex: 0 0 auto; width: 240px; max-width: 78vw; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+.carousel-threats { font-size: 12px; color: var(--muted); margin: 2px 0; }
+
+/* 耐性アコーディオン（シート側。既定は閉、2026-11-20）。 */
+.resist-toggle { font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text); margin: 8px 0 4px; }
+.resist-list { margin: 4px 0 8px; }
+.resist-row { font-size: 13px; margin: 2px 0; }
 .authored-response { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--accent); }
 .authored-response .authored-item-label::before { content: "対策: "; color: var(--accent); }
 .enemy-stats { font-size: 13px; font-weight: 700; margin: 2px 0; }
@@ -1253,7 +1334,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* ===== デスクトップ対応（1024px 以上）: 2ペイン =====
    ユーザー判断⑧。左ペインにマップ区画を常駐させ、右ペインに現在の
    区画（編成・メギド・記録）または開いているシート／全画面ビューを出す。
-   ヘッダーのタブと状態フッターは全幅で常駐のまま（固定配置は従来どおり）。
+   上の帯とフッター2段（状態行＋タブバー）は全幅で常駐のまま。
    狭い画面の規則には一切触れない。マスの寸法（68×50固定）も変えない。
    - 現在の区画がマップ自身で何も開いていないときは、右ペインを畳んで
      マップが全幅になる（.panes.mode-map）。シートが開けば
@@ -1437,7 +1518,7 @@ button:disabled { opacity: 0.4; cursor: default; }
   .panes {
     position: fixed;
     top: var(--topbar-h);
-    bottom: var(--statebar-h);
+    bottom: var(--footer-h);
     left: 0;
     right: 0;
     display: flex;
@@ -1470,12 +1551,21 @@ button:disabled { opacity: 0.4; cursor: default; }
   .section-top { top: 0; }
   .section-bottom { bottom: 0; }
 
-  .statebar { z-index: 35; }
+  /* フッター2段の重なりは .footbar の z-index（35）が担う（シート
+     より上に描き、常駐の内訳が隠れない）。 */
+
+  /* タブバーは全幅に広げず、四角群＋≡を中央の幅に収める。メニューの
+     右端も同じ内側にそろえる（≡の真上に開く）。 */
+  .tabbar {
+    padding-left: calc((100% - 700px) / 2);
+    padding-right: calc((100% - 700px) / 2);
+  }
+  .tabbar-menu { right: calc((100% - 700px) / 2); }
 
   #overlay-root {
     position: fixed;
     top: var(--topbar-h);
-    bottom: var(--statebar-h);
+    bottom: var(--footer-h);
     left: var(--pane-w);
     right: 0;
     z-index: 30;
@@ -1512,10 +1602,10 @@ button:disabled { opacity: 0.4; cursor: default; }
   }
 
   /* 段階ピッカー（コンディションの直し等）は右ペインの下部、
-     フッターの上に出す */
+     フッター2段の上に出す */
   .stage-panel {
     left: var(--pane-w);
-    bottom: var(--statebar-h);
+    bottom: var(--footer-h);
   }
 }
 
@@ -1600,7 +1690,7 @@ button, select, input, a { touch-action: manipulation; }
 
 /* 取り消しトースト */
 .undo-toast {
-  position: fixed; left: 12px; right: 12px; bottom: calc(var(--statebar-h, 56px) + 12px);
+  position: fixed; left: 12px; right: 12px; bottom: calc(var(--footer-h) + 12px);
   z-index: 90; display: flex; align-items: center; gap: 10px;
   background: var(--text); color: var(--surface);
   border-radius: 10px; padding: 12px 14px;
@@ -1636,7 +1726,10 @@ button, select, input, a { touch-action: manipulation; }
 <aside id="mappane" class="map-pane"></aside>
 <main id="view" class="view-area"></main>
 </div>
-<footer id="statebar" class="statebar"></footer>
+<footer id="footbar" class="footbar">
+<div id="statebar" class="statebar"></div>
+<nav id="tabbar" class="tabbar"></nav>
+</footer>
 <div id="overlay-root"></div>
 <div id="preview-badge">プレビュー</div>
 <script>
@@ -242402,6 +242495,13 @@ window.__PREVIEW_DATA__ = {
       loadDamageReduction() {
         return load(`damage-reduction.v${DATA_VERSION}.json`);
       },
+      // 脅威レベルの下書き段階づけ（2026-11-20 敵シート作り直し。
+      // 基準はアンケート後に差し替える前提で、決め方は生成器
+      // pipeline/generate-threat-levels.mjs にだけある。アプリは
+      // 段階を読むだけ）。
+      loadThreatLevels() {
+        return load(`threat-levels.v${DATA_VERSION}.json`);
+      },
       // 霊宝マスタ（reishouId → 名前・系譜・効果・ステータス修正値・大きさ。
       // 装備の表示と選択、探索力の計算で使う）。
       loadReishou() {
@@ -242548,6 +242648,12 @@ window.__PREVIEW_DATA__ = {
     await backend.put("state", "meta", { version: RECORD_VERSION, ...meta });
   }
   var EXPORT_KIND = "tower-tool-export";
+  function exportFileName(date = /* @__PURE__ */ new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${EXPORT_KIND}-${y}${m}${d}.json`;
+  }
   async function exportAll(backend) {
     const out = { kind: EXPORT_KIND, version: RECORD_VERSION, exportedAt: (/* @__PURE__ */ new Date()).toISOString(), stores: {} };
     for (const name of STORE_NAMES) {
@@ -243227,11 +243333,18 @@ window.__PREVIEW_DATA__ = {
         result: op.type === "battle" ? op.result : null,
         box: op.type === "explore" ? op.box : null,
         formationName: op.formationName || null,
+        formationId: op.formationId || null,
         enemies: def && Array.isArray(def.enemies) ? def.enemies : [],
         members: op.members || []
       });
     });
     return entries;
+  }
+  function closedDayText(closedAt) {
+    if (!closedAt) return null;
+    const date = new Date(closedAt);
+    if (Number.isNaN(date.getTime())) return null;
+    return `${date.getFullYear()}年${date.getMonth() + 1}月${date.getDate()}日`;
   }
   function floorSummaryText(structure, ops, floor) {
     const fd = structure.floors.find((f) => f.floor === floor);
@@ -243309,11 +243422,22 @@ window.__PREVIEW_DATA__ = {
       else if (result === "retreat") row.retreats += 1;
       map.set(key, row);
     };
+    const bumpFormation = (entry) => {
+      const key = entry.formationId ? `id:${entry.formationId}` : entry.formationName ? `name:${entry.formationName}` : null;
+      if (!key) return;
+      const row = formationMap.get(key) || { name: entry.formationName || "", battles: 0, wins: 0, losses: 0, retreats: 0 };
+      if (entry.formationName) row.name = entry.formationName;
+      row.battles += 1;
+      if (entry.result === "win") row.wins += 1;
+      else if (entry.result === "lose") row.losses += 1;
+      else if (entry.result === "retreat") row.retreats += 1;
+      formationMap.set(key, row);
+    };
     for (const ops of opsList) {
       for (const entry of runEntries(structure, ops)) {
         if (entry.kind !== "battle") continue;
         for (const name of entry.enemies) bump(enemyMap, name, entry.result);
-        bump(formationMap, entry.formationName, entry.result);
+        bumpFormation(entry);
       }
     }
     const enemiesAll = [...enemyMap.values()];
@@ -243434,38 +243558,72 @@ window.__PREVIEW_DATA__ = {
     { id: "megido", label: "メギド" },
     { id: "records", label: "記録" }
   ];
-  function renderHeader(root, { section: section3, menuOpen, canUndo: canUndo2, canRedo: canRedo2 }, { onSelectSection, onToggleMenu, onUndo, onRedo, onSearch }) {
+  function renderHeader(root, _vm, { onSearch } = {}) {
     clear(root);
-    const nav = el("nav", "tabs");
-    nav.setAttribute("aria-label", "画面の切り替え");
-    for (const s of SECTIONS) {
-      const btn = el("button", `tab-btn${section3 === s.id ? " tab-on" : ""}`, s.label);
-      btn.dataset.section = s.id;
-      if (section3 === s.id) btn.setAttribute("aria-current", "page");
-      btn.addEventListener("click", () => onSelectSection(s.id));
-      nav.append(btn);
-    }
-    const menuBtn = el("button", "topbar-menu-btn", "メニュー");
-    menuBtn.setAttribute("aria-label", "メニューを開く");
-    menuBtn.setAttribute("aria-expanded", menuOpen ? "true" : "false");
-    menuBtn.addEventListener("click", onToggleMenu);
     if (typeof onSearch === "function") {
       const searchBtn = el("button", "topbar-search-btn", "検索");
       searchBtn.setAttribute("aria-label", "マス・メギド・敵・編成を検索する");
       searchBtn.addEventListener("click", onSearch);
-      root.append(nav, searchBtn, menuBtn);
-    } else {
-      root.append(nav, menuBtn);
+      root.append(searchBtn);
     }
+  }
+  function renderTabBar(root, { section: section3, searchActive, menuOpen, canUndo: canUndo2, canRedo: canRedo2 }, { onSelectSection, onToggleMenu, onUndo, onRedo, onSearch, onReport, onExport, onImportFile }) {
+    clear(root);
+    const squares = el("div", "tab-squares");
+    squares.setAttribute("role", "navigation");
+    squares.setAttribute("aria-label", "画面の切り替え");
+    for (const s of SECTIONS) {
+      const on = !searchActive && section3 === s.id;
+      const btn = el("button", `tab-btn${on ? " tab-on" : ""}`, s.label);
+      btn.dataset.section = s.id;
+      if (on) btn.setAttribute("aria-current", "page");
+      btn.addEventListener("click", () => onSelectSection(s.id));
+      squares.append(btn);
+    }
+    const searchSquare = el("button", `tab-btn tab-search-btn${searchActive ? " tab-on" : ""}`, "検索");
+    searchSquare.dataset.section = "search";
+    if (searchActive) searchSquare.setAttribute("aria-current", "page");
+    searchSquare.addEventListener("click", onSearch);
+    squares.append(searchSquare);
+    const menuBtn = el("button", "tabbar-menu-btn", "メニュー");
+    menuBtn.setAttribute("aria-label", "メニューを開く");
+    menuBtn.setAttribute("aria-expanded", menuOpen ? "true" : "false");
+    menuBtn.addEventListener("click", onToggleMenu);
+    root.append(squares, menuBtn);
     if (menuOpen) {
-      const menu = el("div", "topbar-menu");
-      const undoBtn = el("button", "topbar-menu-row row-undo", "元に戻す");
+      const menu = el("div", "tabbar-menu");
+      if (typeof onExport === "function") {
+        const exportBtn = el("button", "tabbar-menu-row row-export", "データの書き出し");
+        exportBtn.addEventListener("click", onExport);
+        menu.append(exportBtn);
+      }
+      if (typeof onImportFile === "function") {
+        const importLabel = el("label", "tabbar-menu-row row-import", "データの読み込み");
+        const fileInput = document.createElement("input");
+        fileInput.type = "file";
+        fileInput.accept = "application/json";
+        fileInput.addEventListener("change", () => {
+          const file = fileInput.files && fileInput.files[0];
+          if (file) onImportFile(file);
+        });
+        importLabel.append(fileInput);
+        menu.append(importLabel);
+      }
+      if (typeof onExport === "function" || typeof onImportFile === "function") {
+        menu.append(el("div", "tabbar-menu-sep"));
+      }
+      const undoBtn = el("button", "tabbar-menu-row row-undo", "元に戻す");
       undoBtn.disabled = !canUndo2;
       undoBtn.addEventListener("click", onUndo);
-      const redoBtn = el("button", "topbar-menu-row row-redo", "やり直し");
+      const redoBtn = el("button", "tabbar-menu-row row-redo", "やり直し");
       redoBtn.disabled = !canRedo2;
       redoBtn.addEventListener("click", onRedo);
       menu.append(undoBtn, redoBtn);
+      if (typeof onReport === "function") {
+        const reportBtn = el("button", "tabbar-menu-row row-report", "不具合・要望を報告する");
+        reportBtn.addEventListener("click", onReport);
+        menu.append(reportBtn);
+      }
       root.append(menu);
     }
   }
@@ -243804,7 +243962,7 @@ window.__PREVIEW_DATA__ = {
     wrap.append(prev, title, next);
     root.append(wrap);
   }
-  function createOverlay(root) {
+  function createOverlay(root, { onClose } = {}) {
     clear(root);
     const backdrop = el("div", "overlay-backdrop");
     backdrop.hidden = true;
@@ -243813,13 +243971,17 @@ window.__PREVIEW_DATA__ = {
     const full = el("div", "overlay-full");
     full.hidden = true;
     root.append(backdrop, sheet, full);
+    let wasOpen = false;
     const scrollMem = { "sheet-body": /* @__PURE__ */ new Map(), "full-body": /* @__PURE__ */ new Map() };
     const sync = () => {
       backdrop.hidden = sheet.hidden && full.hidden;
+      const open = !sheet.hidden || !full.hidden;
       const b = typeof document !== "undefined" ? document.body : null;
       if (b && b.classList && typeof b.classList.toggle === "function") {
-        b.classList.toggle("ov-open", !sheet.hidden || !full.hidden);
+        b.classList.toggle("ov-open", open);
       }
+      if (wasOpen && !open && typeof onClose === "function") onClose();
+      wasOpen = open;
     };
     let closeRequest = null;
     const closeFull = () => {
@@ -244173,7 +244335,9 @@ window.__PREVIEW_DATA__ = {
   var MEGIDO_LEVELS = [70, 75, 77, 79, 80];
   var BOND_LABELS = ["なし", "真", "剛", "絆"];
   var BULK_KINDS = [
-    { kind: "bond_reishou", label: "絆霊宝", values: BOND_LABELS.map((label, v) => ({ v, label })) },
+    // 絆霊宝の一括は「選んだ型を各人の最初の空き枠に入れる」。値 0 は
+    // 全枠を外すクリア（意味は main 側の適用規則が担う）。
+    { kind: "bond_reishou", label: "絆霊宝", values: BOND_LABELS.map((label, v) => ({ v, label: v === 0 ? "なし（全枠を外す）" : label })) },
     { kind: "level", label: "レベル", values: MEGIDO_LEVELS.map((v) => ({ v, label: `Lv${v}` })) }
   ];
   function buildMegidoView(vm, cb) {
@@ -244239,13 +244403,14 @@ window.__PREVIEW_DATA__ = {
     }
     tools.append(filters);
     accBody.append(tools);
-    const bulkState = { kind: null, selected: /* @__PURE__ */ new Set() };
+    const bulkState = { kind: null, value: null, selected: /* @__PURE__ */ new Set() };
     const bulkEntry = el2("div", "meg-bulk-entry");
     const bulkBar = el2("div", "meg-bulk-bar");
     bulkBar.hidden = true;
     const listWrap = el2("div", "meg-candidate-list");
     const exitBulk = () => {
       bulkState.kind = null;
+      bulkState.value = null;
       bulkState.selected.clear();
       bulkBar.hidden = true;
       bulkEntry.hidden = false;
@@ -244257,6 +244422,7 @@ window.__PREVIEW_DATA__ = {
     };
     const enterBulk = (kind) => {
       bulkState.kind = kind;
+      bulkState.value = null;
       bulkState.selected.clear();
       bulkBar.hidden = false;
       bulkEntry.hidden = true;
@@ -244272,6 +244438,23 @@ window.__PREVIEW_DATA__ = {
         "bulk-count",
         `${def.label}を一括設定: ${bulkState.selected.size}体を選択中`
       ));
+      const pills = findByClass(listWrap, "megido-select-pick");
+      const renderedIds = pills.map((p) => p.dataset.megidoId).filter(Boolean);
+      const allOn = renderedIds.length > 0 && renderedIds.every((id) => bulkState.selected.has(id));
+      const allBtn = el2("button", "btn-bulk-all", allOn ? "選択を解除" : "全員を選ぶ");
+      allBtn.addEventListener("click", () => {
+        for (const id of renderedIds) {
+          if (allOn) bulkState.selected.delete(id);
+          else bulkState.selected.add(id);
+        }
+        for (const pill of pills) {
+          const on = bulkState.selected.has(pill.dataset.megidoId);
+          pill.className = on ? "megido-select-pick on" : "megido-select-pick";
+          pill.textContent = on ? "選択中" : "選ぶ";
+        }
+        renderBulkBar();
+      });
+      bulkBar.append(allBtn);
       const sel = document.createElement("select");
       sel.className = "megido-select bulk-value";
       for (const { v, label } of def.values) {
@@ -244280,8 +244463,13 @@ window.__PREVIEW_DATA__ = {
         opt.textContent = label;
         sel.append(opt);
       }
+      if (bulkState.value != null) sel.value = String(bulkState.value);
+      sel.addEventListener("change", () => {
+        bulkState.value = Number(sel.value);
+      });
       bulkBar.append(sel);
       const applyBtn = el2("button", "btn-bulk-apply", "割り振る");
+      applyBtn.disabled = bulkState.selected.size === 0;
       applyBtn.addEventListener("click", () => {
         const ids = [...bulkState.selected];
         const value = Number(sel.value);
@@ -244440,21 +244628,30 @@ window.__PREVIEW_DATA__ = {
       wrap.append(specialRow);
     }
     if (d.hasBondReishou) {
-      const bondRow = el2("div", "megido-field");
-      bondRow.append(el2("span", "megido-field-label", "絆霊宝"));
-      const bondSel = document.createElement("select");
-      bondSel.className = "megido-select";
-      bondSel.dataset.field = "bond_reishou";
-      BOND_LABELS.forEach((label, i) => {
-        const opt = document.createElement("option");
-        opt.value = String(i);
-        opt.textContent = label;
-        bondSel.append(opt);
-      });
-      bondSel.value = String(d.bondReishou);
-      bondSel.addEventListener("change", () => cb.onSetField(id, "bond_reishou", Number(bondSel.value)));
-      bondRow.append(bondSel);
-      wrap.append(bondRow);
+      const slots = Array.isArray(d.bondSlots) && d.bondSlots.length === 4 ? [...d.bondSlots] : [typeof d.bondReishou === "number" ? d.bondReishou : 0, 0, 0, 0];
+      const bondSels = [];
+      for (let i = 0; i < 4; i += 1) {
+        const bondRow = el2("div", "megido-field");
+        bondRow.append(el2("span", "megido-field-label", `絆霊宝（${i + 1}枠目）`));
+        const bondSel = document.createElement("select");
+        bondSel.className = "megido-select";
+        bondSel.dataset.field = "bond_reishou";
+        bondSel.dataset.slot = String(i);
+        BOND_LABELS.forEach((label, v) => {
+          const opt = document.createElement("option");
+          opt.value = String(v);
+          opt.textContent = label;
+          bondSel.append(opt);
+        });
+        bondSel.value = String(slots[i]);
+        bondSel.addEventListener("change", () => {
+          const next = bondSels.map((s) => Number(s.value));
+          cb.onSetField(id, "bond_reishou", next);
+        });
+        bondSels.push(bondSel);
+        bondRow.append(bondSel);
+        wrap.append(bondRow);
+      }
     }
     if (d.hasSingularity) {
       const singRow = el2("div", "megido-field");
@@ -244909,9 +245106,25 @@ window.__PREVIEW_DATA__ = {
         next.special_reishou = false;
         changed = true;
       }
-      if (!m.bondReishou && next.bond_reishou) {
-        next.bond_reishou = 0;
-        changed = true;
+      {
+        const slots = normalizeBondSlots(next);
+        const mirror = bondMirrorOf(slots);
+        if (!m.bondReishou) {
+          if (mirror !== 0) {
+            next.bond_reishou_slots = [0, 0, 0, 0];
+            next.bond_reishou = 0;
+            changed = true;
+          }
+        } else if (Array.isArray(next.bond_reishou_slots)) {
+          const raw = next.bond_reishou_slots;
+          const clamped = raw.slice(0, BOND_SLOT_COUNT).map(clampBondValue);
+          while (clamped.length < BOND_SLOT_COUNT) clamped.push(0);
+          if (JSON.stringify(raw) !== JSON.stringify(clamped)) {
+            next.bond_reishou_slots = clamped;
+            next.bond_reishou = bondMirrorOf(clamped);
+            changed = true;
+          }
+        }
       }
       if (!m.singularity && next.singularity_level) {
         next.singularity_level = 0;
@@ -244933,15 +245146,44 @@ window.__PREVIEW_DATA__ = {
     }
     return true;
   }
+  var BOND_SLOT_COUNT = 4;
+  function clampBondValue(v) {
+    return typeof v === "number" && Number.isFinite(v) ? Math.max(0, Math.min(3, Math.trunc(v))) : 0;
+  }
+  function normalizeBondSlots(entry) {
+    const e = entry && typeof entry === "object" ? entry : {};
+    if (Array.isArray(e.bond_reishou_slots)) {
+      const slots2 = e.bond_reishou_slots.slice(0, BOND_SLOT_COUNT).map(clampBondValue);
+      while (slots2.length < BOND_SLOT_COUNT) slots2.push(0);
+      if (slots2.some((v) => v !== 0)) return slots2;
+      const legacy = clampBondValue(e.bond_reishou);
+      if (legacy !== 0) return [legacy, 0, 0, 0];
+      return slots2;
+    }
+    const slots = [0, 0, 0, 0];
+    slots[0] = clampBondValue(e.bond_reishou);
+    return slots;
+  }
+  function bondMirrorOf(slots) {
+    if (!Array.isArray(slots)) return 0;
+    for (const v of slots) if (v) return v;
+    return 0;
+  }
+  function resolveBondSlots(entry, hasBondReishou) {
+    if (!hasBondReishou) return [0, 0, 0, 0];
+    return normalizeBondSlots(entry);
+  }
   function normalizeMegidoDetail(entry) {
     const e = entry && typeof entry === "object" ? entry : {};
+    const bondSlots = normalizeBondSlots(e);
     return {
       owned: e.owned === true,
       level: typeof e.level === "number" ? e.level : 70,
       ougiLevel: typeof e.ougiLevel === "number" ? e.ougiLevel : 3,
       special_reishou: e.special_reishou === true,
       special_set: e.special_set === true,
-      bond_reishou: typeof e.bond_reishou === "number" ? e.bond_reishou : 0,
+      bond_reishou: bondMirrorOf(bondSlots),
+      bond_reishou_slots: bondSlots,
       singularity_level: typeof e.singularity_level === "number" ? e.singularity_level : 0,
       reishou: Array.isArray(e.reishou) ? [...e.reishou] : []
     };
@@ -244960,8 +245202,14 @@ window.__PREVIEW_DATA__ = {
       next.special_set = true;
     } else if (field === "bond_reishou") {
       if (!basicsEntry || !basicsEntry.bondReishou) return null;
-      if (!Number.isFinite(value)) return null;
-      next.bond_reishou = Math.max(0, Math.min(3, Math.trunc(value)));
+      if (Array.isArray(value)) {
+        next.bond_reishou_slots = normalizeBondSlots({ bond_reishou_slots: value });
+      } else if (Number.isFinite(value)) {
+        next.bond_reishou_slots = normalizeBondSlots({ bond_reishou: value });
+      } else {
+        return null;
+      }
+      next.bond_reishou = bondMirrorOf(next.bond_reishou_slots);
     } else if (field === "singularity_level") {
       if (!basicsEntry || !basicsEntry.singularity) return null;
       if (!Number.isFinite(value)) return null;
@@ -244970,6 +245218,27 @@ window.__PREVIEW_DATA__ = {
       return null;
     }
     return next;
+  }
+  function withBondBulk(entry, value, basicsEntry) {
+    if (!basicsEntry || !basicsEntry.bondReishou) return null;
+    if (!Number.isFinite(value)) return null;
+    const v = Math.max(0, Math.min(3, Math.trunc(value)));
+    const slots = normalizeBondSlots(entry && typeof entry === "object" ? entry : {});
+    if (v === 0) {
+      if (slots.every((s) => s === 0)) return { entry, status: "unchanged" };
+      const next2 = { ...entry || {}, bond_reishou_slots: [0, 0, 0, 0], bond_reishou: 0 };
+      return { entry: next2, status: "applied" };
+    }
+    const idx = slots.indexOf(0);
+    if (idx < 0) return { entry, status: "skipped" };
+    const nextSlots = [...slots];
+    nextSlots[idx] = v;
+    const next = {
+      ...entry || {},
+      bond_reishou_slots: nextSlots,
+      bond_reishou: bondMirrorOf(nextSlots)
+    };
+    return { entry: next, status: "applied" };
   }
   function migrateFromOldStorage(getItem) {
     const summary = { formations: 0, megidoEntries: 0, owned: 0, failed: [], reishouSeeded: 0 };
@@ -245024,6 +245293,42 @@ window.__PREVIEW_DATA__ = {
     } catch {
       return void 0;
     }
+  }
+
+  // app/js/stats.js
+  var MAJUU_STAGE_BONUS = [
+    { level: 75, hp: 210, atk: 25, def: 25, spd: 0 },
+    { level: 77, hp: 170, atk: 18, def: 18, spd: 0 },
+    { level: 79, hp: 130, atk: 16, def: 16, spd: 0 },
+    { level: 80, hp: 90, atk: 11, def: 11, spd: 0 }
+  ];
+  function majuuBonusForLevel(savedLevel) {
+    const total = { hp: 0, atk: 0, def: 0, spd: 0 };
+    if (typeof savedLevel !== "number" || !Number.isFinite(savedLevel)) return total;
+    for (const stage of MAJUU_STAGE_BONUS) {
+      if (savedLevel >= stage.level) {
+        total.hp += stage.hp;
+        total.atk += stage.atk;
+        total.def += stage.def;
+        total.spd += stage.spd;
+      }
+    }
+    return total;
+  }
+  function savedLevelOf(megidoDetails, megidoId) {
+    const entry = megidoDetails && megidoDetails[megidoId];
+    return entry && typeof entry.level === "number" ? entry.level : 70;
+  }
+  function resolveMegidoStats(basicsEntry, savedLevel) {
+    if (!basicsEntry || !basicsEntry.statsStar6) return null;
+    const base = basicsEntry.statsStar6;
+    const bonus = majuuBonusForLevel(savedLevel);
+    return {
+      hp: base.hp + bonus.hp,
+      atk: base.atk + bonus.atk,
+      def: base.def + bonus.def,
+      spd: base.spd + bonus.spd
+    };
   }
 
   // app/js/explore.js
@@ -245088,9 +245393,10 @@ window.__PREVIEW_DATA__ = {
     }
     return any ? mods : null;
   }
-  function explorationPower(megidoBasics, megido, ougiLevel, stage, bonusFactor = 1, statMods = null) {
+  function explorationPower(megidoBasics, megido, ougiLevel, stage, bonusFactor = 1, statMods = null, savedLevel = 70) {
     if (stage >= STAGE_FAINTED) return 0;
-    const s = megido.statsStar6;
+    const s = resolveMegidoStats(megido, savedLevel);
+    if (!s) return 0;
     const atk = s.atk + (statMods ? statMods.atk : 0);
     const spd = s.spd + (statMods ? statMods.spd : 0);
     const hp = s.hp + (statMods ? statMods.hp : 0);
@@ -245112,7 +245418,7 @@ window.__PREVIEW_DATA__ = {
       if (!m) continue;
       const stage = conditionOf(id);
       const probe = { style: m.style, className: m.class };
-      const power = explorationPower(megidoBasics, m, ougiLevelOf(megidoDetails, id), stage, osusumeFactor(probe, osusume), reishouStatMods(megidoDetails, id, reishouStatsById));
+      const power = explorationPower(megidoBasics, m, ougiLevelOf(megidoDetails, id), stage, osusumeFactor(probe, osusume), reishouStatMods(megidoDetails, id, reishouStatsById), savedLevelOf(megidoDetails, id));
       members.push({
         id: m.id,
         no: m.no,
@@ -245150,7 +245456,7 @@ window.__PREVIEW_DATA__ = {
         stage,
         matched: osusumeMatches(probe, osusume),
         ...osusumeMatchSpread(probe, osusume),
-        power: explorationPower(megidoBasics, m, ougiLevelOf(megidoDetails, m.id), stage, osusumeFactor(probe, osusume), reishouStatMods(megidoDetails, m.id, reishouStatsById))
+        power: explorationPower(megidoBasics, m, ougiLevelOf(megidoDetails, m.id), stage, osusumeFactor(probe, osusume), reishouStatMods(megidoDetails, m.id, reishouStatsById), savedLevelOf(megidoDetails, m.id))
       });
     }
     rows.sort((a, b) => b.power - a.power || (a.id < b.id ? -1 : 1));
@@ -245647,7 +245953,7 @@ window.__PREVIEW_DATA__ = {
       const stage = conditionOf(id);
       if (stage >= STAGE_FAINTED) continue;
       const probe = { style: m.style, className: m.class };
-      const power = explorationPower(megidoBasics, m, ougiLevelOf(megidoDetails, id), stage, osusumeFactor(probe, osusume), reishouStatMods(megidoDetails, id, reishouStatsById));
+      const power = explorationPower(megidoBasics, m, ougiLevelOf(megidoDetails, id), stage, osusumeFactor(probe, osusume), reishouStatMods(megidoDetails, id, reishouStatsById), savedLevelOf(megidoDetails, id));
       if (power > 0) {
         candidates.push({
           id,
@@ -245868,6 +246174,36 @@ window.__PREVIEW_DATA__ = {
   function normalizePoleName(name) {
     return POLE_ALIASES[name] || name;
   }
+  var EFFECT_RESIST_NAME = {
+    "photon:destroy": "フォトン破壊",
+    "photon:steal": "フォトン奪取",
+    "photon:degrade": "フォトン劣化",
+    "gauge:down": "覚醒ゲージ低下",
+    "gauge:up-down": "覚醒ゲージ上昇量低下"
+  };
+  function effectResistName(effectId) {
+    if (!effectId) return null;
+    if (effectId.startsWith("inflict:")) return effectId.slice("inflict:".length);
+    return EFFECT_RESIST_NAME[effectId] || null;
+  }
+  function resistGradeOf(enemyFact, effectId) {
+    const name = effectResistName(effectId);
+    if (!name || !enemyFact) return null;
+    const table = enemyFact.resistances && enemyFact.resistances.symbolTable || {};
+    let partial = null;
+    for (const [key, grades] of Object.entries(table)) {
+      const keyName = normalizePoleName(key);
+      const vh = grades && grades[2];
+      if (typeof vh !== "string" || !vh) continue;
+      if (keyName === name) return vh;
+      if (partial === null && keyName.includes(name)) partial = vh;
+    }
+    return partial;
+  }
+  function effectInvalidAgainst(enemyFact, effectId) {
+    const grade = resistGradeOf(enemyFact, effectId);
+    return grade === "△" || grade === "×" || grade === "無効";
+  }
   function buildIndex(meansData) {
     const byEffect = /* @__PURE__ */ new Map();
     const byMegido = /* @__PURE__ */ new Map();
@@ -245921,19 +246257,27 @@ window.__PREVIEW_DATA__ = {
     const threats = [];
     const seen = /* @__PURE__ */ new Set();
     const ailmentNames = [...clsById.values()].filter((t) => t.kind === "ailment").map((t) => t.name);
-    const add = (threatId, method, evidence) => {
+    const add = (threatId, method, evidence, origin) => {
       if (!clsById.has(threatId)) return;
       const key = threatId;
       let t = threats.find((x) => x.threatId === key);
       if (!t) {
-        t = { threatId, name: clsById.get(threatId).name, methods: [], evidence: "" };
+        t = { threatId, name: clsById.get(threatId).name, methods: [], evidence: "", sources: [] };
         threats.push(t);
         seen.add(key);
       }
       if (method && !t.methods.includes(method)) t.methods.push(method);
       if (evidence && !t.evidence) t.evidence = evidence;
+      if (origin) {
+        let src = t.sources.find((x) => x.member === origin.member);
+        if (!src) {
+          src = { member: origin.member, leader: !!origin.leader, methods: [] };
+          t.sources.push(src);
+        }
+        if (method && !src.methods.includes(method)) src.methods.push(method);
+      }
     };
-    const scan = (text, method) => {
+    const scan = (text, method, origin) => {
       if (!text) return;
       for (const raw of String(text).split(/[。／\n]/)) {
         const s = raw.trim();
@@ -245942,32 +246286,33 @@ window.__PREVIEW_DATA__ = {
         for (const x of ailmentNames) {
           if (x === "即死") {
             if (/即死させる/.test(s) || /即死/.test(s) && method !== "trait" && !s.includes("耐性")) {
-              add("ailment:即死", method, s);
+              add("ailment:即死", method, s, origin);
             }
           } else if (x === "引き寄せ") {
-            if (s.includes("引き寄せ")) add("ailment:引き寄せ", method, s);
+            if (s.includes("引き寄せ")) add("ailment:引き寄せ", method, s, origin);
           } else if (s.includes(`${x}状態に`) || s.includes(`${x}を付与`) || s.includes(`${x}付与`) || s.includes("状態にする") && new RegExp(`(^|[、。を])${x}、`).test(s) || // 敵の能力文の略記（「めまい/呪い(3T)」のような並列表記）。
           new RegExp(`(^|[+＋/／、])${x}([/／、(（]|$)`).test(s)) {
-            if (!s.includes("耐性")) add(`ailment:${x}`, method, s);
+            if (!s.includes("耐性")) add(`ailment:${x}`, method, s, origin);
           }
         }
-        if (/受け持|かばう/.test(s)) add("tactic:kabau", method, s);
-        if (/フォトン/.test(s) && /破壊/.test(s) && !s.includes("耐性")) add("tactic:photon-destroy", method, s);
-        if (/フォトンを\d*つ?奪|チャージフォトン.*(奪|破壊)|チャージ.*奪/.test(s)) add("tactic:charge-interference", method, s);
-        if (s.includes("呪い") && /(倍|増幅|増加)/.test(s)) add("combo:curse-amplify", method, s);
-        if (/回数バリア|バリアを(付与|張る)|バリア状態/.test(s)) add("tactic:barrier", method, s);
-        if (/(倒れる|死亡|戦闘不能)/.test(s) && /(強化|上昇|強く)/.test(s)) add("tactic:death-buff", method, s);
+        if (/受け持|かばう/.test(s)) add("tactic:kabau", method, s, origin);
+        if (/フォトン/.test(s) && /破壊/.test(s) && !s.includes("耐性")) add("tactic:photon-destroy", method, s, origin);
+        if (/フォトンを\d*つ?奪|チャージフォトン.*(奪|破壊)|チャージ.*奪/.test(s)) add("tactic:charge-interference", method, s, origin);
+        if (s.includes("呪い") && /(倍|増幅|増加)/.test(s)) add("combo:curse-amplify", method, s, origin);
+        if (/回数バリア|バリアを(付与|張る)|バリア状態/.test(s)) add("tactic:barrier", method, s, origin);
+        if (/(倒れる|死亡|戦闘不能)/.test(s) && /(強化|上昇|強く)/.test(s)) add("tactic:death-buff", method, s, origin);
       }
     };
     const party = (enemyFact.party || []).filter(Boolean);
     for (const member of party) {
-      scan(member.trait, "trait");
+      const origin = { member: member.name, leader: !!member.leader };
+      scan(member.trait, "trait", origin);
       const skills = member.skills || {};
-      scan(skills.skill, "skill");
-      scan(skills.awakened, "awakened");
-      scan(skills.ultimate, "ougi");
+      scan(skills.skill, "skill", origin);
+      scan(skills.awakened, "awakened", origin);
+      scan(skills.ultimate, "ougi", origin);
     }
-    scan(enemyFact.traitNote ? enemyFact.traitNote.value : "", null);
+    scan(enemyFact.traitNote ? enemyFact.traitNote.value : "", null, null);
     const races = enemyFact.race && enemyFact.race.values || [];
     for (const r of races) add(`race:${r}`, null, "");
     const raceSeen = new Set(races);
@@ -246186,7 +246531,7 @@ window.__PREVIEW_DATA__ = {
     }
     return any ? Math.min(100, total) : null;
   }
-  function candidatesForClass(classDef, index, owned, levelOf = null) {
+  function candidatesForClass(classDef, index, owned, levelOf = null, { enemyFact = null } = {}) {
     const megido = /* @__PURE__ */ new Map();
     const orbs = /* @__PURE__ */ new Map();
     const pushMeans = (entry, effect, effectId, h, fromMe) => {
@@ -246204,6 +246549,7 @@ window.__PREVIEW_DATA__ = {
       if (fromMe) entry.fromMe = true;
     };
     for (const effectId of classDef.effects || []) {
+      if (enemyFact && effectInvalidAgainst(enemyFact, effectId)) continue;
       const effect = index.byEffect.get(effectId);
       if (!effect) continue;
       for (const h of effect.megido || []) {
@@ -246365,7 +246711,7 @@ window.__PREVIEW_DATA__ = {
     }
     return false;
   }
-  function formationCoverage({ formation, threats, clsById, index, conditionOf = null, levelOf = null, styleClassOf = null }) {
+  function formationCoverage({ formation, threats, clsById, index, conditionOf = null, levelOf = null, styleClassOf = null, enemyFact = null }) {
     const memberIds = /* @__PURE__ */ new Set();
     const orbIds = /* @__PURE__ */ new Set();
     for (const slot of formation.slots || []) {
@@ -246380,6 +246726,7 @@ window.__PREVIEW_DATA__ = {
         for (const classDef of threatDef.classes) {
           if (!classApplies(classDef, t.methods)) continue;
           for (const effectId of classDef.effects || []) {
+            if (enemyFact && effectInvalidAgainst(enemyFact, effectId)) continue;
             const effect = index.byEffect.get(effectId);
             if (!effect) continue;
             for (const h of effect.megido || []) {
@@ -246443,7 +246790,7 @@ window.__PREVIEW_DATA__ = {
     if (b) return { kind: "boss", entry: b };
     return null;
   }
-  function authoredCoverage({ authored, formation, index, levelOf = null, styleClassOf = null }) {
+  function authoredCoverage({ authored, formation, index, levelOf = null, styleClassOf = null, enemyFact = null }) {
     const memberIds = /* @__PURE__ */ new Set();
     const orbIds = /* @__PURE__ */ new Set();
     for (const slot of formation.slots || []) {
@@ -246460,6 +246807,7 @@ window.__PREVIEW_DATA__ = {
       let known = false;
       for (const effectId of effects) {
         if (effectId.startsWith("resist:")) resist = true;
+        if (enemyFact && effectInvalidAgainst(enemyFact, effectId)) continue;
         const effect = index.byEffect.get(effectId);
         if (!effect) continue;
         known = true;
@@ -246491,10 +246839,10 @@ window.__PREVIEW_DATA__ = {
       };
     });
   }
-  function authoredPairCoverage({ authored, formation, index, levelOf = null, styleClassOf = null }) {
+  function authoredPairCoverage({ authored, formation, index, levelOf = null, styleClassOf = null, enemyFact = null }) {
     if (!authored || authored.kind === "boss") return [];
     const entry = authored.entry;
-    const lines = authoredCoverage({ authored, formation, index, levelOf, styleClassOf });
+    const lines = authoredCoverage({ authored, formation, index, levelOf, styleClassOf, enemyFact });
     const pairs = Array.isArray(entry.pairs) ? entry.pairs : null;
     if (!pairs) {
       return lines.filter((l) => l.label && l.covered !== null).map((l) => ({ label: l.label, kind: null, covered: l.covered, coveredBy: l.coveredBy }));
@@ -246668,7 +247016,280 @@ window.__PREVIEW_DATA__ = {
     }
     return { ...me, slots };
   }
-  function aggregateDemand({ structure, enemiesByFloor, clsById, index, owned, cleared, isAuthored = null, levelOf = null }) {
+  function authoredLinkedThreatIds(authored) {
+    const ids = /* @__PURE__ */ new Set();
+    if (!authored) return ids;
+    for (const t of authored.entry.threats || []) {
+      if (t.counterThreatId) ids.add(t.counterThreatId);
+    }
+    for (const tac of authored.entry.effectiveTactics || []) {
+      if (tac.classRef) ids.add(tac.classRef);
+    }
+    return ids;
+  }
+  function enemyThreatsUnified({ fact, authored, clsById, threatLevels = null }) {
+    const enemyName = fact ? fact.name : authored ? authored.entry.name : null;
+    const info = fact ? threatsForEnemy(fact, clsById) : { threats: [] };
+    const derivedById = new Map(info.threats.map((t) => [t.threatId, t]));
+    const authoredLevel = (label) => {
+      const per = threatLevels && threatLevels.authored ? threatLevels.authored[enemyName] : null;
+      const hit = per ? per[label] : null;
+      return hit ? hit.level : null;
+    };
+    const derivedLevel = (threatId) => {
+      const per = threatLevels && threatLevels.derived ? threatLevels.derived[enemyName] : null;
+      const hit = per ? per[threatId] : null;
+      return hit ? hit.level : null;
+    };
+    const out = [];
+    if (authored && authored.kind === "boss") {
+      for (const t of authored.entry.threats || []) {
+        out.push({
+          key: `authored:${t.label}`,
+          source: "authored",
+          label: t.label,
+          detail: t.detail || "",
+          threatId: null,
+          derived: null,
+          authoredThreat: t,
+          pair: null,
+          level: authoredLevel(t.label)
+        });
+      }
+      return out;
+    }
+    const consumed = /* @__PURE__ */ new Set();
+    if (authored && authored.kind === "enemy") {
+      const entry = authored.entry;
+      const linked = authoredLinkedThreatIds(authored);
+      const threatsByName = new Map((entry.threats || []).map((t) => [t.name, t]));
+      const pairs = Array.isArray(entry.pairs) ? entry.pairs : [];
+      const labels = pairs.length > 0 ? pairs.map((p) => p.threat).filter(Boolean) : (entry.threats || []).map((t) => t.name);
+      for (const label of labels) {
+        const at = threatsByName.get(label) || null;
+        const pair = pairs.find((p) => p.threat === label) || null;
+        let derived = null;
+        if (at && at.counterThreatId && derivedById.has(at.counterThreatId)) {
+          derived = derivedById.get(at.counterThreatId);
+        }
+        if (!derived) {
+          const text = `${label} ${at ? at.basis || "" : ""}`;
+          for (const t of info.threats) {
+            if (!t.threatId.startsWith("ailment:")) continue;
+            if (consumed.has(t.threatId)) continue;
+            if (text.includes(t.name)) {
+              derived = t;
+              break;
+            }
+          }
+        }
+        if (derived) consumed.add(derived.threatId);
+        out.push({
+          key: `authored:${label}`,
+          source: "authored",
+          label,
+          detail: at ? at.basis || "" : "",
+          threatId: derived ? derived.threatId : null,
+          derived,
+          authoredThreat: at,
+          pair,
+          level: authoredLevel(label) || (derived ? derivedLevel(derived.threatId) : null)
+        });
+      }
+      for (const id of linked) consumed.add(id);
+    }
+    for (const t of info.threats) {
+      if (t.threatId.startsWith("race:")) continue;
+      if (consumed.has(t.threatId)) continue;
+      out.push({
+        key: `derived:${t.threatId}`,
+        source: "derived",
+        label: t.name,
+        detail: t.evidence || "",
+        threatId: t.threatId,
+        derived: t,
+        authoredThreat: null,
+        pair: null,
+        level: derivedLevel(t.threatId)
+      });
+    }
+    return out;
+  }
+  function authoredTacticCandidates({ tactic, index, owned = null, levelOf = null }) {
+    const megido = /* @__PURE__ */ new Map();
+    const orbs = /* @__PURE__ */ new Map();
+    for (const m of tactic.means || []) {
+      const effect = index ? index.byEffect.get(m.effect) : null;
+      for (const name of m.megidoExamples || []) {
+        if (!megido.has(name)) megido.set(name, { id: null, name, means: [], unknown: true });
+        const e = megido.get(name);
+        const holder = effect ? (effect.megido || []).find((h) => h.name === name) : null;
+        const meHolder = !holder && effect ? (effect.megidoMe || []).find((h) => h.name === name) : null;
+        const found = holder || meHolder;
+        if (found) {
+          if (owned && !owned.has(found.id)) continue;
+          e.id = found.id;
+          e.unknown = false;
+          const level = levelOf ? levelOf(found.id) : null;
+          const locked = lockedLevel(found.via || [], level);
+          e.means.push({
+            effectId: m.effect,
+            effectName: m.effectName || effect && effect.name || "",
+            via: found.via || [],
+            value: meansValue(usableVias(found.via || [], level)),
+            fromMe: Boolean(meHolder),
+            ...locked !== null ? { locked } : {}
+          });
+        }
+      }
+      for (const name of m.orbExamples || []) {
+        if (!orbs.has(name)) orbs.set(name, { orbId: null, name, means: [], unknown: true });
+        const e = orbs.get(name);
+        const holder = effect ? (effect.orbs || []).find((h) => h.name === name) : null;
+        if (holder) {
+          e.orbId = holder.orbId;
+          e.unknown = false;
+          e.means.push({ effectId: m.effect, effectName: m.effectName || effect && effect.name || "", via: holder.via || [] });
+        }
+      }
+    }
+    return { megido: [...megido.values()], orbs: [...orbs.values()] };
+  }
+  function candidateUsable(candidate) {
+    const means = candidate.means || [];
+    if (means.length === 0) return true;
+    return means.some((m) => typeof m.locked !== "number");
+  }
+  function threatAnswerBlocks({ threat, fact, authored, clsById, index, owned = null, levelOf = null }) {
+    const blocks = [];
+    const byClass = /* @__PURE__ */ new Map();
+    const pushBlock = (b) => {
+      if (b.classId && byClass.has(b.classId)) {
+        const base = byClass.get(b.classId);
+        const seenM = new Set(base.megido.map((c) => c.id || c.name));
+        for (const c of b.megido) if (!seenM.has(c.id || c.name)) base.megido.push(c);
+        const seenO = new Set(base.orbs.map((c) => c.orbId || c.name));
+        for (const c of b.orbs) if (!seenO.has(c.orbId || c.name)) base.orbs.push(c);
+        base.authored = base.authored || b.authored;
+        return base;
+      }
+      blocks.push(b);
+      if (b.classId) byClass.set(b.classId, b);
+      return b;
+    };
+    const derived = threat.derived;
+    if (derived) {
+      const threatDef = clsById.get(derived.threatId);
+      if (threatDef) {
+        for (const classDef of threatDef.classes) {
+          if (!classApplies(classDef, derived.methods)) continue;
+          const cands = candidatesForClass(classDef, index, owned, levelOf, { enemyFact: fact });
+          pushBlock({
+            classId: classDef.id,
+            label: classDef.label,
+            how: classDef.how || "",
+            methodNote: classDef.methodNote || "",
+            noteOnly: cands.noteOnly,
+            authored: false,
+            tacticLabel: null,
+            megido: cands.megido,
+            orbs: cands.orbs
+          });
+        }
+      }
+    }
+    if (authored && authored.kind === "enemy" && threat.pair) {
+      const byLabel = new Map((authored.entry.effectiveTactics || []).map((t) => [t.label, t]));
+      for (const resp of threat.pair.responses || []) {
+        const tactic = byLabel.get(resp);
+        if (!tactic || !(tactic.meansEffects || []).length) continue;
+        const cands = authoredTacticCandidates({ tactic, index, owned, levelOf });
+        let classDef = null;
+        if (tactic.classRef && clsById.has(tactic.classRef)) {
+          const refDef = clsById.get(tactic.classRef);
+          classDef = (refDef.classes || []).find((c) => (c.effects || []).some((e) => (tactic.meansEffects || []).includes(e))) || null;
+        }
+        pushBlock({
+          classId: classDef ? classDef.id : null,
+          label: classDef ? classDef.label : tactic.label,
+          how: classDef ? classDef.how || "" : "",
+          methodNote: classDef ? classDef.methodNote || "" : "",
+          noteOnly: false,
+          authored: true,
+          tacticLabel: tactic.label,
+          megido: cands.megido.filter((c) => c.id),
+          orbs: cands.orbs.filter((c) => c.orbId)
+        });
+      }
+    }
+    return blocks;
+  }
+  function pickerAnswersForEnemy({ fact, authored, clsById, index, owned = null, levelOf = null, threatLevels = null, stateCtx = null }) {
+    const megido = /* @__PURE__ */ new Map();
+    const orbs = /* @__PURE__ */ new Map();
+    const push = (map, key, label) => {
+      if (!key || !label) return;
+      if (!map.has(key)) map.set(key, []);
+      const list = map.get(key);
+      if (!list.includes(label)) list.push(label);
+    };
+    const isBoss = Boolean(authored && authored.kind === "boss");
+    if (!isBoss && fact) {
+      const threats = enemyThreatsUnified({ fact, authored, clsById, threatLevels });
+      for (const t of threats) {
+        const blocks = threatAnswerBlocks({ threat: t, fact, authored, clsById, index, owned, levelOf });
+        for (const b of blocks) {
+          for (const c of b.megido) {
+            if (!candidateUsable(c)) continue;
+            push(megido, c.id, b.tacticLabel || t.label);
+          }
+          for (const c of b.orbs) push(orbs, c.orbId, b.tacticLabel || t.label);
+        }
+      }
+      const race = raceBonusAnswers({ fact, index, owned });
+      for (const [id, labels] of race.megido) for (const l of labels) push(megido, id, l);
+      for (const [id, labels] of race.orbs) for (const l of labels) push(orbs, id, l);
+    }
+    if (stateCtx && fact) {
+      const state = stateBonusAnswers({ fact, index, owned, ...stateCtx });
+      for (const [id, labels] of state.megido) for (const l of labels) push(megido, id, l);
+      for (const [id, labels] of state.orbs) for (const l of labels) push(orbs, id, l);
+    }
+    return { megido, orbs };
+  }
+  var TRANCE_FAMILY_PATTERNS = [
+    { pattern: /大協奏|協奏|重奏/, family: "協奏・重奏" },
+    { pattern: /バレットアーツ/, family: "バレットアーツ" },
+    { pattern: /Fインパルス|インパルス/, family: "Fインパルス" },
+    { pattern: /コロッセオ/, family: "コロッセオ" },
+    { pattern: /ネクロ/, family: "ネクロ" },
+    { pattern: /怒闘/, family: "怒闘" }
+  ];
+  function classifyProseTactic(tactic) {
+    const text = `${tactic.label || ""} ${tactic.basis || tactic.detail || ""}`;
+    if (/ワントップ|ワンボトム/.test(text)) {
+      return { kind: "placement", label: /ワントップ/.test(text) && /ワンボトム/.test(text) ? "ワントップ／ワンボトム" : /ワントップ/.test(text) ? "ワントップ" : "ワンボトム" };
+    }
+    if (!/ハイトランス/.test(text)) {
+      for (const { pattern, family } of TRANCE_FAMILY_PATTERNS) {
+        if (pattern.test(text) && /始動|シフト|で戦う|を使う|に任せ|で削る|で攻める/.test(text)) {
+          return { kind: "trance", family };
+        }
+      }
+    }
+    return null;
+  }
+  function demandRangeEndFloor(structure, cleared, fromFloor) {
+    const floors = [...structure.floors || []].sort((a, b) => a.floor - b.floor);
+    for (const fd of floors) {
+      if (fd.floor < fromFloor) continue;
+      for (const [squareId, def] of Object.entries(fd.squares || {})) {
+        if (def.type === "explore" && def.subType === "recovery" && !(cleared && cleared.has(squareId))) return fd.floor;
+      }
+    }
+    return floors.length ? floors[floors.length - 1].floor : fromFloor;
+  }
+  function aggregateDemand({ structure, enemiesByFloor, clsById, index, owned, cleared, tactics = null, levelOf = null, rangeEndFloor = null }) {
     const demand = /* @__PURE__ */ new Map();
     const bump = (id, spot) => {
       if (!demand.has(id)) demand.set(id, { total: 0, essential: 0, spots: [] });
@@ -246678,31 +247299,34 @@ window.__PREVIEW_DATA__ = {
       if (d.spots.length < 60) d.spots.push(spot);
     };
     for (const fd of structure.floors) {
+      if (rangeEndFloor !== null && fd.floor > rangeEndFloor) continue;
       const floorEnemies = enemiesByFloor.get(fd.floor);
       if (!floorEnemies) continue;
       for (const [squareId, def] of Object.entries(fd.squares)) {
         if (def.type !== "battle" && def.type !== "boss") continue;
         if (cleared && cleared.has(squareId)) continue;
         const fullDef = { floor: fd.floor, ...def };
-        const found = threatsForSquare({ def: fullDef, floorEnemies, clsById });
-        if (!found) continue;
         const countedHere = /* @__PURE__ */ new Set();
-        for (const t of found.threats) {
-          if (isAuthored && isAuthored(t.enemyName, fullDef, squareId)) continue;
-          const threatDef = clsById.get(t.threatId);
-          if (!threatDef) continue;
-          const candidateIds = /* @__PURE__ */ new Set();
-          for (const classDef of threatDef.classes) {
-            if (!classApplies(classDef, t.methods)) continue;
-            for (const c of candidatesForClass(classDef, index, owned, levelOf).megido) candidateIds.add(c.id);
-          }
-          if (candidateIds.size === 0) continue;
-          const essential = candidateIds.size <= 2;
-          for (const id of candidateIds) {
-            const key = `${squareId}:${id}`;
-            if (countedHere.has(key)) continue;
-            countedHere.add(key);
-            bump(id, { floor: fd.floor, squareId, threatName: t.name, essential });
+        for (const name of def.enemies || []) {
+          const fact = floorEnemies.enemies ? floorEnemies.enemies[name] : null;
+          if (!fact) continue;
+          const authored = tactics ? authoredEntryFor(tactics, name, fullDef, squareId) : null;
+          if (authored && authored.kind === "boss") continue;
+          const threats = enemyThreatsUnified({ fact, authored, clsById });
+          for (const t of threats) {
+            const blocks = threatAnswerBlocks({ threat: t, fact, authored, clsById, index, owned, levelOf });
+            const candidateIds = /* @__PURE__ */ new Set();
+            for (const b of blocks) {
+              for (const c of b.megido) if (candidateUsable(c)) candidateIds.add(c.id);
+            }
+            if (candidateIds.size === 0) continue;
+            const essential = candidateIds.size <= 2;
+            for (const id of candidateIds) {
+              const key = `${squareId}:${id}`;
+              if (countedHere.has(key)) continue;
+              countedHere.add(key);
+              bump(id, { floor: fd.floor, squareId, threatName: t.label, essential });
+            }
           }
         }
       }
@@ -246898,6 +247522,9 @@ window.__PREVIEW_DATA__ = {
     return Boolean(notesData && notesData.noteMakers && (notesData.noteMakers.orbs || []).includes(orbId));
   }
   var SYSTEM_BASE_LEVEL = 70;
+  function formulaLevel(savedLevel) {
+    return typeof savedLevel === "number" && Number.isFinite(savedLevel) ? Math.min(savedLevel, SYSTEM_BASE_LEVEL) : SYSTEM_BASE_LEVEL;
+  }
   function tenanaDamage(points, lv = SYSTEM_BASE_LEVEL) {
     return Math.floor(points * points * lv / 35);
   }
@@ -250220,7 +250847,13 @@ window.__PREVIEW_DATA__ = {
     wrap.append(el3("h3", "sheet-section-title", title));
     return wrap;
   }
-  function authoredContent(authored) {
+  function authoredItem(label, detail, cls) {
+    const it = el3("div", cls);
+    it.append(el3("div", "authored-item-label", label));
+    if (detail) it.append(el3("div", "authored-item-detail", detail));
+    return it;
+  }
+  function authoredSourceContent(authored) {
     const wrap = el3("div", "authored-wrap");
     const pillRow = (label, pills, cls) => {
       if (!pills || pills.length === 0) return;
@@ -250231,38 +250864,62 @@ window.__PREVIEW_DATA__ = {
     };
     pillRow("要注意ギミック", authored.threatPills, "pill-threat");
     pillRow("効きにくいもの", authored.ineffectivePills, "pill-ineffective");
-    const hasBody = authored.pairs && authored.pairs.length > 0 || authored.overall && authored.overall.length > 0 || authored.ineffectiveItems && authored.ineffectiveItems.length > 0 || authored.note;
+    const hasBody = authored.pairs && authored.pairs.length > 0 || authored.ineffectiveItems && authored.ineffectiveItems.length > 0 || authored.note;
     if (hasBody) {
       const block = el3("div", "authored-block");
       block.append(el3("div", "authored-title", authored.title || "攻略情報"));
-      const item = (label, detail, cls) => {
-        const it = el3("div", cls);
-        it.append(el3("div", "authored-item-label", label));
-        if (detail) it.append(el3("div", "authored-item-detail", detail));
-        return it;
-      };
       if (authored.pairs && authored.pairs.length > 0) {
         block.append(el3("div", "authored-title", "脅威と対策"));
         for (const pair of authored.pairs) {
           const pairEl = el3("div", "authored-pair");
-          pairEl.append(item(pair.label, pair.detail, "authored-item authored-pair-threat"));
+          pairEl.append(authoredItem(pair.label, pair.detail, "authored-item authored-pair-threat authored-threat-text"));
           for (const r of pair.responses || []) {
-            pairEl.append(item(r.label, r.detail, "authored-item authored-response"));
+            pairEl.append(authoredItem(r.label, r.detail, "authored-item authored-response"));
           }
           block.append(pairEl);
         }
       }
-      if (authored.overall && authored.overall.length > 0) {
-        block.append(el3("div", "authored-title", "全体の進め方"));
-        for (const t of authored.overall) block.append(item(t.label, t.detail, "authored-item"));
-      }
       if (authored.ineffectiveItems && authored.ineffectiveItems.length > 0) {
         block.append(el3("div", "authored-title", "効きにくいもの"));
-        for (const t of authored.ineffectiveItems) block.append(item(t.label, t.detail, "authored-item"));
+        for (const t of authored.ineffectiveItems) block.append(authoredItem(t.label, t.detail, "authored-item"));
       }
       if (authored.note) block.append(el3("p", "authored-note", authored.note));
       wrap.append(block);
     }
+    return wrap;
+  }
+  function threatBlockNode(t) {
+    const block = el3("div", "threat-block");
+    const levelText = t.level ? `／脅威レベル${t.level}` : "";
+    block.append(el3("div", "threat-name", `${t.name}（${t.enemyName}${t.methodText ? `／${t.methodText}` : ""}${levelText}）`));
+    if (t.summary) block.append(el3("p", "sheet-note", t.summary));
+    if (t.evidence) block.append(el3("p", "threat-evidence", `根拠: ${t.evidence}`));
+    for (const c of t.classes || []) {
+      const row = el3("div", "counter-class");
+      row.append(el3("div", "counter-class-label", c.label));
+      if (c.how) row.append(el3("p", "sheet-note", c.how));
+      if (c.methodNote) row.append(el3("p", "sheet-note", `効く条件: ${c.methodNote}`));
+      if (c.candidatesText) row.append(el3("p", "counter-candidates", `候補: ${c.candidatesText}`));
+      if (c.orbsText) row.append(el3("p", "counter-candidates", `オーブ: ${c.orbsText}`));
+      if (!c.candidatesText && !c.orbsText && !c.noteOnly) {
+        row.append(el3("p", "counter-candidates", "候補: 所持している人の中にはいません"));
+      }
+      block.append(row);
+    }
+    return block;
+  }
+  function authoredOverallContent(authored) {
+    if (!authored.overall || authored.overall.length === 0) return null;
+    const block = el3("div", "authored-block");
+    block.append(el3("div", "authored-title", "全体の進め方"));
+    for (const t of authored.overall) block.append(authoredItem(t.label, t.detail, "authored-item"));
+    return block;
+  }
+  function authoredContent(authored) {
+    const wrap = el3("div", "authored-wrap");
+    wrap.append(authoredSourceContent(authored));
+    const overall = authoredOverallContent(authored);
+    if (overall) wrap.append(overall);
     return wrap;
   }
   function appendOsusumeMarks(line, m, leadingSpace = false) {
@@ -250530,40 +251187,93 @@ window.__PREVIEW_DATA__ = {
     }
     if (vm.counter) {
       const sec = section2("敵の弱点と対策");
-      for (const e of vm.counter.enemies) {
+      const enemies = vm.counter.enemies || [];
+      const activeName = vm.counter.enemyTab || (enemies.length > 0 ? enemies[0].name : null);
+      if (enemies.length > 1) {
+        const tabs = el3("div", "enemy-tabs");
+        for (const e of enemies) {
+          const btn = el3("button", `enemy-tab${e.name === activeName ? " selected" : ""}`, e.name);
+          btn.addEventListener("click", () => {
+            if (cb.onEnemyTab) cb.onEnemyTab(e.name);
+          });
+          tabs.append(btn);
+        }
+        sec.append(tabs);
+      }
+      for (const e of enemies) {
+        if (enemies.length > 1 && e.name !== activeName) continue;
         const block = el3("div", "enemy-block");
         block.append(el3("div", "enemy-name", e.name));
         if (e.spdText) block.append(el3("p", "enemy-stats", e.spdText));
-        if (e.raceText) block.append(el3("p", "sheet-note", `種族: ${e.raceText}`));
+        if (e.races && e.races.length > 0) {
+          const row = el3("div", "race-chips");
+          row.append(el3("span", "race-chips-label", "種族: "));
+          for (const r of e.races) {
+            row.append(el3("span", `race-chip${r === "飛行" ? " race-chip-fly" : ""}`, r));
+          }
+          block.append(row);
+        } else if (e.raceText) {
+          block.append(el3("p", "sheet-note", `種族: ${e.raceText}`));
+        }
         if (e.weakText || e.immuneText) block.append(el3("p", "resist-key", "耐性マーク: ◎＝弱点"));
         if (e.weakText) block.append(el3("p", "counter-weak", `弱点（◎）: ${e.weakText}`));
         if (e.immuneText) block.append(el3("p", "counter-immune", `無効: ${e.immuneText}`));
         if (!e.hasTexts && !e.authored) block.append(el3("p", "sheet-note", "この敵の能力はデータに無いため、種族と耐性から分かる範囲だけを表示しています。"));
-        if (e.authored) block.append(authoredContent(e.authored));
+        if (e.authored) block.append(authoredSourceContent(e.authored));
         for (const note of e.mechanicNotes || []) {
           block.append(el3("p", "mech-note", note));
         }
         for (const note of e.receivingNotes || []) {
           block.append(el3("p", "mech-note", note));
         }
-        sec.append(block);
-      }
-      for (const t of vm.counter.threats) {
-        const block = el3("div", "threat-block");
-        block.append(el3("div", "threat-name", `${t.name}（${t.enemyName}${t.methodText ? `／${t.methodText}` : ""}）`));
-        if (t.summary) block.append(el3("p", "sheet-note", t.summary));
-        if (t.evidence) block.append(el3("p", "threat-evidence", `根拠: ${t.evidence}`));
-        for (const c of t.classes) {
-          const row = el3("div", "counter-class");
-          row.append(el3("div", "counter-class-label", c.label));
-          if (c.how) row.append(el3("p", "sheet-note", c.how));
-          if (c.methodNote) row.append(el3("p", "sheet-note", `効く条件: ${c.methodNote}`));
-          if (c.candidatesText) row.append(el3("p", "counter-candidates", `候補: ${c.candidatesText}`));
-          if (c.orbsText) row.append(el3("p", "counter-candidates", `オーブ: ${c.orbsText}`));
-          if (!c.candidatesText && !c.orbsText && !c.noteOnly) {
-            row.append(el3("p", "counter-candidates", "候補: 所持している人の中にはいません"));
+        for (const group of e.threatsBySource || []) {
+          block.append(el3("div", "threat-source-label", `脅威（${group.label}）`));
+          for (const t of group.threats) block.append(threatBlockNode(t));
+        }
+        if (e.carousel) {
+          block.append(el3("div", "authored-title", "答え"));
+          if (e.carousel.rushNote) block.append(el3("p", "sheet-note", e.carousel.rushNote));
+          const car = el3("div", "answer-carousel");
+          for (const b of e.carousel.blocks) {
+            const card = el3("div", "carousel-block");
+            card.append(el3("div", "counter-class-label", b.label));
+            if (b.threatLabels && b.threatLabels.length > 0) {
+              card.append(el3("p", "carousel-threats", `対象: ${b.threatLabels.join("、")}`));
+            }
+            if (b.how) card.append(el3("p", "sheet-note", b.how));
+            if (b.methodNote) card.append(el3("p", "sheet-note", `効く条件: ${b.methodNote}`));
+            if (b.detail) card.append(el3("p", "sheet-note", b.detail));
+            if (b.startersText) card.append(el3("p", "counter-candidates", `始動役: ${b.startersText}`));
+            if (b.candidatesText) card.append(el3("p", "counter-candidates", `候補: ${b.candidatesText}`));
+            if (b.orbsText) card.append(el3("p", "counter-candidates", `オーブ: ${b.orbsText}`));
+            if (!b.candidatesText && !b.orbsText && !b.startersText && !b.noteOnly) {
+              card.append(el3("p", "counter-candidates", "候補: 所持している人の中にはいません"));
+            }
+            car.append(card);
           }
-          block.append(row);
+          block.append(car);
+        }
+        if (e.resistances && e.resistances.length > 0) {
+          const toggle = el3(
+            "button",
+            "resist-toggle",
+            `${e.resistOpen ? "−" : "＋"} 耐性（ベリーハードの段階）`
+          );
+          toggle.addEventListener("click", () => {
+            if (cb.onResistToggle) cb.onResistToggle(e.name);
+          });
+          block.append(toggle);
+          if (e.resistOpen) {
+            const list = el3("div", "resist-list");
+            for (const r of e.resistances) {
+              list.append(el3("p", "resist-row", `${r.name}: ${r.vh}（${r.nhText}）`));
+            }
+            block.append(list);
+          }
+        }
+        if (e.authored) {
+          const overall = authoredOverallContent(e.authored);
+          if (overall) block.append(overall);
         }
         sec.append(block);
       }
@@ -251309,7 +252019,7 @@ window.__PREVIEW_DATA__ = {
   function spdAfterLine(text, dir, className) {
     return el4("div", `${className}${spdDirClass(dir)}`, spdDirText(text, dir));
   }
-  function threatBlockNode(t) {
+  function threatBlockNode2(t) {
     const block = el4("div", "threat-block");
     block.append(el4("div", "threat-name", `${t.name}（${t.enemyName}${t.methodText ? `／${t.methodText}` : ""}）`));
     if (t.summary) block.append(el4("p", "sheet-note", t.summary));
@@ -251880,11 +252590,10 @@ window.__PREVIEW_DATA__ = {
             }
             if (block.authored) {
               gim.append(authoredContent(block.authored));
-            } else {
-              for (const t of block.threats || []) {
-                gim.append(threatBlockNode(t));
-                derivedShown = true;
-              }
+            }
+            for (const t of block.threats || []) {
+              gim.append(threatBlockNode2(t));
+              derivedShown = true;
             }
           }
           if (derivedShown) {
@@ -252518,9 +253227,15 @@ window.__PREVIEW_DATA__ = {
     const topbarEl = document.getElementById("topbar");
     const viewEl = document.getElementById("view");
     const stateEl = document.getElementById("statebar");
+    const tabbarEl = document.getElementById("tabbar");
     const panesEl = document.getElementById("panes");
     const mapPaneEl = document.getElementById("mappane");
-    const overlay = createOverlay(document.getElementById("overlay-root"));
+    const overlay = createOverlay(document.getElementById("overlay-root"), {
+      onClose: () => {
+        if (searchCtx) searchCtx = null;
+        renderNav();
+      }
+    });
     const desktopMQ = typeof window !== "undefined" && typeof window.matchMedia === "function" ? window.matchMedia("(min-width: 1024px)") : null;
     const isDesktop = () => Boolean(desktopMQ && desktopMQ.matches);
     let ctxSeq = 0;
@@ -252653,7 +253368,7 @@ window.__PREVIEW_DATA__ = {
       if (!counterPromise) {
         counterPromise = (async () => {
           try {
-            const [means, classes, me, mechanicNotes, speedCorr, chainData, photonSupply, hbombData, kyoenData, flagData, dmgReduction] = await Promise.all([
+            const [means, classes, me, mechanicNotes, speedCorr, chainData, photonSupply, hbombData, kyoenData, flagData, dmgReduction, threatLevels] = await Promise.all([
               loader.loadMeansIndex(),
               loader.loadCounterClasses(),
               loader.loadMeData(),
@@ -252678,7 +253393,10 @@ window.__PREVIEW_DATA__ = {
               loader.loadFlag().catch(() => null),
               // 受けダメージ見積もりの軽減材料も同じ扱い（無い場合は
               // 軽減なしの見積もりに落ちる）。
-              loader.loadDamageReduction().catch(() => null)
+              loader.loadDamageReduction().catch(() => null),
+              // 脅威レベルの下書き段階づけも同じ扱い（無い場合は
+              // 段階の表示とカルーセルの出し分けが無いだけ）。
+              loader.loadThreatLevels().catch(() => null)
             ]);
             counterData = {
               index: buildIndex(means),
@@ -252691,7 +253409,8 @@ window.__PREVIEW_DATA__ = {
               hbombData,
               kyoenData,
               flagData,
-              dmgReduction
+              dmgReduction,
+              threatLevels
             };
           } catch {
             counterData = null;
@@ -252747,15 +253466,20 @@ window.__PREVIEW_DATA__ = {
     const memberStatsOf = (megidoId) => {
       const b = byId.get(megidoId);
       if (!b || !b.statsStar6) return null;
+      const base = resolveMegidoStats(b, savedLevelOf(
+        formationsData ? formationsData.megidoDetails : null,
+        megidoId
+      ));
+      if (!base) return null;
       const mods = reishouStatMods(
         formationsData ? formationsData.megidoDetails : null,
         megidoId,
         reishouStatsMap()
       );
       return {
-        hp: b.statsStar6.hp + (mods ? mods.hp : 0),
-        atk: b.statsStar6.atk + (mods ? mods.atk : 0),
-        def: b.statsStar6.def + (mods ? mods.def : 0)
+        hp: base.hp + (mods ? mods.hp : 0),
+        atk: base.atk + (mods ? mods.atk : 0),
+        def: base.def + (mods ? mods.def : 0)
       };
     };
     const specialOwnedOf = (megidoId) => {
@@ -252816,7 +253540,7 @@ window.__PREVIEW_DATA__ = {
         count: ids.length,
         max: REISHOU_PER_MEGIDO,
         special: resolveSpecialReishou(d, Boolean(b && b.specialReishou)),
-        bond: Boolean(b && b.bondReishou && d && typeof d.bond_reishou === "number" && d.bond_reishou !== 0),
+        bond: resolveBondSlots(d, Boolean(b && b.bondReishou)).some((v) => v !== 0),
         spdNotes
       };
     };
@@ -252879,7 +253603,8 @@ window.__PREVIEW_DATA__ = {
     let demandCache = null;
     const currentDemand = (derived) => {
       if (!counterData || !allFloorsEnemies) return null;
-      const key = `${currentOps(history).length}:${derived.owned.size}:${tacticsData ? "T" : "-"}`;
+      const rangeEndFloor = demandRangeEndFloor(structure, derived.cleared, derived.currentFloor);
+      const key = `${currentOps(history).length}:${derived.owned.size}:${tacticsData ? "T" : "-"}:${derived.currentFloor}:${rangeEndFloor}`;
       if (demandCache && demandCache.key === key) return demandCache.demand;
       const demand = aggregateDemand({
         structure,
@@ -252888,9 +253613,9 @@ window.__PREVIEW_DATA__ = {
         index: counterData.index,
         owned: derived.owned,
         cleared: derived.cleared,
-        isAuthored: (name, def, squareId) => Boolean(
-          authoredEntryFor(tacticsData, name, def, squareId)
-        )
+        tactics: tacticsData,
+        levelOf,
+        rangeEndFloor
       });
       demandCache = { key, demand };
       return demand;
@@ -253169,7 +253894,13 @@ window.__PREVIEW_DATA__ = {
         meMissing
       };
     }
-    const spdById = new Map([...byId.entries()].map(([id, b]) => [id, b && b.statsStar6 ? b.statsStar6.spd : null]));
+    const spdById = new Map([...byId.entries()].map(([id, b]) => {
+      const s = b ? resolveMegidoStats(b, savedLevelOf(
+        formationsData ? formationsData.megidoDetails : null,
+        id
+      )) : null;
+      return [id, s ? s.spd : null];
+    }));
     const traitSpdPctOf = (id) => {
       const rec = counterData && counterData.speedCorr ? counterData.speedCorr.megido[id] : null;
       return rec ? rec.pct : 0;
@@ -253205,7 +253936,11 @@ window.__PREVIEW_DATA__ = {
       return r ? r.value : null;
     };
     const correctedSpdById = () => new Map([...byId.entries()].map(([id, b]) => {
-      const base = b && b.statsStar6 ? b.statsStar6.spd : null;
+      const resolved = b ? resolveMegidoStats(b, savedLevelOf(
+        formationsData ? formationsData.megidoDetails : null,
+        id
+      )) : null;
+      const base = resolved ? resolved.spd : null;
       if (typeof base !== "number") return [id, null];
       const parts = [];
       pushReishouPct(parts, id);
@@ -253287,7 +254022,11 @@ window.__PREVIEW_DATA__ = {
     };
     const effAtkOf = (id) => {
       const b = byId.get(id);
-      const base = b && b.statsStar6 ? b.statsStar6.atk : null;
+      const resolved = b ? resolveMegidoStats(b, savedLevelOf(
+        formationsData ? formationsData.megidoDetails : null,
+        id
+      )) : null;
+      const base = resolved ? resolved.atk : null;
       if (typeof base !== "number") return null;
       const mods = reishouStatMods(
         formationsData ? formationsData.megidoDetails : null,
@@ -253540,8 +254279,9 @@ window.__PREVIEW_DATA__ = {
     }
     function threatVm(t, derived, fe = floorEnemies, rules = null) {
       const threatDef = counterData.clsById.get(t.threatId);
+      const enemyFact = fe && fe.enemies ? fe.enemies[t.enemyName] : null;
       const classes = (threatDef ? threatDef.classes : []).filter((c) => classApplies(c, t.methods)).map((c) => {
-        const cand = candidatesForClass(c, counterData.index, derived.owned, levelOf);
+        const cand = candidatesForClass(c, counterData.index, derived.owned, levelOf, { enemyFact });
         const eSpd = enemySpdOf(t.enemyName, fe, rules);
         const candText = (h, orb) => candidateText({
           name: h.name,
@@ -253572,6 +254312,170 @@ window.__PREVIEW_DATA__ = {
         classes
       };
     }
+    function enemySheetExtras({ name, fact, raw, def, derived }) {
+      const clsByIdL = counterData.clsById;
+      const unified = enemyThreatsUnified({
+        fact,
+        authored: raw,
+        clsById: clsByIdL,
+        threatLevels: counterData.threatLevels
+      });
+      const bySource = /* @__PURE__ */ new Map();
+      for (const t of unified) {
+        if (t.source !== "derived") continue;
+        const srcs = t.derived.sources && t.derived.sources.length > 0 ? t.derived.sources : [null];
+        for (const s of srcs) {
+          const label = s ? s.leader ? `本体（${s.member}）` : s.member : "敵全体";
+          if (!bySource.has(label)) bySource.set(label, []);
+          const vm = threatVm({ ...t.derived, enemyName: name }, derived, floorEnemies, def.rules);
+          vm.level = t.level;
+          bySource.get(label).push(vm);
+        }
+      }
+      const threatsBySource = [...bySource.entries()].map(([label, threats]) => ({ label, threats }));
+      const demand = currentDemand(derived);
+      const essentialIds = /* @__PURE__ */ new Set();
+      if (demand) {
+        for (const [id, d] of demand) if (d.essential > 0) essentialIds.add(id);
+      }
+      const eSpd = enemySpdOf(name, floorEnemies, def.rules);
+      const candText = (h, orb) => {
+        const text = candidateText({
+          name: h.name,
+          means: h.means,
+          orb,
+          spd: orb ? null : effSpdStandalone(h.id, derived.conditionOf(h.id)),
+          enemySpd: eSpd,
+          resistTotal: typeof h.resistTotal === "number" ? h.resistTotal : null,
+          resistBonus: !orb && h.id && derived.conditionOf(h.id) === 0 ? 50 : 0
+        });
+        return !orb && h.id && essentialIds.has(h.id) ? `${text}（需要あり）` : text;
+      };
+      const levelRank = (l) => l === "S" ? 0 : l === "A" ? 1 : l === "B" ? 2 : 3;
+      const rawBlocks = [];
+      const byClass = /* @__PURE__ */ new Map();
+      const addBlock = (b, threatLabel, level) => {
+        if (b.classId && byClass.has(b.classId)) {
+          const base = byClass.get(b.classId);
+          const seenM = new Set(base.megidoList.map((c) => c.id || c.name));
+          for (const c of b.megido) if (!seenM.has(c.id || c.name)) base.megidoList.push(c);
+          const seenO = new Set(base.orbsList.map((c) => c.orbId || c.name));
+          for (const c of b.orbs) if (!seenO.has(c.orbId || c.name)) base.orbsList.push(c);
+          if (threatLabel && !base.threatLabels.includes(threatLabel)) base.threatLabels.push(threatLabel);
+          base.maxRank = Math.min(base.maxRank, levelRank(level));
+          return;
+        }
+        const nb = {
+          kind: b.authored ? "authored" : "class",
+          classId: b.classId || null,
+          label: b.label,
+          how: b.how || "",
+          methodNote: b.methodNote || "",
+          noteOnly: Boolean(b.noteOnly),
+          threatLabels: threatLabel ? [threatLabel] : [],
+          maxRank: levelRank(level),
+          megidoList: [...b.megido],
+          orbsList: [...b.orbs],
+          detail: "",
+          startersText: ""
+        };
+        rawBlocks.push(nb);
+        if (b.classId) byClass.set(b.classId, nb);
+      };
+      for (const t of unified) {
+        for (const b of threatAnswerBlocks({
+          threat: t,
+          fact,
+          authored: raw,
+          clsById: clsByIdL,
+          index: counterData.index,
+          owned: derived.owned,
+          levelOf
+        })) {
+          addBlock(b, t.label, t.level);
+        }
+      }
+      if (raw && raw.kind === "enemy") {
+        const notes = counterData.mechanicNotes;
+        for (const tac of raw.entry.effectiveTactics || []) {
+          if ((tac.meansEffects || []).length > 0) continue;
+          const cls = classifyProseTactic(tac);
+          if (!cls) continue;
+          if (cls.kind === "placement") {
+            rawBlocks.push({
+              kind: "placement",
+              classId: null,
+              label: `配置で答える（${cls.label}）`,
+              how: "",
+              methodNote: "",
+              noteOnly: true,
+              threatLabels: [],
+              maxRank: 3,
+              megidoList: [],
+              orbsList: [],
+              detail: tac.basis || "",
+              startersText: ""
+            });
+          } else if (cls.kind === "trance" && notes && notes.tranceStarters) {
+            const starters = [];
+            for (const [id, fams] of Object.entries(notes.tranceStarters)) {
+              if (!(fams || []).includes(cls.family)) continue;
+              if (derived.owned && !derived.owned.has(id)) continue;
+              starters.push(nameOf(id));
+            }
+            if (starters.length > 0) {
+              rawBlocks.push({
+                kind: "trance",
+                classId: null,
+                label: `${cls.family}の始動役を入れる`,
+                how: "",
+                methodNote: "",
+                noteOnly: false,
+                threatLabels: [],
+                maxRank: 3,
+                megidoList: [],
+                orbsList: [],
+                detail: tac.basis || "",
+                startersText: starters.join("、")
+              });
+            }
+          }
+        }
+      }
+      const allS = unified.length > 0 && unified.every((t) => t.level === "S");
+      let rushNote = null;
+      if (allS) {
+        const idx = rawBlocks.findIndex((b) => b.classId === "rush");
+        if (idx >= 0) {
+          rawBlocks.splice(idx, 1);
+          rushNote = "この敵は速攻で倒し切る相手ではないため、速攻の答えは出していません。";
+        }
+      }
+      rawBlocks.sort((a, b) => a.maxRank - b.maxRank);
+      const blocks = rawBlocks.map((b) => ({
+        kind: b.kind,
+        label: b.label,
+        how: b.how,
+        methodNote: b.methodNote,
+        noteOnly: b.noteOnly,
+        threatLabels: b.threatLabels,
+        detail: b.detail,
+        startersText: b.startersText,
+        candidatesText: b.megidoList.slice(0, 8).map((h) => candText(h, false)).join("、") + (b.megidoList.length > 8 ? `、ほか${b.megidoList.length - 8}体` : ""),
+        orbsText: b.orbsList.slice(0, 6).map((h) => candText(h, true)).join("、") + (b.orbsList.length > 6 ? `、ほか${b.orbsList.length - 6}件` : "")
+      }));
+      const table = fact && fact.resistances && fact.resistances.symbolTable || {};
+      const resistances = Object.entries(table).map(([key, grades]) => ({
+        name: normalizePoleName(key),
+        vh: grades && grades[2] ? grades[2] : "",
+        nhText: grades ? `N ${grades[0] || "ー"} / H ${grades[1] || "ー"}` : ""
+      })).filter((r) => r.vh);
+      return {
+        threatsBySource,
+        carousel: blocks.length > 0 || rushNote ? { blocks, rushNote } : null,
+        resistances
+      };
+    }
     function counterVm(def, derived) {
       if (!counterData || !floorEnemies) return null;
       const found = threatsForSquare({ def, floorEnemies, clsById: counterData.clsById });
@@ -253580,7 +254484,6 @@ window.__PREVIEW_DATA__ = {
       for (const name of def.enemies || []) {
         authoredByEnemy.set(name, authoredFor(name, def, { conditionOf: derived.conditionOf, levelOf }));
       }
-      const threats = found.threats.filter((t) => !authoredByEnemy.get(t.enemyName)).map((t) => threatVm(t, derived, floorEnemies, def.rules));
       const enemies = found.enemies.map((e) => {
         const fact = floorEnemies.enemies[e.name];
         const factParts = [];
@@ -253619,10 +254522,14 @@ window.__PREVIEW_DATA__ = {
             return f !== 1 ? `素早さ${applied}（${base}×${multText(f)}）` : `素早さ${base}`;
           })(),
           raceText: e.races.join("・"),
+          races: e.races,
           weakText: e.weak.join("、"),
           immuneText: e.immune.join("、"),
           hasTexts: e.hasTexts,
           authored: authoredByEnemy.get(e.name) || null,
+          // 敵シートの組み直し（発生源別の脅威・答えカルーセル・耐性）。
+          ...enemySheetExtras({ name: e.name, fact, raw, def, derived }),
+          resistOpen: Boolean(sheetCtx && sheetCtx.resistOpenEnemies && sheetCtx.resistOpenEnemies.has(e.name)),
           mechanicNotes: enemyMechanicNotes({
             enemyName: e.name,
             threatIds: found.threats.filter((t) => t.enemyName === e.name).map((t) => t.threatId),
@@ -253637,21 +254544,44 @@ window.__PREVIEW_DATA__ = {
         };
       });
       const demandWarnings = [];
-      for (const t of found.threats.filter((x) => !authoredByEnemy.get(x.enemyName))) {
-        const threatDef = counterData.clsById.get(t.threatId);
-        if (!threatDef) continue;
-        const ids = /* @__PURE__ */ new Set();
-        for (const c of threatDef.classes) {
-          if (!classApplies(c, t.methods)) continue;
-          for (const h of candidatesForClass(c, counterData.index, derived.owned).megido) ids.add(h.id);
-        }
-        if (ids.size > 0 && ids.size <= 2) {
-          demandWarnings.push(
-            `需要の警告: ${t.name}（${t.enemyName}）の対策候補は ${[...ids].map(nameOf).join("、")} だけです。使いどころに気をつけてください。`
-          );
+      for (const e of found.enemies) {
+        const fact = floorEnemies.enemies[e.name];
+        const raw = authoredEntryFor(
+          tacticsData,
+          e.name,
+          def,
+          sheetCtx ? sheetCtx.squareId : null
+        );
+        if (raw && raw.kind === "boss") continue;
+        const unified = enemyThreatsUnified({
+          fact,
+          authored: raw,
+          clsById: counterData.clsById,
+          threatLevels: counterData.threatLevels
+        });
+        for (const t of unified) {
+          const blocks = threatAnswerBlocks({
+            threat: t,
+            fact,
+            authored: raw,
+            clsById: counterData.clsById,
+            index: counterData.index,
+            owned: derived.owned,
+            levelOf
+          });
+          const ids = /* @__PURE__ */ new Set();
+          for (const b of blocks) {
+            for (const c of b.megido) if (candidateUsable(c)) ids.add(c.id);
+          }
+          if (ids.size > 0 && ids.size <= 2) {
+            demandWarnings.push(
+              `需要の警告: ${t.label}（${e.name}）の対策候補は ${[...ids].map(nameOf).join("、")} だけです。使いどころに気をつけてください。`
+            );
+          }
         }
       }
-      return { enemies, threats, demandWarnings };
+      const enemyTab = sheetCtx && enemies.some((e) => e.name === sheetCtx.enemyTab) ? sheetCtx.enemyTab : enemies.length > 0 ? enemies[0].name : null;
+      return { enemies, enemyTab, demandWarnings };
     }
     function targetFloorsOf() {
       if (!buildCtx || !buildCtx.targetEnemy) return [];
@@ -253674,10 +254604,19 @@ window.__PREVIEW_DATA__ = {
       if (!buildCtx || !buildCtx.targetEnemy || !counterData || !structure) return null;
       const blocks = [];
       const seenEntries = /* @__PURE__ */ new Set();
-      const derivedThreats = [];
-      const seenThreats = /* @__PURE__ */ new Set();
+      let firstFact = null;
+      let firstRaw = null;
+      let firstFe = null;
+      let firstRules = null;
       for (const { floor, fe, squareId, def } of targetSquares()) {
         const raw = tacticsData ? authoredEntryFor(tacticsData, buildCtx.targetEnemy, def, squareId) : null;
+        const fact = fe && fe.enemies ? fe.enemies[buildCtx.targetEnemy] : null;
+        if (!firstFact && fact) {
+          firstFact = fact;
+          firstRaw = raw;
+          firstFe = fe;
+          firstRules = def.rules;
+        }
         if (raw) {
           if (seenEntries.has(raw.entry)) continue;
           seenEntries.add(raw.entry);
@@ -253695,16 +254634,26 @@ window.__PREVIEW_DATA__ = {
           });
           continue;
         }
-        const found = threatsForSquare({ def, floorEnemies: fe, clsById: counterData.clsById });
-        if (!found) continue;
-        for (const t of found.threats) {
-          if (t.enemyName !== buildCtx.targetEnemy) continue;
-          if (seenThreats.has(t.threatId)) continue;
-          seenThreats.add(t.threatId);
-          derivedThreats.push(threatVm(t, derived, fe, def.rules));
+      }
+      const derivedThreats = [];
+      if (firstFact && !(firstRaw && firstRaw.kind === "boss")) {
+        const unified = enemyThreatsUnified({
+          fact: firstFact,
+          authored: firstRaw,
+          clsById: counterData.clsById,
+          threatLevels: counterData.threatLevels
+        });
+        for (const t of unified) {
+          if (t.source !== "derived") continue;
+          const vm = threatVm({ ...t.derived, enemyName: buildCtx.targetEnemy }, derived, firstFe, firstRules);
+          vm.level = t.level;
+          derivedThreats.push(vm);
         }
       }
-      if (derivedThreats.length > 0) blocks.push({ floor: null, authored: null, threats: derivedThreats });
+      if (derivedThreats.length > 0) {
+        if (blocks.length > 0) blocks[0].threats = derivedThreats;
+        else blocks.push({ floor: null, authored: null, threats: derivedThreats });
+      }
       if (blocks.length === 0) return null;
       if (blocks.length === 1) blocks[0].floor = null;
       return { blocks };
@@ -253716,8 +254665,15 @@ window.__PREVIEW_DATA__ = {
       const seenEntries = /* @__PURE__ */ new Set();
       const derivedThreats = [];
       const seenThreats = /* @__PURE__ */ new Set();
+      let statusFact = null;
+      let firstRaw = null;
       for (const { fe, squareId, def } of targetSquares()) {
         const raw = tacticsData ? authoredEntryFor(tacticsData, buildCtx.targetEnemy, def, squareId) : null;
+        const fact = fe && fe.enemies ? fe.enemies[buildCtx.targetEnemy] : null;
+        if (!statusFact && fact) {
+          statusFact = fact;
+          firstRaw = raw;
+        }
         if (raw) {
           if (seenEntries.has(raw.entry)) continue;
           seenEntries.add(raw.entry);
@@ -253727,7 +254683,8 @@ window.__PREVIEW_DATA__ = {
               formation,
               index: counterData.index,
               levelOf,
-              styleClassOf
+              styleClassOf,
+              enemyFact: fact
             })) {
               rows.push({
                 label: r.label,
@@ -253739,13 +254696,21 @@ window.__PREVIEW_DATA__ = {
           }
           continue;
         }
-        const found = threatsForSquare({ def, floorEnemies: fe, clsById: counterData.clsById });
-        if (!found) continue;
-        for (const t of found.threats) {
-          if (t.enemyName !== buildCtx.targetEnemy) continue;
-          if (seenThreats.has(t.threatId)) continue;
-          seenThreats.add(t.threatId);
-          derivedThreats.push(t);
+      }
+      if (statusFact) {
+        if (!(firstRaw && firstRaw.kind === "boss")) {
+          const unified = enemyThreatsUnified({
+            fact: statusFact,
+            authored: firstRaw,
+            clsById: counterData.clsById,
+            threatLevels: counterData.threatLevels
+          });
+          for (const t of unified) {
+            if (t.source !== "derived") continue;
+            if (seenThreats.has(t.threatId)) continue;
+            seenThreats.add(t.threatId);
+            derivedThreats.push({ ...t.derived, enemyName: buildCtx.targetEnemy });
+          }
         }
       }
       if (derivedThreats.length > 0) {
@@ -253756,7 +254721,8 @@ window.__PREVIEW_DATA__ = {
           index: counterData.index,
           conditionOf: derived.conditionOf,
           levelOf,
-          styleClassOf
+          styleClassOf,
+          enemyFact: statusFact
         });
         for (const c of coverage) {
           const threatDef = counterData.clsById.get(c.threatId);
@@ -253786,70 +254752,36 @@ window.__PREVIEW_DATA__ = {
       if (!buildCtx || !buildCtx.targetEnemy || !counterData || !structure) {
         return { megido, orbs };
       }
-      const pushInto = (map) => (id, label) => {
-        if (!id || !label) return;
-        if (!map.has(id)) map.set(id, []);
-        const list = map.get(id);
-        if (!list.includes(label)) list.push(label);
+      const merge = (src) => {
+        for (const [id, labels] of src.megido) {
+          if (!megido.has(id)) megido.set(id, []);
+          for (const l of labels) if (!megido.get(id).includes(l)) megido.get(id).push(l);
+        }
+        for (const [id, labels] of src.orbs) {
+          if (!orbs.has(id)) orbs.set(id, []);
+          for (const l of labels) if (!orbs.get(id).includes(l)) orbs.get(id).push(l);
+        }
       };
-      const push = pushInto(megido);
-      const pushOrb = pushInto(orbs);
-      const handled = /* @__PURE__ */ new Set();
+      const stateCtx = {
+        memberIds: buildCtx.slots.filter((s) => s.megidoId).map((s) => s.megidoId),
+        orbIds: buildCtx.slots.filter((s) => s.orbId).map((s) => s.orbId),
+        leaderId: buildCtx.slots[2] ? buildCtx.slots[2].megidoId : null,
+        levelOf,
+        hasSpecial: specialOwnedOf
+      };
       for (const { fe, squareId, def } of targetSquares()) {
         const raw = tacticsData ? authoredEntryFor(tacticsData, buildCtx.targetEnemy, def, squareId) : null;
-        if ((!raw || raw.kind === "enemy") && counterData.index) {
-          const fact = fe && fe.enemies ? fe.enemies[buildCtx.targetEnemy] : null;
-          const rb = raceBonusAnswers({ fact, index: counterData.index, owned: derived.owned });
-          for (const [id, labels] of rb.megido) for (const l of labels) push(id, l);
-          for (const [id, labels] of rb.orbs) for (const l of labels) pushOrb(id, l);
-          const sb = stateBonusAnswers({
-            fact,
-            index: counterData.index,
-            owned: derived.owned,
-            memberIds: buildCtx.slots.filter((s) => s.megidoId).map((s) => s.megidoId),
-            orbIds: buildCtx.slots.filter((s) => s.orbId).map((s) => s.orbId),
-            leaderId: buildCtx.slots[2] ? buildCtx.slots[2].megidoId : null,
-            levelOf,
-            hasSpecial: specialOwnedOf
-          });
-          for (const [id, labels] of sb.megido) for (const l of labels) push(id, l);
-          for (const [id, labels] of sb.orbs) for (const l of labels) pushOrb(id, l);
-        }
-        if (raw) {
-          if (handled.has(raw.entry)) continue;
-          handled.add(raw.entry);
-          if (raw.kind !== "enemy" || !counterData.index) continue;
-          for (const tactic of raw.entry.effectiveTactics || []) {
-            for (const m of tactic.means || []) {
-              const effect = counterData.index.byEffect.get(m.effect);
-              if (!effect) continue;
-              for (const h of effect.megido || []) {
-                if (derived.owned && !derived.owned.has(h.id)) continue;
-                push(h.id, tactic.label);
-              }
-              for (const h of effect.megidoMe || []) {
-                if (derived.owned && !derived.owned.has(h.id)) continue;
-                push(h.id, tactic.label);
-              }
-              for (const h of effect.orbs || []) pushOrb(h.orbId, tactic.label);
-            }
-          }
-          continue;
-        }
-        const found = threatsForSquare({ def, floorEnemies: fe, clsById: counterData.clsById });
-        if (!found) continue;
-        for (const t of found.threats) {
-          if (t.enemyName !== buildCtx.targetEnemy) continue;
-          if (t.threatId.startsWith("race:")) continue;
-          const threatDef = counterData.clsById.get(t.threatId);
-          if (!threatDef) continue;
-          for (const c of threatDef.classes) {
-            if (!classApplies(c, t.methods)) continue;
-            const cand = candidatesForClass(c, counterData.index, derived.owned);
-            for (const h of cand.megido) push(h.id, t.name);
-            for (const h of cand.orbs) pushOrb(h.orbId, t.name);
-          }
-        }
+        const fact = fe && fe.enemies ? fe.enemies[buildCtx.targetEnemy] : null;
+        merge(pickerAnswersForEnemy({
+          fact,
+          authored: raw,
+          clsById: counterData.clsById,
+          index: counterData.index,
+          owned: derived.owned,
+          levelOf,
+          threatLevels: counterData.threatLevels,
+          stateCtx
+        }));
       }
       return { megido, orbs };
     }
@@ -253882,7 +254814,7 @@ window.__PREVIEW_DATA__ = {
         // 探索力は装備中の霊宝の修正値込みで計算している。その前提を
         // メンバーごとに名指しで出す（込みであることを黙らない）。
         reishouText: equip.length > 0 ? `霊宝: ${reishouNameText(equip)}` : null,
-        demandText: counts.total > 0 ? `需要: この先の戦闘マス${counts.total}件で対策の候補${counts.essential > 0 ? `（必須級${counts.essential}件）` : ""}` : null,
+        demandText: counts.total > 0 ? `需要: 次の回復マスまでの戦闘マス${counts.total}件で対策の候補${counts.essential > 0 ? `（必須級${counts.essential}件）` : ""}` : null,
         planText: planList.length > 0 ? `予定: ${planList.slice(0, 2).map((p) => `${p.floor}F『${p.formationName}』`).join("、")}${planList.length > 2 ? ` ほか${planList.length - 2}件` : ""}` : null
       };
     }
@@ -254564,6 +255496,10 @@ window.__PREVIEW_DATA__ = {
         boundaryPicks: /* @__PURE__ */ new Set(),
         currentPending: null,
         postResult: null,
+        // 敵シートの種タブの選択と、耐性アコーディオンの開閉（その
+        // マスのシートだけの途中状態。保存しない）。
+        enemyTab: null,
+        resistOpenEnemies: /* @__PURE__ */ new Set(),
         planMembers: [],
         planCandidates: null,
         planSelectedIds: null,
@@ -254770,6 +255706,20 @@ window.__PREVIEW_DATA__ = {
     const sheetCallbacks = {
       onOpenFormations: () => openFormationList("select"),
       onReselect: () => openFormationList("select"),
+      // 敵シートの種タブと耐性アコーディオン（途中状態を変えて
+      // 組み直すだけ。記録はしない）。
+      onEnemyTab: (name) => {
+        if (!sheetCtx) return;
+        sheetCtx.enemyTab = name;
+        renderSquareSheet();
+      },
+      onResistToggle: (name) => {
+        if (!sheetCtx) return;
+        if (!sheetCtx.resistOpenEnemies) sheetCtx.resistOpenEnemies = /* @__PURE__ */ new Set();
+        if (sheetCtx.resistOpenEnemies.has(name)) sheetCtx.resistOpenEnemies.delete(name);
+        else sheetCtx.resistOpenEnemies.add(name);
+        renderSquareSheet();
+      },
       // 開始前確認から、その編成のエディタを直接開く（2026-11-19
       // ユーザー要望）。保存・キャンセルとも returnToSheet でマスの
       // シートへ戻り、確認表示が編集後の内容で組み直される。
@@ -255019,19 +255969,33 @@ window.__PREVIEW_DATA__ = {
             if (a) authoredByEnemy.set(name, a);
           }
           if (found && (found.threats.length > 0 || authoredByEnemy.size > 0)) {
-            const derivedThreats = found.threats.filter((t) => !authoredByEnemy.has(t.enemyName));
+            const derivedByEnemy = [];
+            for (const e of found.enemies) {
+              const a = authoredByEnemy.get(e.name) || null;
+              if (a && a.kind === "boss") continue;
+              const fact = floorEnemies.enemies[e.name];
+              const unified = enemyThreatsUnified({
+                fact,
+                authored: a,
+                clsById: counterData.clsById,
+                threatLevels: counterData.threatLevels
+              });
+              const ts = unified.filter((t) => t.source === "derived").map((t) => ({ ...t.derived, enemyName: e.name }));
+              if (ts.length > 0) derivedByEnemy.push({ fact, threats: ts });
+            }
             coverageByFormation = new Map(formationsData.formations.map((f) => [
               f.id,
               {
-                derived: formationCoverage({
+                derived: derivedByEnemy.flatMap(({ fact, threats: ts }) => formationCoverage({
                   formation: f,
-                  threats: derivedThreats,
+                  threats: ts,
                   clsById: counterData.clsById,
                   index: counterData.index,
                   conditionOf: derived.conditionOf,
                   levelOf,
-                  styleClassOf
-                }),
+                  styleClassOf,
+                  enemyFact: fact
+                })),
                 authored: [...authoredByEnemy.entries()].map(([enemyName, a]) => ({
                   enemyName,
                   kind: a.kind,
@@ -255040,7 +256004,8 @@ window.__PREVIEW_DATA__ = {
                     formation: f,
                     index: counterData.index,
                     levelOf,
-                    styleClassOf
+                    styleClassOf,
+                    enemyFact: floorEnemies.enemies[enemyName] || null
                   })
                 }))
               }
@@ -256078,7 +257043,13 @@ window.__PREVIEW_DATA__ = {
           style: b ? b.style : null,
           className: b ? b.class : null,
           gender: b ? b.gender : null,
-          atk: b && b.statsStar6 ? b.statsStar6.atk : 0,
+          atk: (() => {
+            const s = b ? resolveMegidoStats(b, savedLevelOf(
+              formationsData ? formationsData.megidoDetails : null,
+              slot.megidoId
+            )) : null;
+            return s ? s.atk : 0;
+          })(),
           slotIndex: index,
           orbId: slot.orbId || null,
           specialReishou: resolveSpecialReishou(d, Boolean(b && b.specialReishou))
@@ -257347,19 +258318,23 @@ window.__PREVIEW_DATA__ = {
         const fd = floorData(structure, sheetCtx.floor);
         const def = { floor: sheetCtx.floor, ...fd.squares[sheetCtx.squareId] };
         if (def.type === "battle" || def.type === "boss") {
-          const found = threatsForSquare({ def, floorEnemies, clsById: counterData.clsById });
-          if (found) {
-            answersById = /* @__PURE__ */ new Map();
-            for (const t of found.threats) {
-              const td = counterData.clsById.get(t.threatId);
-              if (!td) continue;
-              for (const c of td.classes) {
-                if (!classApplies(c, t.methods)) continue;
-                for (const h of candidatesForClass(c, counterData.index, null).megido) {
-                  if (!answersById.has(h.id)) answersById.set(h.id, /* @__PURE__ */ new Set());
-                  answersById.get(h.id).add(t.name);
-                }
-              }
+          answersById = /* @__PURE__ */ new Map();
+          for (const name of def.enemies || []) {
+            const fact = floorEnemies.enemies[name];
+            if (!fact) continue;
+            const raw = authoredEntryFor(tacticsData, name, def, sheetCtx.squareId);
+            const ans = pickerAnswersForEnemy({
+              fact,
+              authored: raw,
+              clsById: counterData.clsById,
+              index: counterData.index,
+              owned: null,
+              levelOf,
+              threatLevels: counterData.threatLevels
+            });
+            for (const [id, labels] of ans.megido) {
+              if (!answersById.has(id)) answersById.set(id, /* @__PURE__ */ new Set());
+              for (const l of labels) answersById.get(id).add(l);
             }
           }
         }
@@ -257392,7 +258367,7 @@ window.__PREVIEW_DATA__ = {
           lines.push(`手段: ${meansText}${means.length > 4 ? `、ほか${means.length - 4}件` : ""}`);
         }
         const w = demandWeight(demand, r.id, sheetCtx ? sheetCtx.floor : derived.currentFloor);
-        if (w > 0) lines.push("需要: この先のマスでも対策の候補になります");
+        if (w > 0) lines.push("需要: 次の回復マスまでのマスでも対策の候補になります");
         lines.push(...mechanicNoteLines(counterData.mechanicNotes, r.id));
         const keys = (counterData.mechanicNotes.notes || {})[r.id] || [];
         if (typeof targetHp === "number") {
@@ -257400,14 +258375,16 @@ window.__PREVIEW_DATA__ = {
           if (keys.includes("ereki")) lines.push(...erekiVsEnemyLines(targetHp));
         }
         const notesData = counterData.mechanicNotes;
+        const formulaLv = formulaLevel(detailOf(formationsData.megidoDetails, r.id).level);
         if (keys.includes("tenana")) {
           lines.push(...tenanaHolderLines({
             megidoId: r.id,
             isshinBonus: isshinCapBonus(equippedReishouRows(r.id)),
-            specialReishouOwned: specialOwnedOf(r.id)
+            specialReishouOwned: specialOwnedOf(r.id),
+            lv: formulaLv
           }));
         }
-        if (keys.includes("ereki")) lines.push(...erekiApplierLines());
+        if (keys.includes("ereki")) lines.push(...erekiApplierLines(formulaLv));
         const grower = notesData.erekiGrowers && notesData.erekiGrowers.megido ? notesData.erekiGrowers.megido[r.id] : null;
         if (grower && (!grower.needsReishou || specialOwnedOf(r.id))) {
           const line = erekiGrowerLine(grower);
@@ -258198,16 +259175,14 @@ window.__PREVIEW_DATA__ = {
         floorEnemies = null;
       }
     };
-    const update = async () => {
-      const derived = derive();
-      if (!viewFloor) viewFloor = derived.currentFloor;
-      if (viewFloor !== settings.lastFloor) {
-        settings = { ...settings, lastFloor: viewFloor };
-        await saveSettings(backend, settings);
-      }
-      await loadEnemiesForView();
-      renderHeader(topbarEl, {
+    const REPORT_FORM_URL = "https://docs.google.com/forms/d/e/1FAIpQLSezdFqszf2kdl-3dq7lk80OpbdixwhW3BIBSoOQ30N_kRxqow/viewform";
+    const renderNav = () => {
+      renderHeader(topbarEl, {}, {
+        onSearch: () => openSearchView()
+      });
+      renderTabBar(tabbarEl, {
         section: section3,
+        searchActive: Boolean(searchCtx),
         menuOpen,
         canUndo: canUndo(history),
         canRedo: canRedo(history)
@@ -258238,8 +259213,33 @@ window.__PREVIEW_DATA__ = {
           await saveRun(backend, history);
           setNotice(target ? `やり直しました: ${describeOp(target)}` : null);
           update();
+        },
+        onReport: () => {
+          menuOpen = false;
+          window.open(REPORT_FORM_URL, "_blank", "noopener");
+          update();
+        },
+        onExport: () => {
+          menuOpen = false;
+          doExport();
+          update();
+        },
+        onImportFile: (file) => {
+          menuOpen = false;
+          handleImportFile(file, { backToRecords: false });
+          update();
         }
       });
+    };
+    const update = async () => {
+      const derived = derive();
+      if (!viewFloor) viewFloor = derived.currentFloor;
+      if (viewFloor !== settings.lastFloor) {
+        settings = { ...settings, lastFloor: viewFloor };
+        await saveSettings(backend, settings);
+      }
+      await loadEnemiesForView();
+      renderNav();
       const outlook = towerOutlook(structure, derived);
       const usage = styleUsage(structure, derived, megidoBasics);
       const recoveries = nextRecoveries(structure, derived.cleared, derived.currentFloor);
@@ -258566,6 +259566,7 @@ window.__PREVIEW_DATA__ = {
     function openSearchView() {
       searchCtx = { gen: ++ctxSeq, query: "", preset: null, focusSearch: false };
       renderSearchView();
+      renderNav();
     }
     function searchSquareRows(derived, predicate, limit = 30) {
       const rows = [];
@@ -258721,7 +259722,9 @@ window.__PREVIEW_DATA__ = {
       const fixTargets = [...fixBySquare.values()].sort((a, b) => a.floor - b.floor || a.index - b.index).map((e) => ({ squareId: e.squareId, floor: e.floor, text: `${e.floor}F: ${entryLine(e)}` }));
       const pastRuns = [...records.runs].reverse().map((run) => ({
         label: run.label,
-        closedText: String(run.closedAt || "").slice(0, 10),
+        // 締めた日は保存ラベル（年月）ではなく closedAt から日本語の日付で
+        // 補う（K6 の小物）。同月に複数閉じても日で区別できる。
+        closedText: closedDayText(run.closedAt) || String(run.closedAt || "").slice(0, 10),
         statsText: `戦闘${run.stats.battles}（勝利${run.stats.wins}・敗北${run.stats.losses}・リタイア${run.stats.retreats}）／探索${run.stats.explores}／踏破${run.stats.floorsCleared.length}階／処理${run.stats.squaresProcessed}マス`,
         floors: Object.entries(run.floorSummaries || {}).map(([floor, text]) => ({ floor: Number(floor), text })).sort((a, b) => a.floor - b.floor)
       }));
@@ -258752,7 +259755,7 @@ window.__PREVIEW_DATA__ = {
       const blob = new Blob([JSON.stringify(json, null, 2)], { type: "application/json" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = "tower-tool-export.json";
+      a.download = exportFileName();
       a.click();
       URL.revokeObjectURL(a.href);
     }
@@ -258771,7 +259774,31 @@ window.__PREVIEW_DATA__ = {
         onCancel
       }));
     }
-    function openImportConfirm(json) {
+    async function handleImportFile(file, { backToRecords = true } = {}) {
+      let json;
+      try {
+        json = JSON.parse(await file.text());
+      } catch {
+        const wrap = document.createElement("div");
+        const title = document.createElement("h2");
+        title.textContent = "読み込めませんでした";
+        wrap.append(title);
+        const p = document.createElement("p");
+        p.textContent = "ファイルの形式が違うため、読み込みは行いませんでした。今のデータはそのままです。";
+        wrap.append(p);
+        const backBtn = document.createElement("button");
+        backBtn.textContent = backToRecords ? "記録画面に戻る" : "閉じる";
+        backBtn.addEventListener("click", () => {
+          overlay.close();
+          if (backToRecords) openRecordsView();
+        });
+        wrap.append(backBtn);
+        overlay.openSheet(wrap);
+        return;
+      }
+      openImportConfirm(json, { backToRecords });
+    }
+    function openImportConfirm(json, { backToRecords = true } = {}) {
       const code = String(Math.floor(1e3 + Math.random() * 9e3));
       let inputValue = "";
       overlay.openSheet(buildImportConfirmView({ code }, {
@@ -258793,7 +259820,7 @@ window.__PREVIEW_DATA__ = {
         },
         onCancel: () => {
           overlay.close();
-          openRecordsView();
+          if (backToRecords) openRecordsView();
         }
       }));
     }
@@ -258852,30 +259879,7 @@ window.__PREVIEW_DATA__ = {
           }
         },
         onExport: () => doExport(),
-        onImportFile: async (file) => {
-          let json;
-          try {
-            json = JSON.parse(await file.text());
-          } catch {
-            const wrap = document.createElement("div");
-            const title = document.createElement("h2");
-            title.textContent = "読み込めませんでした";
-            wrap.append(title);
-            const p = document.createElement("p");
-            p.textContent = "ファイルの形式が違うため、読み込みは行いませんでした。今のデータはそのままです。";
-            wrap.append(p);
-            const backBtn = document.createElement("button");
-            backBtn.textContent = "記録画面に戻る";
-            backBtn.addEventListener("click", () => {
-              overlay.close();
-              openRecordsView();
-            });
-            wrap.append(backBtn);
-            overlay.openSheet(wrap);
-            return;
-          }
-          openImportConfirm(json);
-        }
+        onImportFile: (file) => handleImportFile(file)
       }), null);
     }
     let midCtx = null;
@@ -259042,6 +260046,7 @@ window.__PREVIEW_DATA__ = {
       const hasSpecial = Boolean(m && m.specialReishou);
       const hasBond = Boolean(m && m.bondReishou);
       const hasSingularity = Boolean(m && m.singularity);
+      const bondSlots = resolveBondSlots(d, hasBond);
       return {
         level: d && typeof d.level === "number" ? d.level : 70,
         ougiLevel: d && typeof d.ougiLevel === "number" ? d.ougiLevel : 3,
@@ -259049,20 +260054,27 @@ window.__PREVIEW_DATA__ = {
         hasBondReishou: hasBond,
         hasSingularity,
         specialReishou: resolveSpecialReishou(d, hasSpecial),
-        bondReishou: hasBond && d && typeof d.bond_reishou === "number" ? d.bond_reishou : 0,
+        bondSlots,
+        bondReishou: bondSlots.find((v) => v !== 0) || 0,
         singularity: hasSingularity && d && typeof d.singularity_level === "number" ? d.singularity_level : 0,
         reishouIds: d && Array.isArray(d.reishou) ? [...d.reishou] : [],
         trait: m && typeof m.trait === "string" ? m.trait : null
       };
     }
+    const BOND_TYPE_LABELS = ["", "真", "剛", "絆"];
     function deviationTextOf(d) {
       const parts = [];
       if (d.level !== 70) parts.push(`Lv${d.level}`);
       if (d.ougiLevel !== 3) parts.push(`奥義Lv${d.ougiLevel}`);
       if (d.hasSpecialReishou && !d.specialReishou) parts.push("専用霊宝なし");
-      if (d.bondReishou !== 0) parts.push(`絆霊宝${d.bondReishou}`);
+      if (Array.isArray(d.bondSlots) && d.bondSlots.some((v) => v !== 0)) {
+        const counts = [0, 0, 0, 0];
+        for (const v of d.bondSlots) counts[v] += 1;
+        const inner = [1, 2, 3].filter((t) => counts[t] > 0).map((t) => counts[t] > 1 ? `${BOND_TYPE_LABELS[t]}×${counts[t]}` : BOND_TYPE_LABELS[t]).join("・");
+        parts.push(`絆霊宝 ${inner}`);
+      }
       if (d.singularity !== 0) parts.push(`凸${d.singularity}`);
-      return parts.length > 0 ? `標準と違う: ${parts.join("・")}` : null;
+      return parts.length > 0 ? parts.join("・") : null;
     }
     function renderMegidoView() {
       const derived = derive();
@@ -259075,7 +260087,7 @@ window.__PREVIEW_DATA__ = {
         if (!demand) return null;
         const d = demand.get(id);
         const lines = [
-          `需要: 未処理の戦闘マス ${d ? d.total : 0} 件で対策の候補（うち候補が2体以下の必須級 ${d ? d.essential : 0} 件）`,
+          `需要: 次の回復マスまでの未処理の戦闘マス ${d ? d.total : 0} 件で対策の候補（うち候補が2体以下の必須級 ${d ? d.essential : 0} 件）`,
           "需要は本体・専用霊宝・オーブ・マスエフェクト由来の候補で数えています（マスエフェクト由来はリーダーに置いた場合）"
         ];
         if (d && d.spots.length > 0) {
@@ -259169,8 +260181,11 @@ window.__PREVIEW_DATA__ = {
       const controls = block.querySelectorAll("[data-field]");
       controls.forEach((ctl) => {
         const f = ctl.dataset ? ctl.dataset.field : null;
-        if (f === "level" || f === "bond_reishou") ctl.value = String(f === "level" ? d.level : d.bondReishou);
-        else if (f === "ougiLevel") ctl.value = String(d.ougiLevel);
+        if (f === "level") ctl.value = String(d.level);
+        else if (f === "bond_reishou") {
+          const slot = ctl.dataset && ctl.dataset.slot != null ? Number(ctl.dataset.slot) : 0;
+          ctl.value = String(d.bondSlots[slot] || 0);
+        } else if (f === "ougiLevel") ctl.value = String(d.ougiLevel);
         else if (f === "singularity_level") ctl.value = String(d.singularity);
         else if (f === "special_reishou") ctl.textContent = d.specialReishou ? "あり" : "なし";
       });
@@ -259216,10 +260231,40 @@ window.__PREVIEW_DATA__ = {
       },
       // 一括割り振り（絆霊宝とレベル）: 選択は部品側で完結し、ここには
       // 確定の1回だけが来る。保存は1回、表示の追随は行ごとの局所更新。
+      // 絆霊宝の一括は4枠モデル: 型（1〜3）は各人の「最初の空き枠」に
+      // 入れ、満枠の人はスキップする（黙って上書きしない）。値 0 は
+      // 全枠を外すクリア。適用結果（スキップ件数を含む）は完了の
+      // 通知で知らせる（migrate.js の withBondBulk が規則の正）。
       onBulkApply: async (kind, value, ids) => {
-        const field = kind === "level" ? "level" : "bond_reishou";
         ensureDetailsMaterialized();
         const details = { ...formationsData.megidoDetails };
+        if (kind === "bond_reishou") {
+          let applied = 0;
+          let skipped = 0;
+          for (const id of ids) {
+            const current = details[id] || normalizeMegidoDetail({});
+            const r = withBondBulk(current, value, byId.get(id));
+            if (!r) continue;
+            if (r.status === "applied") {
+              details[id] = r.entry;
+              applied += 1;
+            } else if (r.status === "skipped") skipped += 1;
+          }
+          if (applied > 0) {
+            formationsData = { ...formationsData, megidoDetails: details };
+            await saveFormationsData(backend, formationsData);
+            await update();
+            for (const id of ids) patchMegidoRow(id);
+          }
+          if (value === 0) {
+            showInfoToast(applied > 0 ? `絆霊宝: ${applied}体の全枠を外しました` : "絆霊宝: 外す対象はいませんでした");
+          } else {
+            const typeLabel = ["", "真", "剛", "絆"][value] || "";
+            showInfoToast(skipped > 0 ? `絆霊宝「${typeLabel}」: ${applied}体に割り振りました（満枠で${skipped}体はスキップ）` : `絆霊宝「${typeLabel}」: ${applied}体に割り振りました`);
+          }
+          return;
+        }
+        const field = "level";
         let changed = false;
         for (const id of ids) {
           const current = details[id] || normalizeMegidoDetail({});
@@ -259272,6 +260317,18 @@ window.__PREVIEW_DATA__ = {
         await onUndo();
       });
       bar.append(btn);
+      document.body.append(bar);
+      undoToastEl = bar;
+      undoToastTimer = setTimeout(hideUndoToast, 5e3);
+    };
+    const showInfoToast = (message) => {
+      hideUndoToast();
+      const bar = document.createElement("div");
+      bar.className = "undo-toast";
+      const msg = document.createElement("span");
+      msg.className = "undo-toast-msg";
+      msg.textContent = message;
+      bar.append(msg);
       document.body.append(bar);
       undoToastEl = bar;
       undoToastTimer = setTimeout(hideUndoToast, 5e3);
