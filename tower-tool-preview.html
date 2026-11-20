@@ -1010,6 +1010,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 .flag-fit-head { font-size: 14px; font-weight: 700; }
 .flag-fit-line { font-size: 13px; margin: 2px 0; }
 .flag-fit-effect { font-size: 12px; color: var(--muted); margin: 2px 0; }
+.flag-fit-item .flag-fit-note { font-size: 12px; color: var(--muted); margin: 2px 0; }
 /* ME の枠条件の各枠表示（ピッカー、2026-11-19）: 満たす枠を1枠1行で
    出すため、cand-me-match と同じ見た目（金の太字）にする */
 .cand-me-fit { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 2px; }
@@ -1322,6 +1323,15 @@ button:disabled { opacity: 0.4; cursor: default; }
 .chain-result-line { font-size: 14px; margin: 6px 0 0; }
 .chain-photon-icon { vertical-align: -3px; }
 .chain-clear-btn { margin-top: 8px; }
+.chain-action { position: relative; flex: none; width: 52px; }
+.chain-action .chain-action-photon { width: 100%; }
+.chain-action.is-fixed .chain-action-photon { border-style: dashed; }
+.chain-action-x { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid var(--border); background: var(--surface, #fff); color: var(--danger); font-size: 13px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 1; }
+.chain-prob-badge { position: absolute; bottom: -7px; right: -7px; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid var(--accent); background: var(--surface, #fff); color: var(--accent); font-size: 12px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 1; }
+.chain-prob-restore { margin-left: 8px; font-size: 12px; }
+.chain-photon-popup { display: flex; flex-direction: column; gap: 6px; }
+.chain-photon-popup .hbomb-popup-item.is-current { border-color: var(--accent); }
+.chain-photon-option-note { font-size: 12px; color: var(--muted); }
 
 /* ---- Hボムプランナー（2026-11-19 実装フライト） ---- */
 /* 戦場（上）と操作エリア（下）を1区画に収める。スクロールなしで
@@ -1355,7 +1365,17 @@ button:disabled { opacity: 0.4; cursor: default; }
 .hbomb-bomb.kind-ren { border-color: var(--accent); color: var(--accent); }
 .hbomb-bomb.boosted { background: rgba(231, 205, 156, 0.18); }
 .hbomb-debuffs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
-.hbomb-debuff { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 999px; border: 1px solid #83477c; color: #83477c; }
+.hbomb-debuff { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 999px; border: 1px solid #83477c; color: #83477c; background: transparent; }
+.hbomb-debuff-popup { display: flex; flex-direction: column; gap: 6px; }
+.hbomb-popup-title { font-size: 15px; font-weight: 700; }
+.hbomb-popup-note { font-size: 12px; color: var(--muted); margin: 0; }
+.hbomb-popup-empty { font-size: 13px; color: var(--muted); margin: 0; }
+.hbomb-popup-item { display: flex; flex-direction: column; align-items: stretch; gap: 2px; text-align: left; padding: 8px 10px; }
+.hbomb-popup-item-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.hbomb-popup-item-label { font-size: 14px; font-weight: 700; }
+.hbomb-popup-item-meta { font-size: 11px; color: var(--muted); }
+.hbomb-popup-item-source { font-size: 12px; color: var(--muted); }
+.hbomb-popup-item-remove { font-size: 12px; font-weight: 700; color: var(--danger); flex: 0 0 auto; }
 .hbomb-factor { font-size: 13px; font-weight: 600; margin: 6px 0 0; }
 .hbomb-steps { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
 .hbomb-step-turn { font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 4px; }
@@ -1412,6 +1432,28 @@ button:disabled { opacity: 0.4; cursor: default; }
 .kyoen-undo-btn { flex: 1; }
 .kyoen-conclusion { font-size: 14px; font-weight: 700; margin: 8px 0 0; }
 .kyoen-note { font-size: 11px; color: var(--muted); margin: 4px 0 0; }
+.kyoen-chip:disabled { opacity: 0.55; }
+/* 狂炎の割り振り・反撃ポップアップ（2026-11-20）: シート内の
+   部品。Hボムの付着ポップアップと同じ見た目の流儀。 */
+.kyoen-alloc-popup { display: flex; flex-direction: column; gap: 6px; }
+.kyoen-alloc-total { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.kyoen-alloc-total-label { font-size: 13px; font-weight: 700; }
+.kyoen-alloc-total-num { font-size: 14px; font-weight: 700; min-width: 3em; text-align: center; }
+.kyoen-alloc-sum { font-size: 12px; color: var(--muted); margin-left: auto; }
+.kyoen-alloc-row { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; }
+.kyoen-alloc-row.dead { opacity: 0.55; }
+.kyoen-alloc-row-head { display: flex; align-items: baseline; gap: 8px; }
+.kyoen-alloc-name { font-size: 13px; font-weight: 600; }
+.kyoen-alloc-hp { font-size: 11px; color: var(--muted); margin-left: auto; white-space: nowrap; }
+.kyoen-alloc-ctl { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+.kyoen-alloc-step { width: 34px; height: 30px; font-size: 15px; font-weight: 700; padding: 0; }
+.kyoen-alloc-step:disabled { opacity: 0.4; }
+.kyoen-alloc-count { font-size: 14px; font-weight: 700; min-width: 2.6em; text-align: center; }
+.kyoen-alloc-dmg { font-size: 11px; color: var(--muted); }
+.kyoen-alloc-foot { display: flex; gap: 8px; margin-top: 6px; }
+.kyoen-alloc-cancel { flex: 1; }
+.kyoen-alloc-confirm { flex: 1; background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 700; }
+.kyoen-alloc-confirm:disabled { opacity: 0.45; }
 
 @media (min-width: 1024px) {
   :root { --pane-w: clamp(480px, 46vw, 680px); }
@@ -71310,7 +71352,7 @@ window.__PREVIEW_DATA__ = {
 "chain.v1.json": {
   "kind": "chain",
   "version": 1,
-  "source": "build/data/abilities の能力原文への機械検出（generate-chain.mjs）。条件のうち専用霊宝だけが装備で判定でき、残りは実行時の注記。",
+  "source": "build/data/abilities の能力原文への機械検出（generate-chain.mjs）。条件のうち専用霊宝だけが装備で判定でき、残りは実行時の注記。me は ME の正本データ（me.v1.json）の枠効果から抜いた始動（リーダーごとに、枠と条件つき）。orbs はオーブのスキル文から抜いたチェイン（媒体はオーブ）。",
   "megido": {
     "真03_サキュバスB": {
       "start": [
@@ -71705,6 +71747,480 @@ window.__PREVIEW_DATA__ = {
       "grant": [],
       "selfChain": [],
       "scaler": true
+    }
+  },
+  "me": {
+    "真03_サキュバスB": {
+      "name": "ラブデスアラモード",
+      "ways": [
+        {
+          "slot": "1",
+          "condition": "バースト",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "チャージ"
+            },
+            {
+              "type": "prob",
+              "pct": 30
+            }
+          ]
+        },
+        {
+          "slot": "5",
+          "condition": "バースト",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "チャージ"
+            },
+            {
+              "type": "prob",
+              "pct": 30
+            }
+          ]
+        }
+      ]
+    },
+    "真06_アラストールB": {
+      "name": "鮮烈のトルトゥーラ",
+      "ways": [
+        {
+          "slot": "1",
+          "condition": "バースト+トルーパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "5",
+          "condition": "バースト+トルーパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "leader",
+          "condition": "-",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        }
+      ]
+    },
+    "真15_サタナキアB": {
+      "name": "科学者の矜持",
+      "ways": [
+        {
+          "slot": "leader",
+          "condition": "-",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            }
+          ]
+        }
+      ]
+    },
+    "真26_オレイ": {
+      "name": "怪盗の美学",
+      "ways": [
+        {
+          "slot": "1",
+          "condition": "バースト+ファイター",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "5",
+          "condition": "バースト+ファイター",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        }
+      ]
+    },
+    "真27_マルチネ": {
+      "name": "ツッパリハート",
+      "ways": [
+        {
+          "slot": "1",
+          "condition": "バースト+トルーパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "5",
+          "condition": "バースト+トルーパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        }
+      ]
+    },
+    "真43_サルガタナス": {
+      "name": "勝たせてあげるわ",
+      "ways": [
+        {
+          "slot": "leader",
+          "condition": "-",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            }
+          ]
+        }
+      ]
+    },
+    "真51_プルフラスB": {
+      "name": "復讐のその先へ",
+      "ways": [
+        {
+          "slot": "1",
+          "condition": "バースト+ファイター",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "2",
+          "condition": "バースト+スナイパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "4",
+          "condition": "バースト+スナイパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "5",
+          "condition": "バースト+ファイター",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        }
+      ]
+    },
+    "祖28_ベリトB": {
+      "name": "ボルトセラピー",
+      "ways": [
+        {
+          "slot": "1",
+          "condition": "バースト+ファイター",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "5",
+          "condition": "バースト+ファイター",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        }
+      ]
+    },
+    "祖35_マルコシアスB": {
+      "name": "ジャスティスフォース",
+      "ways": [
+        {
+          "slot": "2",
+          "condition": "バースト+トルーパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "4",
+          "condition": "バースト+トルーパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        }
+      ]
+    },
+    "祖39_マルファスB": {
+      "name": "知的好奇心",
+      "ways": [
+        {
+          "slot": "2",
+          "condition": "バースト+スナイパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "4",
+          "condition": "バースト+スナイパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        }
+      ]
+    },
+    "祖48_ハーゲンティB": {
+      "name": "レッツゴー黄金伝説！",
+      "ways": [
+        {
+          "slot": "2",
+          "condition": "バースト+スナイパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        },
+        {
+          "slot": "4",
+          "condition": "バースト+スナイパー",
+          "medium": "マスエフェクト",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "スキル"
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "orbs": {
+    "orb_204": {
+      "name": "ドカグイ",
+      "start": [
+        {
+          "medium": "オーブ",
+          "conditions": []
+        }
+      ],
+      "relay": [],
+      "grant": [],
+      "selfChain": [],
+      "scaler": false
+    },
+    "orb_252": {
+      "name": "ジャガーノート",
+      "start": [],
+      "relay": [],
+      "grant": [],
+      "selfChain": [
+        {
+          "medium": "オーブ",
+          "conditions": []
+        }
+      ],
+      "scaler": false
+    },
+    "orb_356": {
+      "name": "シーシェルド",
+      "start": [
+        {
+          "medium": "オーブ",
+          "conditions": []
+        }
+      ],
+      "relay": [],
+      "grant": [],
+      "selfChain": [],
+      "scaler": false
+    },
+    "orb_409": {
+      "name": "カルコス",
+      "start": [],
+      "relay": [
+        {
+          "medium": "オーブ",
+          "conditions": []
+        }
+      ],
+      "grant": [],
+      "selfChain": [],
+      "scaler": false
+    },
+    "orb_429": {
+      "name": "マスクド・マッド",
+      "start": [
+        {
+          "medium": "オーブ",
+          "conditions": []
+        }
+      ],
+      "relay": [],
+      "grant": [],
+      "selfChain": [],
+      "scaler": false
+    },
+    "orb_431": {
+      "name": "呪王セルウィウス",
+      "start": [
+        {
+          "medium": "オーブ",
+          "conditions": []
+        }
+      ],
+      "relay": [],
+      "grant": [],
+      "selfChain": [],
+      "scaler": false
     }
   }
 }
@@ -73229,7 +73745,7 @@ window.__PREVIEW_DATA__ = {
 "hbomb.v1.json": {
   "kind": "hbomb-actions",
   "version": 1,
-  "note": "Hボムプランナーのボム行動の索引。corpus/・corpus-orbs/・corpus-me/・corpus-reishou/ から生成（build/pipeline/generate-hbomb.mjs）。倍率は＋版（専用霊宝版は needsReishou）を正とし、オーブは最大強化前提。reishouBoost は霊宝ID→ハイドロボムのダメージ上昇率。debuff は編成が付ける防御力低下・虚弱と、虚弱の数えに入る弱体・状態異常の種類（条件つきの効果と持続が確定できない効果は含まない）。branchOnHeavy は対象の状態で分岐する行動（ウァプラR奥義の専用霊宝版: 重が付与されていなければ重を付与し、重が付与されていれば錬成する）。",
+  "note": "Hボムプランナーのボム行動の索引。corpus/・corpus-orbs/・corpus-me/・corpus-reishou/ から生成（build/pipeline/generate-hbomb.mjs）。倍率は＋版（専用霊宝版は needsReishou）を正とし、オーブは最大強化前提。reishouBoost は霊宝ID→ハイドロボムのダメージ上昇率。debuff は編成が付ける防御力低下・虚弱と、虚弱の数えに入る弱体・状態異常の種類（条件つきの効果と持続が確定できない効果は含まない。ただし同一行動内の逐次条件＝前段が条件の状態を付ける場合は後段も含む）。branchOnHeavy は対象の状態で分岐する行動（ウァプラR奥義の専用霊宝版: 重が付与されていなければ重を付与し、重が付与されていれば錬成する）。levels は Lv で数値が変わる能力（6件）の Lv ごとのスナップショット（トップレベルの値は Lv1。levelMode は Lv の上がり方で、アガリアレプトの覚醒スキルだけターン経過の turn、他は使用回数の use）。form は分岐形（大協奏・ネクロ・封印時・チェイン1・チェイン2・全体・お返し状態時）で、基本形と弱体・範囲が食い違う分岐だけを別行動として持つ（範囲は基本形の部分だけで決める）。stacks は「この効果は重複して付与される」行動（サルガタナスのスキルの専用霊宝版だけ）で、同じ発生源でも上書きせず付け足す。key が trait の行動は特性が置くボム（シャミハザRだけ）で、free（手数を消費しない）を持ち、ボタン文面は buttonText。",
   "megido": {
     "宵03_エウリノーム": {
       "name": "エウリノーム",
@@ -73353,7 +73869,7 @@ window.__PREVIEW_DATA__ = {
         {
           "key": "skill",
           "medium": "スキル",
-          "name": "天誅アレグロ＋ Lv1",
+          "name": "天誅アレグロ＋",
           "range": "single",
           "debuff": {
             "types": [
@@ -73364,6 +73880,61 @@ window.__PREVIEW_DATA__ = {
               }
             ]
           },
+          "levels": [
+            {
+              "lv": 1,
+              "range": "single",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "攻撃力低下",
+                    "pct": 0.25,
+                    "turns": 2
+                  }
+                ]
+              }
+            },
+            {
+              "lv": 2,
+              "range": "single",
+              "debuff": {
+                "defDown": {
+                  "pct": 0.25,
+                  "turns": 2
+                },
+                "types": [
+                  {
+                    "type": "攻撃力低下",
+                    "pct": 0.25,
+                    "turns": 2
+                  }
+                ]
+              }
+            },
+            {
+              "lv": 3,
+              "range": "single",
+              "debuff": {
+                "defDown": {
+                  "pct": 0.25,
+                  "turns": 2
+                },
+                "types": [
+                  {
+                    "type": "攻撃力低下",
+                    "pct": 0.25,
+                    "turns": 2
+                  },
+                  {
+                    "type": "素早さ低下",
+                    "pct": 0.25,
+                    "turns": 2
+                  }
+                ]
+              }
+            }
+          ],
+          "levelMode": "use",
           "needsReishou": true,
           "sourceText": "敵単体に攻撃力1.25倍のダメージ。さらに2ターンの間、攻撃力を25%低下させる"
         },
@@ -73545,6 +74116,10 @@ window.__PREVIEW_DATA__ = {
               {
                 "type": "束縛",
                 "turns": 2
+              },
+              {
+                "type": "呪い",
+                "turns": 2
               }
             ]
           },
@@ -73559,6 +74134,10 @@ window.__PREVIEW_DATA__ = {
             "types": [
               {
                 "type": "束縛",
+                "turns": 2
+              },
+              {
+                "type": "呪い",
                 "turns": 2
               }
             ]
@@ -73619,6 +74198,40 @@ window.__PREVIEW_DATA__ = {
           "gaugeUse": "ougi",
           "needsReishou": true,
           "sourceText": "敵横一列に攻撃力1倍の4連続ダメージ。さらにそれぞれ80%の確率で、2ターンの間、敵を混乱、束縛状態にする"
+        }
+      ]
+    },
+    "真11_コルソンR": {
+      "name": "コルソンR",
+      "gauge": 3,
+      "actions": [
+        {
+          "key": "awakened_skill:お返し状態時",
+          "medium": "覚醒スキル",
+          "name": "肉球ナックル＋（お返し状態時）（お返し状態時）",
+          "range": "row",
+          "levels": [
+            {
+              "lv": 1,
+              "range": "row"
+            },
+            {
+              "lv": 2,
+              "range": "row",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "めまい",
+                    "turns": 2
+                  }
+                ]
+              }
+            }
+          ],
+          "levelMode": "use",
+          "gaugeUse": "awakened",
+          "sourceText": "敵横一列に攻撃力1.5倍のダメージ。さらに積まれているフォトンを1つ破壊する。自身の覚醒ゲージを+1する",
+          "form": "お返し状態時"
         }
       ]
     },
@@ -73938,6 +74551,10 @@ window.__PREVIEW_DATA__ = {
           "debuff": {
             "types": [
               {
+                "type": "束縛",
+                "turns": 2
+              },
+              {
                 "type": "めまい",
                 "turns": 2
               }
@@ -74006,6 +74623,10 @@ window.__PREVIEW_DATA__ = {
                 "type": "素早さ低下",
                 "pct": 0.15,
                 "turns": 3
+              },
+              {
+                "type": "病気",
+                "turns": 2
               }
             ]
           },
@@ -74018,6 +74639,49 @@ window.__PREVIEW_DATA__ = {
       "name": "アガリアレプト",
       "gauge": 6,
       "actions": [
+        {
+          "key": "awakened_skill",
+          "medium": "覚醒スキル",
+          "name": "ディストード+",
+          "range": "row",
+          "levels": [
+            {
+              "lv": 1,
+              "range": "row"
+            },
+            {
+              "lv": 2,
+              "range": "row",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "感電",
+                    "turns": 2
+                  }
+                ]
+              }
+            },
+            {
+              "lv": 3,
+              "range": "row",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "感電",
+                    "turns": 2
+                  },
+                  {
+                    "type": "めまい",
+                    "turns": 2
+                  }
+                ]
+              }
+            }
+          ],
+          "levelMode": "turn",
+          "gaugeUse": "awakened",
+          "sourceText": "敵横一列に攻撃力1.4倍の2連続ダメージ"
+        },
         {
           "key": "ougi",
           "medium": "奥義",
@@ -74144,7 +74808,7 @@ window.__PREVIEW_DATA__ = {
         {
           "key": "skill",
           "medium": "スキル",
-          "name": "イレイズミスト+",
+          "name": "イレイズミスト+（チェイン1）",
           "range": "single",
           "debuff": {
             "defDown": {
@@ -74153,7 +74817,32 @@ window.__PREVIEW_DATA__ = {
             }
           },
           "needsReishou": true,
-          "sourceText": "敵単体に掛かっている強化を解除する。さらに2ターンの間、防御力を20%低下させる。この効果は重複して付与される。チェイン数に応じて効果が変化／Ch2: 敵単体に掛かっている強化を解除する。さらに2ターンの間、攻撃力と防御力をそれぞれ20%低下させる。この効果は重複して付与される"
+          "sourceText": "敵単体に掛かっている強化を解除する。さらに2ターンの間、防御力を20%低下させる。この効果は重複して付与される。チェイン数に応じて効果が変化／Ch2: 敵単体に掛かっている強化を解除する。さらに2ターンの間、攻撃力と防御力をそれぞれ20%低下させる。この効果は重複して付与される",
+          "stacks": true,
+          "form": "チェイン1"
+        },
+        {
+          "key": "skill:チェイン2",
+          "medium": "スキル",
+          "name": "イレイズミスト+（チェイン2）",
+          "range": "single",
+          "debuff": {
+            "defDown": {
+              "pct": 0.2,
+              "turns": 2
+            },
+            "types": [
+              {
+                "type": "攻撃力低下",
+                "pct": 0.2,
+                "turns": 2
+              }
+            ]
+          },
+          "needsReishou": true,
+          "sourceText": "Ch2: 敵単体に掛かっている強化を解除する。さらに2ターンの間、攻撃力と防御力をそれぞれ20%低下させる。この効果は重複して付与される",
+          "stacks": true,
+          "form": "チェイン2"
         },
         {
           "key": "awakened_skill",
@@ -74197,6 +74886,22 @@ window.__PREVIEW_DATA__ = {
           "gaugeUse": "awakened",
           "needsReishou": true,
           "sourceText": "敵全体を完殺状態（永続）にする。さらに2ターンの間、攻撃力を25%低下させる／Ch1: 敵全体に掛かっている強化を解除し、2ターンの間、防御力を30%低下させる。さらに自身以外の味方全体に回数チェイン1回を付与する"
+        },
+        {
+          "key": "awakened_skill:チェイン1",
+          "medium": "覚醒スキル",
+          "name": "ソウルプリズン+（チェイン1）",
+          "range": "all",
+          "debuff": {
+            "defDown": {
+              "pct": 0.3,
+              "turns": 2
+            }
+          },
+          "gaugeUse": "awakened",
+          "needsReishou": true,
+          "sourceText": "Ch1: 敵全体に掛かっている強化を解除し、2ターンの間、防御力を30%低下させる。さらに自身以外の味方全体に回数チェイン1回を付与する",
+          "form": "チェイン1"
         }
       ]
     },
@@ -74290,15 +74995,50 @@ window.__PREVIEW_DATA__ = {
         {
           "key": "ougi",
           "medium": "奥義",
-          "name": "マッシブマリン＋ Lv1",
+          "name": "マッシブマリン＋",
           "range": "single",
           "place": {
             "kind": "fast",
             "mult": 0.5,
             "fuse": 2
           },
+          "levels": [
+            {
+              "lv": 1,
+              "range": "single",
+              "place": {
+                "kind": "fast",
+                "mult": 0.5,
+                "fuse": 2
+              }
+            },
+            {
+              "lv": 2,
+              "range": "single",
+              "place": {
+                "kind": "fast",
+                "mult": 0.5,
+                "fuse": 1
+              }
+            }
+          ],
+          "levelMode": "use",
           "gaugeUse": "ougi",
           "sourceText": "敵単体に攻撃力3.25倍のダメージ。さらに0.5倍で2ターン後に弾けるハイドロボム速を付与する"
+        },
+        {
+          "key": "trait",
+          "medium": "特性",
+          "name": "ボルテックスバディ",
+          "range": "single",
+          "place": {
+            "kind": "heavy",
+            "mult": 3,
+            "fuse": 7
+          },
+          "free": true,
+          "buttonText": "いずれかのアタック（敵単体に3倍で7ターン後に弾けるハイドロボム重を付与）",
+          "sourceText": "自身が追撃状態のとき、アタック時、敵単体に3倍で7ターン後に弾けるハイドロボム重を付与"
         }
       ]
     },
@@ -74516,6 +75256,27 @@ window.__PREVIEW_DATA__ = {
           },
           "needsReishou": true,
           "sourceText": "通常: 敵単体に攻撃力1.25倍のダメージ。さらに60%の確率で、2ターンの間、敵を凍結状態にする／封印時: 敵単体に攻撃力1.75倍のダメージ。さらに2ターンの間、敵の防御力を15%低下させ、60%の確率で、敵を凍結状態にする"
+        },
+        {
+          "key": "skill:封印時",
+          "medium": "スキル",
+          "name": "廻転凍突き+（封印時）",
+          "range": "single",
+          "debuff": {
+            "defDown": {
+              "pct": 0.15,
+              "turns": 2
+            },
+            "types": [
+              {
+                "type": "凍結",
+                "turns": 2
+              }
+            ]
+          },
+          "needsReishou": true,
+          "sourceText": "封印時: 敵単体に攻撃力1.75倍のダメージ。さらに2ターンの間、敵の防御力を15%低下させ、60%の確率で、敵を凍結状態にする",
+          "form": "封印時"
         }
       ]
     },
@@ -75037,6 +75798,77 @@ window.__PREVIEW_DATA__ = {
         }
       ]
     },
+    "祖23_アイム": {
+      "name": "アイム",
+      "gauge": 6,
+      "actions": [
+        {
+          "key": "skill",
+          "medium": "スキル",
+          "name": "強火クッキング＋",
+          "range": "single",
+          "levels": [
+            {
+              "lv": 1,
+              "range": "single"
+            },
+            {
+              "lv": 2,
+              "range": "single"
+            },
+            {
+              "lv": 3,
+              "range": "single"
+            },
+            {
+              "lv": 4,
+              "range": "single",
+              "debuff": {
+                "defDown": {
+                  "pct": 0.5,
+                  "turns": 2
+                }
+              }
+            }
+          ],
+          "levelMode": "use",
+          "sourceText": "敵単体に攻撃力1.25倍の火ダメージ"
+        },
+        {
+          "key": "skill",
+          "medium": "スキル",
+          "name": "強火クッキング＋",
+          "range": "single",
+          "levels": [
+            {
+              "lv": 1,
+              "range": "single"
+            },
+            {
+              "lv": 2,
+              "range": "single"
+            },
+            {
+              "lv": 3,
+              "range": "single"
+            },
+            {
+              "lv": 4,
+              "range": "single",
+              "debuff": {
+                "defDown": {
+                  "pct": 0.6,
+                  "turns": 2
+                }
+              }
+            }
+          ],
+          "levelMode": "use",
+          "needsReishou": true,
+          "sourceText": "敵単体に攻撃力1.25倍の火ダメージ"
+        }
+      ]
+    },
     "祖23_アイムR": {
       "name": "アイムR",
       "gauge": 4,
@@ -75356,7 +76188,7 @@ window.__PREVIEW_DATA__ = {
         {
           "key": "awakened_skill",
           "medium": "覚醒スキル",
-          "name": "イージスブロー＋ Lv1",
+          "name": "イージスブロー＋",
           "range": "single",
           "debuff": {
             "types": [
@@ -75394,7 +76226,7 @@ window.__PREVIEW_DATA__ = {
         {
           "key": "skill",
           "medium": "スキル",
-          "name": "びりびり斬り+ Lv1",
+          "name": "びりびり斬り+",
           "range": "single",
           "debuff": {
             "types": [
@@ -75446,6 +76278,20 @@ window.__PREVIEW_DATA__ = {
           },
           "gaugeUse": "ougi",
           "sourceText": "敵横一列に0.5倍で2ターン後に弾けるハイドロボム速を付与し、2ターンの間、攻撃力を20%低下させる"
+        },
+        {
+          "key": "skill:全体",
+          "medium": "スキル",
+          "name": "水刃のエラルド＋（全体）",
+          "range": "all",
+          "place": {
+            "kind": "fast",
+            "mult": 0.5,
+            "fuse": 2
+          },
+          "sourceText": "敵単体に2ターン後に弾ける威力0.5倍のハイドロボム速を付与する",
+          "form": "全体",
+          "formCondition": "HP33.3%以下"
         }
       ]
     },
@@ -75549,15 +76395,45 @@ window.__PREVIEW_DATA__ = {
           "name": "非戦の調停＋",
           "range": "all",
           "debuff": {
-            "weak": {
-              "turns": 3
-            },
             "types": [
+              {
+                "type": "攻撃力低下",
+                "pct": 0.3,
+                "turns": 2
+              },
+              {
+                "type": "めまい",
+                "turns": 2
+              }
+            ]
+          },
+          "gaugeUse": "awakened",
+          "sourceText": "敵全体を束縛状態にする。対象が束縛の場合80%の確率で、2ターンの間めまい、80%の確率で攻撃力を30%低下させる"
+        },
+        {
+          "key": "awakened_skill",
+          "medium": "覚醒スキル",
+          "name": "非戦の調停＋",
+          "range": "all",
+          "debuff": {
+            "types": [
+              {
+                "type": "攻撃力低下",
+                "pct": 0.3,
+                "turns": 2
+              },
+              {
+                "type": "めまい",
+                "turns": 2
+              },
               {
                 "type": "束縛",
                 "turns": 2
               }
-            ]
+            ],
+            "weak": {
+              "turns": 3
+            }
           },
           "gaugeUse": "awakened",
           "needsReishou": true,
@@ -75927,7 +76803,7 @@ window.__PREVIEW_DATA__ = {
         {
           "key": "ougi",
           "medium": "奥義",
-          "name": "止むなき猛進＋ Lv1",
+          "name": "止むなき猛進＋",
           "range": "single",
           "debuff": {
             "types": [
@@ -75963,6 +76839,23 @@ window.__PREVIEW_DATA__ = {
           "sourceText": "通常: 敵全体に攻撃力2.25倍のダメージ。さらに70%の確率で、2ターンの間、敵を混乱状態にする／大協奏: 敵全体に攻撃力2.25倍の響撃ダメージ。さらに70%の確率で、3ターンの間、敵を混乱状態にする"
         },
         {
+          "key": "ougi:大協奏",
+          "medium": "奥義",
+          "name": "サイコウェイブ+（大協奏）",
+          "range": "all",
+          "debuff": {
+            "types": [
+              {
+                "type": "混乱",
+                "turns": 3
+              }
+            ]
+          },
+          "gaugeUse": "ougi",
+          "sourceText": "大協奏: 敵全体に攻撃力2.25倍の響撃ダメージ。さらに70%の確率で、3ターンの間、敵を混乱状態にする",
+          "form": "大協奏"
+        },
+        {
           "key": "ougi",
           "medium": "奥義",
           "name": "サイコウェイブ+",
@@ -75978,6 +76871,24 @@ window.__PREVIEW_DATA__ = {
           "gaugeUse": "ougi",
           "needsReishou": true,
           "sourceText": "通常: 敵全体に攻撃力2倍のダメージ。さらに70%の確率で、2ターンの間、敵を混乱状態にする。1ターン後、遅延行動を行う遅延行動時、2ターンの間、自身の受けるダメージを10%軽減させる。さらに2ターンの間継続する音符を2つ蓄積／大協奏: 敵全体に攻撃力2倍の響撃ダメージ。さらに70%の確率で、3ターンの間、敵を混乱状態にする。1ターン後、遅延行動を行う"
+        },
+        {
+          "key": "ougi:大協奏",
+          "medium": "奥義",
+          "name": "サイコウェイブ+（大協奏）",
+          "range": "all",
+          "debuff": {
+            "types": [
+              {
+                "type": "混乱",
+                "turns": 3
+              }
+            ]
+          },
+          "gaugeUse": "ougi",
+          "needsReishou": true,
+          "sourceText": "大協奏: 敵全体に攻撃力2倍の響撃ダメージ。さらに70%の確率で、3ターンの間、敵を混乱状態にする。1ターン後、遅延行動を行う",
+          "form": "大協奏"
         }
       ]
     },
@@ -75989,7 +76900,7 @@ window.__PREVIEW_DATA__ = {
           "key": "skill",
           "medium": "スキル",
           "name": "艶麗の舞＋",
-          "range": "all",
+          "range": "single",
           "debuff": {
             "types": [
               {
@@ -75999,6 +76910,22 @@ window.__PREVIEW_DATA__ = {
             ]
           },
           "sourceText": "通常: 2ターンの間、敵単体を執心状態にし、ターン終了時に自身のHPを20%回復する。さらに、味方編成を重奏状態にする／大協奏: 2ターンの間、敵全体を執心状態にし、ターン終了時に自身のHPを20%回復する"
+        },
+        {
+          "key": "skill:大協奏",
+          "medium": "スキル",
+          "name": "艶麗の舞＋（大協奏）",
+          "range": "all",
+          "debuff": {
+            "types": [
+              {
+                "type": "執心",
+                "turns": 2
+              }
+            ]
+          },
+          "sourceText": "大協奏: 2ターンの間、敵全体を執心状態にし、ターン終了時に自身のHPを20%回復する",
+          "form": "大協奏"
         }
       ]
     },
@@ -76295,7 +77222,7 @@ window.__PREVIEW_DATA__ = {
           "key": "skill",
           "medium": "スキル",
           "name": "イクセイザ＋",
-          "range": "row",
+          "range": "single",
           "debuff": {
             "defDown": {
               "pct": 0.25,
@@ -76311,9 +77238,29 @@ window.__PREVIEW_DATA__ = {
           "sourceText": "通常: 味方単体の覚醒ゲージを+1し、レイズギフト(1)を付与する2ターンの間、敵単体を凍結状態にし、防御力を25%低下させる／ネクロ（ソウル2個以上）: ソウルを2つ消費し、味方単体の覚醒ゲージを+1し、レイズギフト(2)を付与する2ターンの間、敵横一列を凍結状態にし、防御力を25%低下させる"
         },
         {
+          "key": "skill:ネクロ",
+          "medium": "スキル",
+          "name": "イクセイザ＋（ネクロ）",
+          "range": "row",
+          "debuff": {
+            "defDown": {
+              "pct": 0.25,
+              "turns": 2
+            },
+            "types": [
+              {
+                "type": "凍結",
+                "turns": 2
+              }
+            ]
+          },
+          "sourceText": "ネクロ（ソウル2個以上）: ソウルを2つ消費し、味方単体の覚醒ゲージを+1し、レイズギフト(2)を付与する2ターンの間、敵横一列を凍結状態にし、防御力を25%低下させる",
+          "form": "ネクロ"
+        },
+        {
           "key": "awakened_skill",
           "medium": "覚醒スキル",
-          "name": "蔓延る害悪＋ Lv1",
+          "name": "蔓延る害悪＋",
           "range": "row",
           "debuff": {
             "types": [
@@ -76323,6 +77270,69 @@ window.__PREVIEW_DATA__ = {
               }
             ]
           },
+          "levels": [
+            {
+              "lv": 1,
+              "range": "row",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "毒",
+                    "turns": 1
+                  }
+                ]
+              }
+            },
+            {
+              "lv": 2,
+              "range": "row",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "毒",
+                    "turns": 2
+                  }
+                ]
+              }
+            },
+            {
+              "lv": 3,
+              "range": "row",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "毒",
+                    "turns": 3
+                  }
+                ]
+              }
+            },
+            {
+              "lv": 4,
+              "range": "row",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "毒",
+                    "turns": 4
+                  }
+                ]
+              }
+            },
+            {
+              "lv": 5,
+              "range": "row",
+              "debuff": {
+                "types": [
+                  {
+                    "type": "毒",
+                    "turns": 5
+                  }
+                ]
+              }
+            }
+          ],
+          "levelMode": "use",
           "gaugeUse": "awakened",
           "sourceText": "敵横一列に攻撃力1.5倍のダメージ。さらに1ターンの間、毒状態にする"
         }
@@ -79493,7 +80503,7 @@ window.__PREVIEW_DATA__ = {
 "kyoen.v1.json": {
  "kind": "kyoen-index",
  "version": 1,
- "note": "狂炎シミュレーターの材料の索引。corpus/・corpus-orbs/ から生成（build/pipeline/generate-kyoen.mjs）。倍率は＋版（専用霊宝版は needsReishou）を正とし、オーブは最大強化前提。enjou は地形倍率・持続・範囲と行動自体の火ダメージ、convert は狂炎化（炎帝ムスペルのオーブを含む）、fire は火ダメージの行動（ランダム反復の行動は回数が確定しないため含まない）。extend は「地形の延長」効果（上限の枠外）で enjou / convert / fire に付く。reserve はリザーブ（ターン終了時に発動）でフルーレティBのスキルにだけ付く。ground は撃墜の付与（モレクの覚醒スキル）。delayed は遅延行動（ナベリウスBの覚醒スキル。反復回数はそのターンの火ダメージ回数で決まるため、倍率・数え方・上限だけを持つ）。ベリアルBの fire には焼夷フォトンの合成エントリ（shoui）が入る。",
+ "note": "狂炎シミュレーターの材料の索引。corpus/・corpus-orbs/ から生成（build/pipeline/generate-kyoen.mjs）。倍率は＋版（専用霊宝版は needsReishou）を正とし、オーブは最大強化前提。enjou は地形倍率・持続・範囲と行動自体の火ダメージ、convert は狂炎化（炎帝ムスペルのオーブを含む）、fire は火ダメージの行動（ランダム反復の行動は回数が確定しないため含まない）。extend は「地形の延長」効果（上限の枠外）で enjou / convert / fire に付く。reserve はリザーブ（ターン終了時に発動）でフルーレティBのスキルにだけ付く。ground は撃墜の付与（モレクの覚醒スキル）。delayed は遅延行動（ナベリウスBの覚醒スキル。発動は1ターン後＝次のターンの行動開始時で、反復回数は直前ターンの火ダメージ回数で決まるため、倍率・数え方・上限だけを持つ）。allocMin / allocMax は対象ランダム×回数系の反復範囲（カイムBの炎上の Lv ごとの範囲と、オーブの灼火蝶マヴィの固定3回だけ。シミュレーターでは使う人が敵ごとに割り振る）。counter は反撃の火（フェニックスCの覚醒スキルだけ。攻撃を受けた相手にだけ届く）。bullet は Bアーツ（バレット消費）の炎上形（ベリアルBのスキルだけ。地形決定の段階だけこの倍率で直接ダメージを当てる）。shift は覚醒スキルでスキルがシフトする引き金（バティンBだけ。スキルの fire にはシフト後の原文 shiftAfterText が付き、シフト後は火ではなくなる）。ベリアルBの fire には焼夷フォトンの合成エントリ（shoui）が入る。levels は「使うたびにレベルが上がる」行動の Lv ごとの数値（フィロタヌスの炎上、カイムBの炎上、アイムの火の4件だけ。トップレベルの数値は Lv1 のもの）。form は武器の形で効果が変わる行動の形（タムスだけ。separated が分離武器時、linked が連結武器時で、形ごとに別エントリ）、shiftTo は使うとその形にシフトする行動（タムスの分離時の奥義→連結、連結時の覚醒スキル→分離の5件だけ）。",
  "megido": {
   "宵06_モレク": {
    "name": "モレク",
@@ -79513,7 +80523,8 @@ window.__PREVIEW_DATA__ = {
      "sourceText": "通常: 敵単体に攻撃力3倍のダメージ。さらに2ターンの間、撃墜状態にする／フォトン充填: 敵単体に攻撃力3倍のダメージ。さらに2ターンの間、撃墜状態にする。自身のフォトン充填値を+20する"
     }
    ],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "真31_フルーレティB": {
    "name": "フルーレティB",
@@ -79562,7 +80573,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "真39_ウコバク": {
    "name": "ウコバク",
@@ -79592,7 +80604,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "真44_タムス": {
    "name": "タムス",
@@ -79607,7 +80620,8 @@ window.__PREVIEW_DATA__ = {
      "duration": 2,
      "dmgMult": 1.25,
      "dmgHits": 1,
-     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える"
+     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える",
+     "form": "separated"
     },
     {
      "type": "enjou",
@@ -79620,7 +80634,8 @@ window.__PREVIEW_DATA__ = {
      "dmgMult": 1.25,
      "dmgHits": 1,
      "needsReishou": true,
-     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える。さらに、自身の覚醒ゲージを+1する"
+     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える。さらに、自身の覚醒ゲージを+1する",
+     "form": "separated"
     },
     {
      "type": "enjou",
@@ -79632,7 +80647,9 @@ window.__PREVIEW_DATA__ = {
      "duration": 2,
      "dmgMult": 2,
      "dmgHits": 1,
-     "sourceText": "敵全体に攻撃力2倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージ。さらに連結武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する"
+     "shiftTo": "linked",
+     "sourceText": "敵全体に攻撃力2倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージ。さらに連結武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する",
+     "form": "separated"
     },
     {
      "type": "enjou",
@@ -79644,8 +80661,37 @@ window.__PREVIEW_DATA__ = {
      "duration": 2,
      "dmgMult": 2.25,
      "dmgHits": 1,
+     "shiftTo": "linked",
      "needsReishou": true,
-     "sourceText": "敵全体に攻撃力2.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージ。さらに連結武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する"
+     "sourceText": "敵全体に攻撃力2.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージ。さらに連結武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する",
+     "form": "separated"
+    },
+    {
+     "type": "enjou",
+     "key": "ougi",
+     "medium": "奥義",
+     "name": "焦熱リーサルフレア＋（連結武器時）",
+     "range": "all",
+     "mult": 1.5,
+     "duration": 2,
+     "dmgMult": 2,
+     "dmgHits": 1,
+     "sourceText": "敵全体に攻撃力2倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージを与える",
+     "form": "linked"
+    },
+    {
+     "type": "enjou",
+     "key": "ougi",
+     "medium": "奥義",
+     "name": "焦熱リーサルフレア＋（連結武器時）",
+     "range": "all",
+     "mult": 1.5,
+     "duration": 2,
+     "dmgMult": 2.25,
+     "dmgHits": 1,
+     "needsReishou": true,
+     "sourceText": "敵全体に攻撃力2.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージを与える。さらに味方全体にアーマーを4000付与する",
+     "form": "linked"
     }
    ],
    "convert": [
@@ -79657,7 +80703,8 @@ window.__PREVIEW_DATA__ = {
      "range": "all",
      "dmgMult": 0,
      "dmgHits": 0,
-     "sourceText": "自身の覚醒ゲージを全て消費し、敵全体の炎上地形を狂炎地形にする。さらに、自身にアーマーを3000付与する"
+     "sourceText": "自身の覚醒ゲージを全て消費し、敵全体の炎上地形を狂炎地形にする。さらに、自身にアーマーを3000付与する",
+     "form": "separated"
     }
    ],
    "fire": [
@@ -79669,7 +80716,8 @@ window.__PREVIEW_DATA__ = {
      "range": "single",
      "hits": 1,
      "dmgMult": 1.25,
-     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える"
+     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える",
+     "form": "separated"
     },
     {
      "type": "fire",
@@ -79680,7 +80728,43 @@ window.__PREVIEW_DATA__ = {
      "hits": 1,
      "dmgMult": 1.25,
      "needsReishou": true,
-     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える。さらに、自身の覚醒ゲージを+1する"
+     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える。さらに、自身の覚醒ゲージを+1する",
+     "form": "separated"
+    },
+    {
+     "type": "fire",
+     "key": "skill",
+     "medium": "スキル",
+     "name": "ブラストフレイム＋（連結武器時）",
+     "range": "single",
+     "hits": 2,
+     "dmgMult": 0.9,
+     "sourceText": "敵単体に攻撃力0.9倍の2連続火ダメージ。さらに、自身の覚醒ゲージを+2する",
+     "form": "linked"
+    },
+    {
+     "type": "fire",
+     "key": "skill",
+     "medium": "スキル",
+     "name": "ブラストフレイム＋（連結武器時）",
+     "range": "single",
+     "hits": 2,
+     "dmgMult": 1.1,
+     "needsReishou": true,
+     "sourceText": "敵単体に攻撃力1.1倍の2連続火ダメージ。さらに、自身の覚醒ゲージを+2する",
+     "form": "linked"
+    },
+    {
+     "type": "fire",
+     "key": "awakened_skill",
+     "medium": "覚醒スキル",
+     "name": "フルブラストフレイム＋（連結武器時）",
+     "range": "all",
+     "hits": 8,
+     "dmgMult": 0.8,
+     "shiftTo": "separated",
+     "sourceText": "敵全体に攻撃力0.8倍の8連続火ダメージ。さらに、味方全体への攻撃を1回無効化する。分離武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する",
+     "form": "linked"
     },
     {
      "type": "fire",
@@ -79690,7 +80774,9 @@ window.__PREVIEW_DATA__ = {
      "range": "all",
      "hits": 1,
      "dmgMult": 2,
-     "sourceText": "敵全体に攻撃力2倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージ。さらに連結武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する"
+     "shiftTo": "linked",
+     "sourceText": "敵全体に攻撃力2倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージ。さらに連結武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する",
+     "form": "separated"
     },
     {
      "type": "fire",
@@ -79700,12 +80786,38 @@ window.__PREVIEW_DATA__ = {
      "range": "all",
      "hits": 1,
      "dmgMult": 2.25,
+     "shiftTo": "linked",
      "needsReishou": true,
-     "sourceText": "敵全体に攻撃力2.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージ。さらに連結武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する"
+     "sourceText": "敵全体に攻撃力2.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージ。さらに連結武器にシフトし、スキル、覚醒スキル、奥義の効果が変化する",
+     "form": "separated"
+    },
+    {
+     "type": "fire",
+     "key": "ougi",
+     "medium": "奥義",
+     "name": "焦熱リーサルフレア＋（連結武器時）",
+     "range": "all",
+     "hits": 1,
+     "dmgMult": 2,
+     "sourceText": "敵全体に攻撃力2倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージを与える",
+     "form": "linked"
+    },
+    {
+     "type": "fire",
+     "key": "ougi",
+     "medium": "奥義",
+     "name": "焦熱リーサルフレア＋（連結武器時）",
+     "range": "all",
+     "hits": 1,
+     "dmgMult": 2.25,
+     "needsReishou": true,
+     "sourceText": "敵全体に攻撃力2.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.5倍の継続ダメージを与える。さらに味方全体にアーマーを4000付与する",
+     "form": "linked"
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "真61_フィロタヌス": {
    "name": "フィロタヌス",
@@ -79714,13 +80826,36 @@ window.__PREVIEW_DATA__ = {
      "type": "enjou",
      "key": "awakened_skill",
      "medium": "覚醒スキル",
-     "name": "対岸の火事＋ Lv1",
+     "name": "対岸の火事＋",
      "range": "row",
      "mult": 1.25,
      "duration": 2,
      "dmgMult": 0,
      "dmgHits": 0,
-     "sourceText": "2ターンの間、敵横一列を炎上の地形にし、地形効果で1.25倍の継続ダメージを与える。さらに敵の攻撃力を25%低下させる"
+     "sourceText": "2ターンの間、敵横一列を炎上の地形にし、地形効果で1.25倍の継続ダメージを与える。さらに敵の攻撃力を25%低下させる",
+     "levels": [
+      {
+       "lv": 1,
+       "mult": 1.25,
+       "duration": 2,
+       "dmgMult": 0,
+       "dmgHits": 0
+      },
+      {
+       "lv": 2,
+       "mult": 1.5,
+       "duration": 2,
+       "dmgMult": 0,
+       "dmgHits": 0
+      },
+      {
+       "lv": 3,
+       "mult": 1.75,
+       "duration": 2,
+       "dmgMult": 0,
+       "dmgHits": 0
+      }
+     ]
     }
    ],
    "convert": [
@@ -79772,7 +80907,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "真64_プロメテウス": {
    "name": "プロメテウス",
@@ -79791,7 +80927,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖07_アモン": {
    "name": "アモン",
@@ -79834,7 +80971,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖15_エリゴスB": {
    "name": "エリゴスB",
@@ -79863,7 +81001,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖18_バティンB": {
    "name": "バティンB",
@@ -79878,6 +81017,7 @@ window.__PREVIEW_DATA__ = {
      "range": "single",
      "hits": 1,
      "dmgMult": 1,
+     "shiftAfterText": "敵単体のHPを25%回復させる。さらに2ターンの間、受ける火ダメージを40%上昇させる",
      "sourceText": "敵単体に攻撃力1倍の火ダメージ。さらに敵に掛かっている強化を解除する／シフト後: 敵単体のHPを25%回復させる。さらに2ターンの間、受ける火ダメージを40%上昇させる"
     },
     {
@@ -79892,7 +81032,16 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": [
+    {
+     "type": "shift",
+     "key": "awakened_skill",
+     "medium": "覚醒スキル",
+     "name": "ウォームアップ＋",
+     "sourceText": "2ターンの間、自身の攻撃力を50%上昇させる。さらにシフトし、スキルの効果が変化する"
+    }
+   ]
   },
   "祖23_アイム": {
    "name": "アイム",
@@ -79916,22 +81065,67 @@ window.__PREVIEW_DATA__ = {
      "type": "fire",
      "key": "skill",
      "medium": "スキル",
-     "name": "強火クッキング＋ Lv1",
+     "name": "強火クッキング＋",
      "range": "single",
      "hits": 1,
      "dmgMult": 1.25,
-     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ"
+     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ",
+     "levels": [
+      {
+       "lv": 1,
+       "dmgMult": 1.25,
+       "hits": 1
+      },
+      {
+       "lv": 2,
+       "dmgMult": 1.5,
+       "hits": 1
+      },
+      {
+       "lv": 3,
+       "dmgMult": 1.75,
+       "hits": 1
+      },
+      {
+       "lv": 4,
+       "dmgMult": 2,
+       "hits": 1
+      }
+     ]
     },
     {
      "type": "fire",
      "key": "skill",
      "medium": "スキル",
-     "name": "強火クッキング＋ Lv1",
+     "name": "強火クッキング＋",
      "range": "single",
      "hits": 1,
      "dmgMult": 1.25,
      "needsReishou": true,
-     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ"
+     "sourceText": "敵単体に攻撃力1.25倍の火ダメージ",
+     "levels": [
+      {
+       "lv": 1,
+       "dmgMult": 1.25,
+       "hits": 1
+      },
+      {
+       "lv": 2,
+       "dmgMult": 1.5,
+       "hits": 1
+      },
+      {
+       "lv": 3,
+       "dmgMult": 1.75,
+       "hits": 1
+      },
+      {
+       "lv": 4,
+       "dmgMult": 2,
+       "hits": 1,
+       "terrainBonus": 1.25
+      }
+     ]
     },
     {
      "type": "fire",
@@ -79945,7 +81139,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖24_ナベリウスB": {
    "name": "ナベリウスB",
@@ -79988,7 +81183,8 @@ window.__PREVIEW_DATA__ = {
      "needsReishou": true,
      "sourceText": "1ターン後、敵単体に0.75倍の火ダメージ。さらに自身にスキルフォトンを1つ追加する ※遅延行動時、直前ターンの味方が与えた火ダメージ回数が2回以上の場合、この行動を同じ相手に同じ回数分行う(行動回数は最大10回)"
     }
-   ]
+   ],
+   "shift": []
   },
   "祖32_アスモデウス": {
    "name": "アスモデウス",
@@ -80028,7 +81224,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖32_アスモデウスR": {
    "name": "アスモデウスR",
@@ -80060,7 +81257,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖33_ガープ": {
    "name": "ガープ",
@@ -80079,7 +81277,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖37_フェニックス": {
    "name": "フェニックス",
@@ -80144,7 +81343,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖37_フェニックスC": {
    "name": "フェニックスC",
@@ -80169,11 +81369,13 @@ window.__PREVIEW_DATA__ = {
      "range": "single",
      "hits": 1,
      "dmgMult": 1.25,
+     "counter": true,
      "sourceText": "自身が戦闘不能時にHP10%で蘇生する状態になり、さらに2ターンの間、攻撃を受けたとき攻撃力1.25倍の火ダメージで反撃する"
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖53_カイムB": {
    "name": "カイムB",
@@ -80194,13 +81396,44 @@ window.__PREVIEW_DATA__ = {
      "type": "enjou",
      "key": "awakened_skill",
      "medium": "覚醒スキル",
-     "name": "インフェルノ＋ Lv1",
+     "name": "インフェルノ＋",
      "range": "single",
      "mult": 1.25,
      "duration": 2,
      "dmgMult": 1.5,
      "dmgHits": 1,
-     "sourceText": "ランダム敵単体にかばう無視の攻撃力1.5倍火ダメージ。2ターンの間、炎上の地形効果で1.25倍継続ダメージ。この行動を2回から3回ランダムな回数で行う[使用後スキルLv上昇]"
+     "allocMin": 2,
+     "allocMax": 3,
+     "sourceText": "ランダム敵単体にかばう無視の攻撃力1.5倍火ダメージ。2ターンの間、炎上の地形効果で1.25倍継続ダメージ。この行動を2回から3回ランダムな回数で行う[使用後スキルLv上昇]",
+     "levels": [
+      {
+       "lv": 1,
+       "mult": 1.25,
+       "duration": 2,
+       "dmgMult": 1.5,
+       "dmgHits": 1,
+       "allocMin": 2,
+       "allocMax": 3
+      },
+      {
+       "lv": 2,
+       "mult": 1.25,
+       "duration": 2,
+       "dmgMult": 1.5,
+       "dmgHits": 1,
+       "allocMin": 2,
+       "allocMax": 4
+      },
+      {
+       "lv": 3,
+       "mult": 1.25,
+       "duration": 2,
+       "dmgMult": 1.5,
+       "dmgHits": 1,
+       "allocMin": 2,
+       "allocMax": 5
+      }
+     ]
     }
    ],
    "convert": [
@@ -80238,7 +81471,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖58_アミー": {
    "name": "アミー",
@@ -80257,7 +81491,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖64_フラウロス": {
    "name": "フラウロス",
@@ -80287,7 +81522,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "祖68_ベリアルB": {
    "name": "ベリアルB",
@@ -80302,6 +81538,10 @@ window.__PREVIEW_DATA__ = {
      "duration": 2,
      "dmgMult": 1.25,
      "dmgHits": 1,
+     "bullet": {
+      "cost": 1,
+      "dmgMult": 1.4
+     },
      "sourceText": "通常: 敵単体に攻撃力1.25倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える／Bアーツ: バレットを1個消費し、敵単体に攻撃力1.4倍の火ダメージ。2ターンの間、炎上の地形効果で1.25倍の継続ダメージを与える"
     }
    ],
@@ -80341,7 +81581,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   },
   "継01_カガセオ": {
    "name": "カガセオ",
@@ -80360,7 +81601,8 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "ground": [],
-   "delayed": []
+   "delayed": [],
+   "shift": []
   }
  },
  "orbs": {
@@ -80504,6 +81746,25 @@ window.__PREVIEW_DATA__ = {
    "ground": [],
    "delayed": []
   },
+  "orb_084": {
+   "name": "レッドラット",
+   "enjou": [],
+   "convert": [],
+   "fire": [
+    {
+     "type": "fire",
+     "key": "orb",
+     "medium": "オーブ",
+     "name": "レッドラット",
+     "range": "all",
+     "hits": 1,
+     "dmgMult": 0.9,
+     "sourceText": "敵全体に攻撃力0.5倍(0.9)の火ダメージ"
+    }
+   ],
+   "ground": [],
+   "delayed": []
+  },
   "orb_574": {
    "name": "ヴェスパーマイン",
    "enjou": [
@@ -80547,8 +81808,10 @@ window.__PREVIEW_DATA__ = {
      "medium": "オーブ",
      "name": "灼火蝶マヴィ",
      "range": "single",
-     "hits": 1,
+     "hits": 3,
      "dmgMult": 1.4,
+     "allocMin": 3,
+     "allocMax": 3,
      "sourceText": "ランダムな敵単体にかばう効果を無視する攻撃力0.5倍(1.4倍)の火ダメージ。この行動を3回行う"
     }
    ],
@@ -80685,7 +81948,7 @@ window.__PREVIEW_DATA__ = {
 "flag.v1.json": {
  "kind": "flag-holders",
  "version": 1,
- "note": "戦旗の保持者一覧。corpus-status/戦旗.json（正本）から生成（build/pipeline/generate-flag.mjs）。slots は編成の枠番号（1始まり、3=リーダー）で、左陣=1・2・3／右陣=3・4・5。tokens は発揮条件（空=条件なしで常に成立、複数は OR）。effect は正本の転記から脚注マーカーを取り除いたもの（脚注本文は未収録）。",
+ "note": "戦旗の保持者一覧。corpus-status/戦旗.json（正本）から生成（build/pipeline/generate-flag.mjs）。slots は編成の枠番号（1始まり、3=リーダー）で、左陣=1・2・3／右陣=3・4・5。tokens は発揮条件（空=条件なしで常に成立、複数は OR）。effect は正本の転記から脚注マーカーを取り除いたもの。targetNote は付与先の例外（脚注 *46・*47・*49）の主文で、該当する保持者にだけ付く。",
  "holders": [
   {
    "megidoId": "継07_チユエン",
@@ -80829,6 +82092,7 @@ window.__PREVIEW_DATA__ = {
      "value": "ラッシュ"
     }
    ],
+   "targetNote": "左陣に戦旗がある場合、右陣に付与する。",
    "effect": "攻撃力が10%/20%上昇する。さらに与えたダメージの20%/30%を吸収する"
   },
   {
@@ -80907,6 +82171,7 @@ window.__PREVIEW_DATA__ = {
      "value": "ラッシュ"
     }
    ],
+   "targetNote": "左陣に戦旗がある場合、右陣に付与する。",
    "effect": "HP50%以下の場合、攻撃力が90%/100%上昇し、HP33.3%以下の場合、攻撃力が190%/200%上昇する"
   },
   {
@@ -80972,6 +82237,7 @@ window.__PREVIEW_DATA__ = {
    "conditionText": "なし",
    "conditionLabel": "条件なし",
    "tokens": [],
+   "targetNote": "左陣に戦旗がある場合、右陣に付与する。",
    "effect": "攻防早が5%/10%上昇する。特定ターン経過で効果変化"
   }
  ]
@@ -240898,7 +242164,7 @@ window.__PREVIEW_DATA__ = {
 </script>
 <script>
 (() => {
-  // app/js/data.js
+  // build/app/js/data.js
   var DATA_VERSION = 1;
   function createDataLoader(baseUrl, fetchFn) {
     const doFetch = fetchFn || ((url) => fetch(url));
@@ -241005,7 +242271,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // app/js/store.js
+  // build/app/js/store.js
   var DB_NAME = "tower-tool";
   var DB_VERSION = 1;
   var STORE_NAMES = ["state", "formations", "records", "settings"];
@@ -241171,7 +242437,7 @@ window.__PREVIEW_DATA__ = {
     return false;
   }
 
-  // app/js/model.js
+  // build/app/js/model.js
   function createHistory(ops = [], cursor = ops.length) {
     return { ops: [...ops], cursor: Math.max(0, Math.min(cursor, ops.length)) };
   }
@@ -241198,7 +242464,7 @@ window.__PREVIEW_DATA__ = {
     return { ops: history.ops, cursor: history.cursor + 1 };
   }
 
-  // app/js/derive.js
+  // build/app/js/derive.js
   var CONDITION_STAGES = ["絶好調", "好調", "普通", "不調", "絶不調", "気絶"];
   var STAGE_GREAT = 0;
   var STAGE_VERY_BAD = 4;
@@ -241523,7 +242789,7 @@ window.__PREVIEW_DATA__ = {
           squareId: op.squareId,
           floor: op.floor,
           kind: "duplicate",
-          message: `${op.floor}F のマスに、処理済みの結果が重ねて付いています`
+          message: `${op.floor}F の解放済みのマスに、結果が重ねて付いています`
         });
         return;
       }
@@ -241802,7 +243068,7 @@ window.__PREVIEW_DATA__ = {
     return onPath || sorted[0];
   }
 
-  // app/js/records.js
+  // build/app/js/records.js
   var TENDENCY_MIN_BATTLES = 3;
   var FORMATION_RATE_MIN_BATTLES = 3;
   function runEntries(structure, ops) {
@@ -241946,7 +243212,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // app/js/views.js
+  // build/app/js/views.js
   var STYLE_CHIP_CLASS = { ラッシュ: "st-rush", カウンター: "st-counter", バースト: "st-burst" };
   function styleChip(styleName) {
     const cls = STYLE_CHIP_CLASS[styleName];
@@ -242111,6 +243377,9 @@ window.__PREVIEW_DATA__ = {
     main.addEventListener("click", onToggleExpand);
     root.append(main);
   }
+  function recoveryRemainingText(remaining, isLast) {
+    return `（残り${remaining}回${isLast ? "・次が最後" : ""}）`;
+  }
   function stateFooterDetail(vm, { onOpenConditions, onOpenDrift }) {
     const detail = el("div", "statebar-detail");
     if (vm.outlookDetail) {
@@ -242123,7 +243392,7 @@ window.__PREVIEW_DATA__ = {
         sec.append(el(
           "div",
           "sb-detail-line",
-          `${r.label}: 次は${r.nextFloor}F（残り${r.remaining}回${r.isLast ? "・これが最後" : ""}）`
+          `${r.label}: 次は${r.nextFloor}F${recoveryRemainingText(r.remaining, r.isLast)}`
         ));
       }
       detail.append(sec);
@@ -242630,7 +243899,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // app/js/panels.js
+  // build/app/js/panels.js
   function el2(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -243400,7 +244669,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // app/js/migrate.js
+  // build/app/js/migrate.js
   var OLD_KEY_FORMATIONS = "formations";
   var OLD_KEY_MEGIDO_DETAILS = "megidoDetails";
   var SLOT_COUNT = 5;
@@ -243603,7 +244872,7 @@ window.__PREVIEW_DATA__ = {
     }
   }
 
-  // app/js/explore.js
+  // build/app/js/explore.js
   var EXPLORE_PARTY_MAX = 3;
   var EXPECTATION3_FACTOR = 1.4;
   var DEFAULT_OUGI_LEVEL = 3;
@@ -244428,7 +245697,7 @@ window.__PREVIEW_DATA__ = {
     return lo;
   }
 
-  // app/js/counter.js
+  // build/app/js/counter.js
   var POLE_ALIASES = {
     "煉獄": "煉獄の炎",
     "ねずみ": "ねずみ化",
@@ -244692,7 +245961,8 @@ window.__PREVIEW_DATA__ = {
     let text = inner ? `${name}（${inner}）` : name;
     if (typeof resistTotal === "number") {
       const total = Math.min(100, resistTotal + (resistBonus || 0));
-      text += resistBonus ? ` 耐性${total}%（絶好調込み${total >= 100 ? "・無効化できる" : `・あと${100 - total}%`}）` : ` 耐性${total}%${total >= 100 ? "（無効化できる）" : `（あと${100 - total}%）`}`;
+      const tail = total >= 100 ? "無効化できる" : `あと${100 - total}%`;
+      text += resistBonus ? ` 耐性${total}%（絶好調込み・${tail}）` : ` 耐性${total}%（${tail}）`;
     }
     if (lockedMin !== null) text += ` 凸${lockedMin}で解禁する手段を含む`;
     if (verdict) text += ` 素早さでは${verdict}（${spd}対${enemySpd}）`;
@@ -245232,7 +246502,7 @@ window.__PREVIEW_DATA__ = {
     return { total, essential };
   }
 
-  // app/js/mechanics.js
+  // build/app/js/mechanics.js
   var MEGIDO_MECHANIC_NOTES = {
     ereki: [
       "エレキ: 雷ダメージが当たるたびにエレキレベルが上がり、解除でレベル分の固定ダメージ（防御無視）",
@@ -245500,61 +246770,61 @@ window.__PREVIEW_DATA__ = {
       turnText: "3ターン（基本形）",
       cycles: [[6, 4, 3.25], [3.25, 3]],
       simulBombs: 2,
-      note: "倍率20前後まで練った錬ボムに、速ボムを足す形が著述の形"
+      note: "倍率20前後まで練った錬ボムに、速ボムを足す形が攻略情報の形"
     },
     セーバーグランド: {
       turnText: "3ターン（基本形）",
       cycles: [[6, 4, 3.25], [6, 4], [3.25, 3]],
       simulBombs: 2,
-      note: "ウェパルBの重から錬成する形。著述では25〜30倍でボスも倒しきれるとされる"
+      note: "ウェパルBの重から錬成する形。攻略情報では25〜30倍でボスも倒しきれるとされる"
     },
     ゴウギ: {
       turnText: "3ターン（基本形）",
       cycles: [[6, 4, 3.25], [6, 4], [6, 3.25], [6, 4], [6, 3.25]],
       simulBombs: 2,
-      note: "錬成役はリヴァイアサン、アイムR、ジニマルR、ウァプラR（専用霊宝）。著述では最大50倍で基礎約26万とされる"
+      note: "錬成役はリヴァイアサン、アイムR、ジニマルR、ウァプラR（専用霊宝）。攻略情報では最大50倍で基礎約26万とされる"
     },
     マモン: {
       turnText: "3ターン（基本形）",
       cycles: [[6, 4, 3.25], [3]],
       simulBombs: 2,
-      note: "メイン版ベリーハードのHP52560に対して錬ボム約16倍、という著述の値"
+      note: "メイン版ベリーハードのHP52560に対して錬ボム約16倍、という攻略情報の値"
     },
     デメタス: {
       turnText: "3ターン（基本形）",
       cycles: null,
       simulBombs: 2,
-      note: "18万級のダメージまで練れば、カガニンの自動回復を無視でき、タントンの反撃も受けにくい（著述）"
+      note: "18万級のダメージまで練れば、カガニンの自動回復を無視でき、タントンの反撃も受けにくい（攻略情報）"
     },
     ロクス: {
       turnText: "シフト3以降",
       cycles: null,
       simulBombs: null,
-      note: "高倍率のハイドロボム錬を、シフト3以降で起爆させる（著述）"
+      note: "高倍率のハイドロボム錬を、シフト3以降で起爆させる（攻略情報）"
     },
     執行者ラミアン: {
       turnText: "3ターン（基本形）",
       cycles: null,
       simulBombs: 5,
-      note: "かばうと回復を無視して、5体まとめて処理する形が著述の理想"
+      note: "かばうと回復を無視して、5体まとめて処理する形が攻略情報の理想"
     },
     グリードベア: {
       turnText: "3ターン（基本形）",
       cycles: null,
       simulBombs: 2,
-      note: "2体を同時に倒せば、死亡時効果を無視できる（著述）"
+      note: "2体を同時に倒せば、死亡時効果を無視できる（攻略情報）"
     },
     愛玩幻獣アイニャ: {
       turnText: "3ターン（基本形）",
       cycles: null,
       simulBombs: null,
-      note: "かばうを無視して付けられ、ダメージに攻撃力が影響しないことが要点（著述の主軸）"
+      note: "かばうを無視して付けられ、ダメージに攻撃力が影響しないことが要点（攻略情報の主軸）"
     },
     契りのドゥーエ: {
       turnText: "3ターン（基本形）",
       cycles: null,
       simulBombs: null,
-      note: "残った2体（終りのトロワ・断りのアインツ）への選択肢として、錬ボムでも可（著述）"
+      note: "残った2体（終りのトロワ・断りのアインツ）への選択肢として、錬ボムでも可（攻略情報）"
     }
   };
   function hbombCalibrationLines(enemyName) {
@@ -245742,7 +247012,7 @@ window.__PREVIEW_DATA__ = {
     return Math.ceil(damage * 100 / (maxHp * 2));
   }
 
-  // app/js/speed.js
+  // build/app/js/speed.js
   function meSpeedPct(me, member, slotIndex) {
     if (!me || !member) return null;
     const slotKey = ME_SLOT_KEYS[slotIndex];
@@ -245795,6 +247065,9 @@ window.__PREVIEW_DATA__ = {
       behind: as.filter((a) => a.spd < fastest.spd).map((a) => a.name)
     };
   }
+  function enemyFastestText(fastest) {
+    return `敵最速: ${fastest.fastestName}（素早さ${fastest.fastestSpd}）`;
+  }
   function effectiveSpeed({ base, stage = 0, reishouFlat = 0, pctParts = [] }) {
     if (typeof base !== "number") return null;
     const pctSum = pctParts.reduce((s, p) => s + (p.pct || 0), 0);
@@ -245819,9 +247092,18 @@ window.__PREVIEW_DATA__ = {
     return { value, lines, parts, pctSum };
   }
 
-  // app/js/chain.js
+  // build/app/js/chain.js
   var CHAIN_PHOTON_MAX = 5;
   var MAX_ACTIONS_PER_MEMBER = 2;
+  function chainWayKey(way) {
+    if (!way) return "";
+    const conds = (way.conditions || []).map((c) => `${c.type}:${c.min ?? c.pct ?? c.photon ?? ""}`).sort().join("|");
+    return [way.via || "self", way.medium || "", way.restrict || "", way.scope || "", conds].join("|");
+  }
+  function probOf(way) {
+    const c = (way && way.conditions || []).find((x) => x.type === "prob");
+    return c ? c.pct : null;
+  }
   function hasChainRole(rec) {
     if (!rec) return false;
     return Boolean(
@@ -245834,10 +247116,11 @@ window.__PREVIEW_DATA__ = {
   function partyHasChainGrant(members) {
     return (members || []).some(({ rec, specialReishou }) => rec && (rec.grant || []).some((g) => (g.scope === "ally" || g.scope === "all") && !(hasReishouCondition(g) && !specialReishou)));
   }
-  function chainOriginEligibility(rec, { partyHasGrant = false, specialReishou = false } = {}) {
+  function chainOriginEligibility(rec, { partyHasGrant = false, specialReishou = false, ignoredProb = [] } = {}) {
     if (partyHasGrant) return { ok: true, reason: null };
     if (!rec || !hasChainRole(rec)) return { ok: false, reason: "チェインを持っていない" };
-    const usable = (list) => (list || []).filter((w) => !(hasReishouCondition(w) && !specialReishou));
+    const ignored = new Set(ignoredProb || []);
+    const usable = (list) => (list || []).filter((w) => !(hasReishouCondition(w) && !specialReishou) && !ignored.has(chainWayKey(w)));
     if (usable(rec.start).length) return { ok: true, reason: null };
     if (usable(rec.grant).length) return { ok: true, reason: null };
     if ((rec.start || []).length || (rec.grant || []).length) {
@@ -245887,6 +247170,7 @@ window.__PREVIEW_DATA__ = {
     let reishouBlocked = false;
     const usable = [];
     for (const way2 of ways) {
+      if (ctx.ignoredProb && ctx.ignoredProb.has(chainWayKey(way2))) continue;
       if (hasReishouCondition(way2) && !ctx.specialReishou) {
         reishouBlocked = true;
         continue;
@@ -245912,28 +247196,42 @@ window.__PREVIEW_DATA__ = {
     if (way.medium === "スキル") return "スキル";
     if (way.medium === "覚醒スキル") return "覚醒";
     if (way.medium === "奥義") return "奥義";
-    if (way.medium === "特性") {
+    if (way.medium === "特性" || way.medium === "マスエフェクト") {
       const c = (way.conditions || []).find((x) => x.type === "photon");
       return c ? c.photon : null;
     }
     return null;
   }
-  function resolvePass(rec, { isOrigin, specialReishou, partyGrant, photonOf }) {
+  function wayNotes(way, kind, photonOf) {
+    if (kind === "grant") {
+      return way.scope === "self" ? ["回数チェインで繋ぐ"] : ["回数チェインを付与して繋ぐ"];
+    }
+    const notes = conditionNotes(way, photonOf);
+    if (kind === "self") {
+      notes.push("自身にチェイン");
+      return notes;
+    }
+    if (way.restrict === "maxAtk") notes.push("最も攻撃力が高い味方へのチェイン");
+    if (way.restrict === "minSpd") notes.push("最も素早さが低い味方へのチェイン");
+    notes.push(`${way.medium}でチェイン`);
+    return notes;
+  }
+  function resolvePass(rec, { isOrigin, specialReishou, partyGrant, photonOf, ignoredProb = null }) {
     if (rec) {
       const ways = isOrigin ? [...rec.start || []] : [...rec.start || [], ...rec.relay || []];
-      const picked = pickPassWay(ways, { specialReishou, photonOf });
+      const picked = pickPassWay(ways, { specialReishou, photonOf, ignoredProb });
       if (picked && picked.way) {
         return { kind: "way", way: picked.way, notes: picked.notes, photon: photonForWay(picked.way) };
       }
       const grants = rec.grant || [];
-      const usableGrants = grants.filter((g) => !(hasReishouCondition(g) && !specialReishou));
+      const usableGrants = grants.filter((g) => !(hasReishouCondition(g) && !specialReishou) && !(ignoredProb && ignoredProb.has(chainWayKey(g))));
       const allyGrant = usableGrants.find((g) => g.scope !== "self");
       if (allyGrant) {
-        return { kind: "grantAlly", notes: ["回数チェインを付与して繋ぐ"], photon: photonForWay(allyGrant) };
+        return { kind: "grantAlly", way: allyGrant, notes: ["回数チェインを付与して繋ぐ"], photon: photonForWay(allyGrant) };
       }
       const selfGrant = usableGrants.find((g) => g.scope === "self");
       if (selfGrant) {
-        return { kind: "grantSelf", notes: ["回数チェインで繋ぐ"], photon: photonForWay(selfGrant) };
+        return { kind: "grantSelf", way: selfGrant, notes: ["回数チェインで繋ぐ"], photon: photonForWay(selfGrant) };
       }
       if (partyGrant) return { kind: "partyGrant", notes: ["回数チェイン付与で繋ぐ"], photon: null };
       if (picked && picked.blocked) return { blocked: "reishou" };
@@ -245942,6 +247240,55 @@ window.__PREVIEW_DATA__ = {
     }
     if (partyGrant) return { kind: "partyGrant", notes: ["回数チェイン付与で繋ぐ"], photon: null };
     return null;
+  }
+  function findForcedWay(rec, key, { isOrigin, specialReishou, ignoredProb }) {
+    if (!rec || !key) return null;
+    const lists = isOrigin ? [["way", rec.start], ["grant", rec.grant], ["self", rec.selfChain]] : [["way", rec.start], ["way", rec.relay], ["grant", rec.grant], ["self", rec.selfChain]];
+    for (const [kind, list] of lists) {
+      for (const way of list || []) {
+        if (chainWayKey(way) !== key) continue;
+        if (hasReishouCondition(way) && !specialReishou) return null;
+        if (ignoredProb && ignoredProb.has(key)) return null;
+        return { kind, way };
+      }
+    }
+    return null;
+  }
+  function chainActionOptions(rec, {
+    isOrigin = false,
+    specialReishou = false,
+    ignoredProb = [],
+    photonOf = null
+  } = {}) {
+    const ignored = new Set(ignoredProb || []);
+    const options = [];
+    const seen = /* @__PURE__ */ new Set();
+    if (rec) {
+      const lists = isOrigin ? [["way", rec.start], ["grant", rec.grant], ["self", rec.selfChain]] : [["way", rec.start], ["way", rec.relay], ["grant", rec.grant], ["self", rec.selfChain]];
+      for (const [kind, list] of lists) {
+        for (const way of list || []) {
+          if (hasReishouCondition(way) && !specialReishou) continue;
+          const key = chainWayKey(way);
+          if (ignored.has(key) || seen.has(key)) continue;
+          seen.add(key);
+          options.push({
+            type: "way",
+            key,
+            kind,
+            medium: way.medium || "",
+            via: way.via || "self",
+            photon: photonForWay(way),
+            prob: probOf(way),
+            notes: wayNotes(way, kind, photonOf)
+          });
+        }
+      }
+    }
+    const covered = new Set(options.map((o) => o.photon).filter(Boolean));
+    for (const p of ["アタック", "スキル", "チャージ", "覚醒", "奥義"]) {
+      if (!covered.has(p)) options.push({ type: "stop", key: `stop:${p}`, photon: p });
+    }
+    return options;
   }
   function conditionedTarget(restrict, allies, excludeId) {
     const others = allies.filter((a) => a.id !== excludeId);
@@ -245996,11 +247343,24 @@ window.__PREVIEW_DATA__ = {
     chainOf,
     specialReishouOf,
     photonGuaranteeOf = null,
-    partyGrant = false
+    partyGrant = false,
+    overrides = {},
+    ignoredProb = []
   }) {
     const order = [...allies].sort((a, b) => spdKey(b.spd) - spdKey(a.spd));
     const skippedSet = new Set(skipped);
-    const actions = [{ id: originId, occ: 1, via: "origin", fixed: false, restrict: null, notes: [], photon: null }];
+    const ignoredSet = new Set(ignoredProb || []);
+    const actions = [{
+      id: originId,
+      occ: 1,
+      via: "origin",
+      fixed: false,
+      restrict: null,
+      notes: [],
+      photon: null,
+      way: null,
+      prob: null
+    }];
     const countOcc = (id) => actions.reduce((n, a) => n + (a.id === id ? 1 : 0), 0);
     let stopReason = null;
     let stopId = null;
@@ -246010,12 +247370,40 @@ window.__PREVIEW_DATA__ = {
         break;
       }
       const last = actions[actions.length - 1];
-      const pass = resolvePass(chainOf(last.id), {
-        isOrigin: actions.length === 1,
-        specialReishou: specialReishouOf(last.id),
-        partyGrant,
-        photonOf: photonGuaranteeOf ? (t) => photonGuaranteeOf(last.id, t) : null
-      });
+      const isOrigin = actions.length === 1;
+      const photonOf = photonGuaranteeOf ? (t) => photonGuaranteeOf(last.id, t) : null;
+      const ov = (overrides || {})[`${last.id}#${last.occ}`] || null;
+      if (ov && ov.stopPhoton) {
+        last.photon = ov.stopPhoton;
+        stopReason = "stopped";
+        stopId = last.id;
+        break;
+      }
+      let pass = null;
+      if (ov && ov.wayKey) {
+        const forced = findForcedWay(chainOf(last.id), ov.wayKey, {
+          isOrigin,
+          specialReishou: specialReishouOf(last.id),
+          ignoredProb: ignoredSet
+        });
+        if (forced) {
+          pass = {
+            kind: forced.kind,
+            way: forced.way,
+            notes: wayNotes(forced.way, forced.kind, photonOf),
+            photon: photonForWay(forced.way)
+          };
+        }
+      }
+      if (!pass) {
+        pass = resolvePass(chainOf(last.id), {
+          isOrigin,
+          specialReishou: specialReishouOf(last.id),
+          partyGrant,
+          photonOf,
+          ignoredProb: ignoredSet
+        });
+      }
       if (!pass) {
         stopReason = "no-pass";
         stopId = last.id;
@@ -246027,6 +247415,28 @@ window.__PREVIEW_DATA__ = {
         break;
       }
       last.photon = pass.photon || null;
+      last.way = pass.way || null;
+      last.prob = probOf(pass.way);
+      if (pass.kind === "self") {
+        const occ = countOcc(last.id) + 1;
+        if (occ > MAX_ACTIONS_PER_MEMBER || skippedSet.has(`${last.id}#${occ}`)) {
+          stopReason = "no-candidate";
+          stopId = last.id;
+          break;
+        }
+        actions.push({
+          id: last.id,
+          occ,
+          via: "self",
+          fixed: false,
+          restrict: null,
+          notes: pass.notes || [],
+          photon: null,
+          way: null,
+          prob: null
+        });
+        continue;
+      }
       if (pass.way && pass.way.restrict) {
         const target = conditionedTarget(pass.way.restrict, allies, last.id);
         const occ = target ? countOcc(target.id) + 1 : 0;
@@ -246042,7 +247452,9 @@ window.__PREVIEW_DATA__ = {
           fixed: true,
           restrict: pass.way.restrict,
           notes: pass.notes || [],
-          photon: null
+          photon: null,
+          way: null,
+          prob: null
         });
         continue;
       }
@@ -246068,13 +247480,15 @@ window.__PREVIEW_DATA__ = {
         fixed: false,
         restrict: null,
         notes: pass.notes || [],
-        photon: null
+        photon: null,
+        way: null,
+        prob: null
       });
     }
     return { actions, stopReason, stopId };
   }
 
-  // app/js/worth.js
+  // build/app/js/worth.js
   var BUFF_REWARD_LABEL = {
     attack_buff: "攻撃力上昇",
     defense_buff: "防御力上昇",
@@ -246179,7 +247593,7 @@ window.__PREVIEW_DATA__ = {
     return { lines, verdict };
   }
 
-  // app/js/hbomb.js
+  // build/app/js/hbomb.js
   var PLACER_LEVEL = 70;
   var MAX_BOMBS_PER_ENEMY = 3;
   var REN_MULT_CAP = 50;
@@ -246247,6 +247661,16 @@ window.__PREVIEW_DATA__ = {
   function isTypesOnlyAction(action) {
     return Boolean(action && action.debuff && !action.debuff.defDown && !action.debuff.weak && !action.place && !action.ren && !action.enhance && !action.steal && !action.grantsPhoton && !action.setsAwakened);
   }
+  function isTypesOnlyOverall(action) {
+    if (!action) return false;
+    return actionSnapshots(action).every((s) => isTypesOnlyAction({
+      ...action,
+      place: s ? s.place : void 0,
+      ren: s ? s.ren : void 0,
+      enhance: s ? s.enhance : void 0,
+      debuff: s ? s.debuff : void 0
+    }));
+  }
   function actionKeyOf(ctx) {
     return ctx.action.medium === "オーブ" ? `orb:${ctx.member.orbId}` : `${ctx.member.id}:${ctx.action.key}`;
   }
@@ -246262,7 +247686,8 @@ window.__PREVIEW_DATA__ = {
         cls: e.cls || null,
         row: e.row || null
       })),
-      secretUsed: false
+      secretUsed: false,
+      useCounts: {}
     };
   }
   function cloneField(field) {
@@ -246272,8 +247697,42 @@ window.__PREVIEW_DATA__ = {
         bombs: e.bombs.map((b) => ({ ...b })),
         debuffs: (e.debuffs || []).map((d) => ({ ...d }))
       })),
-      secretUsed: field.secretUsed
+      secretUsed: field.secretUsed,
+      useCounts: { ...field.useCounts || {} }
     };
+  }
+  function sourceKeyOf(ctx) {
+    return `${actionKeyOf(ctx)}|${ctx.member.id}`;
+  }
+  function actionSnapshots(action) {
+    return action && Array.isArray(action.levels) && action.levels.length ? action.levels : [action];
+  }
+  function actionHasEffectAtAnyLevel(action) {
+    return actionSnapshots(action).some((s) => s && (s.place || s.ren || s.enhance || s.debuff));
+  }
+  function effectiveAction(field, ctx, turn = 0) {
+    const a = ctx.action;
+    if (!a || !Array.isArray(a.levels) || !a.levels.length) return a;
+    let idx;
+    if (a.levelMode === "turn") {
+      idx = typeof turn === "number" && turn >= 1 ? Math.min(turn, a.levels.length) - 1 : a.levels.length - 1;
+    } else {
+      const used = field && field.useCounts && field.useCounts[sourceKeyOf(ctx)] || 0;
+      idx = Math.min(used, a.levels.length - 1);
+    }
+    const snap = a.levels[idx];
+    const out = { ...a };
+    delete out.place;
+    delete out.ren;
+    delete out.enhance;
+    delete out.debuff;
+    if (snap.place) out.place = snap.place;
+    if (snap.ren) out.ren = snap.ren;
+    if (snap.enhance) out.enhance = snap.enhance;
+    if (snap.debuff) out.debuff = snap.debuff;
+    if (snap.range) out.range = snap.range;
+    out.level = snap.lv;
+    return out;
   }
   function activeDebuffs(enemy, atTurn = null) {
     const list = enemy.debuffs || [];
@@ -246301,12 +247760,33 @@ window.__PREVIEW_DATA__ = {
   function debuffOn(field, ctx, targetIdx, turn) {
     const d = ctx.action.debuff;
     if (!d) return;
-    const src = `${actionKeyOf(ctx)}|${ctx.member.id}`;
+    const src = sourceKeyOf(ctx);
     for (const i of targetsOf(field, ctx.action, targetIdx)) {
       const e = field.enemies[i];
+      let key = src;
+      if (ctx.action.stacks) {
+        let maxN = -1;
+        for (const x of e.debuffs || []) {
+          if (x.key === src) maxN = Math.max(maxN, 0);
+          else if (x.key.startsWith(`${src}#`)) {
+            const v = Number(x.key.slice(src.length + 1));
+            if (Number.isFinite(v)) maxN = Math.max(maxN, v);
+          }
+        }
+        key = `${src}#${maxN + 1}`;
+      }
       const put = (type, pct, turns) => {
-        e.debuffs = (e.debuffs || []).filter((x) => !(x.key === src && x.type === type));
-        e.debuffs.push({ key: src, type, pct: pct || 0, appliedTurn: turn || 0, turns });
+        e.debuffs = (e.debuffs || []).filter((x) => !(x.key === key && x.type === type));
+        e.debuffs.push({
+          key,
+          type,
+          pct: pct || 0,
+          appliedTurn: turn || 0,
+          turns,
+          byName: ctx.member.name,
+          medium: ctx.action.medium,
+          actionName: ctx.action.name
+        });
       };
       if (d.defDown) put("防御力低下", d.defDown.pct, d.defDown.turns);
       if (d.weak) put("虚弱", 0, d.weak.turns);
@@ -246388,12 +247868,16 @@ window.__PREVIEW_DATA__ = {
     return Boolean(enemy && (enemy.bombs || []).some((b) => b.kind === "heavy"));
   }
   function checkAction(field, ctx, targetIdx, opts = {}) {
-    const a = ctx.action;
+    const effCtx = {
+      ...ctx,
+      action: effectiveAction(field, ctx, typeof opts.atTurn === "number" ? opts.atTurn : 0)
+    };
+    const a = effCtx.action;
     if (a.secret && (opts.secretUsed || field.secretUsed)) {
       return { ok: false, reason: "秘奥義は1回のみ" };
     }
     const targets = targetsOf(field, a, targetIdx);
-    if (isDebuffOnlyAction(a)) {
+    if (isDebuffOnlyAction(a) && !a.stacks) {
       const want = debuffTypesOf(a);
       const atTurn = typeof opts.atTurn === "number" ? opts.atTurn : null;
       const gains = targets.some((i) => want.some(
@@ -246410,7 +247894,7 @@ window.__PREVIEW_DATA__ = {
           anyRoom = true;
           continue;
         }
-        if (hasOwnPlacedBomb(e, ctx)) {
+        if (hasOwnPlacedBomb(e, effCtx)) {
           usedReason = "使用中";
           continue;
         }
@@ -246426,7 +247910,7 @@ window.__PREVIEW_DATA__ = {
       let usedReason = null;
       for (const i of targets) {
         const e = field.enemies[i];
-        if (hasOwnPlacedBomb(e, ctx)) {
+        if (hasOwnPlacedBomb(e, effCtx)) {
           usedReason = "使用中";
           continue;
         }
@@ -246452,15 +247936,16 @@ window.__PREVIEW_DATA__ = {
     const check = checkAction(field, ctx, targetIdx, { atTurn: turn });
     if (!check.ok) return null;
     const next = cloneField(field);
-    const a = ctx.action;
+    const effCtx = { ...ctx, action: effectiveAction(field, ctx, turn) };
+    const a = effCtx.action;
     const targets = targetsOf(next, a, targetIdx);
     if (a.place && a.branchOnHeavy && a.ren) {
       let acted = false;
       for (const i of targets) {
         if (hasHeavyBomb(next.enemies[i])) {
-          renOn(next, ctx, i, turn);
+          renOn(next, effCtx, i, turn);
           acted = true;
-        } else if (placeOn(next, ctx, i, turn)) {
+        } else if (placeOn(next, effCtx, i, turn)) {
           acted = true;
         }
       }
@@ -246469,19 +247954,23 @@ window.__PREVIEW_DATA__ = {
       if (a.place) {
         let placed = false;
         for (const i of targets) {
-          if (placeOn(next, ctx, i, turn)) placed = true;
+          if (placeOn(next, effCtx, i, turn)) placed = true;
         }
         if (!placed) return null;
       }
       if (a.ren) {
         for (const i of targets) {
-          renOn(next, ctx, i, turn);
+          renOn(next, effCtx, i, turn);
         }
       }
     }
-    if (a.enhance) enhanceOn(next, ctx, targetIdx);
-    if (a.debuff) debuffOn(next, ctx, targetIdx, turn);
+    if (a.enhance) enhanceOn(next, effCtx, targetIdx);
+    if (a.debuff) debuffOn(next, effCtx, targetIdx, turn);
     if (a.secret) next.secretUsed = true;
+    if (ctx.action.levels && ctx.action.levelMode !== "turn") {
+      const k = sourceKeyOf(ctx);
+      next.useCounts[k] = (next.useCounts[k] || 0) + 1;
+    }
     return next;
   }
   function removeBomb(field, enemyIdx, bombIdx) {
@@ -246489,6 +247978,13 @@ window.__PREVIEW_DATA__ = {
     const e = next.enemies[enemyIdx];
     if (!e || !e.bombs[bombIdx]) return field;
     e.bombs.splice(bombIdx, 1);
+    return next;
+  }
+  function removeDebuff(field, enemyIdx, debuffIdx) {
+    const next = cloneField(field);
+    const e = next.enemies[enemyIdx];
+    if (!e || !(e.debuffs || [])[debuffIdx]) return field;
+    e.debuffs.splice(debuffIdx, 1);
     return next;
   }
   function previewDetonation(field, opts = {}) {
@@ -246568,7 +248064,7 @@ window.__PREVIEW_DATA__ = {
         b.equipBoost
       ]),
       (e.debuffs || []).map((d) => [d.key, d.type, d.pct, d.appliedTurn, d.turns])
-    ])) + (field.secretUsed ? "|S" : "");
+    ])) + (field.secretUsed ? "|S" : "") + `|U${JSON.stringify(field.useCounts || {})}`;
   }
   function bombPotential(b) {
     const boostMul = 1 + (b.boost || 0) + (b.selfBoost || 0) + (b.equipBoost || 0);
@@ -246597,7 +248093,8 @@ window.__PREVIEW_DATA__ = {
       st.turn,
       st.pool,
       st.secretUsed,
-      [...st.orbLastUsed.entries()]
+      [...st.orbLastUsed.entries()],
+      st.field.useCounts || {}
     ]);
   }
   function clockTurnOf(field) {
@@ -246630,9 +248127,9 @@ window.__PREVIEW_DATA__ = {
     const budget = opts.budget || 2e5;
     const staleLimit = opts.staleLimit || 5;
     const shortenBudget = opts.shortenBudget || 8e4;
-    const allCtxs = members.flatMap((m) => memberActions(data, m)).filter((c) => c.action.place || c.action.ren || c.action.enhance || c.action.debuff);
-    const hasWeak = allCtxs.some((c) => c.action.debuff && c.action.debuff.weak);
-    const ctxs = hasWeak ? allCtxs : allCtxs.filter((c) => !isTypesOnlyAction(c.action));
+    const allCtxs = members.flatMap((m) => memberActions(data, m)).filter((c) => actionHasEffectAtAnyLevel(c.action));
+    const hasWeak = allCtxs.some((c) => actionSnapshots(c.action).some((s) => s && s.debuff && s.debuff.weak));
+    const ctxs = hasWeak ? allCtxs : allCtxs.filter((c) => !isTypesOnlyOverall(c.action));
     const stats = { expansions: 0, budgetHit: false };
     const spend = () => {
       stats.expansions += 1;
@@ -246843,12 +248340,14 @@ window.__PREVIEW_DATA__ = {
       return { st, step: { ...base, turn: st.turn, ok: false, reason: "行動が引けません", note: "" } };
     }
     const a = actx.action;
+    const isFree = Boolean(a.free);
     const next = cloneReplayState(st);
-    if (next.pool <= 0) {
+    if (!isFree && next.pool <= 0) {
       next.turn += 1;
       next.pool = HANDS_PER_TURN;
     }
     const turn = next.turn;
+    const effA = effectiveAction(next.field, actx, turn);
     let ok = true;
     let reason = null;
     let note = "";
@@ -246876,7 +248375,7 @@ window.__PREVIEW_DATA__ = {
         reason = "覚醒ゲージが足りません";
       }
     }
-    if (ok && (a.place || a.ren || a.enhance || a.debuff)) {
+    if (ok && (effA.place || effA.ren || effA.enhance || effA.debuff)) {
       const applied = applyAction(next.field, actx, hand.target || 0, turn);
       if (applied) {
         next.field = applied;
@@ -246887,10 +248386,10 @@ window.__PREVIEW_DATA__ = {
         reason = chk.reason || "使えません";
       }
     }
-    if (ok && a.debuff) {
+    if (ok && effA.debuff) {
       const parts = [];
-      if (a.debuff.defDown) parts.push(`防御力低下${Math.round(a.debuff.defDown.pct * 100)}%`);
-      if (a.debuff.weak) parts.push("虚弱");
+      if (effA.debuff.defDown) parts.push(`防御力低下${Math.round(effA.debuff.defDown.pct * 100)}%`);
+      if (effA.debuff.weak) parts.push("虚弱");
       if (parts.length) note = parts.join("・");
     }
     if (ok && a.steal) {
@@ -246906,16 +248405,18 @@ window.__PREVIEW_DATA__ = {
       }
     }
     if (!ok) return { st, step: { ...base, turn, ok, reason, note } };
-    next.pool -= 1;
-    if (a.grantsPhoton) {
-      next.pool += a.grantsPhoton;
-      note = `フォトン+${a.grantsPhoton}`;
+    if (!isFree) {
+      next.pool -= 1;
+      if (a.grantsPhoton) {
+        next.pool += a.grantsPhoton;
+        note = `フォトン+${a.grantsPhoton}`;
+      }
+      if (a.medium === "オーブ" && actx.orbCt) next.orbLastUsed.set(member.id, turn);
+      if (a.setsAwakened) next.gauges.set(member.id, member.gaugeMax || 0);
+      else if (a.gaugeUse) next.gauges.set(member.id, 0);
+      else next.gauges.set(member.id, (next.gauges.get(member.id) || 0) + 1);
     }
-    if (a.medium === "オーブ" && actx.orbCt) next.orbLastUsed.set(member.id, turn);
-    if (a.setsAwakened) next.gauges.set(member.id, member.gaugeMax || 0);
-    else if (a.gaugeUse) next.gauges.set(member.id, 0);
-    else next.gauges.set(member.id, (next.gauges.get(member.id) || 0) + 1);
-    if ((a.place || a.ren) && ctx.meGaugeMembers.has(member.id)) {
+    if ((effA.place || effA.ren) && ctx.meGaugeMembers.has(member.id)) {
       next.gauges.set(member.id, (next.gauges.get(member.id) || 0) + 1);
       note = note ? `${note}・覚醒ゲージ+1` : "覚醒ゲージ+1（マスエフェクト）";
     }
@@ -246953,11 +248454,18 @@ window.__PREVIEW_DATA__ = {
   function replayHands(ctx, hands, detonateTurn) {
     let st = newReplayState(ctx);
     const steps = [];
-    for (const hand of hands) {
+    hands.forEach((hand, hi) => {
       const r = stepHand(ctx, st, hand);
       st = r.st;
+      if (r.step.ok) {
+        for (const e of st.field.enemies) {
+          for (const d of e.debuffs || []) {
+            if (typeof d.hand !== "number") d.hand = hi;
+          }
+        }
+      }
       steps.push(r.step);
-    }
+    });
     return finishReplay(ctx, st, steps, detonateTurn);
   }
   function solveSequence(ctx, detonateTurn, opts = {}) {
@@ -246968,8 +248476,8 @@ window.__PREVIEW_DATA__ = {
     const seekStale = opts.seekStale || 25e3;
     const maxHands = HANDS_PER_TURN * detonateTurn + 12;
     const allCtxs = ctx.members.flatMap((m) => memberActionsForSolve(ctx, m));
-    const hasWeak = allCtxs.some((c) => c.action.debuff && c.action.debuff.weak);
-    const ctxs = hasWeak ? allCtxs : allCtxs.filter((c) => !isTypesOnlyAction(c.action));
+    const hasWeak = allCtxs.some((c) => actionSnapshots(c.action).some((s) => s && s.debuff && s.debuff.weak));
+    const ctxs = hasWeak ? allCtxs : allCtxs.filter((c) => !isTypesOnlyOverall(c.action));
     const stats = { expansions: 0, budgetHit: false };
     const spend = () => {
       stats.expansions += 1;
@@ -246990,7 +248498,7 @@ window.__PREVIEW_DATA__ = {
         }
       });
     }
-    const targetListFor = (c) => !(c.action.place || c.action.ren || c.action.steal || c.action.debuff) ? [0] : c.action.range === "all" ? [0] : c.action.range === "row" ? rowReps : ctx.enemies.map((_, i) => i);
+    const targetListFor = (c) => !(actionHasEffectAtAnyLevel(c.action) || c.action.steal) ? [0] : c.action.range === "all" ? [0] : c.action.range === "row" ? rowReps : ctx.enemies.map((_, i) => i);
     const scoreOf = (st, preview) => {
       let s = 0;
       ctx.enemies.forEach((e, i) => {
@@ -247193,7 +248701,7 @@ window.__PREVIEW_DATA__ = {
     return map ? [...map.values()] : [];
   }
 
-  // app/js/kyoen.js
+  // build/app/js/kyoen.js
   var CONVERTER_LEVEL = 70;
   var COUNT_CAP = 50;
   var EXTEND_PER_TURN = 3;
@@ -247253,8 +248761,16 @@ window.__PREVIEW_DATA__ = {
       })),
       history: [],
       reserves: [],
+      levels: {},
+      // レベル制の行動の現在レベル（levelKey -> Lv。未使用は Lv1）
+      forms: {},
+      // 武器の形（actorId -> 'separated' | 'linked'。未使用は分離）
+      shifted: {},
+      // スキルのシフト（actorId -> true。バティンB）
       delayed: null,
       // 遅延行動の予約（armDelayed で積む）
+      delayedReport: null,
+      // 直近のターン終了で発動した遅延行動（表示用の一時情報）
       turnFireByActor: {},
       // このターンに各行動者が与えた火ダメージ回数
       turnPace: enemies.map(() => ({ hits: 0, direct: 0, extend: 0 })),
@@ -247268,11 +248784,62 @@ window.__PREVIEW_DATA__ = {
       terrainClock: state.terrainClock,
       enemies: state.enemies,
       reserves: state.reserves,
+      levels: state.levels || {},
+      forms: state.forms || {},
+      shifted: state.shifted || {},
       delayed: state.delayed || null,
       turnFireByActor: state.turnFireByActor || {},
       turnPace: state.turnPace,
       lastPace: state.lastPace
     }));
+  }
+  function actionLevel(state, levelKey) {
+    if (!levelKey) return 1;
+    return state.levels && state.levels[levelKey] || 1;
+  }
+  var LEVEL_RESOLVE_FIELDS = ["mult", "duration", "dmgMult", "dmgHits", "hits", "terrainBonus", "turns", "allocMin", "allocMax"];
+  function leveledAction(action, lv) {
+    if (!action || !Array.isArray(action.levels) || !action.levels.length) return action;
+    const sorted = [...action.levels].sort((a, b) => a.lv - b.lv);
+    const entry = sorted.filter((e) => e.lv <= lv).pop() || sorted[0];
+    const out = { ...action };
+    delete out.levels;
+    for (const f of LEVEL_RESOLVE_FIELDS) {
+      if (entry[f] !== void 0) out[f] = entry[f];
+    }
+    out.lv = entry.lv;
+    return out;
+  }
+  function bumpLevel(state, levelKey, maxLv) {
+    if (!levelKey || !maxLv) return;
+    state.levels = state.levels || {};
+    state.levels[levelKey] = Math.min(maxLv, actionLevel(state, levelKey) + 1);
+  }
+  function useLeveledAction(state, action) {
+    if (!action || !Array.isArray(action.levels) || !action.levels.length || !action.levelKey) {
+      return action;
+    }
+    const resolved = leveledAction(action, actionLevel(state, action.levelKey));
+    bumpLevel(state, action.levelKey, Math.max(...action.levels.map((e) => e.lv)));
+    return resolved;
+  }
+  function formOf(state, actorId) {
+    if (!actorId) return "separated";
+    return state.forms && state.forms[actorId] || "separated";
+  }
+  function applyShift(state, actorId, to) {
+    if (!actorId || to !== "separated" && to !== "linked") return;
+    state.forms = state.forms || {};
+    state.forms[actorId] = to;
+  }
+  function skillShifted(state, actorId) {
+    if (!actorId) return false;
+    return Boolean(state.shifted && state.shifted[actorId]);
+  }
+  function applySkillShift(state, actorId) {
+    if (!actorId) return;
+    state.shifted = state.shifted || {};
+    state.shifted[actorId] = true;
   }
   function applyFireAction(state, action, targetIdx, opts = {}) {
     const pace = opts.pace !== false;
@@ -247362,14 +248929,27 @@ window.__PREVIEW_DATA__ = {
     return count >= 2 ? Math.min(count, maxReps || 10) : 1;
   }
   var RANGE_RANK = { single: 1, row: 2, all: 3 };
-  function applyOverwrite(state, enjou, targetIdx) {
-    applySetupAction(state, {
-      range: enjou.range,
-      hits: enjou.dmgHits || 0,
-      dmgMult: enjou.dmgMult || 0,
-      atk: enjou.atk,
-      attackerClass: enjou.attackerClass
-    }, targetIdx);
+  function applyOverwrite(state, enjou, targetIdx, opts = {}) {
+    if (opts.hitsByEnemy) {
+      for (const [idxText, hits] of Object.entries(opts.hitsByEnemy)) {
+        if (!(hits > 0)) continue;
+        applySetupAction(state, {
+          range: "single",
+          hits,
+          dmgMult: enjou.dmgMult || 0,
+          atk: enjou.atk,
+          attackerClass: enjou.attackerClass
+        }, Number(idxText));
+      }
+    } else {
+      applySetupAction(state, {
+        range: enjou.range,
+        hits: enjou.dmgHits || 0,
+        dmgMult: enjou.dmgMult || 0,
+        atk: enjou.atk,
+        attackerClass: enjou.attackerClass
+      }, targetIdx);
+    }
     const cur = state.terrain;
     const newRank = RANGE_RANK[enjou.range] || 1;
     const curRank = RANGE_RANK[cur.range] || 1;
@@ -247457,16 +249037,10 @@ window.__PREVIEW_DATA__ = {
       }
       state.reserves = state.reserves.filter((r) => r.turnsLeft > 0);
     }
+    let delayedDue = null;
     if (state.delayed) {
       const d = state.delayed;
-      const reps = delayedReps(delayedCountNow(state), d.maxReps);
-      applyFireAction(state, {
-        range: "single",
-        hits: reps,
-        dmgMult: d.mult,
-        atk: d.atk,
-        attackerClass: d.attackerClass
-      }, d.targetIdx, { pace: false });
+      delayedDue = { ...d, reps: delayedReps(delayedCountNow(state), d.maxReps) };
       state.delayed = null;
     }
     state.turnFireByActor = {};
@@ -247474,6 +249048,21 @@ window.__PREVIEW_DATA__ = {
     state.turnPace = state.enemies.map(() => ({ hits: 0, direct: 0, extend: 0 }));
     for (const e of state.enemies) e.extUsed = 0;
     state.turn += 1;
+    state.delayedReport = null;
+    if (delayedDue) {
+      applyFireAction(state, {
+        range: "single",
+        hits: delayedDue.reps,
+        dmgMult: delayedDue.mult,
+        atk: delayedDue.atk,
+        attackerClass: delayedDue.attackerClass
+      }, delayedDue.targetIdx, { pace: false });
+      state.delayedReport = {
+        label: delayedDue.label,
+        reps: delayedDue.reps,
+        targetIdx: delayedDue.targetIdx
+      };
+    }
     return state;
   }
   function undoTurn(state) {
@@ -247484,6 +249073,10 @@ window.__PREVIEW_DATA__ = {
     state.terrainClock = snap.terrainClock;
     state.enemies = snap.enemies;
     state.reserves = snap.reserves || [];
+    state.levels = snap.levels || {};
+    state.forms = snap.forms || {};
+    state.shifted = snap.shifted || {};
+    state.delayedReport = null;
     state.delayed = snap.delayed || null;
     state.turnFireByActor = snap.turnFireByActor || {};
     state.turnPace = snap.turnPace;
@@ -247528,6 +249121,30 @@ window.__PREVIEW_DATA__ = {
           direct: Math.max(0, base.direct - applied.direct),
           extend: Math.max(0, (base.extend || 0) - (applied.extend || 0))
         } : base;
+        if (k === 2 && state.delayed && state.delayed.targetIdx === i) {
+          const d = state.delayed;
+          const byActor = state.turnFireByActor || {};
+          const cnt = d.countSource === "ally" ? Object.values(byActor).reduce((s, n) => s + n, 0) : byActor[d.actorId] || 0;
+          const reps = delayedReps(cnt, d.maxReps);
+          if (d.mult > 0) {
+            const per = directHitDamage({
+              atk: d.atk,
+              mult: d.mult,
+              def: e.def,
+              attackerClass: d.attackerClass,
+              targetRow: rowOfEnemy2(e)
+            }) * reps;
+            hp -= per;
+            if (hp <= 0) {
+              killTurn = turnNo;
+              break;
+            }
+          }
+          if (covered && remaining > 0) {
+            count = Math.min(COUNT_CAP, count + reps);
+            remaining += Math.min(reps, EXTEND_PER_TURN);
+          }
+        }
         if (p.direct > 0) {
           hp -= p.direct;
           if (hp <= 0) {
@@ -247582,33 +249199,10 @@ window.__PREVIEW_DATA__ = {
             remaining += Math.min(a.hits, EXTEND_PER_TURN);
           }
         }
-        if (k === 1 && state.delayed && state.delayed.targetIdx === i) {
-          const d = state.delayed;
-          const byActor = state.turnFireByActor || {};
-          const cnt = d.countSource === "ally" ? Object.values(byActor).reduce((s, n) => s + n, 0) : byActor[d.actorId] || 0;
-          const reps = delayedReps(cnt, d.maxReps);
-          if (d.mult > 0) {
-            const per = directHitDamage({
-              atk: d.atk,
-              mult: d.mult,
-              def: e.def,
-              attackerClass: d.attackerClass,
-              targetRow: rowOfEnemy2(e)
-            }) * reps;
-            hp -= per;
-            if (hp <= 0) {
-              killTurn = turnNo;
-              break;
-            }
-          }
-          if (covered && remaining > 0) {
-            count = Math.min(COUNT_CAP, count + reps);
-            remaining += Math.min(reps, EXTEND_PER_TURN);
-          }
-        }
         if (killTurn != null) break;
-        if (!covered && p.direct <= 0 && !res.some((r) => r.left > 0 && r.action.dmgMult > 0)) break;
-        if (!covered && bands.length === 0 && p.direct <= 0 && !res.length) break;
+        const delayedPending = k === 1 && state.delayed && state.delayed.targetIdx === i && state.delayed.mult > 0;
+        if (!covered && p.direct <= 0 && !delayedPending && !res.some((r) => r.left > 0 && r.action.dmgMult > 0)) break;
+        if (!covered && bands.length === 0 && p.direct <= 0 && !delayedPending && !res.length) break;
       }
       return { bands, killTurn };
     });
@@ -247640,7 +249234,7 @@ window.__PREVIEW_DATA__ = {
     return "今の伸び方では倒し切れない";
   }
 
-  // app/js/formations.js
+  // build/app/js/formations.js
   var SLOT_LABELS = ["1", "2", "リーダー", "4", "5"];
   var LEADER_INDEX = 2;
   function basicsById(megidoBasics) {
@@ -247955,7 +249549,9 @@ window.__PREVIEW_DATA__ = {
     return a.formation.name < b.formation.name ? -1 : a.formation.name > b.formation.name ? 1 : 0;
   }
 
-  // app/js/sheet.js
+  // build/app/js/sheet.js
+  var CANDIDATE_SOURCE_NOTE = "候補は本体の能力・専用霊宝・オーブ・マスエフェクトから出したものです（マスエフェクト由来はリーダーに置いた場合）。";
+  var FORMATION_MANAGE_NOTE = "ここで編成を管理・保存できます。";
   function el3(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -248390,11 +249986,7 @@ window.__PREVIEW_DATA__ = {
       for (const w of vm.counter.demandWarnings || []) {
         sec.append(el3("p", "demand-warn", w));
       }
-      sec.append(el3(
-        "p",
-        "sheet-note",
-        "候補は本体の能力・専用霊宝・オーブ・マスエフェクトから出したものです（マスエフェクト由来はリーダーに置いた場合）。"
-      ));
+      sec.append(el3("p", "sheet-note", CANDIDATE_SOURCE_NOTE));
       content.append(sec);
     }
     if (vm.m11) {
@@ -248443,11 +250035,7 @@ window.__PREVIEW_DATA__ = {
       }
       if (vm.confirmation.spdSummary) {
         const s = vm.confirmation.spdSummary;
-        sec.append(el3(
-          "p",
-          "confirm-spd-line",
-          `敵最速: ${s.fastestName}（素早さ${s.fastestSpd}）`
-        ));
+        sec.append(el3("p", "confirm-spd-line", enemyFastestText(s)));
         sec.append(el3("p", "confirm-spd-line", s.aheadNames.length > 0 ? `先手: ${s.aheadNames.join("・")}（${s.aheadNames.length}人）` : "敵最速より速い味方はいません"));
         if (s.tiedNames.length > 0) {
           sec.append(el3("p", "confirm-spd-line", `同速: ${s.tiedNames.join("・")}`));
@@ -248807,7 +250395,7 @@ window.__PREVIEW_DATA__ = {
     if (vm.totalCount === 0) {
       const content2 = el3("div", "formation-empty");
       content2.append(el3("h2", "sheet-title", "編成管理画面"));
-      content2.append(el3("p", "sheet-note", "ここで編成を管理・保存できます。"));
+      content2.append(el3("p", "sheet-note", FORMATION_MANAGE_NOTE));
       content2.append(el3("p", "sheet-note", "保存されている編成はまだありません。"));
       if (typeof cb.onCreateNew === "function") {
         const createBtn = el3("button", "btn-create-big", "編成を作成");
@@ -248851,7 +250439,7 @@ window.__PREVIEW_DATA__ = {
     const content = el3("div", "formation-list");
     if (vm.mode === "manage") {
       content.append(el3("h2", "sheet-title", "編成管理画面"));
-      content.append(el3("p", "sheet-note", "ここで編成を管理・保存できます。"));
+      content.append(el3("p", "sheet-note", FORMATION_MANAGE_NOTE));
     }
     if (vm.rows.length === 0) {
       content.append(el3("p", "sheet-note", "条件に合う編成がありません。"));
@@ -249023,7 +250611,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // app/js/builder.js
+  // build/app/js/builder.js
   function el4(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -249133,7 +250721,7 @@ window.__PREVIEW_DATA__ = {
       sec.append(el4(
         "p",
         "sheet-note",
-        "起点にしたい味方をタップすると、素早さ順に次の味方が自動で割り込んでいきます。起点はタイムテーブルに残り、割り込む位置に∧の印が付きます。"
+        "起点にしたい味方をタップすると、素早さ順に次の味方が自動で割り込んでいきます。起点はタイムテーブルに残り、割り込む位置に∧の印が付きます。チェインテーブルの行動は、タップで使う行動（フォトン）を変えられ、×で外せます。"
       ));
       sec.append(el4("p", "chain-zone-label", "タイムテーブル（素早さ順）"));
     }
@@ -249190,7 +250778,8 @@ window.__PREVIEW_DATA__ = {
       const row = el4("div", "chain-route");
       chain.actions.forEach((a, i) => {
         if (i > 0) row.append(el4("span", "chain-arrow", "›"));
-        const chip = el4("button", `chain-action-photon${a.fixed ? " is-fixed" : ""}`);
+        const wrap = el4("div", `chain-action${a.fixed ? " is-fixed" : ""}`);
+        const chip = el4("button", "chain-action-photon");
         chip.dataset.megidoId = a.id;
         chip.dataset.photon = a.photon || "アタック";
         const icon = photonIconImg(a.photon || "アタック", "chain-action-icon");
@@ -249206,28 +250795,49 @@ window.__PREVIEW_DATA__ = {
         chip.append(el4(
           "span",
           "chain-tap-hint",
-          a.fixed ? "条件で固定" : i === 0 ? "起点" : "タップで外す"
+          a.fixed ? "条件で固定" : "フォトンを変える"
         ));
-        chip.addEventListener("click", () => cb.onChainActionTap(i));
-        row.append(chip);
+        chip.addEventListener("click", () => cb.onChainPhotonTap(i));
+        wrap.append(chip);
+        if (!a.fixed) {
+          const x = el4("button", "chain-action-x", "×");
+          x.title = i === 0 ? "テストをやめる" : "この行動を外す";
+          x.addEventListener("click", () => cb.onChainRemove(i));
+          wrap.append(x);
+        }
+        if (typeof a.prob === "number") {
+          const q = el4("button", "chain-prob-badge", "？");
+          q.title = `${a.prob}%の確率でチェインする形です。タップすると、この確率の形を無視して組み直します`;
+          q.addEventListener("click", () => cb.onChainProbToggle(i));
+          wrap.append(q);
+        }
+        row.append(wrap);
       });
       sec.append(row);
       if (chain.photonFull) {
         sec.append(el4(
           "p",
           "sheet-note",
-          "フォトンを使い切りました。候補はこれ以上出ません。途中の行動をタップで外すと、空いたフォトンで次の候補（2回目の行動を含む）が入ります。"
+          "フォトンを使い切りました。候補はこれ以上出ません。途中の行動を×で外すと、空いたフォトンで次の候補（2回目の行動を含む）が入ります。"
         ));
       }
     }
     for (const n of chain.notes || []) sec.append(el4("p", "chain-link-note", n));
     for (const an of chain.actionNotes || []) {
       const line = el4("p", "chain-link-note");
-      line.append(el4("span", null, `${an.from}→${an.to}: `));
+      line.append(el4("span", null, `※ ${an.from}→${an.to}: `));
       (an.notes || []).forEach((n, i) => {
         if (i > 0) line.append(el4("span", null, "、"));
         line.append(noteWithPhotonIcons(n));
       });
+      sec.append(line);
+    }
+    for (const ig of chain.ignoredProbLines || []) {
+      const line = el4("p", "chain-link-note");
+      line.append(el4("span", null, `× ${ig.text}の確率チェインを無視しています`));
+      const restore = el4("button", "chain-prob-restore", "戻す");
+      restore.addEventListener("click", () => cb.onChainProbRestore(ig.key));
+      line.append(restore);
       sec.append(line);
     }
     for (const text of chain.resultLines || []) {
@@ -249238,10 +250848,39 @@ window.__PREVIEW_DATA__ = {
     sec.append(resetBtn);
     return sec;
   }
+  function buildChainPhotonPopup(vm, cb) {
+    const wrap = el4("div", "chain-photon-popup");
+    wrap.append(el4("div", "hbomb-popup-title", vm.title));
+    if (vm.note) wrap.append(el4("p", "hbomb-popup-note", vm.note));
+    for (const o of vm.options || []) {
+      const b = el4("button", `hbomb-popup-item${o.current ? " is-current" : ""}`);
+      const head = el4("span", "hbomb-popup-item-head");
+      const icon = photonIconImg(o.photon || "アタック", "ui-icon chain-photon-icon");
+      if (icon) head.append(icon);
+      head.append(el4(
+        "span",
+        "hbomb-popup-item-label",
+        o.label + (typeof o.prob === "number" ? `（${o.prob}%の確率）` : "")
+      ));
+      if (o.current) head.append(el4("span", "hbomb-popup-item-meta", "いまの行動"));
+      b.append(head);
+      if (o.notes && o.notes.length) {
+        b.append(el4("span", "chain-photon-option-note", o.notes.join("、")));
+      }
+      b.addEventListener("click", () => cb.onChoose(o.key));
+      wrap.append(b);
+    }
+    const foot = el4("div", "kyoen-alloc-foot");
+    const cancel = el4("button", "kyoen-alloc-cancel", "キャンセル");
+    cancel.addEventListener("click", () => cb.onCancel());
+    foot.append(cancel);
+    wrap.append(foot);
+    return wrap;
+  }
   function hbombSectionNode(hb, cb) {
     const sec = el4("div", "hbomb-section");
     const head = el4("div", "hbomb-head");
-    head.append(el4("div", "build-section-title", "Hボムの計画"));
+    head.append(el4("div", "build-section-title", "ハイドロボムの計画"));
     const omakase = el4("button", "hbomb-omakase-btn", "おまかせ");
     omakase.addEventListener("click", () => cb.onHbombOmakase());
     head.append(omakase);
@@ -249302,7 +250941,9 @@ window.__PREVIEW_DATA__ = {
         if (e.debuffs && e.debuffs.length) {
           const debuffs = el4("div", "hbomb-debuffs");
           for (const label of e.debuffs) {
-            debuffs.append(el4("span", "hbomb-debuff", label));
+            const chip = el4("button", "hbomb-debuff", label);
+            chip.addEventListener("click", () => cb.onHbombDebuffs(idx));
+            debuffs.append(chip);
           }
           tile.append(debuffs);
         }
@@ -249346,6 +250987,94 @@ window.__PREVIEW_DATA__ = {
     sec.append(palette);
     for (const n of hb.notes || []) sec.append(el4("p", "hbomb-note", n));
     return sec;
+  }
+  function buildHbombDebuffPopup(vm, cb) {
+    const wrap = el4("div", "hbomb-debuff-popup");
+    wrap.append(el4("div", "hbomb-popup-title", `${vm.enemyName}に付いている弱体・状態異常`));
+    if (vm.note) wrap.append(el4("p", "hbomb-popup-note", vm.note));
+    if (!vm.items.length) {
+      wrap.append(el4("p", "hbomb-popup-empty", "付いているものはありません"));
+    }
+    for (const it of vm.items) {
+      const b = el4("button", "hbomb-popup-item");
+      const head = el4("span", "hbomb-popup-item-head");
+      head.append(el4("span", "hbomb-popup-item-label", it.label));
+      head.append(el4("span", "hbomb-popup-item-remove", "取り除く"));
+      b.append(head);
+      if (it.meta) b.append(el4("span", "hbomb-popup-item-meta", it.meta));
+      if (it.source) b.append(el4("span", "hbomb-popup-item-source", it.source));
+      b.addEventListener("click", () => cb.onRemove(it.ref));
+      wrap.append(b);
+    }
+    return wrap;
+  }
+  function buildKyoenAllocPopup(vm, cb) {
+    const wrap = el4("div", "kyoen-alloc-popup");
+    wrap.append(el4("div", "hbomb-popup-title", vm.title));
+    if (vm.note) wrap.append(el4("p", "hbomb-popup-note", vm.note));
+    const totalRow = el4("div", "kyoen-alloc-total");
+    totalRow.append(el4("span", "kyoen-alloc-total-label", "合計"));
+    const tMinus = el4("button", "kyoen-alloc-step", "−");
+    tMinus.disabled = !vm.canEditTotal || vm.total <= vm.minTotal;
+    tMinus.addEventListener("click", () => cb.onTotal(-1));
+    totalRow.append(tMinus);
+    totalRow.append(el4("span", "kyoen-alloc-total-num", `${vm.total}回`));
+    const tPlus = el4("button", "kyoen-alloc-step", "＋");
+    tPlus.disabled = !vm.canEditTotal || vm.total >= vm.maxTotal;
+    tPlus.addEventListener("click", () => cb.onTotal(1));
+    totalRow.append(tPlus);
+    totalRow.append(el4("span", "kyoen-alloc-sum", `割り振り ${vm.sum} / ${vm.total}回`));
+    wrap.append(totalRow);
+    for (const r of vm.rows) {
+      const row = el4("div", `kyoen-alloc-row${r.dead ? " dead" : ""}`);
+      const head = el4("div", "kyoen-alloc-row-head");
+      head.append(el4("span", "kyoen-alloc-name", r.name));
+      head.append(el4("span", "kyoen-alloc-hp", r.hpText));
+      row.append(head);
+      const ctl = el4("div", "kyoen-alloc-ctl");
+      const minus = el4("button", "kyoen-alloc-step", "−");
+      minus.disabled = !r.canMinus;
+      minus.addEventListener("click", () => cb.onStep(r.index, -1));
+      ctl.append(minus);
+      ctl.append(el4("span", "kyoen-alloc-count", `${r.count}回`));
+      const plus = el4("button", "kyoen-alloc-step", "＋");
+      plus.disabled = !r.canPlus;
+      plus.addEventListener("click", () => cb.onStep(r.index, 1));
+      ctl.append(plus);
+      if (r.dmgText) ctl.append(el4("span", "kyoen-alloc-dmg", r.dmgText));
+      row.append(ctl);
+      wrap.append(row);
+    }
+    const foot = el4("div", "kyoen-alloc-foot");
+    const cancel = el4("button", "kyoen-alloc-cancel", "キャンセル");
+    cancel.addEventListener("click", () => cb.onCancel());
+    foot.append(cancel);
+    const ok = el4("button", "kyoen-alloc-confirm", "決定");
+    ok.disabled = !vm.canConfirm;
+    ok.addEventListener("click", () => cb.onConfirm());
+    foot.append(ok);
+    wrap.append(foot);
+    return wrap;
+  }
+  function buildKyoenCounterPopup(vm, cb) {
+    const wrap = el4("div", "kyoen-alloc-popup");
+    wrap.append(el4("div", "hbomb-popup-title", vm.title));
+    if (vm.note) wrap.append(el4("p", "hbomb-popup-note", vm.note));
+    for (const it of vm.items) {
+      const b = el4("button", "hbomb-popup-item");
+      const head = el4("span", "hbomb-popup-item-head");
+      head.append(el4("span", "hbomb-popup-item-label", it.name));
+      head.append(el4("span", "hbomb-popup-item-meta", it.hpText));
+      b.append(head);
+      b.addEventListener("click", () => cb.onPick(it.index));
+      wrap.append(b);
+    }
+    const foot = el4("div", "kyoen-alloc-foot");
+    const cancel = el4("button", "kyoen-alloc-cancel", "キャンセル");
+    cancel.addEventListener("click", () => cb.onCancel());
+    foot.append(cancel);
+    wrap.append(foot);
+    return wrap;
   }
   function kyoenSectionNode(ky, cb) {
     const sec = el4("div", "kyoen-section");
@@ -249407,6 +251136,7 @@ window.__PREVIEW_DATA__ = {
       const chip = el4("button", "kyoen-chip");
       chip.append(el4("span", "kyoen-chip-label", ch.label));
       if (ch.sub) chip.append(el4("span", "kyoen-chip-sub", ch.sub));
+      if (ch.disabled) chip.disabled = true;
       chip.addEventListener("click", () => cb.onKyoenFire(ch.uid));
       acts.append(chip);
     }
@@ -249422,6 +251152,13 @@ window.__PREVIEW_DATA__ = {
       chip.append(el4("span", "kyoen-chip-label", ch.label));
       if (ch.sub) chip.append(el4("span", "kyoen-chip-sub", ch.sub));
       chip.addEventListener("click", () => cb.onKyoenDelayed(ch.uid));
+      acts.append(chip);
+    }
+    for (const ch of ky.shiftChoices || []) {
+      const chip = el4("button", `kyoen-chip${ch.on ? " on" : ""}`);
+      chip.append(el4("span", "kyoen-chip-label", ch.label));
+      if (ch.sub) chip.append(el4("span", "kyoen-chip-sub", ch.sub));
+      chip.addEventListener("click", () => cb.onKyoenShift(ch.uid));
       acts.append(chip);
     }
     sec.append(acts);
@@ -249514,11 +251251,7 @@ window.__PREVIEW_DATA__ = {
             }
           }
           if (derivedShown) {
-            gim.append(el4(
-              "p",
-              "sheet-note",
-              "候補は本体の能力・専用霊宝・オーブ・マスエフェクトから出したものです（マスエフェクト由来はリーダーに置いた場合）。"
-            ));
+            gim.append(el4("p", "sheet-note", CANDIDATE_SOURCE_NOTE));
           }
           target.append(gim);
         }
@@ -249670,6 +251403,7 @@ window.__PREVIEW_DATA__ = {
           `${row.holderName} の戦旗（${row.targetLabel}: ${row.slotsLabel}）`
         ));
         item.append(el4("p", "flag-fit-line", row.line));
+        if (row.targetNote) item.append(el4("p", "flag-fit-note", row.targetNote));
         if (row.effect) item.append(el4("p", "flag-fit-effect", row.effect));
         box.append(item);
       }
@@ -250072,7 +251806,7 @@ window.__PREVIEW_DATA__ = {
     return { top, content, searchInput: search, bottom };
   }
 
-  // app/js/main.js
+  // build/app/js/main.js
   var DATA_BASE = "../data/";
   function monthKeyOf(date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -251176,7 +252910,7 @@ window.__PREVIEW_DATA__ = {
             if (typeof base !== "number") return "";
             const f = squareStatMultipliers(def ? def.rules : null).spd;
             const applied = applyMult(base, f);
-            return f !== 1 ? `素早さ ${applied}（${base}×${multText(f)}）` : `素早さ ${base}`;
+            return f !== 1 ? `素早さ${applied}（${base}×${multText(f)}）` : `素早さ${base}`;
           })(),
           raceText: e.races.join("・"),
           weakText: e.weak.join("、"),
@@ -252595,7 +254329,7 @@ window.__PREVIEW_DATA__ = {
           for (const c of covSet.derived) {
             coverageLines.push({
               covered: c.covered,
-              text: c.covered ? `対応: ${c.name}（${c.coveredBy[0]}${c.coveredBy.length > 1 ? " ほか" : ""}）` : `未対応: ${c.name}`
+              text: c.covered ? `対策済み: ${c.name}（${c.coveredBy[0]}${c.coveredBy.length > 1 ? " ほか" : ""}）` : `未対策: ${c.name}`
             });
             if (c.covered && c.greatResist.length > 0) {
               coverageLines.push({
@@ -252609,7 +254343,7 @@ window.__PREVIEW_DATA__ = {
             if (a.kind === "boss") {
               coverageLines.push({
                 covered: null,
-                text: `${a.enemyName}: カバーは攻略情報のとおりです（有効な戦術は「敵の弱点と対策」にあります）`
+                text: `${a.enemyName}: 対策は攻略情報のとおりです（有効な戦術は「敵の弱点と対策」にあります）`
               });
               continue;
             }
@@ -252622,7 +254356,7 @@ window.__PREVIEW_DATA__ = {
               } else {
                 coverageLines.push({
                   covered: line.covered,
-                  text: line.covered ? `対応: ${line.label}（${line.coveredBy[0]}${line.coveredBy.length > 1 ? " ほか" : ""}）` : `未対応: ${line.label}`
+                  text: line.covered ? `対策済み: ${line.label}（${line.coveredBy[0]}${line.coveredBy.length > 1 ? " ほか" : ""}）` : `未対策: ${line.label}`
                 });
                 if (line.resistUncovered) ailmentUncovered = true;
               }
@@ -252823,7 +254557,7 @@ window.__PREVIEW_DATA__ = {
         notes: existing ? existing.notes || "" : "",
         // チェインのテストの状態（起点のメギドIDと、外した行動の
         // キー列。保存はしない、その場の確認だけの状態）。
-        chainTest: { originId: null, skipped: [], error: null, lastActions: [] },
+        chainTest: newChainTest(),
         // Hボムプランナーの状態（保存しない、その場の確認だけ。
         // hbombSectionVm が署名で初期化する）。
         hbomb: null,
@@ -252954,31 +254688,81 @@ window.__PREVIEW_DATA__ = {
       const d = formationsData && formationsData.megidoDetails ? formationsData.megidoDetails[id] : null;
       return Boolean(b && b.specialReishou && d && d.special_reishou);
     };
+    const newChainTest = () => ({
+      originId: null,
+      skipped: [],
+      error: null,
+      lastActions: [],
+      overrides: {},
+      ignoredProb: []
+    });
+    function chainRecordOf(slot) {
+      if (!slot || !slot.megidoId || !buildCtx || !counterData || !counterData.chainData) return null;
+      const cd = counterData.chainData;
+      const rec = { start: [], relay: [], grant: [], selfChain: [], scaler: false };
+      let any = false;
+      const base = cd.megido[slot.megidoId] || null;
+      if (base) {
+        any = true;
+        for (const k of ["start", "relay", "grant", "selfChain"]) {
+          for (const w of base[k] || []) rec[k].push(w);
+        }
+        if (base.scaler) rec.scaler = true;
+      }
+      const orbRec = slot.orbId && cd.orbs ? cd.orbs[slot.orbId] : null;
+      if (orbRec) {
+        any = true;
+        for (const k of ["start", "relay", "grant", "selfChain"]) {
+          for (const w of orbRec[k] || []) rec[k].push({ ...w, via: "orb" });
+        }
+        if (orbRec.scaler) rec.scaler = true;
+      }
+      const leaderSlot = buildCtx.slots[2];
+      const leaderId = leaderSlot && leaderSlot.megidoId;
+      const meRec = leaderId && cd.me ? cd.me[leaderId] : null;
+      if (meRec) {
+        const slotIndex = buildCtx.slots.indexOf(slot);
+        const b = byId.get(slot.megidoId);
+        if (slotIndex >= 0 && b) {
+          const member = { style: b.style, className: b.class, gender: b.gender };
+          for (const w of meRec.ways || []) {
+            if (w.slot !== ME_SLOT_KEYS[slotIndex]) continue;
+            if (meConditionVerdict(w.condition, member) !== "match") continue;
+            rec.start.push({ medium: w.medium, conditions: w.conditions || [], via: "me" });
+            any = true;
+          }
+        }
+      }
+      return any ? rec : null;
+    }
     function chainPartyGrant() {
       if (!buildCtx || !counterData || !counterData.chainData) return false;
       const members = buildCtx.slots.filter((s) => s.megidoId).map((s) => ({
-        rec: counterData.chainData.megido[s.megidoId] || null,
+        rec: chainRecordOf(s),
         specialReishou: chainSpecialReishouOf(s.megidoId)
       }));
       return partyHasChainGrant(members);
     }
     function chainSectionVm(derived) {
       if (!buildCtx || !counterData || !counterData.chainData) return null;
-      const chainOf = (id) => counterData.chainData.megido[id] || null;
       const filled = buildCtx.slots.filter((s) => s.megidoId);
+      const recById = new Map(filled.map((s) => [s.megidoId, chainRecordOf(s)]));
+      const chainOf = (id) => recById.get(id) || null;
       const enemies = targetSquareEnemies();
       const grant = chainPartyGrant();
+      const test = buildCtx.chainTest || (buildCtx.chainTest = newChainTest());
       const anyEligible = filled.some((s) => chainOriginEligibility(chainOf(s.megidoId), {
         partyHasGrant: grant,
-        specialReishou: chainSpecialReishouOf(s.megidoId)
+        specialReishou: chainSpecialReishouOf(s.megidoId),
+        ignoredProb: test.ignoredProb || []
       }).ok);
       const anyRole = filled.some((s) => hasChainRole(chainOf(s.megidoId)));
       if (!anyRole && enemies.length === 0) return null;
       const interactive = anyEligible;
-      const test = buildCtx.chainTest || (buildCtx.chainTest = { originId: null, skipped: [], error: null, lastActions: [] });
       if (test.originId && !filled.some((s) => s.megidoId === test.originId)) {
         test.originId = null;
         test.skipped = [];
+        test.overrides = {};
         test.error = null;
       }
       const effCache = /* @__PURE__ */ new Map();
@@ -253010,7 +254794,9 @@ window.__PREVIEW_DATA__ = {
           chainOf,
           specialReishouOf: chainSpecialReishouOf,
           photonGuaranteeOf: (id, photonType) => photonGuaranteeInFormation(id, photonType),
-          partyGrant: grant
+          partyGrant: grant,
+          overrides: test.overrides || {},
+          ignoredProb: test.ignoredProb || []
         });
       }
       test.lastActions = sim ? sim.actions : [];
@@ -253041,9 +254827,38 @@ window.__PREVIEW_DATA__ = {
         // その行動が消費するフォトン（渡す形から特定できたもの。
         // 特定できない行動はアタックとして出す）。
         photon: a.photon || "アタック",
+        // 確率の形で渡している行動には「？」の印（タップで無視）。
+        prob: typeof a.prob === "number" ? a.prob : null,
         spdText: spdTextOf(effOf(a.id)),
         supplyText: memberSupplyText(a.id)
       })) : [];
+      const ignoredProbLines = [];
+      if (Array.isArray(test.ignoredProb)) {
+        const kept = [];
+        for (const key of test.ignoredProb) {
+          let found = null;
+          for (const s of filled) {
+            const rec = chainOf(s.megidoId);
+            if (!rec) continue;
+            for (const list of [rec.start, rec.relay, rec.grant, rec.selfChain]) {
+              const w = (list || []).find((x) => chainWayKey(x) === key);
+              if (w) {
+                found = { memberId: s.megidoId, way: w };
+                break;
+              }
+            }
+            if (found) break;
+          }
+          if (!found) continue;
+          kept.push(key);
+          const pct = (found.way.conditions || []).find((c) => c.type === "prob");
+          ignoredProbLines.push({
+            key,
+            text: `${nameOf2(found.memberId)}の${found.way.medium}（${pct ? pct.pct : ""}%の確率）`
+          });
+        }
+        if (kept.length !== test.ignoredProb.length) test.ignoredProb = kept;
+      }
       const actionNotes = [];
       if (sim) {
         sim.actions.forEach((a, i) => {
@@ -253070,6 +254885,9 @@ window.__PREVIEW_DATA__ = {
         if (sim.stopReason === "no-candidate") {
           resultLines.push("次の候補がいないため、チェインはここまでです。");
         }
+        if (sim.stopReason === "stopped" && sim.stopId) {
+          resultLines.push(`${nameOf2(sim.stopId)}の行動はチェインしない形に変えられているため、チェインはここまでです。`);
+        }
         const fixedIdx = sim.actions.findIndex((a) => a.fixed);
         if (fixedIdx > 0) {
           const a = sim.actions[fixedIdx];
@@ -253086,6 +254904,7 @@ window.__PREVIEW_DATA__ = {
         timeline: timelineRows,
         actions: actionRows,
         actionNotes,
+        ignoredProbLines,
         resultLines,
         notes,
         errorText: interactive ? test.error || null : null,
@@ -253173,9 +254992,13 @@ window.__PREVIEW_DATA__ = {
       }
       return map;
     }
-    function hbombActionParts(ctx) {
-      const a = ctx.action;
+    function hbombActionParts(ctx, field, turnHint) {
+      const a = field ? effectiveAction(field, ctx, turnHint || 0) : ctx.action;
+      if (a.buttonText) {
+        return { label: ctx.member.name, sub: a.buttonText };
+      }
       const parts = [];
+      if (typeof a.level === "number") parts.push(`Lv${a.level}`);
       if (a.place) {
         const ps = Array.isArray(a.place) ? a.place : [a.place];
         for (const pl of ps) parts.push(`${bombKindLabel(pl.kind)}${pl.mult}倍`);
@@ -253196,16 +255019,23 @@ window.__PREVIEW_DATA__ = {
       if (a.steal) parts.push("覚醒ゲージを奪う");
       if (a.setsAwakened) parts.push("覚醒状態にする");
       if (a.grantsPhoton) parts.push(`フォトン+${a.grantsPhoton}`);
+      if (a.formCondition) parts.push(a.formCondition);
+      if (a.stacks) parts.push("重複して付与される");
       return {
         label: ctx.member.name,
         sub: `${a.medium}「${a.name}」${parts.length ? ` ${parts.join("・")}` : ""}`
       };
     }
-    function hbombDebuffChips(pv) {
+    function hbombDebuffChips(pv, attachments) {
       const out = [];
       if (pv.defDownPct > 0) out.push(`防御力低下${Math.round(pv.defDownPct * 100)}%`);
       if (pv.weakActive) {
         out.push(pv.weakTypes > 0 ? `虚弱（弱体・状態異常${pv.weakTypes}種）` : "虚弱");
+      }
+      if (!out.length && attachments && attachments.length) {
+        const act = attachments.filter((a) => a.active);
+        const pool = act.length ? act : attachments;
+        out.push(`弱体・状態異常${new Set(pool.map((a) => a.label)).size}種`);
       }
       return out;
     }
@@ -253238,43 +255068,65 @@ window.__PREVIEW_DATA__ = {
       const notes = [];
       const leader = members.find((m) => m.slotIndex === 2);
       if (leader && data.me && (data.me.probNote || []).some((e) => e.leaderId === leader.id)) {
-        notes.push("マスエフェクト: 敵Hボム数に応じた確率で行動開始時アタック追加（最大20%）");
+        notes.push("マスエフェクト: 敵ハイドロボム数に応じた確率で行動開始時アタック追加（最大20%）");
       }
       for (const m of members) {
         const ctxs = memberActions(data, m);
         const bb = ctxs.length ? ctxs[0].bombBoost || 0 : 0;
         if (bb > 0) notes.push(`霊宝: ${m.name}のハイドロボムのダメージ+${Math.round(bb * 100)}%`);
       }
+      const hbombAttachmentsOf = (e) => (e.debuffs || []).map((d, di) => {
+        const turnsText = d.turns >= 99 ? "永続" : `${d.turns}ターン`;
+        if (st.mode === "turn") {
+          const active = d.appliedTurn <= st.detonateTurn && st.detonateTurn < d.appliedTurn + d.turns;
+          return {
+            ref: typeof d.hand === "number" ? d.hand : -1,
+            label: d.type === "防御力低下" ? `防御力低下${Math.round((d.pct || 0) * 100)}%` : d.type,
+            source: [d.byName, d.medium && d.actionName ? `${d.medium}「${d.actionName}」` : ""].filter(Boolean).join(" "),
+            meta: `${d.appliedTurn}ターン目に付与・${turnsText}` + (typeof d.hand === "number" ? `・${d.hand + 1}手目` : "") + (active ? "" : "・起爆時は切れています"),
+            active
+          };
+        }
+        return {
+          ref: di,
+          label: d.type === "防御力低下" ? `防御力低下${Math.round((d.pct || 0) * 100)}%` : d.type,
+          source: [d.byName, d.medium && d.actionName ? `${d.medium}「${d.actionName}」` : ""].filter(Boolean).join(" "),
+          meta: turnsText,
+          active: true
+        };
+      });
+      const hbombEnemyVms = (preview2, bombEnemies) => enemies.map((e, i) => {
+        const pv = preview2.perEnemy[i];
+        return {
+          index: i,
+          name: e.name,
+          hpText: typeof e.hp === "number" ? `HP ${fmt(e.hp)}` : "HP —",
+          barPct: typeof e.hp === "number" && e.hp > 0 ? Math.max(0, (e.hp - Math.min(pv.total, e.hp)) / e.hp * 100) : 100,
+          resultText: pv.total > 0 ? pv.kills ? "倒せる" : `あと ${fmt(pv.shortfall || 0)}` : "",
+          kills: pv.kills,
+          attachments: hbombAttachmentsOf(bombEnemies[i]),
+          debuffs: hbombDebuffChips(pv, hbombAttachmentsOf(bombEnemies[i])),
+          bombs: bombEnemies[i].bombs.map((b) => ({
+            kind: b.kind,
+            boosted: (b.boost || 0) > 0,
+            label: `${bombKindLabel(b.kind)}${Math.round(b.mult * 10) / 10}${b.kind === "ren" ? `・素材${Math.min(b.count || 0, 30)}` : ""}${(b.boost || 0) > 0 ? "↑" : ""}`
+          }))
+        };
+      });
       if (st.mode === "ren") {
         const field = st.field;
         const preview2 = previewDetonation(field);
-        const enemyVms2 = enemies.map((e, i) => {
-          const pv = preview2.perEnemy[i];
-          return {
-            index: i,
-            name: e.name,
-            hpText: typeof e.hp === "number" ? `HP ${fmt(e.hp)}` : "HP —",
-            barPct: typeof e.hp === "number" && e.hp > 0 ? Math.max(0, (e.hp - Math.min(pv.total, e.hp)) / e.hp * 100) : 100,
-            resultText: pv.total > 0 ? pv.kills ? "倒せる" : `あと ${fmt(pv.shortfall || 0)}` : "",
-            kills: pv.kills,
-            debuffs: hbombDebuffChips(pv),
-            bombs: field.enemies[i].bombs.map((b) => ({
-              kind: b.kind,
-              boosted: (b.boost || 0) > 0,
-              label: `${bombKindLabel(b.kind)}${Math.round(b.mult * 10) / 10}${b.kind === "ren" ? `・素材${Math.min(b.count || 0, 30)}` : ""}${(b.boost || 0) > 0 ? "↑" : ""}`
-            }))
-          };
-        });
+        const enemyVms2 = hbombEnemyVms(preview2, field.enemies);
         const actions2 = [];
         for (const m of members) {
           for (const actx of memberActions(data, m)) {
-            if (!actx.action.place && !actx.action.ren && !actx.action.enhance && !actx.action.debuff) continue;
-            if (!hasWeakAction && isTypesOnlyAction(actx.action)) continue;
+            if (!actionHasEffectAtAnyLevel(actx.action)) continue;
+            if (!hasWeakAction && isTypesOnlyOverall(actx.action)) continue;
             const chk = checkAction(field, actx, st.target, { secretUsed: field.secretUsed });
             actions2.push({
               memberId: m.id,
               actionKey: actx.action.key,
-              ...hbombActionParts(actx),
+              ...hbombActionParts(actx, field, 0),
               ok: chk.ok,
               reason: chk.reason
             });
@@ -253306,23 +255158,7 @@ window.__PREVIEW_DATA__ = {
       });
       const replay = replayHands(rctx, st.hands, st.detonateTurn);
       const preview = replay.preview;
-      const enemyVms = enemies.map((e, i) => {
-        const pv = preview.perEnemy[i];
-        return {
-          index: i,
-          name: e.name,
-          hpText: typeof e.hp === "number" ? `HP ${fmt(e.hp)}` : "HP —",
-          barPct: typeof e.hp === "number" && e.hp > 0 ? Math.max(0, (e.hp - Math.min(pv.total, e.hp)) / e.hp * 100) : 100,
-          resultText: pv.total > 0 ? pv.kills ? "倒せる" : `あと ${fmt(pv.shortfall || 0)}` : "",
-          kills: pv.kills,
-          debuffs: hbombDebuffChips(pv),
-          bombs: replay.field.enemies[i].bombs.map((b) => ({
-            kind: b.kind,
-            boosted: (b.boost || 0) > 0,
-            label: `${bombKindLabel(b.kind)}${Math.round(b.mult * 10) / 10}${b.kind === "ren" ? `・素材${Math.min(b.count || 0, 30)}` : ""}${(b.boost || 0) > 0 ? "↑" : ""}`
-          }))
-        };
-      });
+      const enemyVms = hbombEnemyVms(preview, replay.field.enemies);
       const steps = replay.steps.map((s, i) => ({
         index: i,
         turn: s.turn,
@@ -253334,7 +255170,7 @@ window.__PREVIEW_DATA__ = {
       const actions = [];
       for (const m of members) {
         for (const actx of memberActions(data, m)) {
-          if (!hasWeakAction && isTypesOnlyAction(actx.action)) continue;
+          if (!hasWeakAction && isTypesOnlyOverall(actx.action)) continue;
           const probe = probeHand(rctx, replay, {
             memberId: m.id,
             actionKey: actx.action.key,
@@ -253343,7 +255179,7 @@ window.__PREVIEW_DATA__ = {
           actions.push({
             memberId: m.id,
             actionKey: actx.action.key,
-            ...hbombActionParts(actx),
+            ...hbombActionParts(actx, replay.field, Math.max(1, replay.turnsUsed)),
             ok: probe.ok,
             reason: probe.reason
           });
@@ -253362,6 +255198,108 @@ window.__PREVIEW_DATA__ = {
         clockOk: !replay.clockError && replay.steps.every((s) => s.ok),
         notes
       };
+    }
+    function openChainPhotonPopup(index) {
+      if (!buildCtx || !buildCtx.chainTest) return;
+      const test = buildCtx.chainTest;
+      const action = (test.lastActions || [])[index];
+      if (!action) return;
+      const slot = buildCtx.slots.find((s) => s.megidoId === action.id);
+      const rec = slot ? chainRecordOf(slot) : null;
+      const options = chainActionOptions(rec, {
+        isOrigin: index === 0,
+        specialReishou: chainSpecialReishouOf(action.id),
+        ignoredProb: test.ignoredProb || [],
+        photonOf: (t) => photonGuaranteeInFormation(action.id, t)
+      });
+      const key = `${action.id}#${action.occ}`;
+      const ov = (test.overrides || {})[key];
+      let currentKey = null;
+      if (ov && ov.stopPhoton) currentKey = `stop:${ov.stopPhoton}`;
+      else if (ov && ov.wayKey) currentKey = ov.wayKey;
+      else if (action.way) currentKey = chainWayKey(action.way);
+      const b = byId.get(action.id);
+      const closePopup = () => {
+        overlay.close();
+        renderBuilder();
+      };
+      const content = buildChainPhotonPopup({
+        title: `${b ? b.name : action.id}${action.occ >= 2 ? `（${action.occ}回目）` : ""}の行動`,
+        note: "使う行動を選ぶと、その結果でチェインが止まるかどうかを含めて組み直します。",
+        options: options.map((o) => o.type === "way" ? {
+          key: o.key,
+          photon: o.photon || "アタック",
+          label: `${o.medium}${o.via === "me" ? "（マスエフェクト）" : o.via === "orb" ? "（オーブ）" : ""}でチェイン${o.kind === "self" ? "（自身へ）" : ""}`,
+          notes: o.notes || [],
+          prob: o.prob,
+          current: o.key === currentKey
+        } : {
+          key: o.key,
+          photon: o.photon,
+          label: `${o.photon}フォトン（チェインしない）`,
+          notes: [],
+          prob: null,
+          current: o.key === currentKey
+        })
+      }, {
+        onChoose: (optKey) => {
+          const chosen = options.find((o) => o.key === optKey);
+          if (!chosen) {
+            closePopup();
+            return;
+          }
+          test.overrides = test.overrides || {};
+          if (chosen.type === "way") test.overrides[key] = { wayKey: chosen.key };
+          else test.overrides[key] = { stopPhoton: chosen.photon };
+          (test.lastActions || []).slice(index + 1).forEach((a) => {
+            delete test.overrides[`${a.id}#${a.occ}`];
+          });
+          test.error = null;
+          closePopup();
+        },
+        onCancel: closePopup
+      });
+      overlay.openSheet(content, { onCloseRequest: closePopup });
+    }
+    function openHbombDebuffPopup(enemyIdx) {
+      if (!buildCtx || !buildCtx.hbomb) return;
+      const st = buildCtx.hbomb;
+      const vm = hbombSectionVm();
+      const e = vm && vm.enemies[enemyIdx];
+      if (!e) return;
+      const content = buildHbombDebuffPopup({
+        enemyName: e.name,
+        note: st.mode === "turn" ? "タップすると、その弱体・状態異常を付けた手を取り除きます（その手で付けたボムも一緒に外れます）。" : "タップすると、その弱体・状態異常を取り除きます。",
+        items: (e.attachments || []).map((a) => ({
+          ref: a.ref,
+          label: a.label,
+          source: a.source,
+          meta: a.meta
+        }))
+      }, {
+        onRemove: (ref) => {
+          if (st.mode === "turn") {
+            if (typeof ref === "number" && ref >= 0) {
+              st.hands = st.hands.filter((_, i) => i !== ref);
+            }
+          } else if (st.field) {
+            st.field = removeDebuff(st.field, enemyIdx, ref);
+          }
+          const next = hbombSectionVm();
+          const left = next && next.enemies[enemyIdx] ? (next.enemies[enemyIdx].attachments || []).length : 0;
+          if (left > 0) openHbombDebuffPopup(enemyIdx);
+          else {
+            overlay.close();
+            renderBuilder();
+          }
+        }
+      });
+      overlay.openSheet(content, {
+        onCloseRequest: () => {
+          overlay.close();
+          renderBuilder();
+        }
+      });
     }
     const KYOEN_RANGE_LABEL = { single: "単体", row: "列", all: "全体" };
     const KYOEN_BAND_COLORS = ["#f6ad55", "#e53e3e", "#b794f4", "#4299e1"];
@@ -253385,9 +255323,9 @@ window.__PREVIEW_DATA__ = {
       }).filter(Boolean);
     }
     function kyoenChoicesFor(data, member) {
-      const out = { enjou: [], convert: [], fire: [], ground: [], delayed: [] };
+      const out = { enjou: [], convert: [], fire: [], ground: [], delayed: [], shift: [] };
       const push = (source, action) => {
-        const uid = `${member.id}|${source}|${action.type}|${action.key}|${action.needsReishou ? "r" : "n"}`;
+        const uid = `${member.id}|${source}|${action.type}|${action.key}|${action.needsReishou ? "r" : "n"}${action.form ? `|${action.form}` : ""}`;
         out[action.type].push({
           uid,
           member,
@@ -253398,19 +255336,20 @@ window.__PREVIEW_DATA__ = {
       };
       const rec = data && data.megido ? data.megido[member.id] : null;
       if (rec) {
-        for (const type of ["enjou", "convert", "fire", "ground", "delayed"]) {
+        for (const type of ["enjou", "convert", "fire", "ground", "delayed", "shift"]) {
           const byKey = /* @__PURE__ */ new Map();
           for (const a of rec[type] || []) {
+            const k = `${a.key}|${a.form || ""}`;
             if (a.needsReishou) {
-              if (member.specialReishou) byKey.set(a.key, a);
-            } else if (!byKey.has(a.key)) byKey.set(a.key, a);
+              if (member.specialReishou) byKey.set(k, a);
+            } else if (!byKey.has(k)) byKey.set(k, a);
           }
           for (const a of byKey.values()) push("megido", a);
         }
       }
       const orb = member.orbId && data && data.orbs ? data.orbs[member.orbId] : null;
       if (orb) {
-        for (const type of ["enjou", "convert", "fire", "ground", "delayed"]) {
+        for (const type of ["enjou", "convert", "fire", "ground", "delayed", "shift"]) {
           for (const a of orb[type] || []) push("orb", a);
         }
       }
@@ -253467,7 +255406,7 @@ window.__PREVIEW_DATA__ = {
         const c = kyoenChoicesFor(data, m);
         if (c.enjou.length) hasEnjou = true;
         if (c.convert.length) hasConvert = true;
-        for (const type of ["enjou", "convert", "fire", "ground", "delayed"]) {
+        for (const type of ["enjou", "convert", "fire", "ground", "delayed", "shift"]) {
           for (const ch of c[type]) choices.set(ch.uid, ch);
         }
       }
@@ -253504,67 +255443,40 @@ window.__PREVIEW_DATA__ = {
         enemies.map((e) => [e.name, e.hp, e.def, e.slot, e.cls, e.flying])
       ]);
       if (!buildCtx.kyoen || buildCtx.kyoen.sig !== sig) {
-        buildCtx.kyoen = { sig, enjouUid: null, convertUid: null, target: 0, sim: null, lastEvent: null };
+        buildCtx.kyoen = {
+          sig,
+          enjouUid: null,
+          convertUid: null,
+          target: 0,
+          sim: null,
+          lastEvent: null,
+          setupAlloc: null,
+          // 地形決定で使う炎上の割り振り（{ uid, hits }）
+          allocPopup: null
+          // 割り振りポップアップの開いている状態
+        };
       }
       const st = buildCtx.kyoen;
       if (st.target >= enemies.length) st.target = 0;
       const fmt = (n) => n.toLocaleString("ja-JP");
       const choiceLabel = (ch) => `${ch.member.name} ${ch.action.medium}「${ch.action.name}」`;
-      const enjouChoices = [];
-      const convertChoices = [];
-      const fireChoices = [];
-      const groundChoices = [];
-      const delayedChoices = [];
-      for (const ch of choices.values()) {
-        if (ch.action.type === "delayed") {
-          const armed = Boolean(st.sim && st.sim.delayed && st.sim.delayed.uid === ch.uid);
-          let sub = "遅延行動: ターン終了時に発動（そのターンの火回数で反復）";
-          if (armed) {
-            const cnt = delayedCountNow(st.sim);
-            const reps = delayedReps(cnt, ch.action.maxReps);
-            sub = `このターンの${ch.action.countSource === "ally" ? "味方" : "自身"}の火${cnt}回 → ターン終了時に${reps}回分`;
-          }
-          delayedChoices.push({ uid: ch.uid, label: choiceLabel(ch), sub, on: armed });
-        } else if (ch.action.type === "enjou") {
-          enjouChoices.push({
-            uid: ch.uid,
-            label: choiceLabel(ch),
-            sub: `倍率${ch.action.mult}・${ch.action.duration}ターン・${KYOEN_RANGE_LABEL[ch.action.range]}`,
-            on: st.enjouUid === ch.uid
-          });
-        } else if (ch.action.type === "convert") {
-          convertChoices.push({
-            uid: ch.uid,
-            label: choiceLabel(ch),
-            sub: ch.action.extend ? `地形を${ch.action.extend}ターン延長` : "",
-            on: st.convertUid === ch.uid
-          });
-        } else if (ch.action.type === "ground") {
-          groundChoices.push({
-            uid: ch.uid,
-            label: choiceLabel(ch),
-            sub: `撃墜${ch.action.turns}ターン・飛行の敵を地形の対象にする`
-          });
-        } else if (ch.action.reserve) {
-          fireChoices.push({
-            uid: ch.uid,
-            label: choiceLabel(ch),
-            sub: `リザーブ: ターン終了時に火${ch.fireHits}回・${ch.action.reserve.turns}ターン続く`
-          });
-        } else if (ch.action.shoui) {
-          fireChoices.push({
-            uid: ch.uid,
-            label: choiceLabel(ch),
-            sub: "火1回（フォトン1個分）・単体"
-          });
-        } else {
-          fireChoices.push({
-            uid: ch.uid,
-            label: choiceLabel(ch),
-            sub: `火${ch.fireHits}回・${KYOEN_RANGE_LABEL[ch.action.range]}${ch.action.terrainBonus ? "・地形のある敵に特効" : ""}${ch.action.extend ? `・地形を${ch.action.extend}ターン延長` : ""}`
-          });
+      const levelOfChoice = (ch) => ch.action.levels && st.sim ? actionLevel(st.sim, ch.uid) : 1;
+      const resolvedChoice = (ch) => ch.action.levels ? leveledAction(ch.action, levelOfChoice(ch)) : ch.action;
+      const formOfMember = (m) => st.sim ? formOf(st.sim, m.id) : "separated";
+      const formFits = (ch) => !ch.action.form || ch.action.form === formOfMember(ch.member);
+      const formDecorate = (ch, sub, fireMult) => {
+        if (!ch.action.form) return sub;
+        let s = sub || "";
+        const add = (t) => {
+          s = s ? `${s}・${t}` : t;
+        };
+        if (typeof fireMult === "number") add(`倍率${fireMult}`);
+        add(ch.action.form === "linked" ? "連結武器時" : "分離武器時");
+        if (ch.action.shiftTo) {
+          add(ch.action.shiftTo === "linked" ? "使うと連結武器にシフト" : "使うと分離武器にシフト");
         }
-      }
+        return s;
+      };
       if (st.enjouUid && st.convertUid && !st.sim) {
         const en = choices.get(st.enjouUid);
         const cv = choices.get(st.convertUid);
@@ -253594,13 +255506,115 @@ window.__PREVIEW_DATA__ = {
             covered,
             inRange
           });
-          applySetupAction(sim2, engineAction(en), st.target);
+          const enSetup = engineAction(en);
+          if (en.action.bullet) enSetup.dmgMult = en.action.bullet.dmgMult;
+          if (en.action.allocMax !== void 0 && st.setupAlloc && st.setupAlloc.uid === en.uid) {
+            for (const [idxText, hits] of Object.entries(st.setupAlloc.hits)) {
+              if (hits > 0) applySetupAction(sim2, { ...enSetup, hits }, Number(idxText));
+            }
+          } else {
+            applySetupAction(sim2, enSetup, st.target);
+          }
           applySetupAction(sim2, engineAction(cv), st.target);
           if (cv.action.extend) {
             for (const e of sim2.enemies) if (e.covered) e.remaining += cv.action.extend;
           }
+          for (const ch of [en, cv]) {
+            if (ch.action.levels) {
+              bumpLevel(sim2, ch.uid, Math.max(...ch.action.levels.map((e) => e.lv)));
+            }
+          }
+          for (const ch of [en, cv]) {
+            if (ch.action.shiftTo) applyShift(sim2, ch.member.id, ch.action.shiftTo);
+          }
           st.sim = sim2;
           st.setupSummary = `${en.member.name}の炎上（倍率${en.action.mult}・${KYOEN_RANGE_LABEL[en.action.range]}）を${cv.member.name}が狂炎化`;
+        }
+      }
+      const enjouChoices = [];
+      const convertChoices = [];
+      const fireChoices = [];
+      const groundChoices = [];
+      const delayedChoices = [];
+      const shiftChoices = [];
+      for (const ch of choices.values()) {
+        if (!formFits(ch)) continue;
+        if (ch.action.type === "shift") {
+          const shifted = Boolean(st.sim && skillShifted(st.sim, ch.member.id));
+          shiftChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: shifted ? "シフト済み: スキルは火ではなくなった" : "使うとスキルがシフトする（シフト後は火ではなくなる）",
+            on: shifted
+          });
+        } else if (ch.action.type === "delayed") {
+          const armed = Boolean(st.sim && st.sim.delayed && st.sim.delayed.uid === ch.uid);
+          let sub = "遅延行動: 次のターンの開始時に発動（直前ターンの火回数で反復）";
+          if (armed) {
+            const cnt = delayedCountNow(st.sim);
+            const reps = delayedReps(cnt, ch.action.maxReps);
+            sub = `このターンの${ch.action.countSource === "ally" ? "味方" : "自身"}の火${cnt}回 → 次のターン開始時に${reps}回分`;
+          }
+          delayedChoices.push({ uid: ch.uid, label: choiceLabel(ch), sub, on: armed });
+        } else if (ch.action.type === "enjou") {
+          const ra = resolvedChoice(ch);
+          let sub = ch.action.levels ? `Lv${ra.lv} 倍率${ra.mult}・${ra.duration}ターン・${KYOEN_RANGE_LABEL[ra.range]}（使うたびにLvアップ）` : `倍率${ch.action.mult}・${ch.action.duration}ターン・${KYOEN_RANGE_LABEL[ch.action.range]}`;
+          if (ra.allocMax !== void 0) sub += "・使う時に火の割り振り";
+          if (ch.action.bullet) sub += "・地形決定はバレット消費形";
+          enjouChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: formDecorate(ch, sub),
+            on: st.enjouUid === ch.uid
+          });
+        } else if (ch.action.type === "convert") {
+          convertChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: formDecorate(ch, ch.action.extend ? `地形を${ch.action.extend}ターン延長` : ""),
+            on: st.convertUid === ch.uid
+          });
+        } else if (ch.action.type === "ground") {
+          groundChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: `撃墜${ch.action.turns}ターン・飛行の敵を地形の対象にする`
+          });
+        } else if (ch.action.shiftAfterText && st.sim && skillShifted(st.sim, ch.member.id)) {
+          fireChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: `シフト後: ${ch.action.shiftAfterText}`,
+            disabled: true
+          });
+        } else if (ch.action.reserve) {
+          fireChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: formDecorate(ch, `リザーブ: ターン終了時に火${ch.fireHits}回・${ch.action.reserve.turns}ターン続く`, ch.action.dmgMult)
+          });
+        } else if (ch.action.shoui) {
+          fireChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: "火1回（フォトン1個分）・単体"
+          });
+        } else if (ch.action.levels) {
+          const ra = resolvedChoice(ch);
+          fireChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: formDecorate(ch, `火${ra.hits}回・${KYOEN_RANGE_LABEL[ra.range]}${ra.terrainBonus ? "・地形のある敵に特効" : ""}${ra.extend ? `・地形を${ra.extend}ターン延長` : ""}・Lv${ra.lv} 倍率${ra.dmgMult}（使うたびにLvアップ）`)
+          });
+        } else {
+          let sub = `火${ch.fireHits}回・${KYOEN_RANGE_LABEL[ch.action.range]}${ch.action.terrainBonus ? "・地形のある敵に特効" : ""}${ch.action.extend ? `・地形を${ch.action.extend}ターン延長` : ""}`;
+          if (ch.action.counter) sub += "・反撃（タップで相手を選ぶ）";
+          if (ch.action.allocMax !== void 0) sub += `・タップで割り振り（合計${ch.action.allocMax}回）`;
+          fireChoices.push({
+            uid: ch.uid,
+            label: choiceLabel(ch),
+            sub: formDecorate(ch, sub, ch.action.dmgMult)
+          });
         }
       }
       const sim = st.sim;
@@ -253635,10 +255649,10 @@ window.__PREVIEW_DATA__ = {
         }
         let subText;
         if (se.dead) subText = `倒した（ターン${se.killTurn}）`;
-        else if (e.flying && se.shot > 0 && se.covered) subText = `撃墜中（あと${se.shot}ターン）・火${se.count}回・地形 残り${se.remaining}T・次 ${fmt(nextTerrainDamage(sim, i))}`;
+        else if (e.flying && se.shot > 0 && se.covered) subText = `撃墜中（あと${se.shot}ターン）・火${se.count}回・地形 あと${se.remaining}ターン・次 ${fmt(nextTerrainDamage(sim, i))}`;
         else if (e.flying && se.shot > 0) subText = `撃墜中（あと${se.shot}ターン）・地形の範囲外`;
         else if (e.flying) subText = "飛行: 地形が効かない";
-        else if (se.covered) subText = `火${se.count}回・地形 残り${se.remaining}T・次 ${fmt(nextTerrainDamage(sim, i))}`;
+        else if (se.covered) subText = `火${se.count}回・地形 あと${se.remaining}ターン・次 ${fmt(nextTerrainDamage(sim, i))}`;
         else subText = "地形の範囲外";
         return {
           index: i,
@@ -253660,6 +255674,7 @@ window.__PREVIEW_DATA__ = {
         fireChoices,
         groundChoices,
         delayedChoices,
+        shiftChoices,
         relayChoices: sim ? enjouChoices : [],
         eventText: sim ? st.lastEvent || "" : "",
         reserveText: sim && sim.reserves && sim.reserves.length ? sim.reserves.map((r) => `リザーブ: ${r.label}（あと${r.turnsLeft}ターン・ターン終了時に発動）`).join("／") : "",
@@ -253668,6 +255683,204 @@ window.__PREVIEW_DATA__ = {
         canEndTurn: Boolean(sim) && sim.enemies.some((e) => !e.dead),
         canUndo: Boolean(sim) && sim.history.length > 0
       };
+    }
+    function openKyoenAllocPopup(mode, uid) {
+      if (!buildCtx || !buildCtx.kyoen) return;
+      const ctx = kyoenContext();
+      const ch = ctx ? ctx.choices.get(uid) : null;
+      if (!ch || ch.action.allocMax === void 0) return;
+      const ra = ch.action.levels && buildCtx.kyoen.sim ? leveledAction(ch.action, actionLevel(buildCtx.kyoen.sim, uid)) : ch.action;
+      buildCtx.kyoen.allocPopup = { mode, uid, total: ra.allocMin, hits: {} };
+      renderKyoenAllocPopup();
+    }
+    function renderKyoenAllocPopup() {
+      const st = buildCtx && buildCtx.kyoen;
+      const pop = st && st.allocPopup;
+      if (!pop) return;
+      const ctx = kyoenContext();
+      const ch = ctx ? ctx.choices.get(pop.uid) : null;
+      if (!ch) {
+        st.allocPopup = null;
+        overlay.close();
+        return;
+      }
+      const ra = ch.action.levels && st.sim ? leveledAction(ch.action, actionLevel(st.sim, pop.uid)) : ch.action;
+      const sim = st.sim;
+      const sum = Object.values(pop.hits).reduce((s, n) => s + n, 0);
+      const fmt = (n) => n.toLocaleString("ja-JP");
+      const rows = ctx.enemies.map((e, i) => {
+        const se = sim ? sim.enemies[i] : null;
+        const count = pop.hits[i] || 0;
+        const bonus = pop.mode === "fire" && se && se.covered && ra.terrainBonus ? ra.terrainBonus : 1;
+        const per = ra.dmgMult > 0 ? directHitDamage({
+          atk: ch.member.atk,
+          mult: ra.dmgMult,
+          def: se ? se.def : e.def,
+          attackerClass: ch.member.className,
+          targetRow: rowOfEnemy2(se || e),
+          terrainBonus: bonus
+        }) : 0;
+        return {
+          index: i,
+          name: e.name,
+          hpText: se ? `HP ${fmt(se.hpNow)} / ${fmt(se.maxHp)}` : `HP ${fmt(e.hp)}`,
+          count,
+          dead: se ? se.dead : false,
+          dmgText: count > 0 && per > 0 ? `${count}回で約${fmt(per * count)}ダメージ` : "",
+          canMinus: count > 0,
+          canPlus: !(se && se.dead) && sum < pop.total
+        };
+      });
+      const closePopup = () => {
+        st.allocPopup = null;
+        overlay.close();
+        renderBuilder();
+      };
+      const content = buildKyoenAllocPopup({
+        title: `${ch.member.name} ${ch.action.medium}「${ch.action.name}」の割り振り`,
+        note: pop.mode === "setup" ? "対象がランダムなため、実際に当たった回数を敵ごとに割り振ってください。地形そのものは、選んでいる対象に付きます。" : "対象がランダムなため、実際に当たった回数を敵ごとに割り振ってください。",
+        total: pop.total,
+        minTotal: ra.allocMin,
+        maxTotal: ra.allocMax,
+        canEditTotal: ra.allocMin < ra.allocMax,
+        sum,
+        rows,
+        canConfirm: sum === pop.total
+      }, {
+        onTotal: (delta) => {
+          pop.total = Math.min(ra.allocMax, Math.max(ra.allocMin, pop.total + delta));
+          let s = Object.values(pop.hits).reduce((a, n) => a + n, 0);
+          while (s > pop.total) {
+            for (const k of Object.keys(pop.hits).map(Number).sort((a, b) => b - a)) {
+              if (s <= pop.total) break;
+              if (pop.hits[k] > 0) {
+                pop.hits[k] -= 1;
+                s -= 1;
+              }
+            }
+          }
+          renderKyoenAllocPopup();
+        },
+        onStep: (index, delta) => {
+          const next = (pop.hits[index] || 0) + delta;
+          if (next < 0) return;
+          if (delta > 0 && sum >= pop.total) return;
+          if (next === 0) delete pop.hits[index];
+          else pop.hits[index] = next;
+          renderKyoenAllocPopup();
+        },
+        onConfirm: () => confirmKyoenAlloc(),
+        onCancel: closePopup
+      });
+      overlay.openSheet(content, { onCloseRequest: closePopup });
+    }
+    function confirmKyoenAlloc() {
+      const st = buildCtx && buildCtx.kyoen;
+      const pop = st && st.allocPopup;
+      if (!pop) return;
+      const ctx = kyoenContext();
+      const ch = ctx ? ctx.choices.get(pop.uid) : null;
+      const { mode, hits } = pop;
+      st.allocPopup = null;
+      overlay.close();
+      if (!ch) {
+        renderBuilder();
+        return;
+      }
+      if (mode === "setup") {
+        st.enjouUid = pop.uid;
+        st.setupAlloc = { uid: pop.uid, hits };
+        st.sim = null;
+        renderBuilder();
+        return;
+      }
+      const sim = st.sim;
+      if (!sim) {
+        renderBuilder();
+        return;
+      }
+      if (ch.action.form && ch.action.form !== formOf(sim, ch.member.id)) {
+        renderBuilder();
+        return;
+      }
+      const ra = useLeveledAction(sim, { ...ch.action, levelKey: pop.uid });
+      if (mode === "relay") {
+        const res = applyOverwrite(sim, {
+          range: ra.range,
+          mult: ra.mult,
+          duration: ra.duration,
+          dmgMult: ra.dmgMult,
+          dmgHits: ra.dmgHits || 0,
+          atk: ch.member.atk,
+          attackerClass: ch.member.className
+        }, st.target, { hitsByEnemy: hits });
+        st.lastEvent = res.overwritten ? `敷き直し: 上書きした（${res.reason}）。倍率${ra.mult}・持続${ra.duration}ターンになった` : `敷き直し: 上書きしなかった（${res.reason}）`;
+        if (ra.shiftTo) applyShift(sim, ch.member.id, ra.shiftTo);
+      } else {
+        for (const [idxText, h] of Object.entries(hits)) {
+          if (!(h > 0)) continue;
+          applyFireAction(sim, {
+            range: "single",
+            hits: h,
+            dmgMult: ra.dmgMult,
+            atk: ch.member.atk,
+            attackerClass: ch.member.className,
+            terrainBonus: ra.terrainBonus || 1,
+            extend: ra.extend || 0,
+            actorId: ch.member.id
+          }, Number(idxText));
+        }
+        if (ra.shiftTo) applyShift(sim, ch.member.id, ra.shiftTo);
+      }
+      renderBuilder();
+    }
+    function openKyoenCounterPopup(uid) {
+      if (!buildCtx || !buildCtx.kyoen || !buildCtx.kyoen.sim) return;
+      const st = buildCtx.kyoen;
+      const ctx = kyoenContext();
+      const ch = ctx ? ctx.choices.get(uid) : null;
+      if (!ch) return;
+      const sim = st.sim;
+      const fmt = (n) => n.toLocaleString("ja-JP");
+      const items = sim.enemies.map((se, i) => se.dead ? null : {
+        index: i,
+        name: se.name,
+        hpText: `HP ${fmt(se.hpNow)} / ${fmt(se.maxHp)}`
+      }).filter(Boolean);
+      const content = buildKyoenCounterPopup({
+        title: `${ch.member.name} ${ch.action.medium}「${ch.action.name}」`,
+        note: "反撃した相手（攻撃してきた敵）を選んでください。その敵に火回数が入ります。",
+        items
+      }, {
+        onPick: (index) => {
+          overlay.close();
+          const ra = useLeveledAction(sim, { ...ch.action, levelKey: uid });
+          const hits = ra.hits !== void 0 ? ra.hits : ch.fireHits;
+          applyFireAction(sim, {
+            range: "single",
+            hits,
+            dmgMult: ra.dmgMult,
+            atk: ch.member.atk,
+            attackerClass: ch.member.className,
+            terrainBonus: ra.terrainBonus || 1,
+            extend: ra.extend || 0,
+            actorId: ch.member.id
+          }, index);
+          if (ra.shiftTo) applyShift(sim, ch.member.id, ra.shiftTo);
+          st.lastEvent = `反撃: ${sim.enemies[index].name}に火${hits}回`;
+          renderBuilder();
+        },
+        onCancel: () => {
+          overlay.close();
+          renderBuilder();
+        }
+      });
+      overlay.openSheet(content, {
+        onCloseRequest: () => {
+          overlay.close();
+          renderBuilder();
+        }
+      });
     }
     function meHintsVm() {
       const none = [null, null, null, null, null];
@@ -253856,6 +256069,15 @@ window.__PREVIEW_DATA__ = {
       };
       renderReishouPicker();
     }
+    function spdRelText(spdCmp, v) {
+      if (!spdCmp || typeof v !== "number") return "";
+      if (v > spdCmp.fastestSpd) return "（敵最速より速い）";
+      if (v === spdCmp.fastestSpd) return "（敵最速と同速）";
+      return "（敵最速より遅い）";
+    }
+    function spdSwapText(verb, value, spdCmp) {
+      return value === null ? null : `${verb}素早さ${value}${spdRelText(spdCmp, value)}`;
+    }
     function renderReishouPicker() {
       if (!reishouPickCtx) return;
       const member = byId.get(reishouPickCtx.megidoId);
@@ -253882,12 +256104,6 @@ window.__PREVIEW_DATA__ = {
         allies: [{ name: member.name, spd: currentSpd }],
         enemies: targetSquareEnemies()
       }) : null;
-      const relText = (v) => {
-        if (!spdCmp || typeof v !== "number") return "";
-        if (v > spdCmp.fastestSpd) return "（敵最速より速い）";
-        if (v === spdCmp.fastestSpd) return "（敵最速と同速）";
-        return "（敵最速より遅い）";
-      };
       const reishouHasSpdCorr = (rid) => {
         if (!rid) return false;
         const rec = reishouById ? reishouById.get(rid) : null;
@@ -253933,7 +256149,7 @@ window.__PREVIEW_DATA__ = {
           name: r.name,
           meta: meta2,
           slotIndexes,
-          spdAfterText: after === null ? null : `付けると素早さ${after}${relText(after)}`,
+          spdAfterText: spdSwapText("付けると", after, spdCmp),
           spdAfterDir: after === null ? null : spdDirOf(after, currentSpd)
         };
       });
@@ -253962,7 +256178,7 @@ window.__PREVIEW_DATA__ = {
         rows,
         shownCount: rows.length,
         totalCount: equippable.length,
-        clearSpdAfterText: clearAfter === null ? null : `外すと素早さ${clearAfter}${relText(clearAfter)}`,
+        clearSpdAfterText: spdSwapText("外すと", clearAfter, spdCmp),
         clearSpdAfterDir: clearAfter === null ? null : spdDirOf(clearAfter, currentSpd)
       };
       const { top, content, searchInput, bottom } = buildReishouPicker(vm, reishouPickerCallbacks);
@@ -254089,6 +256305,10 @@ window.__PREVIEW_DATA__ = {
         const m = s.megidoId ? byId.get(s.megidoId) : null;
         return m ? { style: m.style, className: m.class } : null;
       });
+      const leftHolderCount = buildCtx.slots.reduce((n, s) => {
+        const h = s.megidoId ? byHolderId.get(s.megidoId) : null;
+        return n + (h && h.target === "left" ? 1 : 0);
+      }, 0);
       const rows = [];
       for (const s of buildCtx.slots) {
         if (!s.megidoId) continue;
@@ -254111,6 +256331,7 @@ window.__PREVIEW_DATA__ = {
           targetLabel: h.targetLabel,
           slotsLabel: posLabel(h.slots || []),
           line,
+          targetNote: h.targetNote && leftHolderCount >= 2 ? h.targetNote : "",
           effect: h.effect || ""
         });
       }
@@ -254478,12 +256699,6 @@ window.__PREVIEW_DATA__ = {
         allies: [{ name: member.name, spd: memberSpdR.value }],
         enemies: spdEnemies
       }) : null;
-      const relText = (v) => {
-        if (!spdCmp || typeof v !== "number") return "";
-        if (v > spdCmp.fastestSpd) return "（敵最速より速い）";
-        if (v === spdCmp.fastestSpd) return "（敵最速と同速）";
-        return "（敵最速より遅い）";
-      };
       const spdAfterOf = (orbId) => {
         const rec = orbId && counterData && counterData.speedCorr ? counterData.speedCorr.orbs[orbId] : null;
         if (!rec || !rec.pctMax) return null;
@@ -254531,7 +256746,7 @@ window.__PREVIEW_DATA__ = {
             erekiOrbLine || ""
           ].filter(Boolean),
           isCurrent,
-          spdAfterText: after === null ? null : `付けると素早さ${after}${relText(after)}`,
+          spdAfterText: spdSwapText("付けると", after, spdCmp),
           spdAfterDir: after === null ? null : spdDirOf(after, memberSpdR ? memberSpdR.value : null)
         };
       });
@@ -254565,10 +256780,10 @@ window.__PREVIEW_DATA__ = {
             name: e.name,
             spdText: typeof e.baseSpd === "number" && e.mult !== 1 ? `素早さ${e.spd}（${e.baseSpd}×${multText(e.mult)}）` : `素早さ${e.spd}`
           })),
-          fastestText: `敵最速: ${spdCmp.fastestName}（素早さ${spdCmp.fastestSpd}）`,
+          fastestText: enemyFastestText(spdCmp),
           verdictText: memberSpdR.value > spdCmp.fastestSpd ? "敵最速より速い" : memberSpdR.value === spdCmp.fastestSpd ? "敵最速と同速" : "敵最速より遅い"
         } : null,
-        noneSpdAfterText: spdWithoutOrb === null ? null : `外すと素早さ${spdWithoutOrb}${relText(spdWithoutOrb)}`,
+        noneSpdAfterText: spdSwapText("外すと", spdWithoutOrb, spdCmp),
         noneSpdAfterDir: spdWithoutOrb === null ? null : spdDirOf(spdWithoutOrb, memberSpdR ? memberSpdR.value : null)
       };
       const { top, content, searchInput } = buildOrbPicker(vm, orbPickerCallbacks);
@@ -254721,19 +256936,25 @@ window.__PREVIEW_DATA__ = {
           renderFormationList();
         }
       },
-      // チェインのテスト（2026-11-19）: タイムテーブルの味方タップ
-      // で起点を決め、チェインテーブルの行動タップでその回を外す。
-      // 状態は保存しない。起点になれない味方は、理由を区画に出す。
+      // チェインのテスト（2026-11-19、2026-11-20 手組み追加）:
+      // タイムテーブルの味方タップで起点を決める。チェインテーブル
+      // の行動は、フォトンのタップで行動を変え（ポップアップ）、
+      // ×ボタンでその回を外す。確率の形には「？」の印が付き、
+      // タップで無視（×）にできる。状態は保存しない。起点に
+      // なれない味方は、理由を区画に出す。
       onChainOrigin: (id) => {
         if (!buildCtx || !counterData || !counterData.chainData) return;
-        const test = buildCtx.chainTest || (buildCtx.chainTest = { originId: null, skipped: [], error: null, lastActions: [] });
-        const elig = chainOriginEligibility(counterData.chainData.megido[id] || null, {
+        const test = buildCtx.chainTest || (buildCtx.chainTest = newChainTest());
+        const slot = buildCtx.slots.find((s) => s.megidoId === id);
+        const elig = chainOriginEligibility(slot ? chainRecordOf(slot) : null, {
           partyHasGrant: chainPartyGrant(),
-          specialReishou: chainSpecialReishouOf(id)
+          specialReishou: chainSpecialReishouOf(id),
+          ignoredProb: test.ignoredProb || []
         });
         if (elig.ok) {
           test.originId = id;
           test.skipped = [];
+          test.overrides = {};
           test.error = null;
         } else {
           const b = byId.get(id);
@@ -254741,7 +256962,7 @@ window.__PREVIEW_DATA__ = {
         }
         renderBuilder();
       },
-      onChainActionTap: (index) => {
+      onChainRemove: (index) => {
         if (!buildCtx || !buildCtx.chainTest) return;
         const test = buildCtx.chainTest;
         const action = (test.lastActions || [])[index];
@@ -254749,6 +256970,7 @@ window.__PREVIEW_DATA__ = {
         if (index === 0) {
           test.originId = null;
           test.skipped = [];
+          test.overrides = {};
           test.error = null;
           renderBuilder();
           return;
@@ -254756,6 +256978,31 @@ window.__PREVIEW_DATA__ = {
         if (action.fixed) return;
         const key = `${action.id}#${action.occ}`;
         if (!test.skipped.includes(key)) test.skipped.push(key);
+        for (const k of Object.keys(test.overrides || {})) {
+          if (k.startsWith(`${action.id}#`)) delete test.overrides[k];
+        }
+        test.error = null;
+        renderBuilder();
+      },
+      onChainPhotonTap: (index) => {
+        openChainPhotonPopup(index);
+      },
+      onChainProbToggle: (index) => {
+        if (!buildCtx || !buildCtx.chainTest) return;
+        const test = buildCtx.chainTest;
+        const action = (test.lastActions || [])[index];
+        if (!action || !action.way) return;
+        const key = chainWayKey(action.way);
+        if (!(test.ignoredProb || []).includes(key)) {
+          test.ignoredProb = [...test.ignoredProb || [], key];
+        }
+        test.error = null;
+        renderBuilder();
+      },
+      onChainProbRestore: (key) => {
+        if (!buildCtx || !buildCtx.chainTest) return;
+        const test = buildCtx.chainTest;
+        test.ignoredProb = (test.ignoredProb || []).filter((k) => k !== key);
         test.error = null;
         renderBuilder();
       },
@@ -254763,6 +257010,8 @@ window.__PREVIEW_DATA__ = {
         if (!buildCtx || !buildCtx.chainTest) return;
         buildCtx.chainTest.originId = null;
         buildCtx.chainTest.skipped = [];
+        buildCtx.chainTest.overrides = {};
+        buildCtx.chainTest.ignoredProb = [];
         buildCtx.chainTest.error = null;
         renderBuilder();
       },
@@ -254792,6 +257041,9 @@ window.__PREVIEW_DATA__ = {
         if (!buildCtx || !buildCtx.hbomb || !buildCtx.hbomb.field) return;
         buildCtx.hbomb.field = removeBomb(buildCtx.hbomb.field, enemyIdx, bombIdx);
         renderBuilder();
+      },
+      onHbombDebuffs: (enemyIdx) => {
+        openHbombDebuffPopup(enemyIdx);
       },
       onHbombAddHand: (memberId, actionKey) => {
         if (!buildCtx || !buildCtx.hbomb) return;
@@ -254846,7 +257098,14 @@ window.__PREVIEW_DATA__ = {
       },
       onKyoenEnjou: (uid) => {
         if (!buildCtx || !buildCtx.kyoen) return;
+        const ctx = kyoenContext();
+        const ch = ctx ? ctx.choices.get(uid) : null;
+        if (ch && ch.action.allocMax !== void 0) {
+          openKyoenAllocPopup("setup", uid);
+          return;
+        }
         buildCtx.kyoen.enjouUid = uid;
+        buildCtx.kyoen.setupAlloc = null;
         buildCtx.kyoen.sim = null;
         renderBuilder();
       },
@@ -254862,14 +257121,25 @@ window.__PREVIEW_DATA__ = {
         if (!ctx) return;
         const ch = ctx.choices.get(uid);
         if (!ch) return;
+        if (ch.action.form && ch.action.form !== formOf(buildCtx.kyoen.sim, ch.member.id)) return;
+        if (ch.action.shiftAfterText && skillShifted(buildCtx.kyoen.sim, ch.member.id)) return;
+        if (ch.action.counter) {
+          openKyoenCounterPopup(uid);
+          return;
+        }
+        if (ch.action.allocMax !== void 0) {
+          openKyoenAllocPopup("fire", uid);
+          return;
+        }
+        const ra = useLeveledAction(buildCtx.kyoen.sim, { ...ch.action, levelKey: uid });
         const engineAction = {
-          range: ch.action.range,
-          hits: ch.fireHits,
-          dmgMult: ch.action.dmgMult,
+          range: ra.range,
+          hits: ra.hits !== void 0 ? ra.hits : ch.fireHits,
+          dmgMult: ra.dmgMult,
           atk: ch.member.atk,
           attackerClass: ch.member.className,
-          terrainBonus: ch.action.terrainBonus || 1,
-          extend: ch.action.extend || 0,
+          terrainBonus: ra.terrainBonus || 1,
+          extend: ra.extend || 0,
           // 遅延行動の反復回数の材料として、誰の火かを持たせる。
           actorId: ch.member.id
         };
@@ -254884,6 +257154,7 @@ window.__PREVIEW_DATA__ = {
         } else {
           applyFireAction(buildCtx.kyoen.sim, engineAction, buildCtx.kyoen.target);
         }
+        if (ra.shiftTo) applyShift(buildCtx.kyoen.sim, ch.member.id, ra.shiftTo);
         renderBuilder();
       },
       onKyoenRelay: (uid) => {
@@ -254892,16 +257163,23 @@ window.__PREVIEW_DATA__ = {
         if (!ctx) return;
         const ch = ctx.choices.get(uid);
         if (!ch || ch.action.type !== "enjou") return;
+        if (ch.action.form && ch.action.form !== formOf(buildCtx.kyoen.sim, ch.member.id)) return;
+        if (ch.action.allocMax !== void 0) {
+          openKyoenAllocPopup("relay", uid);
+          return;
+        }
+        const ra = useLeveledAction(buildCtx.kyoen.sim, { ...ch.action, levelKey: uid });
         const res = applyOverwrite(buildCtx.kyoen.sim, {
-          range: ch.action.range,
-          mult: ch.action.mult,
-          duration: ch.action.duration,
-          dmgMult: ch.action.dmgMult,
-          dmgHits: ch.action.dmgHits || 0,
+          range: ra.range,
+          mult: ra.mult,
+          duration: ra.duration,
+          dmgMult: ra.dmgMult,
+          dmgHits: ra.dmgHits || 0,
           atk: ch.member.atk,
           attackerClass: ch.member.className
         }, buildCtx.kyoen.target);
-        buildCtx.kyoen.lastEvent = res.overwritten ? `敷き直し: 上書きした（${res.reason}）。倍率${ch.action.mult}・持続${ch.action.duration}ターンになった` : `敷き直し: 上書きしなかった（${res.reason}）`;
+        buildCtx.kyoen.lastEvent = res.overwritten ? `敷き直し: 上書きした（${res.reason}）。倍率${ra.mult}・持続${ra.duration}ターンになった` : `敷き直し: 上書きしなかった（${res.reason}）`;
+        if (ra.shiftTo) applyShift(buildCtx.kyoen.sim, ch.member.id, ra.shiftTo);
         renderBuilder();
       },
       onKyoenGround: (uid) => {
@@ -254947,13 +257225,35 @@ window.__PREVIEW_DATA__ = {
             countSource: ch.action.countSource,
             maxReps: ch.action.maxReps
           });
-          buildCtx.kyoen.lastEvent = `遅延行動: ${ch.action.name}を予約（ターン終了時に発動）`;
+          buildCtx.kyoen.lastEvent = `遅延行動: ${ch.action.name}を予約（次のターンの開始時に発動）`;
         }
+        renderBuilder();
+      },
+      // スキルのシフト（バティンBの覚醒スキル）: 使うとその
+      // メンバーのスキルがシフト後の形に切り替わり、火として
+      // 使えなくなる。シフトはターン巻き戻しで戻る。
+      onKyoenShift: (uid) => {
+        if (!buildCtx || !buildCtx.kyoen || !buildCtx.kyoen.sim) return;
+        const ctx = kyoenContext();
+        if (!ctx) return;
+        const ch = ctx.choices.get(uid);
+        if (!ch || ch.action.type !== "shift") return;
+        const sim = buildCtx.kyoen.sim;
+        if (skillShifted(sim, ch.member.id)) return;
+        applySkillShift(sim, ch.member.id);
+        buildCtx.kyoen.lastEvent = `シフト: ${ch.member.name}のスキルがシフトした（火ではなくなった）`;
         renderBuilder();
       },
       onKyoenEndTurn: () => {
         if (!buildCtx || !buildCtx.kyoen || !buildCtx.kyoen.sim) return;
-        endTurn(buildCtx.kyoen.sim);
+        const sim = buildCtx.kyoen.sim;
+        endTurn(sim);
+        if (sim.delayedReport) {
+          const rep = sim.delayedReport;
+          const targetName = sim.enemies[rep.targetIdx] ? sim.enemies[rep.targetIdx].name : "";
+          buildCtx.kyoen.lastEvent = `遅延行動: ${rep.label}が発動（${targetName}に${rep.reps}回分）`;
+          sim.delayedReport = null;
+        }
         renderBuilder();
       },
       onKyoenUndo: () => {
@@ -254967,6 +257267,8 @@ window.__PREVIEW_DATA__ = {
         buildCtx.kyoen.convertUid = null;
         buildCtx.kyoen.sim = null;
         buildCtx.kyoen.lastEvent = null;
+        buildCtx.kyoen.setupAlloc = null;
+        buildCtx.kyoen.allocPopup = null;
         renderBuilder();
       }
     };
@@ -255332,7 +257634,7 @@ window.__PREVIEW_DATA__ = {
         const randomRec2 = nextRec.find((r) => r.style === "RANDOM");
         const falling = entries.filter((e) => e.stage >= 4).length;
         const headParts = [];
-        headParts.push(rec ? `次の回復（${STYLE_NAME[code]}固定）: ${rec.nextFloor}F（残り${rec.remaining}回${rec.isLast ? "・次が最後" : ""}）` : `次の回復（${STYLE_NAME[code]}固定）: この先なし`);
+        headParts.push(rec ? `次の回復（${STYLE_NAME[code]}固定）: ${rec.nextFloor}F${recoveryRemainingText(rec.remaining, rec.isLast)}` : `次の回復（${STYLE_NAME[code]}固定）: この先なし`);
         if (randomRec2) headParts.push(`ランダム回復: ${randomRec2.nextFloor}F`);
         headParts.push(`絶不調・気絶: ${falling}体`);
         return { styleLabel: STYLE_NAME[code], headerText: headParts.join(" ／ "), entries };
@@ -255362,7 +257664,7 @@ window.__PREVIEW_DATA__ = {
       const nextRecoveryLines = [];
       for (const code of STYLE_ORDER) {
         const rec = nextRec.find((r) => r.style === code);
-        nextRecoveryLines.push(rec ? `${STYLE_NAME[code]}の次の回復: ${rec.nextFloor}F（残り${rec.remaining}回${rec.isLast ? "・次が最後" : ""}）` : `${STYLE_NAME[code]}の次の回復: この先なし`);
+        nextRecoveryLines.push(rec ? `${STYLE_NAME[code]}の次の回復: ${rec.nextFloor}F${recoveryRemainingText(rec.remaining, rec.isLast)}` : `${STYLE_NAME[code]}の次の回復: この先なし`);
       }
       const randomRec = nextRec.find((r) => r.style === "RANDOM");
       if (randomRec) {
