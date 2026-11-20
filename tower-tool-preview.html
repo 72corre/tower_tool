@@ -181,18 +181,17 @@ button:disabled { opacity: 0.4; cursor: default; }
   padding: 4px 0 8px; margin-bottom: 6px;
   max-height: 52dvh; overflow-y: auto;
 }
-.sb-detail-title { font-weight: 700; font-size: 12.5px; color: var(--muted); margin: 6px 0 2px; }
 .sb-detail-line { font-size: 13px; padding: 1px 0; }
-.sb-outlook-detail { color: var(--accent); font-weight: 600; }
+.sb-power-line { font-weight: 700; }
+.sb-verdict { color: var(--accent); font-weight: 600; }
 .sb-cards { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
-.sb-card { text-align: left; width: 100%; padding: 8px 10px; }
+.sb-card { text-align: left; width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; }
 .sb-card-head { display: flex; align-items: center; gap: 8px; }
-.sb-card-count { font-size: 12.5px; color: var(--muted); }
+.sb-card-next { font-size: 12.5px; color: var(--muted); padding-top: 2px; }
 .sb-card-row { display: flex; justify-content: space-between; gap: 8px; padding: 1px 0 0 4px; font-size: 13px; }
 .sb-card-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb-card-stage { font-weight: 700; white-space: nowrap; }
 .sb-card-none { color: var(--muted); font-size: 12.5px; padding-top: 2px; }
-.sb-drift { display: block; width: 100%; text-align: left; margin-top: 6px; }
 
 /* マップペイン（広い画面の左ペイン）: 狭い画面では使わない */
 .map-pane { display: none; }
@@ -476,14 +475,6 @@ button:disabled { opacity: 0.4; cursor: default; }
 .stage-picker-title { font-weight: 700; margin-bottom: 8px; }
 .stage-btn { flex: 1; padding: 10px 4px; font-size: 13px; }
 .stage-btn.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-
-/* フッター展開部の付け忘れの疑い（旧帯の行の置き方を引き継ぐ） */
-.sb-drift {
-  font-size: 13px;
-  padding: 8px 10px;
-  color: var(--danger);
-  border-color: var(--danger);
-}
 
 /* 結果を直す（H2） */
 .btn-fix { margin-bottom: 10px; }
@@ -1001,6 +992,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* ME の枠条件のヒント（空き枠の条件表示と、枠・候補の適合の印） */
 .slot-me-cond { font-size: 10px; color: var(--muted); margin-top: 2px; word-break: break-all; }
 .slot-me-match { font-size: 10px; color: var(--accent); font-weight: 700; margin-top: 2px; }
+.slot-reishou4 { font-size: 10px; color: var(--accent); font-weight: 700; margin-top: 2px; }
 .cand-me-match { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 2px; }
 /* 戦旗の条件チェック（2026-11-20）: ME 要約と同じ枠の見た目で、
    保持者ごとに付与先・条件の成否・効果を小さく出す */
@@ -1123,25 +1115,16 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* ヘッダーの検索ボタン */
 .topbar .topbar-search-btn { align-self: center; padding: 6px 8px; font-size: 13px; }
 
-/* 状態に応じた発光（棚卸し 7-9）: フッター上端の明滅。リスクが高いほど
-   周期を短くし、回復が推奨される状態は緑でゆっくり明滅させる。
-   色だけに頼らず、展開部の文言と常に対で出す。 */
-.statebar[data-glow="risk"] .statebar-main { border-top: 2px solid var(--danger); animation: sb-glow 1.6s ease-in-out infinite alternate; }
-.statebar[data-glow="risk-high"] .statebar-main { border-top: 2px solid var(--danger); animation: sb-glow 0.8s ease-in-out infinite alternate; }
-.statebar[data-glow="recovery"] .statebar-main { border-top: 2px solid var(--ok); animation: sb-glow 2.4s ease-in-out infinite alternate; }
-@keyframes sb-glow {
-  from { box-shadow: 0 -1px 4px rgba(229, 62, 62, 0.15); }
-  to { box-shadow: 0 -1px 10px rgba(229, 62, 62, 0.55); }
-}
-.statebar[data-glow="recovery"] .statebar-main { animation-name: sb-glow-ok; }
-@keyframes sb-glow-ok {
-  from { box-shadow: 0 -1px 4px rgba(72, 187, 120, 0.15); }
-  to { box-shadow: 0 -1px 10px rgba(72, 187, 120, 0.5); }
-}
-@media (prefers-reduced-motion: reduce) {
-  .statebar[data-glow="risk"] .statebar-main, .statebar[data-glow="risk-high"] .statebar-main,
-  .statebar[data-glow="recovery"] .statebar-main { animation: none; }
-}
+/* 状態に応じた静的な色（最終チェック K5、2026-11-20）: 点滅・脈動は
+   やめ、危険はフッター全体の色の状態で伝える。数値だけでは危険に
+   気づけない人のための非テキスト信号。気絶ありは濃い赤、絶不調ありは
+   淡い赤、回復が推奨される状態は淡い緑。アニメーションは持たない。 */
+.statebar[data-state="risk-high"] .statebar-main { background: rgba(229, 62, 62, 0.30); border-top: 2px solid var(--danger); }
+.statebar[data-state="risk"] .statebar-main { background: rgba(229, 62, 62, 0.14); border-top: 2px solid var(--danger); }
+.statebar[data-state="recovery"] .statebar-main { background: rgba(72, 187, 120, 0.14); border-top: 2px solid var(--ok); }
+.statebar[data-state="risk-high"] .statebar-detail,
+.statebar[data-state="risk"] .statebar-detail { background: rgba(229, 62, 62, 0.08); }
+.statebar[data-state="recovery"] .statebar-detail { background: rgba(72, 187, 120, 0.06); }
 
 /* M4 のピル（現行ツールの形: 要注意ギミック=赤ピル、有効な戦術=淡色ピル、
    効きにくいもの=灰ピル）。ピルは塊として読ませる要約で、根拠の文章は
@@ -1262,13 +1245,6 @@ button:disabled { opacity: 0.4; cursor: default; }
 .guide-line { font-size: 14px; margin: 4px 0; white-space: pre-line; }
 .btn-floor-guide { font-size: 13px; font-weight: 700; padding: 7px 12px; margin: 6px 0; }
 
-/* 名前付き保存（記録画面） */
-.save-name-row { display: flex; gap: 8px; align-items: center; margin: 8px 0; flex-wrap: wrap; }
-.save-name-input { flex: 1; min-width: 140px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 14px; }
-.named-save { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
-.named-save-head { font-weight: 800; }
-.named-save-meta { font-size: 12px; color: var(--muted); margin: 2px 0 8px; }
-.named-save-actions { display: flex; gap: 8px; }
 .btn-reset-open { color: #f6b8b3; border-color: var(--danger); }
 
 /* メモ編集シート */
@@ -70420,7 +70396,8 @@ window.__PREVIEW_DATA__ = {
       "necro"
     ],
     "真47_ヴェルドレ": [
-      "music"
+      "music",
+      "verdre"
     ],
     "真49_サタナイル": [
       "music"
@@ -70446,7 +70423,8 @@ window.__PREVIEW_DATA__ = {
       "dangeki"
     ],
     "真54_アバラム": [
-      "music"
+      "music",
+      "abaram"
     ],
     "真54_アバラムC": [
       "music",
@@ -71352,7 +71330,7 @@ window.__PREVIEW_DATA__ = {
 "chain.v1.json": {
   "kind": "chain",
   "version": 1,
-  "source": "build/data/abilities の能力原文への機械検出（generate-chain.mjs）。条件のうち専用霊宝だけが装備で判定でき、残りは実行時の注記。me は ME の正本データ（me.v1.json）の枠効果から抜いた始動（リーダーごとに、枠と条件つき）。orbs はオーブのスキル文から抜いたチェイン（媒体はオーブ）。",
+  "source": "build/data/abilities の能力原文への機械検出（generate-chain.mjs）。条件のうち専用霊宝（reishou / noReishou）とチェイン数の範囲（chainMin / chainMax）は判定で使い、残りは実行時の注記。me は ME の正本データ（me.v1.json）の枠効果から抜いた始動（リーダーごとに、枠と条件つき）。orbs はオーブのスキル文から抜いたチェイン（媒体はオーブ）。",
   "megido": {
     "真03_サキュバスB": {
       "start": [
@@ -71471,6 +71449,14 @@ window.__PREVIEW_DATA__ = {
           "conditions": [
             {
               "type": "reishou"
+            },
+            {
+              "type": "chainMin",
+              "min": 1
+            },
+            {
+              "type": "chainMax",
+              "max": 1
             }
           ]
         },
@@ -71551,14 +71537,65 @@ window.__PREVIEW_DATA__ = {
       "relay": [
         {
           "medium": "奥義",
-          "conditions": []
+          "conditions": [
+            {
+              "type": "chainMax",
+              "max": 3
+            }
+          ]
         }
       ],
       "grant": [],
       "selfChain": [
         {
           "medium": "奥義",
-          "conditions": []
+          "conditions": [
+            {
+              "type": "chainMin",
+              "min": 4
+            },
+            {
+              "type": "chainMax",
+              "max": 4
+            }
+          ],
+          "addsPhoton": "アタック"
+        },
+        {
+          "medium": "奥義",
+          "conditions": [
+            {
+              "type": "chainMin",
+              "min": 5
+            },
+            {
+              "type": "chainMax",
+              "max": 5
+            },
+            {
+              "type": "prob",
+              "pct": 50
+            }
+          ],
+          "addsPhoton": "アタック"
+        },
+        {
+          "medium": "奥義",
+          "conditions": [
+            {
+              "type": "chainMin",
+              "min": 6
+            },
+            {
+              "type": "chainMax",
+              "max": 6
+            },
+            {
+              "type": "prob",
+              "pct": 5
+            }
+          ],
+          "addsPhoton": "アタック"
         }
       ],
       "scaler": true
@@ -71660,6 +71697,9 @@ window.__PREVIEW_DATA__ = {
             {
               "type": "prob",
               "pct": 50
+            },
+            {
+              "type": "noReishou"
             }
           ]
         },
@@ -71674,6 +71714,18 @@ window.__PREVIEW_DATA__ = {
         {
           "medium": "奥義",
           "conditions": [
+            {
+              "type": "reishou"
+            }
+          ]
+        },
+        {
+          "medium": "特性",
+          "conditions": [
+            {
+              "type": "photon",
+              "photon": "アタック"
+            },
             {
               "type": "reishou"
             }
@@ -242164,7 +242216,7 @@ window.__PREVIEW_DATA__ = {
 </script>
 <script>
 (() => {
-  // build/app/js/data.js
+  // app/js/data.js
   var DATA_VERSION = 1;
   function createDataLoader(baseUrl, fetchFn) {
     const doFetch = fetchFn || ((url) => fetch(url));
@@ -242251,6 +242303,12 @@ window.__PREVIEW_DATA__ = {
       loadFlag() {
         return load(`flag.v${DATA_VERSION}.json`);
       },
+      // 受けダメージ見積もりの軽減材料（2026-11-20 積4。特性と
+      // オーブの無条件の割合軽減だけを原文から抽出。生成は
+      // pipeline/generate-damage-reduction.mjs）。
+      loadDamageReduction() {
+        return load(`damage-reduction.v${DATA_VERSION}.json`);
+      },
       // 霊宝マスタ（reishouId → 名前・系譜・効果・ステータス修正値・大きさ。
       // 装備の表示と選択、探索力の計算で使う）。
       loadReishou() {
@@ -242271,7 +242329,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // build/app/js/store.js
+  // app/js/store.js
   var DB_NAME = "tower-tool";
   var DB_VERSION = 1;
   var STORE_NAMES = ["state", "formations", "records", "settings"];
@@ -242383,14 +242441,6 @@ window.__PREVIEW_DATA__ = {
   async function saveRecords(backend, records) {
     await backend.put("records", "runs", { version: RECORD_VERSION, runs: records.runs || [] });
   }
-  async function loadSaves(backend) {
-    const rec = await backend.get("records", "saves");
-    if (!rec) return { saves: [] };
-    return { saves: rec.saves || [] };
-  }
-  async function saveSaves(backend, data) {
-    await backend.put("records", "saves", { version: RECORD_VERSION, saves: data.saves || [] });
-  }
   async function loadSettings(backend) {
     const rec = await backend.get("settings", "ui");
     return rec || { version: RECORD_VERSION };
@@ -242437,7 +242487,7 @@ window.__PREVIEW_DATA__ = {
     return false;
   }
 
-  // build/app/js/model.js
+  // app/js/model.js
   function createHistory(ops = [], cursor = ops.length) {
     return { ops: [...ops], cursor: Math.max(0, Math.min(cursor, ops.length)) };
   }
@@ -242464,7 +242514,7 @@ window.__PREVIEW_DATA__ = {
     return { ops: history.ops, cursor: history.cursor + 1 };
   }
 
-  // build/app/js/derive.js
+  // app/js/derive.js
   var CONDITION_STAGES = ["絶好調", "好調", "普通", "不調", "絶不調", "気絶"];
   var STAGE_GREAT = 0;
   var STAGE_VERY_BAD = 4;
@@ -243068,7 +243118,7 @@ window.__PREVIEW_DATA__ = {
     return onPath || sorted[0];
   }
 
-  // build/app/js/records.js
+  // app/js/records.js
   var TENDENCY_MIN_BATTLES = 3;
   var FORMATION_RATE_MIN_BATTLES = 3;
   function runEntries(structure, ops) {
@@ -243212,7 +243262,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // build/app/js/views.js
+  // app/js/views.js
   var STYLE_CHIP_CLASS = { ラッシュ: "st-rush", カウンター: "st-counter", バースト: "st-burst" };
   function styleChip(styleName) {
     const cls = STYLE_CHIP_CLASS[styleName];
@@ -243328,15 +243378,15 @@ window.__PREVIEW_DATA__ = {
   }
   var statebarDetailTop = 0;
   var statebarDetailWasOpen = false;
-  function renderStateFooter(root, vm, { onToggleExpand, onOpenConditions, onOpenDrift }) {
+  function renderStateFooter(root, vm, { onToggleExpand, onOpenConditions }) {
     clear(root);
-    if (vm.glow) root.dataset.glow = vm.glow;
-    else delete root.dataset.glow;
+    if (vm.state) root.dataset.state = vm.state;
+    else delete root.dataset.state;
     if (vm.notice) {
       root.append(el("div", "statebar-notice", vm.notice));
     }
     if (vm.expanded) {
-      const detail = stateFooterDetail(vm, { onOpenConditions, onOpenDrift });
+      const detail = stateFooterDetail(vm);
       detail.addEventListener("scroll", () => {
         statebarDetailTop = detail.scrollTop || 0;
       }, { passive: true });
@@ -243380,61 +243430,53 @@ window.__PREVIEW_DATA__ = {
   function recoveryRemainingText(remaining, isLast) {
     return `（残り${remaining}回${isLast ? "・次が最後" : ""}）`;
   }
-  function stateFooterDetail(vm, { onOpenConditions, onOpenDrift }) {
+  function stateFooterDetail(vm) {
     const detail = el("div", "statebar-detail");
-    if (vm.outlookDetail) {
-      detail.append(el("div", "sb-detail-line sb-outlook-detail", vm.outlookDetail));
-    }
-    if (vm.nextRecoveries && vm.nextRecoveries.length > 0) {
-      const sec = el("div", "sb-detail-sec");
-      sec.append(el("div", "sb-detail-title", "次の回復"));
-      for (const r of vm.nextRecoveries) {
-        sec.append(el(
-          "div",
-          "sb-detail-line",
-          `${r.label}: 次は${r.nextFloor}F${recoveryRemainingText(r.remaining, r.isLast)}`
-        ));
-      }
-      detail.append(sec);
+    const power = el(
+      "div",
+      "sb-detail-line sb-power-line",
+      vm.nextTowerFloor != null ? `塔破力: ${vm.towerPower}（次の塔破力マスは${vm.nextTowerFloor}F）` : `塔破力: ${vm.towerPower}（この先に塔破力マスはない）`
+    );
+    detail.append(power);
+    if (vm.outlookVerdict) {
+      detail.append(el("div", "sb-detail-line sb-verdict", vm.outlookVerdict));
     }
     if (vm.styleCards && vm.styleCards.length > 0) {
       const cards = el("div", "sb-cards");
       for (const card of vm.styleCards) {
-        const btn = el("button", "sb-card");
+        const box = el("div", "sb-card");
         const head = el("div", "sb-card-head");
         head.append(styleChip(card.label));
-        head.append(el(
-          "span",
-          "sb-card-count",
-          card.capacity == null ? `疲れた人 ${card.used}体` : `疲れた人 ${card.used}体／次の回復で ${card.capacity}体まで`
+        box.append(head);
+        box.append(el(
+          "div",
+          "sb-card-next",
+          card.nextFloor != null ? `次の回復マスは${card.nextFloor}F` : `この先に${card.label}の回復マスはない`
         ));
-        btn.append(head);
-        if (card.members.length === 0) {
-          btn.append(el("div", "sb-card-none", "全員絶好調"));
+        if (!card.members || card.members.length === 0) {
+          box.append(el("div", "sb-card-none", "全員絶好調"));
         } else {
           for (const m of card.members) {
             const row = el("div", "sb-card-row");
             row.append(faceIconImg(m.name, "face-icon face-mini"));
             row.append(el("span", "sb-card-name", m.name));
             row.append(el("span", `sb-card-stage sc-${m.stage}`, CONDITION_STAGES[m.stage]));
-            btn.append(row);
+            box.append(row);
           }
         }
-        btn.addEventListener("click", onOpenConditions);
-        cards.append(btn);
+        cards.append(box);
       }
       detail.append(cards);
     }
+    if (vm.randomRecovery && vm.randomRecovery.nextFloor != null) {
+      detail.append(el(
+        "div",
+        "sb-detail-line",
+        `ランダム回復: 次のマスは${vm.randomRecovery.nextFloor}F`
+      ));
+    }
     if (vm.buffText) {
       detail.append(el("div", "sb-detail-line", vm.buffText));
-    }
-    if (vm.precision) {
-      detail.append(el("div", "sb-detail-line", vm.precision));
-    }
-    if (vm.drift) {
-      const driftBtn = el("button", "sb-drift", vm.drift);
-      if (onOpenDrift) driftBtn.addEventListener("click", onOpenDrift);
-      detail.append(driftBtn);
     }
     return detail;
   }
@@ -243442,18 +243484,6 @@ window.__PREVIEW_DATA__ = {
     if (!outlook || outlook.mode === "facts") return "―";
     if (outlook.verdict === "enough") return "35F到達";
     return `${outlook.runOutFloor}Fで不足`;
-  }
-  function outlookText(outlook, hasRecords = false) {
-    if (!outlook) return "";
-    if (outlook.mode === "facts") {
-      const next = outlook.nextTower ? `次の塔破力マスは${outlook.nextTower.floor}F` : "この先に塔破力マスはない";
-      if (hasRecords) return `塔破力 ${outlook.currentPower}（${next}）`;
-      return `塔破力 ${outlook.currentPower}。最短の進み方では塔破力マスを通らない（${next}）。塔破力の回復はクリアに必須で、踏める塔破力マスを踏んでいけばまず余る`;
-    }
-    if (outlook.verdict === "enough") {
-      return `塔破力 ${outlook.currentPower}。このペースなら最後まで足りる`;
-    }
-    return `塔破力 ${outlook.currentPower}。このペースだと${outlook.runOutFloor}Fで尽きる`;
   }
   function squareLabel(def) {
     if (!def) return "";
@@ -243899,7 +243929,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // build/app/js/panels.js
+  // app/js/panels.js
   function el2(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -244002,44 +244032,6 @@ window.__PREVIEW_DATA__ = {
       ));
       fixSec.append(fixTargetsBlock());
       wrap.append(fixSec);
-    }
-    if (typeof cb.onSaveNamed === "function") {
-      const saveSec = section("ランの名前付き保存");
-      saveSec.append(el2(
-        "p",
-        "sheet-note",
-        "今のランの状態（マスの処理・コンディション・塔破力）を、名前を付けて控えておけます。呼び戻すと、今のランは控えの状態に置き換わります。"
-      ));
-      const nameRow = el2("div", "save-name-row");
-      const nameInput = document.createElement("input");
-      nameInput.className = "save-name-input";
-      nameInput.type = "text";
-      nameInput.setAttribute("placeholder", "控えの名前（例: 15F挑戦前）");
-      nameRow.append(nameInput);
-      const saveBtn = el2("button", "btn-save-named", "今のランを保存する");
-      saveBtn.addEventListener("click", () => cb.onSaveNamed(nameInput.value));
-      nameRow.append(saveBtn);
-      saveSec.append(nameRow);
-      if (!vm.saves || vm.saves.length === 0) {
-        saveSec.append(el2("p", "sheet-note", "保存した控えはまだありません。"));
-      }
-      for (const s of vm.saves || []) {
-        const block = el2("div", "named-save");
-        block.append(el2("div", "named-save-head", s.name));
-        block.append(el2("div", "named-save-meta", `${s.savedAtText}／${s.statsText}`));
-        const actions = el2("div", "named-save-actions");
-        const recallBtn = el2("button", "btn-save-recall", "呼び戻す");
-        recallBtn.dataset.saveId = s.id;
-        recallBtn.addEventListener("click", () => cb.onRecallSave(s.id));
-        actions.append(recallBtn);
-        const delBtn = el2("button", "btn-save-delete", "削除");
-        delBtn.dataset.saveId = s.id;
-        delBtn.addEventListener("click", () => cb.onDeleteSave(s.id));
-        actions.append(delBtn);
-        block.append(actions);
-        saveSec.append(block);
-      }
-      wrap.append(saveSec);
     }
     const opsSec = section("その他の操作");
     const closeRow = el2("div", "action-row");
@@ -244518,7 +244510,7 @@ window.__PREVIEW_DATA__ = {
     wrap.append(el2(
       "p",
       "sheet-note warn",
-      "この端末に保存された、このツールのデータをすべて消します: 今のランの履歴、編成、所持と育成、過去のラン、名前付き保存。消したデータは元に戻せません。"
+      "この端末に保存された、このツールのデータをすべて消します: 今のランの履歴、編成、所持と育成、過去のラン。消したデータは元に戻せません。"
     ));
     wrap.append(el2(
       "p",
@@ -244545,45 +244537,6 @@ window.__PREVIEW_DATA__ = {
     confirmBtn.addEventListener("click", cb.onConfirm);
     wrap.append(confirmBtn);
     const cancelBtn = el2("button", "btn-reset-cancel", "やめる");
-    cancelBtn.addEventListener("click", cb.onCancel);
-    wrap.append(cancelBtn);
-    return wrap;
-  }
-  function buildSaveRecallConfirmView(vm, cb) {
-    const wrap = el2("div", "save-recall-confirm");
-    wrap.append(el2("h2", "sheet-title", "控えを呼び戻す"));
-    wrap.append(el2(
-      "p",
-      "sheet-note",
-      `『${vm.name}』を呼び戻します。今のランは控えを保存した時点の状態に置き換わります。`
-    ));
-    if (vm.currentText) {
-      wrap.append(el2(
-        "p",
-        "sheet-note warn",
-        `今のラン（${vm.currentText}）は置き換わります。残したい場合は、先に今のランも名前を付けて保存してください。`
-      ));
-    }
-    const confirmBtn = el2("button", "btn-save-recall-confirm", `『${vm.name}』を呼び戻す`);
-    confirmBtn.addEventListener("click", cb.onConfirm);
-    wrap.append(confirmBtn);
-    const cancelBtn = el2("button", "btn-save-recall-cancel", "やめる");
-    cancelBtn.addEventListener("click", cb.onCancel);
-    wrap.append(cancelBtn);
-    return wrap;
-  }
-  function buildSaveDeleteConfirmView(name, cb) {
-    const wrap = el2("div", "save-delete-confirm");
-    wrap.append(el2("h2", "sheet-title", "控えの削除"));
-    wrap.append(el2(
-      "p",
-      "sheet-note",
-      `『${name}』を削除します。削除した控えは元に戻せません。`
-    ));
-    const confirmBtn = el2("button", "btn-save-delete-confirm", `『${name}』を削除する`);
-    confirmBtn.addEventListener("click", cb.onConfirm);
-    wrap.append(confirmBtn);
-    const cancelBtn = el2("button", "btn-save-delete-cancel", "やめる");
     cancelBtn.addEventListener("click", cb.onCancel);
     wrap.append(cancelBtn);
     return wrap;
@@ -244636,6 +244589,11 @@ window.__PREVIEW_DATA__ = {
     wrap.append(el2("div", "floor-head-floor", `${vm.floor}F`));
     if (vm.themeText) wrap.append(el2("p", "floor-overview-line", `階層テーマ: ${vm.themeText}`));
     if (vm.bossName) wrap.append(el2("p", "floor-head-boss", `ボス: ${vm.bossName}`));
+    if (vm.notes && vm.notes.length > 0) {
+      const sec = section("この階の注意");
+      for (const note of vm.notes) sec.append(el2("p", "guide-line", note));
+      wrap.append(sec);
+    }
     if (vm.guide) {
       const g = vm.guide;
       const sec = section(g.title || `${vm.floor}階 ガイド`);
@@ -244663,13 +244621,38 @@ window.__PREVIEW_DATA__ = {
       }
       wrap.append(sec);
     }
+    if (vm.enemies && vm.enemies.length > 0) {
+      const sec = section("この階の敵");
+      const list = el2("div", "sheet-list");
+      for (const e of vm.enemies) {
+        const row = el2("div", "sheet-row overview-enemy");
+        row.append(el2("span", "sheet-row-main", e.name));
+        if (typeof cb.onCreateFormationFor === "function") {
+          const btn = el2("button", "btn-overview-build", "この敵の編成を作る");
+          btn.addEventListener("click", () => cb.onCreateFormationFor(e.name));
+          row.append(btn);
+        }
+        list.append(row);
+      }
+      sec.append(list);
+      wrap.append(sec);
+    }
+    if (vm.explores && vm.explores.length > 0) {
+      const sec = section("この階の探索マス");
+      const list = el2("div", "sheet-list");
+      for (const label of vm.explores) {
+        list.append(el2("div", "sheet-row", label));
+      }
+      sec.append(list);
+      wrap.append(sec);
+    }
     const closeBtn = el2("button", "btn-floor-head-close", "マップを見る");
     closeBtn.addEventListener("click", cb.onClose);
     wrap.append(closeBtn);
     return wrap;
   }
 
-  // build/app/js/migrate.js
+  // app/js/migrate.js
   var OLD_KEY_FORMATIONS = "formations";
   var OLD_KEY_MEGIDO_DETAILS = "megidoDetails";
   var SLOT_COUNT = 5;
@@ -244872,7 +244855,7 @@ window.__PREVIEW_DATA__ = {
     }
   }
 
-  // build/app/js/explore.js
+  // app/js/explore.js
   var EXPLORE_PARTY_MAX = 3;
   var EXPECTATION3_FACTOR = 1.4;
   var DEFAULT_OUGI_LEVEL = 3;
@@ -245697,7 +245680,7 @@ window.__PREVIEW_DATA__ = {
     return lo;
   }
 
-  // build/app/js/counter.js
+  // app/js/counter.js
   var POLE_ALIASES = {
     "煉獄": "煉獄の炎",
     "ねずみ": "ねずみ化",
@@ -246115,6 +246098,81 @@ window.__PREVIEW_DATA__ = {
     }
     return { megido, orbs };
   }
+  var STATE_BONUS_KINDS = [
+    { state: "めまい", symbol: "めまい", means: "inflict" },
+    { state: "凍結", symbol: "凍結", means: "inflict" },
+    { state: "執心", symbol: "執心", means: "inflict" },
+    { state: "弱体", symbol: "弱体", means: "debuff" },
+    { state: "感電", symbol: "感電", means: "inflict" },
+    { state: "暗闇", symbol: "暗闇", means: "inflict" },
+    { state: "束縛", symbol: "束縛", means: "inflict" },
+    { state: "毒", symbol: "毒", means: "inflict" },
+    { state: "煉獄の炎", symbol: "煉獄", means: "inflict" },
+    { state: "睡眠", symbol: "睡眠", means: "inflict" }
+  ];
+  function stateViaUsable(v, level, hasSpecial) {
+    if (viaNeedLevel(v) > level) return false;
+    const needsSpecial = v.src === "reishou" || /専用霊宝「[^」]*」装備時/.test(v.label || "");
+    if (needsSpecial && !hasSpecial) return false;
+    return true;
+  }
+  function stateBonusAnswers({
+    fact,
+    index,
+    owned = null,
+    memberIds = [],
+    orbIds = [],
+    leaderId = null,
+    levelOf = null,
+    hasSpecial = null
+  }) {
+    const megido = /* @__PURE__ */ new Map();
+    const orbs = /* @__PURE__ */ new Map();
+    if (!fact || !index || !index.byEffect) return { megido, orbs };
+    const table = fact.resistances && fact.resistances.symbolTable;
+    if (!table) return { megido, orbs };
+    const members = new Set(memberIds || []);
+    const equippedOrbs = new Set(orbIds || []);
+    const lvl = (id) => levelOf ? levelOf(id) : 0;
+    const spec = (id) => hasSpecial ? Boolean(hasSpecial(id)) : false;
+    const holderUsable = (h) => (h.via || []).some((v) => stateViaUsable(v, lvl(h.id), spec(h.id)));
+    const push = (map, key, label) => {
+      if (!map.has(key)) map.set(key, []);
+      const list = map.get(key);
+      if (!list.includes(label)) list.push(label);
+    };
+    for (const kind of STATE_BONUS_KINDS) {
+      const sym = table[kind.symbol];
+      if (!sym || sym[2] !== "◎") continue;
+      const bonus = index.byEffect.get(`bonus:state:${kind.state}`);
+      if (!bonus) continue;
+      const inflicterMegido = /* @__PURE__ */ new Set();
+      const inflicterOrbs = /* @__PURE__ */ new Set();
+      const effectIds = kind.means === "debuff" ? ["debuff:atk", "debuff:def", "debuff:spd"] : [`inflict:${kind.state}`];
+      for (const eid of effectIds) {
+        const eff = index.byEffect.get(eid);
+        if (!eff) continue;
+        for (const h of eff.megido || []) {
+          if (holderUsable(h)) inflicterMegido.add(h.id);
+        }
+        for (const h of eff.megidoMe || []) {
+          if (h.id === leaderId && holderUsable(h)) inflicterMegido.add(h.id);
+        }
+        for (const h of eff.orbs || []) inflicterOrbs.add(h.orbId);
+      }
+      const meansWith = (extraMegido, extraOrb) => [...inflicterMegido].some((id) => members.has(id) || id === extraMegido) || [...inflicterOrbs].some((id) => equippedOrbs.has(id) || id === extraOrb);
+      const label = `${kind.state}特効`;
+      for (const h of bonus.megido || []) {
+        if (owned && !owned.has(h.id)) continue;
+        if (!holderUsable(h)) continue;
+        if (meansWith(h.id, null)) push(megido, h.id, label);
+      }
+      for (const h of bonus.orbs || []) {
+        if (meansWith(null, h.orbId)) push(orbs, h.orbId, label);
+      }
+    }
+    return { megido, orbs };
+  }
   function meHolderWorks({ holder, formation, styleClassOf = null }) {
     const slots = formation.slots || [];
     const leaderId = slots[2] ? slots[2].megidoId : null;
@@ -246502,7 +246560,7 @@ window.__PREVIEW_DATA__ = {
     return { total, essential };
   }
 
-  // build/app/js/mechanics.js
+  // app/js/mechanics.js
   var MEGIDO_MECHANIC_NOTES = {
     ereki: [
       "エレキ: 雷ダメージが当たるたびにエレキレベルが上がり、解除でレベル分の固定ダメージ（防御無視）",
@@ -246515,6 +246573,14 @@ window.__PREVIEW_DATA__ = {
     dangeki: [
       "弾撃: 重奏中、攻撃を受けると音符1個を消費して反撃する（行動ごとに1回）",
       "ダメージは攻撃した敵の攻撃力で決まる。多段攻撃をあえて受けると、大きな1発になる"
+    ],
+    // 音符を縮める技（候補8）: 計算には入れず、その技を持つ本人の
+    // 注釈としてだけ出す。文面は正本の技能文の言い回しに沿わせる。
+    verdre: [
+      "音符: スキル「ベンダバール」は、味方の2ターン音符の継続ターンを最大3個まで-1する（使うと音符が減る側の効果）"
+    ],
+    abaram: [
+      "音符: 覚醒スキル「ビートショット」は、味方の全ての2ターン音符の継続ターンを-1する（使うと音符が減る側の効果）"
     ],
     voltage: [
       "ボルテージ: 攻撃するたびにバーサークの人数分上がる（上限70）。攻撃力は最大+420%まで上がり、下がることはない",
@@ -247003,6 +247069,22 @@ window.__PREVIEW_DATA__ = {
   function asmodeusThreshold(maxHp) {
     return Math.floor(maxHp * 0.2);
   }
+  var REISHOU4_TRAITS = {
+    "宵01_リリス": "狭間の干渉者",
+    "宵02_バールベリト": "ド真面目ギャップ",
+    "宵03_エウリノーム": "父性の体現者",
+    "宵04_ベルゼブフ": "超克、起死回生",
+    "宵05_サタン": "８魔星の二大巨頭",
+    "宵06_モレク": "「力」の８魔星",
+    "祖32_アスモデウスR": "強固なる不遜"
+  };
+  function reishou4TraitName(megidoId) {
+    return REISHOU4_TRAITS[megidoId] || null;
+  }
+  function reishou4Active(megidoId, level, equippedCount) {
+    if (!REISHOU4_TRAITS[megidoId]) return false;
+    return level >= 4 && equippedCount === 4;
+  }
   var DENSETSU_MAX = 20;
   function densetsuThreshold(maxHp, count) {
     return Math.floor(maxHp * 2 * count / 100);
@@ -247011,8 +247093,213 @@ window.__PREVIEW_DATA__ = {
     if (typeof maxHp !== "number" || maxHp <= 0 || typeof damage !== "number") return null;
     return Math.ceil(damage * 100 / (maxHp * 2));
   }
+  var ENEMY_ATTACK_KIND_LABEL = { skill: "スキル", awakened: "覚醒スキル", ultimate: "奥義" };
+  function conditionAdjustedStats(stats, stage) {
+    if (!stats) return null;
+    let { hp, def } = stats;
+    if (stage === 0) {
+      hp = Math.floor(hp * 1.15);
+      def = Math.floor(def * 1.25);
+    } else if (stage === 3) {
+      hp = Math.floor(hp * 0.5);
+    } else if (stage === 4) {
+      hp = Math.floor(hp * 0.25);
+    }
+    return { hp, def };
+  }
+  var COMBO_STATE_NAMES = [
+    "毒",
+    "めまい",
+    "束縛",
+    "混乱",
+    "睡眠",
+    "感電",
+    "呪い",
+    "病気",
+    "凍結",
+    "石化",
+    "ゾンビ",
+    "暗闇",
+    "煉獄の炎"
+  ];
+  function parseEnemyAttackList(fact, mults) {
+    if (!fact || !Array.isArray(fact.party)) return [];
+    const atkMult = mults && typeof mults.atk === "number" ? mults.atk : 1;
+    const defMult = mults && typeof mults.def === "number" ? mults.def : 1;
+    const party = fact.party.filter(Boolean);
+    const allTexts = [];
+    for (const m of party) {
+      if (m.trait) allTexts.push(String(m.trait));
+      const skills = m.skills || {};
+      for (const kind of ["skill", "awakened", "ultimate"]) {
+        if (skills[kind]) allTexts.push(String(skills[kind]));
+      }
+    }
+    const placedTerrains = /* @__PURE__ */ new Set();
+    for (const t of allTexts) {
+      for (const mm of t.matchAll(/([一-龯ァ-ヶー・]{1,10})の地形効果/g)) placedTerrains.add(mm[1]);
+      if (/炎上地形を/.test(t)) placedTerrains.add("炎上");
+    }
+    if (placedTerrains.has("炎上") && allTexts.some((t) => /狂炎地形にする/.test(t))) {
+      placedTerrains.add("狂炎");
+    }
+    const inflictedStates = /* @__PURE__ */ new Set();
+    for (const t of allTexts) {
+      for (const seg of t.split(/[。／]/)) {
+        if (/状態の場合|状態の敵|ダメージが[\d.]+倍/.test(seg)) continue;
+        for (const s of COMBO_STATE_NAMES) {
+          if (seg.includes(`${s}状態`)) inflictedStates.add(s);
+        }
+      }
+    }
+    const partyHasChain = allTexts.some((t) => /チェインする|にチェイン|チェインし/.test(t));
+    const attacks = [];
+    for (const m of party) {
+      const skills = m.skills || {};
+      for (const kind of ["skill", "awakened", "ultimate"]) {
+        const txt = skills[kind];
+        if (!txt) continue;
+        const text = String(txt);
+        const nameM = text.match(/^「([^」]+)」/) || text.match(/^([^：:]{1,24})[：:]/);
+        const skillName = nameM ? nameM[1] : null;
+        let lastAttack = null;
+        const segments = [];
+        for (const piece of text.split(/[。／]/)) {
+          for (const sub of piece.split(/(?=【Ch\d+】)/)) {
+            if (sub) segments.push(sub);
+          }
+        }
+        for (const seg of segments) {
+          const comboM = seg.match(/対象の位置に(.+?)地形が存在する場合、ダメージが([\d.]+)倍/) || seg.match(/敵が(.+?)状態の場合、ダメージが([\d.]+)倍/);
+          if (comboM && lastAttack && !/攻撃力[\d.]+倍|[\d.]+倍のダメージ|防御力[\d.]+倍/.test(seg)) {
+            if (seg.includes("地形が存在する場合")) {
+              const names = comboM[1].split("・");
+              if (names.some((n) => placedTerrains.has(n))) {
+                lastAttack.comboFactor = parseFloat(comboM[2]);
+                lastAttack.conditionNote = `${names.join("・")}地形がある時`;
+              }
+            } else if (inflictedStates.has(comboM[1])) {
+              lastAttack.comboFactor = parseFloat(comboM[2]);
+              lastAttack.conditionNote = `${comboM[1]}状態の時`;
+            }
+            continue;
+          }
+          if (/地形|継続ダメージ/.test(seg)) continue;
+          if (/味方(単体|全体|前列|後列)に[^。／]*ダメージ/.test(seg) && !/敵(単体|全体|一列|横一列)/.test(seg)) continue;
+          const range = /ランダム|無作為/.test(seg) ? "random" : /全体/.test(seg) ? "all" : /単体/.test(seg) && !/一列|横一列/.test(seg) ? "single" : /一列|列に|列の/.test(seg) ? "row" : /単体/.test(seg) ? "single" : null;
+          if (!range) continue;
+          let statKey = "atk";
+          let mult = null;
+          const defM = seg.match(/防御力([\d.]+)倍/);
+          const atkM = seg.match(/攻撃力([\d.]+)倍/) || seg.match(/([\d.]+)倍のダメージ/);
+          if (defM && seg.includes("ダメージ") && !atkM) {
+            statKey = "def";
+            mult = parseFloat(defM[1]);
+          } else if (atkM) {
+            mult = parseFloat(atkM[1]);
+          }
+          if (mult === null) continue;
+          const chM = seg.match(/【Ch(\d+)】/);
+          if (chM && !partyHasChain) continue;
+          const hitsM = seg.match(/(\d+)連続/) || seg.match(/(\d+)連撃/);
+          const attack = {
+            attackerName: m.name,
+            attackerClass: m.class || null,
+            attackerRace: Array.isArray(m.race) ? m.race : [],
+            statKey,
+            stat: Math.floor((statKey === "def" ? typeof m.def === "number" ? m.def : 0 : typeof m.atk === "number" ? m.atk : 0) * (statKey === "def" ? defMult : atkMult)),
+            kind,
+            skillName,
+            range,
+            mult,
+            hits: hitsM ? parseInt(hitsM[1], 10) : 1,
+            ignoreDef: /防御無視/.test(seg),
+            element: /火ダメージ/.test(seg) ? "火" : /雷ダメージ/.test(seg) ? "雷" : null,
+            frontRow: /前列/.test(seg),
+            backRow: /後列/.test(seg),
+            comboFactor: 1,
+            conditionNote: null
+          };
+          if (chM) attack.conditionNote = `チェイン数が${chM[1]}以上の時`;
+          if (/戦闘不能時/.test(seg)) attack.conditionNote = "戦闘不能になった時";
+          attacks.push(attack);
+          lastAttack = attack;
+        }
+      }
+    }
+    return attacks;
+  }
+  function meDamageReductions(me, member, slotIndex) {
+    if (!me || !me.slots || !member) return [];
+    const entries = me.slots[ME_SLOT_KEYS[slotIndex]];
+    if (!Array.isArray(entries)) return [];
+    const out = [];
+    for (const e of entries) {
+      if (!e || typeof e.effect !== "string") continue;
+      if (meConditionVerdict(e.condition || "", member) !== "match") continue;
+      const effect = e.effect.replace(/％/g, "%").trim();
+      let m = effect.match(/^受けるダメージを(\d+)%軽減する。?$/) || effect.match(/^受けるダメージを(\d+)%軽減。?$/);
+      if (m) {
+        out.push({ pct: parseInt(m[1], 10), scope: "all" });
+        continue;
+      }
+      m = effect.match(/^受ける(火|雷)ダメージを(\d+)%軽減する。?$/);
+      if (m) {
+        out.push({ pct: parseInt(m[2], 10), element: m[1] });
+        continue;
+      }
+      m = effect.match(/^([一-龯ァ-ヶー]{1,10})モンスターからのダメージを(\d+)%軽減する。?$/) || effect.match(/^([一-龯ァ-ヶー]{1,10})からのダメージを(\d+)%軽減する。?$/);
+      if (m) out.push({ pct: parseInt(m[2], 10), race: m[1].replace(/系$/, "") });
+    }
+    return out;
+  }
+  function damageReductionFactor(reductions, attack) {
+    let factor = 1;
+    for (const r of reductions || []) {
+      const hit = r.scope === "all" || r.kind && attack.kind === r.kind || r.element && attack.element === r.element || r.race && (attack.attackerRace || []).includes(r.race);
+      if (hit) factor *= 1 - r.pct / 100;
+    }
+    return factor;
+  }
+  function estimateFalls({ fact, mults, allies }) {
+    const attacks = parseEnemyAttackList(fact, mults);
+    const byAlly = /* @__PURE__ */ new Map();
+    for (const attack of attacks) {
+      for (const ally of allies || []) {
+        const targeted = attack.range === "all" || attack.range === "single" || attack.range === "random" || attack.range === "row" && (attack.frontRow && ally.row === "front" || attack.backRow && ally.row === "back" || !attack.frontRow && !attack.backRow);
+        if (!targeted) continue;
+        const base = attack.stat * attack.mult - (attack.ignoreDef ? 0 : ally.def);
+        const perHit = base <= 0 ? 1 : Math.max(1, Math.floor(Math.floor(base) * classFactorFor(attack.attackerClass, ally.row) * attack.comboFactor * damageReductionFactor(ally.reductions, attack)));
+        const total = perHit * attack.hits;
+        if (total < ally.hp) continue;
+        if (!byAlly.has(ally.id)) {
+          byAlly.set(ally.id, { allyId: ally.id, allyName: ally.name, hp: ally.hp, hits: [] });
+        }
+        const entry = byAlly.get(ally.id);
+        const dup = entry.hits.some((h) => h.attackerName === attack.attackerName && h.kind === attack.kind && h.skillName === attack.skillName && h.total === total && h.conditionNote === attack.conditionNote);
+        if (dup) continue;
+        entry.hits.push({
+          attackerName: attack.attackerName,
+          kind: attack.kind,
+          kindLabel: ENEMY_ATTACK_KIND_LABEL[attack.kind] || "攻撃",
+          skillName: attack.skillName,
+          total,
+          hits: attack.hits,
+          conditionNote: attack.conditionNote
+        });
+      }
+    }
+    const falls = [];
+    for (const ally of allies || []) {
+      const f = byAlly.get(ally.id);
+      if (!f) continue;
+      f.hits.sort((a, b) => b.total - a.total);
+      falls.push(f);
+    }
+    return { attacksRead: attacks.length > 0, falls };
+  }
 
-  // build/app/js/speed.js
+  // app/js/speed.js
   function meSpeedPct(me, member, slotIndex) {
     if (!me || !member) return null;
     const slotKey = ME_SLOT_KEYS[slotIndex];
@@ -247092,13 +247379,14 @@ window.__PREVIEW_DATA__ = {
     return { value, lines, parts, pctSum };
   }
 
-  // build/app/js/chain.js
+  // app/js/chain.js
   var CHAIN_PHOTON_MAX = 5;
-  var MAX_ACTIONS_PER_MEMBER = 2;
+  var MAX_ACTIONS_PER_MEMBER = 3;
   function chainWayKey(way) {
     if (!way) return "";
-    const conds = (way.conditions || []).map((c) => `${c.type}:${c.min ?? c.pct ?? c.photon ?? ""}`).sort().join("|");
-    return [way.via || "self", way.medium || "", way.restrict || "", way.scope || "", conds].join("|");
+    const conds = (way.conditions || []).map((c) => `${c.type}:${c.min ?? c.max ?? c.pct ?? c.photon ?? ""}`).sort().join("|");
+    const add = way.addsPhoton ? `add:${way.addsPhoton}` : "";
+    return [way.via || "self", way.medium || "", way.restrict || "", way.scope || "", conds, add].join("|");
   }
   function probOf(way) {
     const c = (way && way.conditions || []).find((x) => x.type === "prob");
@@ -247113,17 +247401,36 @@ window.__PREVIEW_DATA__ = {
   function hasReishouCondition(way) {
     return (way.conditions || []).some((c) => c.type === "reishou");
   }
+  function hasNoReishouCondition(way) {
+    return (way.conditions || []).some((c) => c.type === "noReishou");
+  }
+  function reishouBlocked(way, specialReishou) {
+    if (hasReishouCondition(way) && !specialReishou) return true;
+    if (hasNoReishouCondition(way) && specialReishou) return true;
+    return false;
+  }
+  function chainCountOk(way, chainCount) {
+    if (typeof chainCount !== "number") return true;
+    for (const c of way.conditions || []) {
+      if (c.type === "chainMin" && chainCount < c.min) return false;
+      if (c.type === "chainMax" && chainCount > c.max) return false;
+    }
+    return true;
+  }
   function partyHasChainGrant(members) {
-    return (members || []).some(({ rec, specialReishou }) => rec && (rec.grant || []).some((g) => (g.scope === "ally" || g.scope === "all") && !(hasReishouCondition(g) && !specialReishou)));
+    return (members || []).some(({ rec, specialReishou }) => rec && (rec.grant || []).some((g) => (g.scope === "ally" || g.scope === "all") && !reishouBlocked(g, specialReishou)));
   }
   function chainOriginEligibility(rec, { partyHasGrant = false, specialReishou = false, ignoredProb = [] } = {}) {
     if (partyHasGrant) return { ok: true, reason: null };
     if (!rec || !hasChainRole(rec)) return { ok: false, reason: "チェインを持っていない" };
     const ignored = new Set(ignoredProb || []);
-    const usable = (list) => (list || []).filter((w) => !(hasReishouCondition(w) && !specialReishou) && !ignored.has(chainWayKey(w)));
+    const usable = (list) => (list || []).filter((w) => !reishouBlocked(w, specialReishou) && !ignored.has(chainWayKey(w)));
     if (usable(rec.start).length) return { ok: true, reason: null };
     if (usable(rec.grant).length) return { ok: true, reason: null };
     if ((rec.start || []).length || (rec.grant || []).length) {
+      if (specialReishou && [...rec.start || [], ...rec.grant || []].some((w) => hasNoReishouCondition(w))) {
+        return { ok: false, reason: "専用霊宝で特性が変わっている" };
+      }
       return { ok: false, reason: "専用霊宝が付いていない" };
     }
     if ((rec.relay || []).length) {
@@ -247162,34 +247469,42 @@ window.__PREVIEW_DATA__ = {
   }
   function wayFriction(way, photonOf) {
     let f = photonRank(way, photonOf) * 2;
-    f += (way.conditions || []).filter((c) => c.type !== "photon" && c.type !== "reishou").length;
+    f += (way.conditions || []).filter((c) => c.type !== "photon" && c.type !== "reishou" && c.type !== "noReishou" && c.type !== "chainMin" && c.type !== "chainMax").length;
     if (way.medium === "覚醒スキル" || way.medium === "奥義") f += 1;
     return f;
   }
-  function pickPassWay(ways, ctx) {
-    let reishouBlocked = false;
-    const usable = [];
-    for (const way2 of ways) {
-      if (ctx.ignoredProb && ctx.ignoredProb.has(chainWayKey(way2))) continue;
-      if (hasReishouCondition(way2) && !ctx.specialReishou) {
-        reishouBlocked = true;
-        continue;
-      }
-      usable.push(way2);
-    }
-    if (!usable.length) return reishouBlocked ? { blocked: "reishou" } : null;
-    usable.sort((a, b) => {
-      const ra = a.restrict ? 1 : 0;
-      const rb = b.restrict ? 1 : 0;
-      if (ra !== rb) return ra - rb;
-      return wayFriction(a, ctx.photonOf) - wayFriction(b, ctx.photonOf);
-    });
-    const way = usable[0];
-    const notes = conditionNotes(way, ctx.photonOf);
+  function passWayNotes(way, photonOf) {
+    const notes = conditionNotes(way, photonOf);
     if (way.restrict === "maxAtk") notes.push("最も攻撃力が高い味方へのチェイン");
     if (way.restrict === "minSpd") notes.push("最も素早さが低い味方へのチェイン");
     notes.push(`${way.medium}でチェイン`);
-    return { way, notes };
+    return notes;
+  }
+  function pickPassCandidate(cands, ctx) {
+    let blocked = false;
+    const usable = [];
+    for (const cand of cands) {
+      if (ctx.ignoredProb && ctx.ignoredProb.has(chainWayKey(cand.way))) continue;
+      if (reishouBlocked(cand.way, ctx.specialReishou)) {
+        blocked = true;
+        continue;
+      }
+      if (!chainCountOk(cand.way, ctx.chainCount)) continue;
+      usable.push(cand);
+    }
+    if (!usable.length) return blocked ? { blocked: "reishou" } : null;
+    usable.sort((a, b) => {
+      const ra = a.way.restrict ? 1 : 0;
+      const rb = b.way.restrict ? 1 : 0;
+      if (ra !== rb) return ra - rb;
+      const df = wayFriction(a.way, ctx.photonOf) - wayFriction(b.way, ctx.photonOf);
+      if (df !== 0) return df;
+      if (a.kind !== b.kind) return a.kind === "self" ? -1 : 1;
+      return 0;
+    });
+    const { kind, way } = usable[0];
+    const notes = kind === "self" ? wayNotes(way, "self", ctx.photonOf) : passWayNotes(way, ctx.photonOf);
+    return { kind, way, notes };
   }
   function photonForWay(way) {
     if (!way) return null;
@@ -247208,6 +247523,7 @@ window.__PREVIEW_DATA__ = {
     }
     const notes = conditionNotes(way, photonOf);
     if (kind === "self") {
+      if (way.addsPhoton) notes.push(`自身に${way.addsPhoton}フォトンを追加`);
       notes.push("自身にチェイン");
       return notes;
     }
@@ -247216,15 +247532,18 @@ window.__PREVIEW_DATA__ = {
     notes.push(`${way.medium}でチェイン`);
     return notes;
   }
-  function resolvePass(rec, { isOrigin, specialReishou, partyGrant, photonOf, ignoredProb = null }) {
+  function resolvePass(rec, { isOrigin, specialReishou, partyGrant, photonOf, ignoredProb = null, chainCount = null }) {
     if (rec) {
+      const cands = [];
       const ways = isOrigin ? [...rec.start || []] : [...rec.start || [], ...rec.relay || []];
-      const picked = pickPassWay(ways, { specialReishou, photonOf, ignoredProb });
+      for (const w of ways) cands.push({ kind: "way", way: w });
+      for (const w of rec.selfChain || []) cands.push({ kind: "self", way: w });
+      const picked = pickPassCandidate(cands, { specialReishou, photonOf, ignoredProb, chainCount });
       if (picked && picked.way) {
-        return { kind: "way", way: picked.way, notes: picked.notes, photon: photonForWay(picked.way) };
+        return { kind: picked.kind, way: picked.way, notes: picked.notes, photon: photonForWay(picked.way) };
       }
       const grants = rec.grant || [];
-      const usableGrants = grants.filter((g) => !(hasReishouCondition(g) && !specialReishou) && !(ignoredProb && ignoredProb.has(chainWayKey(g))));
+      const usableGrants = grants.filter((g) => !reishouBlocked(g, specialReishou) && !(ignoredProb && ignoredProb.has(chainWayKey(g))));
       const allyGrant = usableGrants.find((g) => g.scope !== "self");
       if (allyGrant) {
         return { kind: "grantAlly", way: allyGrant, notes: ["回数チェインを付与して繋ぐ"], photon: photonForWay(allyGrant) };
@@ -247241,13 +247560,14 @@ window.__PREVIEW_DATA__ = {
     if (partyGrant) return { kind: "partyGrant", notes: ["回数チェイン付与で繋ぐ"], photon: null };
     return null;
   }
-  function findForcedWay(rec, key, { isOrigin, specialReishou, ignoredProb }) {
+  function findForcedWay(rec, key, { isOrigin, specialReishou, ignoredProb, chainCount = null }) {
     if (!rec || !key) return null;
     const lists = isOrigin ? [["way", rec.start], ["grant", rec.grant], ["self", rec.selfChain]] : [["way", rec.start], ["way", rec.relay], ["grant", rec.grant], ["self", rec.selfChain]];
     for (const [kind, list] of lists) {
       for (const way of list || []) {
         if (chainWayKey(way) !== key) continue;
-        if (hasReishouCondition(way) && !specialReishou) return null;
+        if (reishouBlocked(way, specialReishou)) return null;
+        if (!chainCountOk(way, chainCount)) return null;
         if (ignoredProb && ignoredProb.has(key)) return null;
         return { kind, way };
       }
@@ -247258,7 +247578,8 @@ window.__PREVIEW_DATA__ = {
     isOrigin = false,
     specialReishou = false,
     ignoredProb = [],
-    photonOf = null
+    photonOf = null,
+    chainCount = null
   } = {}) {
     const ignored = new Set(ignoredProb || []);
     const options = [];
@@ -247267,7 +247588,8 @@ window.__PREVIEW_DATA__ = {
       const lists = isOrigin ? [["way", rec.start], ["grant", rec.grant], ["self", rec.selfChain]] : [["way", rec.start], ["way", rec.relay], ["grant", rec.grant], ["self", rec.selfChain]];
       for (const [kind, list] of lists) {
         for (const way of list || []) {
-          if (hasReishouCondition(way) && !specialReishou) continue;
+          if (reishouBlocked(way, specialReishou)) continue;
+          if (!chainCountOk(way, chainCount)) continue;
           const key = chainWayKey(way);
           if (ignored.has(key) || seen.has(key)) continue;
           seen.add(key);
@@ -247364,13 +247686,11 @@ window.__PREVIEW_DATA__ = {
     const countOcc = (id) => actions.reduce((n, a) => n + (a.id === id ? 1 : 0), 0);
     let stopReason = null;
     let stopId = null;
+    let photonBudget = CHAIN_PHOTON_MAX;
     for (; ; ) {
-      if (actions.length >= CHAIN_PHOTON_MAX) {
-        stopReason = "photon";
-        break;
-      }
       const last = actions[actions.length - 1];
       const isOrigin = actions.length === 1;
+      const chainCount = actions.length - 1;
       const photonOf = photonGuaranteeOf ? (t) => photonGuaranteeOf(last.id, t) : null;
       const ov = (overrides || {})[`${last.id}#${last.occ}`] || null;
       if (ov && ov.stopPhoton) {
@@ -247384,7 +247704,8 @@ window.__PREVIEW_DATA__ = {
         const forced = findForcedWay(chainOf(last.id), ov.wayKey, {
           isOrigin,
           specialReishou: specialReishouOf(last.id),
-          ignoredProb: ignoredSet
+          ignoredProb: ignoredSet,
+          chainCount
         });
         if (forced) {
           pass = {
@@ -247401,7 +247722,8 @@ window.__PREVIEW_DATA__ = {
           specialReishou: specialReishouOf(last.id),
           partyGrant,
           photonOf,
-          ignoredProb: ignoredSet
+          ignoredProb: ignoredSet,
+          chainCount
         });
       }
       if (!pass) {
@@ -247414,12 +247736,18 @@ window.__PREVIEW_DATA__ = {
         stopId = last.id;
         break;
       }
+      const adds = pass.way && pass.way.addsPhoton ? 1 : 0;
+      if (actions.length >= photonBudget + adds) {
+        stopReason = "photon";
+        break;
+      }
+      if (adds) photonBudget += 1;
       last.photon = pass.photon || null;
       last.way = pass.way || null;
       last.prob = probOf(pass.way);
       if (pass.kind === "self") {
         const occ = countOcc(last.id) + 1;
-        if (occ > MAX_ACTIONS_PER_MEMBER || skippedSet.has(`${last.id}#${occ}`)) {
+        if (occ > MAX_ACTIONS_PER_MEMBER && !adds || skippedSet.has(`${last.id}#${occ}`)) {
           stopReason = "no-candidate";
           stopId = last.id;
           break;
@@ -247488,7 +247816,7 @@ window.__PREVIEW_DATA__ = {
     return { actions, stopReason, stopId };
   }
 
-  // build/app/js/worth.js
+  // app/js/worth.js
   var BUFF_REWARD_LABEL = {
     attack_buff: "攻撃力上昇",
     defense_buff: "防御力上昇",
@@ -247593,7 +247921,7 @@ window.__PREVIEW_DATA__ = {
     return { lines, verdict };
   }
 
-  // build/app/js/hbomb.js
+  // app/js/hbomb.js
   var PLACER_LEVEL = 70;
   var MAX_BOMBS_PER_ENEMY = 3;
   var REN_MULT_CAP = 50;
@@ -248701,7 +249029,7 @@ window.__PREVIEW_DATA__ = {
     return map ? [...map.values()] : [];
   }
 
-  // build/app/js/kyoen.js
+  // app/js/kyoen.js
   var CONVERTER_LEVEL = 70;
   var COUNT_CAP = 50;
   var EXTEND_PER_TURN = 3;
@@ -249234,7 +249562,7 @@ window.__PREVIEW_DATA__ = {
     return "今の伸び方では倒し切れない";
   }
 
-  // build/app/js/formations.js
+  // app/js/formations.js
   var SLOT_LABELS = ["1", "2", "リーダー", "4", "5"];
   var LEADER_INDEX = 2;
   function basicsById(megidoBasics) {
@@ -249549,7 +249877,7 @@ window.__PREVIEW_DATA__ = {
     return a.formation.name < b.formation.name ? -1 : a.formation.name > b.formation.name ? 1 : 0;
   }
 
-  // build/app/js/sheet.js
+  // app/js/sheet.js
   var CANDIDATE_SOURCE_NOTE = "候補は本体の能力・専用霊宝・オーブ・マスエフェクトから出したものです（マスエフェクト由来はリーダーに置いた場合）。";
   var FORMATION_MANAGE_NOTE = "ここで編成を管理・保存できます。";
   function el3(tag, className, text) {
@@ -249557,6 +249885,12 @@ window.__PREVIEW_DATA__ = {
     if (className) node.className = className;
     if (text != null) node.textContent = text;
     return node;
+  }
+  function damageEstimateHitText(hit) {
+    const name = hit.skillName ? `「${hit.skillName}」` : "";
+    const hits = hit.hits > 1 ? `（${hit.hits}連続の合計）` : "";
+    const cond = hit.conditionNote ? `（${hit.conditionNote}）` : "";
+    return `${hit.attackerName}の${hit.kindLabel}${name}で約${hit.total}点${hits}${cond}`;
   }
   function spdDetailSpan(parts, className) {
     const span = el3("span", className);
@@ -249898,28 +250232,6 @@ window.__PREVIEW_DATA__ = {
       if (vm.worth.verdict) sec.append(el3("p", "worth-verdict", vm.worth.verdict));
       content.append(sec);
     }
-    if (vm.floorOverview) {
-      const ov = vm.floorOverview;
-      const sec = section2("この階の概要");
-      sec.append(el3("p", "floor-overview-line", `階層テーマ: ${ov.themeText}`));
-      sec.append(el3("h4", "sheet-section-title", "この階の敵"));
-      if (ov.enemies.length === 0) sec.append(el3("p", "sheet-note", "敵はいません。"));
-      for (const e of ov.enemies) {
-        const row = el3("div", "floor-overview-enemy");
-        row.append(el3("span", "floor-overview-enemy-name", e.name));
-        if (typeof cb.onCreateFormationFor === "function") {
-          const btn = el3("button", "btn-overview-build", "この敵の編成を作る");
-          btn.dataset.enemyName = e.name;
-          btn.addEventListener("click", () => cb.onCreateFormationFor(e.name));
-          row.append(btn);
-        }
-        sec.append(row);
-      }
-      sec.append(el3("h4", "sheet-section-title", "この階の探索マス"));
-      if (ov.explores.length === 0) sec.append(el3("p", "sheet-note", "探索マスはありません。"));
-      for (const line of ov.explores) sec.append(el3("p", "floor-overview-line", line));
-      content.append(sec);
-    }
     if (vm.canFix) {
       const fixBtn2 = el3("button", "btn-fix", "結果を直す");
       fixBtn2.addEventListener("click", cb.onShowFix);
@@ -250039,6 +250351,26 @@ window.__PREVIEW_DATA__ = {
         sec.append(el3("p", "confirm-spd-line", s.aheadNames.length > 0 ? `先手: ${s.aheadNames.join("・")}（${s.aheadNames.length}人）` : "敵最速より速い味方はいません"));
         if (s.tiedNames.length > 0) {
           sec.append(el3("p", "confirm-spd-line", `同速: ${s.tiedNames.join("・")}`));
+        }
+      }
+      if (vm.confirmation.damageEstimate) {
+        const est = vm.confirmation.damageEstimate;
+        sec.append(el3("p", "confirm-me", "受けダメージの見積もり"));
+        sec.append(el3("p", "sheet-note", est.premise));
+        for (const block of est.blocks) {
+          sec.append(el3("p", "sheet-note", `対象: ${block.enemyName}`));
+          if (!block.attacksRead) {
+            sec.append(el3("p", "sheet-note", "敵の攻撃が文面から読めなかったため、この見積もりは出せない"));
+          } else if (block.falls.length === 0) {
+            sec.append(el3("p", "sheet-note", "落ちる味方はいない（見込み）"));
+          } else {
+            for (const fall of block.falls) {
+              sec.append(el3("p", "confirm-spd-line", `${fall.allyName}が落ちる見込み（HP${fall.hp}）`));
+              for (const hit of fall.hits) {
+                sec.append(el3("p", "sheet-note", damageEstimateHitText(hit)));
+              }
+            }
+          }
         }
       }
       const actions = el3("div", "confirm-actions");
@@ -250611,7 +250943,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // build/app/js/builder.js
+  // app/js/builder.js
   function el4(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -250619,6 +250951,12 @@ window.__PREVIEW_DATA__ = {
     return node;
   }
   var MUSIC_NOTE_ADD_PATH = "M12.116 19.808q-1.238 0-2.12-.882t-.88-2.118t.88-2.119t2.12-.881q.575 0 1.09.204t.91.615V4.192H19v2.539h-3.884v10.077q0 1.237-.882 2.118t-2.118.882M7.23 11.192v-3h-3v-1h3v-3h1v3h3v1h-3v3z";
+  function damageEstimateHitText2(hit) {
+    const name = hit.skillName ? `「${hit.skillName}」` : "";
+    const hits = hit.hits > 1 ? `（${hit.hits}連続の合計）` : "";
+    const cond = hit.conditionNote ? `（${hit.conditionNote}）` : "";
+    return `${hit.attackerName}の${hit.kindLabel}${name}で約${hit.total}点${hits}${cond}`;
+  }
   function noteMarkEl() {
     const wrap = el4("div", "cand-note-mark");
     const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
@@ -251295,6 +251633,9 @@ window.__PREVIEW_DATA__ = {
       if (slot.filled && slot.meMatch) {
         main.append(el4("div", "slot-me-match", "✓ ME条件に合う"));
       }
+      if (slot.filled && slot.reishou4Text) {
+        main.append(el4("div", "slot-reishou4", `✓ 第2特性「${slot.reishou4Text}」発動中`));
+      }
       main.addEventListener("click", () => cb.onSlotTap(slot.index));
       cell.append(main);
       if (slot.filled) {
@@ -251439,6 +251780,27 @@ window.__PREVIEW_DATA__ = {
         box.append(rowBox);
       }
       box.append(el4("div", "flag-fit-note", vm.withstand.premise));
+      content.append(box);
+    }
+    if (vm.damageEstimate) {
+      const est = vm.damageEstimate;
+      const box = el4("div", "build-me");
+      box.append(el4("div", "build-me-title", `受けダメージの見積もり（対 ${est.enemyName}）`));
+      box.append(el4("div", "flag-fit-note", est.premise));
+      if (!est.attacksRead) {
+        box.append(el4("div", "flag-fit-line", "敵の攻撃が文面から読めなかったため、この見積もりは出せない"));
+      } else if (est.falls.length === 0) {
+        box.append(el4("div", "flag-fit-line", "落ちる味方はいない（見込み）"));
+      } else {
+        for (const fall of est.falls) {
+          const rowBox = el4("div", "flag-fit-row");
+          rowBox.append(el4("div", "flag-fit-head", `${fall.allyName}が落ちる見込み（HP${fall.hp}）`));
+          for (const hit of fall.hits) {
+            rowBox.append(el4("div", "flag-fit-line", damageEstimateHitText2(hit)));
+          }
+          box.append(rowBox);
+        }
+      }
       content.append(box);
     }
     if (typeof cb.onCustomTagsChange === "function") {
@@ -251806,7 +252168,7 @@ window.__PREVIEW_DATA__ = {
     return { top, content, searchInput: search, bottom };
   }
 
-  // build/app/js/main.js
+  // app/js/main.js
   var DATA_BASE = "../data/";
   function monthKeyOf(date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -251861,7 +252223,6 @@ window.__PREVIEW_DATA__ = {
     let history = savedRun ? createHistory(savedRun.ops, savedRun.cursor) : createHistory();
     let formationsData = await loadFormationsData(backend);
     let records = await loadRecords(backend);
-    let savesData = await loadSaves(backend);
     let settings = await loadSettings(backend);
     let meta = await loadMeta(backend);
     let migrationSummary = null;
@@ -251951,7 +252312,7 @@ window.__PREVIEW_DATA__ = {
       if (!counterPromise) {
         counterPromise = (async () => {
           try {
-            const [means, classes, me, mechanicNotes, speedCorr, chainData, photonSupply, hbombData, kyoenData, flagData] = await Promise.all([
+            const [means, classes, me, mechanicNotes, speedCorr, chainData, photonSupply, hbombData, kyoenData, flagData, dmgReduction] = await Promise.all([
               loader.loadMeansIndex(),
               loader.loadCounterClasses(),
               loader.loadMeData(),
@@ -251973,7 +252334,10 @@ window.__PREVIEW_DATA__ = {
               loader.loadKyoen().catch(() => null),
               // 戦旗の保持者一覧も同じ扱い（無い場合は条件チェックの
               // 区画が出ないだけ）。
-              loader.loadFlag().catch(() => null)
+              loader.loadFlag().catch(() => null),
+              // 受けダメージ見積もりの軽減材料も同じ扱い（無い場合は
+              // 軽減なしの見積もりに落ちる）。
+              loader.loadDamageReduction().catch(() => null)
             ]);
             counterData = {
               index: buildIndex(means),
@@ -251985,7 +252349,8 @@ window.__PREVIEW_DATA__ = {
               photonSupply,
               hbombData,
               kyoenData,
-              flagData
+              flagData,
+              dmgReduction
             };
           } catch {
             counterData = null;
@@ -253096,6 +253461,18 @@ window.__PREVIEW_DATA__ = {
           const rb = raceBonusAnswers({ fact, index: counterData.index, owned: derived.owned });
           for (const [id, labels] of rb.megido) for (const l of labels) push(id, l);
           for (const [id, labels] of rb.orbs) for (const l of labels) pushOrb(id, l);
+          const sb = stateBonusAnswers({
+            fact,
+            index: counterData.index,
+            owned: derived.owned,
+            memberIds: buildCtx.slots.filter((s) => s.megidoId).map((s) => s.megidoId),
+            orbIds: buildCtx.slots.filter((s) => s.orbId).map((s) => s.orbId),
+            leaderId: buildCtx.slots[2] ? buildCtx.slots[2].megidoId : null,
+            levelOf,
+            hasSpecial: specialOwnedOf
+          });
+          for (const [id, labels] of sb.megido) for (const l of labels) push(id, l);
+          for (const [id, labels] of sb.orbs) for (const l of labels) pushOrb(id, l);
         }
         if (raw) {
           if (handled.has(raw.entry)) continue;
@@ -253736,6 +254113,23 @@ window.__PREVIEW_DATA__ = {
           }
         }
       }
+      const confirmation = isBattle && formation ? confirmationVm(formation, derived, fastestEnemy) : null;
+      if (confirmation) {
+        const slotsLike = formation.slots.map((s) => ({
+          megidoId: s.megidoId || null,
+          orbId: s.orbId || null
+        }));
+        const blocks = [];
+        for (const name of def.enemies || []) {
+          const fact = floorEnemies && floorEnemies.enemies ? floorEnemies.enemies[name] : null;
+          if (!fact) continue;
+          const est = damageEstimateFor(fact, squareStatMultipliers(def.rules), slotsLike, derived);
+          if (est) blocks.push({ enemyName: name, ...est });
+        }
+        if (blocks.length > 0) {
+          confirmation.damageEstimate = { premise: DAMAGE_ESTIMATE_PREMISE, blocks };
+        }
+      }
       return {
         title: squareTitle(def),
         stateText: `${ctx.floor}F ／ ${state === "done" ? "解放済み" : state === "open" ? "解放可能" : "解放不可（隣接するマスを解放してください）"}${viewOnly ? "（閲覧専用）" : ""}`,
@@ -253757,14 +254151,13 @@ window.__PREVIEW_DATA__ = {
         enemyDetails: isBattle ? enemyDetailsVm(def) : null,
         counter: isBattle ? counterVm(def, derived) : null,
         m11: !ctx.postResult ? m11Vm(entries, formation, derived) : null,
-        confirmation: isBattle && formation ? confirmationVm(formation, derived, fastestEnemy) : null,
+        confirmation,
         explorePlan: planVm,
         resultSpec,
         recovery: def.subType === "recovery" ? recoveryVm(ctx.squareId) : null,
         buff,
         worth,
         postExplore: isExplore && state === "done" ? exploreOutcomeVm() : null,
-        floorOverview: def.type === "start" ? floorOverviewVm(fd) : null,
         canFix,
         fix,
         fixSpec,
@@ -253881,13 +254274,21 @@ window.__PREVIEW_DATA__ = {
           } : null
         };
       }
+      const overview = floorOverviewVm(fd);
       overlay.openSheet(buildFloorHeadView({
         floor,
         themeText: fd.theme && fd.theme !== "なし" ? fd.theme : "なし",
         bossName: fd.boss || null,
+        notes: fd.notes || [],
+        enemies: overview.enemies,
+        explores: overview.explores,
         guide
       }, {
-        onClose: () => overlay.close()
+        onClose: () => overlay.close(),
+        onCreateFormationFor: (enemyName) => {
+          overlay.close();
+          openFormationBuilder(null, { enemyName, floors: [floor] });
+        }
       }));
     }
     async function commitExplore(box, style, extra = {}) {
@@ -255210,7 +255611,10 @@ window.__PREVIEW_DATA__ = {
         isOrigin: index === 0,
         specialReishou: chainSpecialReishouOf(action.id),
         ignoredProb: test.ignoredProb || [],
-        photonOf: (t) => photonGuaranteeInFormation(action.id, t)
+        photonOf: (t) => photonGuaranteeInFormation(action.id, t),
+        // その手のチェイン数（起点の手が0）。範囲で形が変わる
+        // 能力（プルフラスBの奥義）は、その手で使える形だけを出す。
+        chainCount: index
       });
       const key = `${action.id}#${action.occ}`;
       const ov = (test.overrides || {})[key];
@@ -255953,7 +256357,10 @@ window.__PREVIEW_DATA__ = {
             reishouSummary: slot.megidoId ? reishouSlotSummary(slot.megidoId) : null,
             // ME の枠条件のヒント（空き枠の条件表示／埋まった枠の印）。
             meCondText: meHints[index] && meHints[index].condText ? meHints[index].condText : null,
-            meMatch: Boolean(meHints[index] && meHints[index].match)
+            meMatch: Boolean(meHints[index] && meHints[index].match),
+            // 霊宝4つ装備が条件の第2特性（候補2）: 凸の解禁と装備数
+            // の両方を満たす時だけ、発動中の印を枠に出す。
+            reishou4Text: slot.megidoId && reishou4Active(slot.megidoId, levelOf(slot.megidoId), equipmentOf(slot.megidoId).length) ? reishou4TraitName(slot.megidoId) : null
           };
         }),
         target: {
@@ -255984,6 +256391,7 @@ window.__PREVIEW_DATA__ = {
         flag: flagVm(),
         hadanJiware: hadanJiwareVm(),
         withstand: withstandVm(),
+        damageEstimate: damageEstimateVm(),
         meNote: buildCtx.slots[2] && buildCtx.slots[2].megidoId ? null : "リーダーを置くと、そのリーダーのマスエフェクトがここに出ます。"
       };
       const { top, content, actionBar } = buildFormationEditor(vm, builderCallbacks);
@@ -256492,6 +256900,60 @@ window.__PREVIEW_DATA__ = {
         rows,
         premise: "乱数1・デバフなしで計算。敵の攻撃はスキル・覚醒スキル・奥義の1発分だけを数え（通常攻撃は数えていません）、味方のステータスは基礎と霊宝の固定値までです（オーブや特性の割合補正・クラス補正は数えていません）"
       };
+    }
+    const DAMAGE_ESTIMATE_PREMISE = "前提: 乱数は平均で固定。戦闘中の強化・弱体は含まず、かばうなしで素で受けた場合の見込みです（通常攻撃は材料が無いため数えていません）";
+    function damageEstimateFor(fact, mult, slotsLike, derived) {
+      if (!fact || !counterData) return null;
+      const filled = [];
+      slotsLike.forEach((s, index) => {
+        if (s && s.megidoId) filled.push({ megidoId: s.megidoId, orbId: s.orbId || null, index });
+      });
+      if (filled.length === 0) return null;
+      const leaderSlot = slotsLike[2];
+      const effMe = leaderSlot && leaderSlot.megidoId ? effectiveLeaderMe(leaderSlot.megidoId, slotsLike) : null;
+      const dr = counterData.dmgReduction;
+      const allies = [];
+      for (const s of filled) {
+        const stage = derived.conditionOf(s.megidoId);
+        if (stage >= STAGE_FAINTED) continue;
+        const stats = memberStatsOf(s.megidoId);
+        const b = byId.get(s.megidoId);
+        if (!stats || !b) continue;
+        const adj = conditionAdjustedStats(stats, stage);
+        const reductions = [];
+        for (const e of (dr && dr.megido ? dr.megido[s.megidoId] : null) || []) {
+          if (e.needsReishou && !specialOwnedOf(s.megidoId)) continue;
+          if (e.second && levelOf(s.megidoId) < 4) continue;
+          reductions.push(e);
+        }
+        if (s.orbId && dr && dr.orbs) reductions.push(...dr.orbs[s.orbId] || []);
+        if (effMe) {
+          reductions.push(...meDamageReductions(
+            effMe,
+            { style: b.style, className: b.class, gender: b.gender },
+            s.index
+          ));
+        }
+        allies.push({
+          id: s.megidoId,
+          name: b.name,
+          hp: adj.hp,
+          def: adj.def,
+          row: b.class === "スナイパー" ? "back" : "front",
+          reductions
+        });
+      }
+      if (allies.length === 0) return null;
+      return estimateFalls({ fact, mults: mult, allies });
+    }
+    function damageEstimateVm() {
+      if (!buildCtx) return null;
+      const stage = targetStageFact();
+      if (!stage) return null;
+      const slotsLike = buildCtx.slots.map((s) => s ? { megidoId: s.megidoId || null, orbId: s.orbId || null } : { megidoId: null, orbId: null });
+      const est = damageEstimateFor(stage.fact, stage.mult, slotsLike, derive());
+      if (!est) return null;
+      return { premise: DAMAGE_ESTIMATE_PREMISE, enemyName: stage.fact.name, ...est };
     }
     function buildKyousouActive() {
       if (!counterData || !counterData.mechanicNotes || !buildCtx) return false;
@@ -257401,16 +257863,10 @@ window.__PREVIEW_DATA__ = {
           update();
         }
       });
-      const anomalies = validateOps({
-        structure,
-        megidoBasics,
-        megidoDetails: formationsData.megidoDetails,
-        ops: currentOps(history)
-      });
-      const opsNow = currentOps(history);
       const outlook = towerOutlook(structure, derived);
       const usage = styleUsage(structure, derived, megidoBasics);
-      const usageByStyle = new Map(usage.map((u) => [u.style, u]));
+      const recoveries = nextRecoveries(structure, derived.cleared, derived.currentFloor);
+      const recoveryByKey = new Map(recoveries.map((r) => [r.style, r]));
       const styleCards = STYLE_ORDER.map((code) => {
         const members = [];
         for (const m of megidoBasics.megido) {
@@ -257420,43 +257876,44 @@ window.__PREVIEW_DATA__ = {
           if (stage > 0) members.push({ name: m.name, stage });
         }
         members.sort((a, b) => b.stage - a.stage || (a.name < b.name ? -1 : 1));
-        const u = usageByStyle.get(code);
-        return { style: code, label: STYLE_NAME[code], used: u.used, capacity: u.capacity, members };
+        const rec = recoveryByKey.get(code);
+        return {
+          style: code,
+          label: STYLE_NAME[code],
+          nextFloor: rec ? rec.nextFloor : null,
+          members
+        };
       });
-      let footerGlow = null;
+      const randomRec = recoveryByKey.get("RANDOM");
+      let footerState = null;
       {
         const { veryBad, fainted } = derived.fatigue;
-        if (fainted > 0) footerGlow = "risk-high";
+        if (fainted > 0) footerState = "risk-high";
         else if (veryBad > 0) {
           const fdNow = floorData(structure, derived.currentFloor);
           const hasRecoveryHere = fdNow ? Object.entries(fdNow.squares).some(([id, d]) => d.type === "explore" && d.subType === "recovery" && !derived.cleared.has(id)) : false;
-          footerGlow = hasRecoveryHere ? "recovery" : "risk";
+          footerState = hasRecoveryHere ? "recovery" : "risk";
         }
       }
       renderStateFooter(stateEl, {
         notice: noticeText,
-        glow: footerGlow,
+        state: footerState,
         towerPower: derived.towerPower,
+        nextTowerFloor: outlook.nextTower ? outlook.nextTower.floor : null,
         outlookShort: outlookShort(outlook),
-        outlookDetail: outlookText(
-          outlook,
-          opsNow.some((op) => op.type === "battle" || op.type === "explore")
-        ),
+        outlookVerdict: outlook.mode === "pace" ? outlook.verdict === "enough" ? "このペースなら最後まで足りる" : `このペースだと${outlook.runOutFloor}Fで尽きる` : null,
         allowance: outlook.allowance,
         styleUsage: usage,
         expanded: footerExpanded,
-        nextRecoveries: nextRecoveries(structure, derived.cleared, derived.currentFloor),
         styleCards,
-        buffText: buffBandText(derived),
-        precision: derived.conditionsPartial ? "コンディションの一部が不明のため、見通しの精度が下がります" : null,
-        drift: anomalies.length > 0 ? `結果の付け忘れの疑いが${anomalies.length}件あります（記録画面で確認）` : null
+        randomRecovery: randomRec ? { nextFloor: randomRec.nextFloor } : null,
+        buffText: buffBandText(derived)
       }, {
         onToggleExpand: () => {
           footerExpanded = !footerExpanded;
           update();
         },
-        onOpenConditions: () => openConditionView(),
-        onOpenDrift: () => showSection("records")
+        onOpenConditions: () => openConditionView()
       });
       renderSection(derived);
     };
@@ -257556,10 +258013,10 @@ window.__PREVIEW_DATA__ = {
         }
       });
       wrap.append(switchHost);
-      if (viewFloor <= 20) {
+      {
         const guideBtn = document.createElement("button");
         guideBtn.className = "btn-floor-guide";
-        guideBtn.textContent = `${viewFloor}Fのガイド`;
+        guideBtn.textContent = `${viewFloor}Fの階の知識`;
         guideBtn.addEventListener("click", () => openFloorHead(viewFloor));
         wrap.append(guideBtn);
       }
@@ -257567,11 +258024,9 @@ window.__PREVIEW_DATA__ = {
       if (notes && notes.length > 0) {
         const notesEl = document.createElement("div");
         notesEl.className = "map-notes";
-        for (const note of notes) {
-          const line = document.createElement("div");
-          line.textContent = note;
-          notesEl.append(line);
-        }
+        const line = document.createElement("div");
+        line.textContent = notes[0];
+        notesEl.append(line);
         wrap.append(notesEl);
       }
       const prev = prevSummaryFor(records, viewFloor);
@@ -257893,24 +258348,12 @@ window.__PREVIEW_DATA__ = {
         statsText: `戦闘${run.stats.battles}（勝利${run.stats.wins}・敗北${run.stats.losses}・リタイア${run.stats.retreats}）／探索${run.stats.explores}／踏破${run.stats.floorsCleared.length}階／処理${run.stats.squaresProcessed}マス`,
         floors: Object.entries(run.floorSummaries || {}).map(([floor, text]) => ({ floor: Number(floor), text })).sort((a, b) => a.floor - b.floor)
       }));
-      const saves = [...savesData.saves].reverse().map((s) => {
-        const sOps = s.ops || [];
-        const battles = sOps.filter((o) => o.type === "battle").length;
-        const explores = sOps.filter((o) => o.type === "explore").length;
-        return {
-          id: s.id,
-          name: s.name,
-          savedAtText: String(s.savedAt || "").slice(0, 10),
-          statsText: `戦闘${battles}／探索${explores}／記録${sOps.length}件`
-        };
-      });
       return {
         currentFloors,
         tendencies,
         driftAnomalies: anomalies.map((a) => a.message),
         fixTargets,
         pastRuns,
-        saves,
         canCloseMonth: ops.length > 0
       };
     }
@@ -257980,64 +258423,6 @@ window.__PREVIEW_DATA__ = {
     function openRecordsView() {
       showSection("records");
     }
-    async function saveNamedRun(name) {
-      const ops = currentOps(history);
-      const trimmed = String(name || "").trim();
-      const label = trimmed || `${monthKeyOf(/* @__PURE__ */ new Date())} の控え（${ops.length}件）`;
-      const entry = {
-        id: `save-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 7)}`,
-        name: label,
-        savedAt: (/* @__PURE__ */ new Date()).toISOString(),
-        ops,
-        cursor: ops.length
-      };
-      savesData = { saves: [...savesData.saves, entry] };
-      await saveSaves(backend, savesData);
-      setNotice(`ランを保存しました: ${label}`);
-      renderRecordsSection();
-    }
-    function openRecallSave(id) {
-      const target = savesData.saves.find((s) => s.id === id);
-      if (!target) return;
-      const ops = currentOps(history);
-      const battles = ops.filter((o) => o.type === "battle").length;
-      const explores = ops.filter((o) => o.type === "explore").length;
-      overlay.openSheet(buildSaveRecallConfirmView({
-        name: target.name,
-        currentText: ops.length > 0 ? `戦闘${battles}／探索${explores}／記録${ops.length}件` : null
-      }, {
-        onConfirm: async () => {
-          history = createHistory(target.ops || [], target.cursor ?? (target.ops || []).length);
-          await saveRun(backend, history);
-          sheetCtx = null;
-          viewFloor = null;
-          overlay.close();
-          setNotice(`控えを呼び戻しました: ${target.name}`);
-          await update();
-          openRecordsView();
-        },
-        onCancel: () => {
-          overlay.close();
-          openRecordsView();
-        }
-      }));
-    }
-    function openDeleteSave(id) {
-      const target = savesData.saves.find((s) => s.id === id);
-      if (!target) return;
-      overlay.openSheet(buildSaveDeleteConfirmView(target.name, {
-        onConfirm: async () => {
-          savesData = { saves: savesData.saves.filter((s) => s.id !== id) };
-          await saveSaves(backend, savesData);
-          overlay.close();
-          openRecordsView();
-        },
-        onCancel: () => {
-          overlay.close();
-          openRecordsView();
-        }
-      }));
-    }
     function openResetConfirm() {
       const code = String(Math.floor(1e3 + Math.random() * 9e3));
       let inputValue = "";
@@ -258052,7 +258437,6 @@ window.__PREVIEW_DATA__ = {
           history = createHistory();
           formationsData = { formations: [], megidoDetails: null };
           records = { runs: [] };
-          savesData = { saves: [] };
           settings = { version: 1 };
           meta = { migratedAt: (/* @__PURE__ */ new Date()).toISOString(), resetAt: (/* @__PURE__ */ new Date()).toISOString() };
           await saveMeta(backend, meta);
@@ -258077,9 +258461,6 @@ window.__PREVIEW_DATA__ = {
           overlay.close();
           openRecordsView();
         }),
-        onSaveNamed: (name) => saveNamedRun(name),
-        onRecallSave: (id) => openRecallSave(id),
-        onDeleteSave: (id) => openDeleteSave(id),
         onReset: () => openResetConfirm(),
         onOpenMidRun: () => openMidRunView(),
         onOpenConditions: () => openConditionView(),
