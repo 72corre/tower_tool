@@ -30,6 +30,11 @@
      コンディション段階のアンカー色（--stage-2）を借りていたため、
      段階色が装飾に漏れていた。注意はこの色に統一する。 */
   --warn: #ecc94b;
+  /* 回数チェイン付与の色（2026-11-21 ユーザー決定）: チェイン
+     テーブルで、付与由来の手（矢印・枠・注記）だけを通常の
+     チェイン（金）と見分けるための紫。選択・危険・警告の
+     どれの意味も持たせない。 */
+  --grant: #c4a7e8;
   /* 上の帯は SW89 で廃止。レイアウト各所が参照する --topbar-h は
      0 に固定して残す（帯の高さぶんの余白・ずらしが消える）。 */
   --topbar-h: 0px;
@@ -72,6 +77,16 @@ button {
   cursor: pointer;
 }
 button:disabled { opacity: 0.4; cursor: default; }
+
+/* 入力要素のフォントサイズ（2026-11-21）: iOS Safari は 16px 未満の
+   入力欄にフォーカスすると画面を自動で拡大するため、テキスト入力・
+   テキストエリア・セレクトは 16px 以上を保つ。個別の部品で小さく
+   指定していた分（.formation-search の inherit=15px、.build-text-input
+   等の 14px、.megido-select の inherit）も各規則側で 16px に揃えた。
+   この土台の規則は、専用の規則が無い入力要素の受け皿。viewport の
+   maximum-scale で拡大を塞ぐ方法は採らない（ユーザーの拡大操作を
+   妨げるため）。 */
+input, textarea, select { font-size: 16px; }
 
 /* ヘッダーのアイコン（Material Symbols の自己ホストサブセット）。
    文字だけでは無機質で直感的でない、というユーザーの指摘（2026-11-19）
@@ -405,8 +420,13 @@ button:disabled { opacity: 0.4; cursor: default; }
   white-space: nowrap;
 }
 .floor-row-symbols { display: flex; gap: 4px; flex: none; align-items: center; }
-.fl-sym { display: inline-flex; }
+/* 回復・塔破力の固定スロット（塔破力・R回復・C回復・B回復・
+   ランダム回復の順）。場所は全行に予約し、その種類のマスが
+   ある階だけ記号を出す。意味は色ではなく場所が担う。 */
+.fl-slot { width: 32px; flex: none; display: inline-flex; align-items: center; }
+.fl-sym { display: inline-flex; align-items: center; }
 .fl-sym .sq-icon { width: 16px; height: 16px; }
+.fl-sym-count { font-size: 10px; margin-left: 1px; }
 /* 記号の色はマップのマスのアイコン色に揃える（css の sqr-* /
    sqx-recovery / sqx-tower_power のアイコン色と同値）。 */
 .fl-sym-r { color: #d7d7d9; }
@@ -524,6 +544,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 .formation-search {
   width: 100%;
   font: inherit;
+  font-size: 16px; /* iOS の自動拡大対策（土台の規則のコメント参照） */
   color: var(--text);
   background: var(--surface-muted);
   border: 1px solid var(--border);
@@ -634,6 +655,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 .megido-detail .megido-select, .megido-detail .megido-number { width: 12em; max-width: 60vw; box-sizing: border-box; }
 .megido-select, .megido-number {
   font: inherit;
+  font-size: 16px; /* iOS の自動拡大対策（土台の規則のコメント参照） */
   color: var(--text);
   background: var(--surface-muted);
   border: 1px solid var(--border);
@@ -1105,8 +1127,9 @@ button:disabled { opacity: 0.4; cursor: default; }
 /* 塔破力不足で記録できない状態のボタン（理由を文言に出す） */
 .sheet-action-btn.act-blocked { background: var(--surface-muted); color: var(--muted); border: 1px dashed var(--border); }
 
-/* メギド画面: レベルのインライン選択 */
-.megido-lv-inline { padding: 4px 6px; font-size: 13px; }
+/* メギド画面: レベルのインライン選択（セレクトのため 16px を保つ。
+   iOS の自動拡大対策。旧 13px） */
+.megido-lv-inline { padding: 4px 6px; font-size: 16px; }
 
 /* ==== M7 の候補（未選択が初期状態）・M4/M5/M6 の実質 ==== */
 /* 探索の候補: 1件タップでパーティが決まる。候補は一覧であり、
@@ -1480,7 +1503,7 @@ button:disabled { opacity: 0.4; cursor: default; }
 .floor-check.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
 .build-field { margin: 10px 0; }
 .build-field-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-.build-text-input, .build-memo-input { width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 14px; }
+.build-text-input, .build-memo-input { width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 16px; /* iOS の自動拡大対策（旧 14px） */ }
 .build-memo-input { min-height: 64px; resize: vertical; }
 .build-slot-reishou { font-size: 10px; padding: 4px 1px; margin-top: 4px; width: 100%; text-align: left; }
 /* 枠の霊宝の圧縮表示（2026-11-19）: 個数のチップ＋専用霊宝の印＋
@@ -1522,8 +1545,9 @@ button:disabled { opacity: 0.4; cursor: default; }
 
 /* 顔見せカード（SW90。旧・階頭の後継） */
 .face-card-floor { font-size: 30px; font-weight: 800; margin: 4px 0; }
-.face-card-theme-row { margin: 2px 0 6px; }
+.face-card-theme-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 6px; }
 .face-card-theme { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+.face-card-rule { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-muted); }
 .face-card-boss { font-size: 16px; font-weight: 700; }
 .guide-line { font-size: 14px; margin: 4px 0; white-space: pre-line; }
 
@@ -1533,13 +1557,14 @@ button:disabled { opacity: 0.4; cursor: default; }
 .map-floor-num { font-size: 20px; font-weight: 800; }
 .btn-floor-help { width: 26px; height: 26px; border-radius: 50%; padding: 0; font-size: 13px; font-weight: 700; line-height: 1; }
 .map-floor-theme { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+.map-floor-rule { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-muted); }
 .map-floor-band .map-notes { max-width: none; margin: 6px 0 0; padding: 0; }
 .map-prev-summary { opacity: 0.75; }
 
 .btn-reset-open { color: #f6b8b3; border-color: var(--danger); }
 
 /* メモ編集シート */
-.memo-input { width: 100%; min-height: 96px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font: inherit; font-size: 14px; resize: vertical; }
+.memo-input { width: 100%; min-height: 96px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font: inherit; font-size: 16px; resize: vertical; /* iOS の自動拡大対策（旧 14px） */ }
 
 /* ===== デスクトップ対応（1024px 以上）: 2ペイン =====
    ユーザー判断⑧。左ペインにマップ区画を常駐させ、右ペインに現在の
@@ -1590,6 +1615,11 @@ button:disabled { opacity: 0.4; cursor: default; }
 .chain-error { font-size: 13px; color: var(--danger); margin: 2px 0 0; }
 .chain-arrow { font-weight: 700; }
 .chain-link-note { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
+/* 回数チェイン付与由来の手（2026-11-21）: 矢印・行動の枠・
+   接続の注記を --grant の紫にし、凡例の行も同じ色で出す。 */
+.chain-arrow.is-grant { color: var(--grant); }
+.chain-action.is-grant .chain-action-photon { border-color: var(--grant); }
+.chain-link-note.is-grant { color: var(--grant); }
 .chain-result-line { font-size: 14px; margin: 6px 0 0; }
 .chain-photon-icon { vertical-align: -3px; }
 .chain-clear-btn { margin-top: 8px; }
@@ -1878,6 +1908,8 @@ button, select, input, a { touch-action: manipulation; }
   padding: 8px 10px; margin: 8px 0;
 }
 .bulk-count { font-weight: 700; font-size: 13px; }
+.bulk-slots { display: inline-flex; gap: 4px; }
+.btn-bulk-slot.on { background: var(--accent); color: var(--accent-text); }
 .megido-select-pick { display: none; flex: 0 0 auto; }
 .meg-candidate-list.bulk-mode .megido-select-pick { display: block; }
 .megido-select-pick.on { background: var(--accent); color: var(--accent-text); }
@@ -10326,7 +10358,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 496
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "飛行"
     },
@@ -10343,7 +10375,7 @@ window.__PREVIEW_DATA__ = {
         "def": 677,
         "spd": 533
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "飛行"
@@ -10362,7 +10394,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 480
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10379,7 +10411,7 @@ window.__PREVIEW_DATA__ = {
         "def": 482,
         "spd": 420
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -10398,7 +10430,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 631
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10415,7 +10447,7 @@ window.__PREVIEW_DATA__ = {
         "def": 495,
         "spd": 534
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -10452,7 +10484,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 610
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10469,8 +10501,8 @@ window.__PREVIEW_DATA__ = {
         "def": 635,
         "spd": 647
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10506,7 +10538,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 627
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "飛行"
     },
@@ -10523,7 +10555,7 @@ window.__PREVIEW_DATA__ = {
         "def": 514,
         "spd": 491
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "飛行"
@@ -10559,8 +10591,8 @@ window.__PREVIEW_DATA__ = {
         "def": 619,
         "spd": 621
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10578,7 +10610,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 517
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10595,7 +10627,7 @@ window.__PREVIEW_DATA__ = {
         "def": 440,
         "spd": 528
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -10631,8 +10663,8 @@ window.__PREVIEW_DATA__ = {
         "def": 302,
         "spd": 449
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10667,8 +10699,8 @@ window.__PREVIEW_DATA__ = {
         "def": 473,
         "spd": 655
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10703,8 +10735,8 @@ window.__PREVIEW_DATA__ = {
         "def": 480,
         "spd": 502
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10739,8 +10771,8 @@ window.__PREVIEW_DATA__ = {
         "def": 611,
         "spd": 498
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10794,7 +10826,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 686
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10812,7 +10844,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 505
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10866,7 +10898,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 280
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10883,7 +10915,7 @@ window.__PREVIEW_DATA__ = {
         "def": 302,
         "spd": 646
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -10920,7 +10952,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 688
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -10938,7 +10970,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 558
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11009,7 +11041,7 @@ window.__PREVIEW_DATA__ = {
         "def": 490,
         "spd": 478
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11028,7 +11060,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 617
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11046,7 +11078,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 270
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11063,7 +11095,7 @@ window.__PREVIEW_DATA__ = {
         "def": 488,
         "spd": 523
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11100,7 +11132,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 438
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11117,7 +11149,7 @@ window.__PREVIEW_DATA__ = {
         "def": 417,
         "spd": 281
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11154,7 +11186,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 488
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11171,7 +11203,7 @@ window.__PREVIEW_DATA__ = {
         "def": 471,
         "spd": 521
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11244,7 +11276,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 611
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11261,7 +11293,7 @@ window.__PREVIEW_DATA__ = {
         "def": 512,
         "spd": 492
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11297,7 +11329,7 @@ window.__PREVIEW_DATA__ = {
         "def": 287,
         "spd": 629
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11316,7 +11348,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 618
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11370,7 +11402,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 648
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11387,7 +11419,7 @@ window.__PREVIEW_DATA__ = {
         "def": 637,
         "spd": 634
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11423,7 +11455,7 @@ window.__PREVIEW_DATA__ = {
         "def": 276,
         "spd": 676
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11442,7 +11474,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 706
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11513,8 +11545,8 @@ window.__PREVIEW_DATA__ = {
         "def": 538,
         "spd": 515
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11693,8 +11725,8 @@ window.__PREVIEW_DATA__ = {
         "def": 460,
         "spd": 474
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11729,8 +11761,8 @@ window.__PREVIEW_DATA__ = {
         "def": 419,
         "spd": 450
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11765,8 +11797,8 @@ window.__PREVIEW_DATA__ = {
         "def": 397,
         "spd": 514
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11784,7 +11816,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 504
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11801,7 +11833,7 @@ window.__PREVIEW_DATA__ = {
         "def": 611,
         "spd": 610
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11820,7 +11852,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 414
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11891,8 +11923,8 @@ window.__PREVIEW_DATA__ = {
         "def": 273,
         "spd": 499
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": "通常アタック回数：1/6"
     },
@@ -11928,7 +11960,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 276
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11945,7 +11977,7 @@ window.__PREVIEW_DATA__ = {
         "def": 404,
         "spd": 413
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -11964,7 +11996,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 504
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -11981,7 +12013,7 @@ window.__PREVIEW_DATA__ = {
         "def": 610,
         "spd": 688
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12036,7 +12068,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 616
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "飛行"
     },
@@ -12053,7 +12085,7 @@ window.__PREVIEW_DATA__ = {
         "def": 438,
         "spd": 535
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "飛行"
@@ -12072,7 +12104,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 527
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "通常アタック回数：2"
     },
@@ -12089,7 +12121,7 @@ window.__PREVIEW_DATA__ = {
         "def": 610,
         "spd": 269
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "通常アタック回数：2"
@@ -12108,7 +12140,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 569
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12125,7 +12157,7 @@ window.__PREVIEW_DATA__ = {
         "def": 516,
         "spd": 524
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12198,7 +12230,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 279
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12215,7 +12247,7 @@ window.__PREVIEW_DATA__ = {
         "def": 474,
         "spd": 450
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "飛行"
@@ -12251,8 +12283,8 @@ window.__PREVIEW_DATA__ = {
         "def": 468,
         "spd": 507
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12288,7 +12320,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 681
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12341,7 +12373,7 @@ window.__PREVIEW_DATA__ = {
         "def": 487,
         "spd": 689
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12360,7 +12392,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 620
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12378,7 +12410,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 427
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12395,7 +12427,7 @@ window.__PREVIEW_DATA__ = {
         "def": 394,
         "spd": 616
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12431,8 +12463,8 @@ window.__PREVIEW_DATA__ = {
         "def": 538,
         "spd": 460
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12450,7 +12482,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 417
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12467,7 +12499,7 @@ window.__PREVIEW_DATA__ = {
         "def": 423,
         "spd": 492
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12485,8 +12517,8 @@ window.__PREVIEW_DATA__ = {
         "def": 489,
         "spd": 719
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12522,7 +12554,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 678
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "通常アタック回数：2"
     },
@@ -12539,7 +12571,7 @@ window.__PREVIEW_DATA__ = {
         "def": 390,
         "spd": 509
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12558,7 +12590,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 685
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12575,7 +12607,7 @@ window.__PREVIEW_DATA__ = {
         "def": 420,
         "spd": 627
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "通常アタック回数：3"
@@ -12611,8 +12643,8 @@ window.__PREVIEW_DATA__ = {
         "def": 421,
         "spd": 492
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12647,8 +12679,8 @@ window.__PREVIEW_DATA__ = {
         "def": 381,
         "spd": 610
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12683,8 +12715,8 @@ window.__PREVIEW_DATA__ = {
         "def": 523,
         "spd": 648
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12702,7 +12734,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 697
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12719,7 +12751,7 @@ window.__PREVIEW_DATA__ = {
         "def": 430,
         "spd": 491
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12737,7 +12769,7 @@ window.__PREVIEW_DATA__ = {
         "def": 494,
         "spd": 476
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "通常アタック回数：2"
@@ -12756,7 +12788,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 421
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12791,8 +12823,8 @@ window.__PREVIEW_DATA__ = {
         "def": 407,
         "spd": 470
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12810,7 +12842,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 475
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12827,7 +12859,7 @@ window.__PREVIEW_DATA__ = {
         "def": 644,
         "spd": 430
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12846,7 +12878,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 627
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "通常アタック回数：2"
     },
@@ -12863,7 +12895,7 @@ window.__PREVIEW_DATA__ = {
         "def": 410,
         "spd": 462
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "通常アタック回数：2"
@@ -12899,8 +12931,8 @@ window.__PREVIEW_DATA__ = {
         "def": 409,
         "spd": 642
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12918,7 +12950,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 286
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12935,7 +12967,7 @@ window.__PREVIEW_DATA__ = {
         "def": 505,
         "spd": 500
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12971,8 +13003,8 @@ window.__PREVIEW_DATA__ = {
         "def": 419,
         "spd": 431
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -12989,7 +13021,7 @@ window.__PREVIEW_DATA__ = {
         "def": 490,
         "spd": 424
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13008,7 +13040,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 479
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13026,7 +13058,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 475
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13043,7 +13075,7 @@ window.__PREVIEW_DATA__ = {
         "def": 514,
         "spd": 392
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13079,8 +13111,8 @@ window.__PREVIEW_DATA__ = {
         "def": 285,
         "spd": 644
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": "通常アタック回数：2"
     },
@@ -13098,7 +13130,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 646
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13115,7 +13147,7 @@ window.__PREVIEW_DATA__ = {
         "def": 630,
         "spd": 489
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13151,8 +13183,8 @@ window.__PREVIEW_DATA__ = {
         "def": 674,
         "spd": 280
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13169,7 +13201,7 @@ window.__PREVIEW_DATA__ = {
         "def": 501,
         "spd": 503
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13188,7 +13220,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 506
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13223,8 +13255,8 @@ window.__PREVIEW_DATA__ = {
         "def": 467,
         "spd": 440
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13259,8 +13291,8 @@ window.__PREVIEW_DATA__ = {
         "def": 420,
         "spd": 271
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13277,8 +13309,8 @@ window.__PREVIEW_DATA__ = {
         "def": 714,
         "spd": 285
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13314,7 +13346,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 623
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13331,7 +13363,7 @@ window.__PREVIEW_DATA__ = {
         "def": 518,
         "spd": 432
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13349,7 +13381,7 @@ window.__PREVIEW_DATA__ = {
         "def": 496,
         "spd": 476
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13368,7 +13400,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 413
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13386,7 +13418,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 616
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13403,7 +13435,7 @@ window.__PREVIEW_DATA__ = {
         "def": 408,
         "spd": 487
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13422,7 +13454,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 691
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13475,8 +13507,8 @@ window.__PREVIEW_DATA__ = {
         "def": 454,
         "spd": 450
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": true,
       "trait": "通常アタック回数：2"
     },
@@ -13493,7 +13525,7 @@ window.__PREVIEW_DATA__ = {
         "def": 642,
         "spd": 279
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13512,7 +13544,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 269
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13547,8 +13579,8 @@ window.__PREVIEW_DATA__ = {
         "def": 524,
         "spd": 308
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13565,7 +13597,7 @@ window.__PREVIEW_DATA__ = {
         "def": 431,
         "spd": 473
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13584,7 +13616,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 462
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13601,7 +13633,7 @@ window.__PREVIEW_DATA__ = {
         "def": 411,
         "spd": 488
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13620,7 +13652,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 479
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13655,8 +13687,8 @@ window.__PREVIEW_DATA__ = {
         "def": 413,
         "spd": 600
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13673,7 +13705,7 @@ window.__PREVIEW_DATA__ = {
         "def": 643,
         "spd": 269
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13692,7 +13724,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 381
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "通常アタック回数：2"
     },
@@ -13727,8 +13759,8 @@ window.__PREVIEW_DATA__ = {
         "def": 419,
         "spd": 527
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": "飛行"
     },
@@ -13745,7 +13777,7 @@ window.__PREVIEW_DATA__ = {
         "def": 418,
         "spd": 277
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -13764,7 +13796,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 282
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13799,8 +13831,8 @@ window.__PREVIEW_DATA__ = {
         "def": 507,
         "spd": 626
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13835,8 +13867,8 @@ window.__PREVIEW_DATA__ = {
         "def": 646,
         "spd": 493
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13871,8 +13903,8 @@ window.__PREVIEW_DATA__ = {
         "def": 700,
         "spd": 300
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13907,8 +13939,8 @@ window.__PREVIEW_DATA__ = {
         "def": 428,
         "spd": 478
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13943,8 +13975,8 @@ window.__PREVIEW_DATA__ = {
         "def": 495,
         "spd": 647
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13961,8 +13993,8 @@ window.__PREVIEW_DATA__ = {
         "def": 493,
         "spd": 424
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -13998,7 +14030,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 501
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14015,7 +14047,7 @@ window.__PREVIEW_DATA__ = {
         "def": 388,
         "spd": 422
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14033,8 +14065,8 @@ window.__PREVIEW_DATA__ = {
         "def": 418,
         "spd": 628
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14070,7 +14102,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 703
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14123,8 +14155,8 @@ window.__PREVIEW_DATA__ = {
         "def": 441,
         "spd": 479
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14159,8 +14191,8 @@ window.__PREVIEW_DATA__ = {
         "def": 438,
         "spd": 447
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14178,7 +14210,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 427
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14214,7 +14246,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 636
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14231,7 +14263,7 @@ window.__PREVIEW_DATA__ = {
         "def": 610,
         "spd": 463
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14268,7 +14300,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 502
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "通常アタック回数：2"
     },
@@ -14303,8 +14335,8 @@ window.__PREVIEW_DATA__ = {
         "def": 446,
         "spd": 482
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14339,8 +14371,8 @@ window.__PREVIEW_DATA__ = {
         "def": 302,
         "spd": 611
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14358,7 +14390,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 614
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14375,7 +14407,7 @@ window.__PREVIEW_DATA__ = {
         "def": 415,
         "spd": 610
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14394,7 +14426,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 626
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14411,7 +14443,7 @@ window.__PREVIEW_DATA__ = {
         "def": 427,
         "spd": 612
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14429,8 +14461,8 @@ window.__PREVIEW_DATA__ = {
         "def": 278,
         "spd": 711
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": "飛行"
     },
@@ -14483,8 +14515,8 @@ window.__PREVIEW_DATA__ = {
         "def": 624,
         "spd": 381
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14502,7 +14534,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 406
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14538,7 +14570,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 490
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "飛行"
     },
@@ -14555,7 +14587,7 @@ window.__PREVIEW_DATA__ = {
         "def": 454,
         "spd": 610
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "飛行"
@@ -14573,7 +14605,7 @@ window.__PREVIEW_DATA__ = {
         "def": 490,
         "spd": 481
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14592,7 +14624,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 609
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14627,8 +14659,8 @@ window.__PREVIEW_DATA__ = {
         "def": 504,
         "spd": 485
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": "通常アタック回数：2"
     },
@@ -14664,7 +14696,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 449
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14699,8 +14731,8 @@ window.__PREVIEW_DATA__ = {
         "def": 419,
         "spd": 627
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14736,7 +14768,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 510
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": "飛行"
     },
@@ -14771,8 +14803,8 @@ window.__PREVIEW_DATA__ = {
         "def": 628,
         "spd": 381
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14790,7 +14822,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 642
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14807,7 +14839,7 @@ window.__PREVIEW_DATA__ = {
         "def": 515,
         "spd": 536
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14825,8 +14857,8 @@ window.__PREVIEW_DATA__ = {
         "def": 416,
         "spd": 711
       },
-      "specialReishou": true,
-      "bondReishou": true,
+      "specialReishou": false,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14861,7 +14893,7 @@ window.__PREVIEW_DATA__ = {
         "def": 491,
         "spd": 270
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14880,7 +14912,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 471
       },
       "specialReishou": true,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -14898,7 +14930,7 @@ window.__PREVIEW_DATA__ = {
         "spd": 643
       },
       "specialReishou": false,
-      "bondReishou": true,
+      "bondReishou": false,
       "singularity": false,
       "trait": null
     },
@@ -244392,6 +244424,25 @@ window.__PREVIEW_DATA__ = {
   function floorData(structure, floor) {
     return structure.floors.find((f) => f.floor === floor) || null;
   }
+  function floorBattleRule(fd) {
+    if (!fd || !fd.squares) return null;
+    const counts = /* @__PURE__ */ new Map();
+    for (const def of Object.values(fd.squares)) {
+      if (def.type !== "battle") continue;
+      for (const rule of def.rules || []) {
+        counts.set(rule, (counts.get(rule) || 0) + 1);
+      }
+    }
+    let best = null;
+    let bestCount = 0;
+    for (const [rule, n] of counts) {
+      if (n > bestCount) {
+        best = rule;
+        bestCount = n;
+      }
+    }
+    return best;
+  }
   function squareDef(structure, squareId) {
     const floor = Number(String(squareId).split("-")[0].slice(1));
     const fd = floorData(structure, floor);
@@ -245797,22 +245848,52 @@ window.__PREVIEW_DATA__ = {
       row.append(boss);
       const symbols = el("span", "floor-row-symbols");
       const defs = Object.values(f.squares || {});
-      for (const def of defs) {
-        if (def.type === "explore" && def.subType === "recovery") {
-          const kind = def.styleKind === "fixed" && def.style ? { R: "fl-sym-r", C: "fl-sym-c", B: "fl-sym-b" }[def.style] : "fl-sym-random";
-          const sym = el("span", `fl-sym fl-sym-cross ${kind || "fl-sym-random"}`);
-          sym.title = def.styleKind === "fixed" && def.style ? `回復マス（${STYLE_NAME[def.style]}）` : "回復マス（ランダム）";
-          sym.append(squareIcon(def));
-          symbols.append(sym);
+      const recDefs = defs.filter((d) => d.type === "explore" && d.subType === "recovery");
+      const recFixed = (style) => recDefs.filter((d) => d.styleKind === "fixed" && d.style === style);
+      const slotDefs = [
+        {
+          cls: "fl-slot-power",
+          list: defs.filter((d) => d.type === "explore" && d.subType === "tower_power"),
+          symCls: "fl-sym fl-sym-bolt fl-sym-power",
+          title: "塔破力マス"
+        },
+        {
+          cls: "fl-slot-r",
+          list: recFixed("R"),
+          symCls: "fl-sym fl-sym-cross fl-sym-r",
+          title: `回復マス（${STYLE_NAME.R}）`
+        },
+        {
+          cls: "fl-slot-c",
+          list: recFixed("C"),
+          symCls: "fl-sym fl-sym-cross fl-sym-c",
+          title: `回復マス（${STYLE_NAME.C}）`
+        },
+        {
+          cls: "fl-slot-b",
+          list: recFixed("B"),
+          symCls: "fl-sym fl-sym-cross fl-sym-b",
+          title: `回復マス（${STYLE_NAME.B}）`
+        },
+        {
+          cls: "fl-slot-random",
+          list: recDefs.filter((d) => !(d.styleKind === "fixed" && d.style)),
+          symCls: "fl-sym fl-sym-cross fl-sym-random",
+          title: "回復マス（ランダム）"
         }
-      }
-      for (const def of defs) {
-        if (def.type === "explore" && def.subType === "tower_power") {
-          const sym = el("span", "fl-sym fl-sym-bolt fl-sym-power");
-          sym.title = "塔破力マス";
-          sym.append(squareIcon(def));
-          symbols.append(sym);
+      ];
+      for (const slotDef of slotDefs) {
+        const slot = el("span", `fl-slot ${slotDef.cls}`);
+        if (slotDef.list.length) {
+          const sym = el("span", slotDef.symCls);
+          sym.title = slotDef.title;
+          sym.append(squareIcon(slotDef.list[0]));
+          if (slotDef.list.length > 1) {
+            sym.append(el("span", "fl-sym-count", `×${slotDef.list.length}`));
+          }
+          slot.append(sym);
         }
+        symbols.append(slot);
       }
       row.append(symbols);
       if (clearedFloors && clearedFloors.has(f.floor)) {
@@ -246147,8 +246228,9 @@ window.__PREVIEW_DATA__ = {
   var MEGIDO_LEVELS = [70, 75, 77, 79, 80];
   var BOND_LABELS = ["なし", "真", "剛", "絆"];
   var BULK_KINDS = [
-    // 絆霊宝の一括は「選んだ型を各人の最初の空き枠に入れる」。値 0 は
-    // 全枠を外すクリア（意味は main 側の適用規則が担う）。
+    // 絆霊宝の一括は「選んだ型を、チェックした枠へ上書きする」
+    // （枠の選択はバーの枠ボタン。初期は4枠すべて）。値 0 は選んだ
+    // 枠を外すクリア（意味は main 側の適用規則が担う）。
     { kind: "bond_reishou", label: "絆霊宝", values: BOND_LABELS.map((label, v) => ({ v, label: v === 0 ? "なし（全枠を外す）" : label })) },
     { kind: "level", label: "レベル", values: MEGIDO_LEVELS.map((v) => ({ v, label: `Lv${v}` })) }
   ];
@@ -246216,7 +246298,7 @@ window.__PREVIEW_DATA__ = {
     }
     tools.append(filters);
     accBody.append(tools);
-    const bulkState = { kind: null, value: null, selected: /* @__PURE__ */ new Set() };
+    const bulkState = { kind: null, value: null, selected: /* @__PURE__ */ new Set(), slots: [true, true, true, true] };
     const bulkEntry = el2("div", "meg-bulk-entry");
     const bulkBar = el2("div", "meg-bulk-bar");
     bulkBar.hidden = true;
@@ -246224,6 +246306,7 @@ window.__PREVIEW_DATA__ = {
     const exitBulk = () => {
       bulkState.kind = null;
       bulkState.value = null;
+      bulkState.slots = [true, true, true, true];
       bulkState.selected.clear();
       bulkBar.hidden = true;
       bulkEntry.hidden = false;
@@ -246236,6 +246319,7 @@ window.__PREVIEW_DATA__ = {
     const enterBulk = (kind) => {
       bulkState.kind = kind;
       bulkState.value = null;
+      bulkState.slots = [true, true, true, true];
       bulkState.selected.clear();
       bulkBar.hidden = false;
       bulkEntry.hidden = true;
@@ -246281,14 +246365,28 @@ window.__PREVIEW_DATA__ = {
         bulkState.value = Number(sel.value);
       });
       bulkBar.append(sel);
+      if (bulkState.kind === "bond_reishou") {
+        const slotWrap = el2("span", "bulk-slots");
+        bulkState.slots.forEach((on, i) => {
+          const b = el2("button", on ? "btn-bulk-slot on" : "btn-bulk-slot", `枠${i + 1}`);
+          b.dataset.slotIndex = String(i);
+          b.addEventListener("click", () => {
+            bulkState.slots[i] = !bulkState.slots[i];
+            renderBulkBar();
+          });
+          slotWrap.append(b);
+        });
+        bulkBar.append(slotWrap);
+      }
       const applyBtn = el2("button", "btn-bulk-apply", "割り振る");
-      applyBtn.disabled = bulkState.selected.size === 0;
+      applyBtn.disabled = bulkState.selected.size === 0 || bulkState.kind === "bond_reishou" && !bulkState.slots.some(Boolean);
       applyBtn.addEventListener("click", () => {
         const ids = [...bulkState.selected];
         const value = Number(sel.value);
         const kind = bulkState.kind;
+        const slots = [...bulkState.slots];
         exitBulk();
-        if (ids.length > 0 && typeof cb.onBulkApply === "function") cb.onBulkApply(kind, value, ids);
+        if (ids.length > 0 && typeof cb.onBulkApply === "function") cb.onBulkApply(kind, value, ids, slots);
       });
       bulkBar.append(applyBtn);
       const cancelBtn = el2("button", "btn-bulk-cancel", "やめる");
@@ -246757,9 +246855,10 @@ window.__PREVIEW_DATA__ = {
   function buildFaceCardView(vm, cb) {
     const wrap = el2("div", "face-card");
     wrap.append(el2("div", "face-card-floor", `${vm.floor}F`));
-    if (vm.themeText) {
+    if (vm.themeText || vm.ruleText) {
       const themeRow = el2("div", "face-card-theme-row");
-      themeRow.append(el2("span", "face-card-theme", vm.themeText));
+      if (vm.themeText) themeRow.append(el2("span", "face-card-theme", vm.themeText));
+      if (vm.ruleText) themeRow.append(el2("span", "face-card-rule", vm.ruleText));
       wrap.append(themeRow);
     }
     if (vm.bossName) wrap.append(el2("p", "face-card-boss", `ボス: ${vm.bossName}`));
@@ -247442,20 +247541,15 @@ window.__PREVIEW_DATA__ = {
     }
     return next;
   }
-  function withBondBulk(entry, value, basicsEntry) {
+  function withBondBulk(entry, value, basicsEntry, targetSlots = null) {
     if (!basicsEntry || !basicsEntry.bondReishou) return null;
     if (!Number.isFinite(value)) return null;
     const v = Math.max(0, Math.min(3, Math.trunc(value)));
     const slots = normalizeBondSlots(entry && typeof entry === "object" ? entry : {});
-    if (v === 0) {
-      if (slots.every((s) => s === 0)) return { entry, status: "unchanged" };
-      const next2 = { ...entry || {}, bond_reishou_slots: [0, 0, 0, 0], bond_reishou: 0 };
-      return { entry: next2, status: "applied" };
-    }
-    const idx = slots.indexOf(0);
-    if (idx < 0) return { entry, status: "skipped" };
-    const nextSlots = [...slots];
-    nextSlots[idx] = v;
+    const targets = Array.isArray(targetSlots) && targetSlots.length === 4 ? targetSlots.map(Boolean) : [true, true, true, true];
+    if (!targets.some(Boolean)) return { entry, status: "unchanged" };
+    const nextSlots = slots.map((s, i) => targets[i] ? v : s);
+    if (nextSlots.every((s, i) => s === slots[i])) return { entry, status: "unchanged" };
     const next = {
       ...entry || {},
       bond_reishou_slots: nextSlots,
@@ -250761,6 +250855,9 @@ window.__PREVIEW_DATA__ = {
     }
     return true;
   }
+  function isGrantLinkKind(kind) {
+    return kind === "grant" || kind === "grantAlly" || kind === "grantSelf" || kind === "partyGrant";
+  }
   function partyHasChainGrant(members) {
     return (members || []).some(({ rec, specialReishou }) => rec && (rec.grant || []).some((g) => (g.scope === "ally" || g.scope === "all") && !reishouBlocked(g, specialReishou)));
   }
@@ -251025,7 +251122,8 @@ window.__PREVIEW_DATA__ = {
       notes: [],
       photon: null,
       way: null,
-      prob: null
+      prob: null,
+      linkKind: null
     }];
     const countOcc = (id) => actions.reduce((n, a) => n + (a.id === id ? 1 : 0), 0);
     let stopReason = null;
@@ -251105,7 +251203,8 @@ window.__PREVIEW_DATA__ = {
           notes: pass.notes || [],
           photon: null,
           way: null,
-          prob: null
+          prob: null,
+          linkKind: pass.kind || null
         });
         continue;
       }
@@ -251126,7 +251225,8 @@ window.__PREVIEW_DATA__ = {
           notes: pass.notes || [],
           photon: null,
           way: null,
-          prob: null
+          prob: null,
+          linkKind: pass.kind || null
         });
         continue;
       }
@@ -251154,7 +251254,8 @@ window.__PREVIEW_DATA__ = {
         notes: pass.notes || [],
         photon: null,
         way: null,
-        prob: null
+        prob: null,
+        linkKind: pass.kind || null
       });
     }
     return { actions, stopReason, stopId, photonBudget };
@@ -253354,8 +253455,8 @@ window.__PREVIEW_DATA__ = {
     } else {
       const row = el3("div", "chain-route");
       chain.actions.forEach((a, i) => {
-        if (i > 0) row.append(el3("span", "chain-arrow", "›"));
-        const wrap = el3("div", `chain-action${a.fixed ? " is-fixed" : ""}`);
+        if (i > 0) row.append(el3("span", `chain-arrow${a.grantLink ? " is-grant" : ""}`, "›"));
+        const wrap = el3("div", `chain-action${a.fixed ? " is-fixed" : ""}${a.grantLink ? " is-grant" : ""}`);
         const chip = el3("button", "chain-action-photon");
         chip.dataset.megidoId = a.id;
         chip.dataset.photon = a.photon || "アタック";
@@ -253403,10 +253504,17 @@ window.__PREVIEW_DATA__ = {
           "フォトンを使い切りました。候補はこれ以上出ません。途中の行動を×で外すと、空いたフォトンで次の候補（2回目の行動を含む）が入ります。"
         ));
       }
+      if (chain.hasGrantLink) {
+        sec.append(el3(
+          "p",
+          "chain-link-note is-grant",
+          "紫の矢印と枠の行動は、回数チェイン付与でつながっています。"
+        ));
+      }
     }
     for (const n of chain.notes || []) sec.append(el3("p", "chain-link-note", n));
     for (const an of chain.actionNotes || []) {
-      const line = el3("p", "chain-link-note");
+      const line = el3("p", `chain-link-note${an.grantLink ? " is-grant" : ""}`);
       line.append(el3("span", null, `※ ${an.from}→${an.to}: `));
       (an.notes || []).forEach((n, i) => {
         if (i > 0) line.append(el3("span", null, "、"));
@@ -258413,6 +258521,7 @@ window.__PREVIEW_DATA__ = {
       overlay.openSheet(buildFaceCardView({
         floor,
         themeText: fd.theme && fd.theme !== "なし" ? fd.theme : null,
+        ruleText: floorBattleRule(fd),
         bossName: fd.boss || null,
         notes: fd.notes || []
       }, {
@@ -259491,6 +259600,10 @@ window.__PREVIEW_DATA__ = {
         name: nameOf2(a.id),
         occ: a.occ,
         fixed: a.fixed,
+        // 回数チェイン付与で引っ張られた手は色を変える（2026-11-21
+        // ユーザー決定。通常のチェインと見分けが付かず混乱の元に
+        // なるため）。
+        grantLink: isGrantLinkKind(a.linkKind),
         // その行動が消費するフォトン（渡す形から特定できたもの。
         // 特定できない行動はアタックとして出す）。
         photon: a.photon || "アタック",
@@ -259530,7 +259643,12 @@ window.__PREVIEW_DATA__ = {
       if (sim) {
         sim.actions.forEach((a, i) => {
           if (i === 0 || !a.notes || !a.notes.length) return;
-          actionNotes.push({ from: nameOf2(sim.actions[i - 1].id), to: nameOf2(a.id), notes: a.notes });
+          actionNotes.push({
+            from: nameOf2(sim.actions[i - 1].id),
+            to: nameOf2(a.id),
+            notes: a.notes,
+            grantLink: isGrantLinkKind(a.linkKind)
+          });
         });
       }
       const resultLines = [];
@@ -259574,6 +259692,8 @@ window.__PREVIEW_DATA__ = {
         timeline: timelineRows,
         actions: actionRows,
         actionNotes,
+        // 経路に回数チェイン付与由来の手があるか（色の凡例を出す判定）。
+        hasGrantLink: sim ? sim.actions.some((a) => isGrantLinkKind(a.linkKind)) : false,
         ignoredProbLines,
         resultLines,
         notes,
@@ -262652,6 +262772,13 @@ window.__PREVIEW_DATA__ = {
           chip.textContent = bandFd.theme;
           headRow.append(chip);
         }
+        const bandRule = bandFd ? floorBattleRule(bandFd) : null;
+        if (bandRule) {
+          const ruleChip = document.createElement("span");
+          ruleChip.className = "map-floor-rule";
+          ruleChip.textContent = bandRule;
+          headRow.append(ruleChip);
+        }
         band.append(headRow);
         const notes = bandFd?.notes || null;
         if (notes && notes.length > 0) {
@@ -263645,37 +263772,39 @@ window.__PREVIEW_DATA__ = {
         if (await setDetailField(id, field, value)) patchMegidoRow(id);
       },
       // 一括割り振り（絆霊宝とレベル）: 選択は部品側で完結し、ここには
-      // 確定の1回だけが来る。保存は1回、表示の追随は行ごとの局所更新。
-      // 絆霊宝の一括は4枠モデル: 型（1〜3）は各人の「最初の空き枠」に
-      // 入れ、満枠の人はスキップする（黙って上書きしない）。値 0 は
-      // 全枠を外すクリア。適用結果（スキップ件数を含む）は完了の
-      // 通知で知らせる（migrate.js の withBondBulk が規則の正）。
-      onBulkApply: async (kind, value, ids) => {
+      // 確定の1回だけが来る。保存は1回。適用後は行ごとの局所更新では
+      // なく画面を再描画する（2026-11-21 ユーザー指示: 変化が見えないと
+      // 混乱する。アコーディオン開閉と展開状態は ctx 経由で保持される）。
+      // 絆霊宝の一括は4枠モデル: 型（1〜3）を、バーでチェックした枠へ
+      // 上書きする（2026-11-21 ユーザー指示。slots 省略時は4枠すべて）。
+      // 値 0 は選んだ枠を外すクリア。適用結果は完了の通知で知らせる
+      // （migrate.js の withBondBulk が規則の正）。
+      onBulkApply: async (kind, value, ids, slots = null) => {
         ensureDetailsMaterialized();
         const details = { ...formationsData.megidoDetails };
         if (kind === "bond_reishou") {
           let applied = 0;
-          let skipped = 0;
           for (const id of ids) {
             const current = details[id] || normalizeMegidoDetail({});
-            const r = withBondBulk(current, value, byId.get(id));
+            const r = withBondBulk(current, value, byId.get(id), slots);
             if (!r) continue;
             if (r.status === "applied") {
               details[id] = r.entry;
               applied += 1;
-            } else if (r.status === "skipped") skipped += 1;
+            }
           }
           if (applied > 0) {
             formationsData = { ...formationsData, megidoDetails: details };
             await saveFormationsData(backend, formationsData);
             await update();
-            for (const id of ids) patchMegidoRow(id);
+            renderMegidoView();
           }
           if (value === 0) {
-            showInfoToast(applied > 0 ? `絆霊宝: ${applied}体の全枠を外しました` : "絆霊宝: 外す対象はいませんでした");
+            const allSlots = !slots || slots.every(Boolean);
+            showInfoToast(applied > 0 ? `絆霊宝: ${applied}体の${allSlots ? "全枠" : "選んだ枠"}を外しました` : "絆霊宝: 外す対象はいませんでした");
           } else {
             const typeLabel = ["", "真", "剛", "絆"][value] || "";
-            showInfoToast(skipped > 0 ? `絆霊宝「${typeLabel}」: ${applied}体に割り振りました（満枠で${skipped}体はスキップ）` : `絆霊宝「${typeLabel}」: ${applied}体に割り振りました`);
+            showInfoToast(`絆霊宝「${typeLabel}」: ${applied}体に割り振りました`);
           }
           return;
         }
@@ -263693,7 +263822,7 @@ window.__PREVIEW_DATA__ = {
         formationsData = { ...formationsData, megidoDetails: details };
         await saveFormationsData(backend, formationsData);
         await update();
-        for (const id of ids) patchMegidoRow(id);
+        renderMegidoView();
       }
     };
     const persistSwipeFlags = async () => {
