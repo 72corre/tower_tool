@@ -24,6 +24,16 @@
   --border: #414757;
   --accent: #e7cd9c;
   --accent-text: #14161c;
+  /* メイン色（2026-11-23 ユーザー決定）: 画面の主役と主要な操作の
+     主題色。メギドのテーマカラーが紫であることから菫を置く。
+     ダークモードの色設計の調査（research/color-system-draft-
+     2026-11-23.md）に基づき、暗背景向けに明度を上げ彩度を落とした
+     値で、面（--surface）に対して 4.65:1 を確保する。塗りの上の
+     文字は白では 3.50:1 で不足するため、--accent-text と同じ暗色を
+     使う（5.17:1）。浮き面（--surface-raise）の上では 2.97:1 と
+     3:1 にわずかに届かないため、メインの文字色は浮き面に置かない。 */
+  --main: #987cc1;
+  --main-text: #14161c;
   --danger: #e53e3e;
   --ok: #48bb78;
   /* 警告の色（パレット較正の #ecc94b）。従来は注意の文面が
@@ -377,7 +387,7 @@ input, textarea, select { font-size: 16px; }
   padding: 10px 14px 24px;
   flex: 1;
 }
-.sheet-title { font-size: 17px; margin: 4px 0 10px; }
+.sheet-title { font-size: 17px; margin: 4px 0 10px; color: var(--main); }
 .sheet-note { color: var(--muted); font-size: 13px; }
 
 /* 階一覧（定義 #17）: 行は 階番号／現在階・閲覧中の印／王冠＋ボス名／
@@ -458,9 +468,10 @@ input, textarea, select { font-size: 16px; }
 .sheet-head-label { flex: 0 0 5.5em; color: var(--muted); font-size: 13px; }
 .sheet-head-text { flex: 1; }
 .sheet-section { margin-top: 16px; }
-/* 節の見出しは金で塗らない（見た目の段、2026-11-20。金は選択と
-   主要操作の色。見出しは本文色＋太さで立てる）。 */
-.sheet-section-title { font-size: 15px; margin: 0 0 8px; color: var(--text); font-weight: 800; }
+/* 節の見出しはメイン色＋太さで立てる（2026-11-23 色システム導入。
+   2026-11-20 の「本文色＋太さ」から変更。金は選択の印と次の動作の
+   合図の色であり、見出しには使わない）。 */
+.sheet-section-title { font-size: 15px; margin: 0 0 8px; color: var(--main); font-weight: 800; }
 .sheet-actionbar {
   display: flex;
   gap: 8px;
@@ -470,8 +481,11 @@ input, textarea, select { font-size: 16px; }
 }
 .sheet-action-btn { flex: 1; padding: 12px 10px; font-weight: 700; }
 .sheet-action-btn.act-result-win { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+/* 「編成を選ぶ」は敵シートの主アクション: メインの塗り＋暗文字
+   （2026-11-23 色システム導入。従来は通常面で埋もれていた）。 */
+.sheet-action-btn.act-open-formations { background: var(--main); color: var(--main-text); border-color: var(--main); }
 .enemy-block { padding: 10px 0; }
-.enemy-name { font-weight: 700; }
+.enemy-name { font-weight: 700; color: var(--main); }
 
 /* 開始前の確認（M8）と編成エディタの5枠: 5体横一列が絶対条件
    （2026-11-20 ユーザー裁定: メギドは5体の並びが編成で最も重要。
@@ -704,7 +718,7 @@ input, textarea, select { font-size: 16px; }
 .formation-empty .sheet-note { max-width: 30em; margin: 8px auto 20px; }
 .btn-create-big {
   font-size: 18px; font-weight: 700; padding: 16px 36px;
-  background: var(--accent); color: var(--accent-text); border-color: var(--accent);
+  background: var(--main); color: var(--main-text); border-color: var(--main);
 }
 
 /* M5 の管理（編集・削除） */
@@ -1330,13 +1344,14 @@ input, textarea, select { font-size: 16px; }
 /* 数字の前提は1行のラベルとして（段落にしない） */
 .plan-premise { font-weight: 700; color: var(--text); }
 
-/* おまかせボタン: その節の主役。大きく、操作アクセント（金）で彩度を上げる。
-   現行ツールの自動編成ボタンはティールだが、新ツールのティールは段階色
-   （不調）のアンカーと重なるため、色の較正どおり金で担う */
+/* おまかせボタン: その節の主役（主アクション）。大きく、メイン色で担う
+   （2026-11-23 色システム導入。従来は金だった。現行ツールの自動編成
+   ボタンはティールだが、新ツールのティールは段階色（不調）のアンカー
+   と重なるため使わない） */
 .btn-omakase {
   display: block; width: 100%; padding: 16px 12px; margin: 10px 0;
   font-size: 17px; font-weight: 800; border-radius: 12px;
-  background: var(--accent); color: var(--accent-text); border-color: var(--accent);
+  background: var(--main); color: var(--main-text); border-color: var(--main);
 }
 
 /* ==== 機能側の欠落を埋める便（2026-11-19） ==== */
@@ -1555,8 +1570,8 @@ input, textarea, select { font-size: 16px; }
 
 /* 階見出し帯（SW90）: 階番号＋？＋テーマチップ＋注記＋先月のまとめ */
 .map-floor-band { max-width: 640px; margin: 0 auto; padding: 0 12px; }
-.map-floor-head { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-.map-floor-num { font-size: 20px; font-weight: 800; }
+.map-floor-head { display: flex; align-items: center; gap: 8px; margin-top: 8px; border-bottom: 2px solid var(--main); padding-bottom: 6px; }
+.map-floor-num { font-size: 20px; font-weight: 800; color: var(--main); }
 .btn-floor-help { width: 26px; height: 26px; border-radius: 50%; padding: 0; font-size: 13px; font-weight: 700; line-height: 1; }
 .map-floor-theme { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
 .map-floor-rule { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-muted); }
@@ -246099,7 +246114,7 @@ window.__PREVIEW_DATA__ = {
 </script>
 <script>
 (() => {
-  // build/app/js/data.js
+  // app/js/data.js
   var DATA_VERSION = 1;
   function createDataLoader(baseUrl, fetchFn) {
     const doFetch = fetchFn || ((url) => fetch(url));
@@ -246220,7 +246235,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // build/app/js/shortnames.js
+  // app/js/shortnames.js
   var SHORT_SLOT_NAMES = {
     "アガリアレプト": "アガリ",
     "アスモデウス": "アスモ",
@@ -246268,7 +246283,7 @@ window.__PREVIEW_DATA__ = {
     return name;
   }
 
-  // build/app/js/store.js
+  // app/js/store.js
   var DB_NAME = "tower-tool";
   var DB_VERSION = 1;
   var STORE_NAMES = ["state", "formations", "records", "settings"];
@@ -246439,7 +246454,7 @@ window.__PREVIEW_DATA__ = {
     return false;
   }
 
-  // build/app/js/model.js
+  // app/js/model.js
   function createHistory(ops = [], cursor = ops.length) {
     return { ops: [...ops], cursor: Math.max(0, Math.min(cursor, ops.length)) };
   }
@@ -246466,7 +246481,7 @@ window.__PREVIEW_DATA__ = {
     return { ops: history.ops, cursor: history.cursor + 1 };
   }
 
-  // build/app/js/derive.js
+  // app/js/derive.js
   var CONDITION_STAGES = ["絶好調", "好調", "普通", "不調", "絶不調", "気絶"];
   var STAGE_GREAT = 0;
   var STAGE_VERY_BAD = 4;
@@ -247089,7 +247104,7 @@ window.__PREVIEW_DATA__ = {
     return onPath || sorted[0];
   }
 
-  // build/app/js/records.js
+  // app/js/records.js
   var TENDENCY_MIN_BATTLES = 3;
   var FORMATION_RATE_MIN_BATTLES = 3;
   function runEntries(structure, ops) {
@@ -247286,7 +247301,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // build/app/js/views.js
+  // app/js/views.js
   var STYLE_CHIP_CLASS = { ラッシュ: "st-rush", カウンター: "st-counter", バースト: "st-burst" };
   function styleChip(styleName) {
     const cls = STYLE_CHIP_CLASS[styleName];
@@ -248087,7 +248102,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // build/app/js/panels.js
+  // app/js/panels.js
   function el2(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -248937,7 +248952,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // build/app/js/formations.js
+  // app/js/formations.js
   var SLOT_LABELS = ["1", "2", "リーダー", "4", "5"];
   var LEADER_INDEX = 2;
   function basicsById(megidoBasics) {
@@ -249258,7 +249273,7 @@ window.__PREVIEW_DATA__ = {
     return a.formation.name < b.formation.name ? -1 : a.formation.name > b.formation.name ? 1 : 0;
   }
 
-  // build/app/js/search.js
+  // app/js/search.js
   var SEARCH_GROUP_LIMIT = 20;
   function prepareSearchIndex(index) {
     if (!index) return null;
@@ -249373,7 +249388,7 @@ window.__PREVIEW_DATA__ = {
     return rows;
   }
 
-  // build/app/js/migrate.js
+  // app/js/migrate.js
   var OLD_KEY_FORMATIONS = "formations";
   var OLD_KEY_MEGIDO_DETAILS = "megidoDetails";
   var SLOT_COUNT = 5;
@@ -249676,7 +249691,7 @@ window.__PREVIEW_DATA__ = {
     }
   }
 
-  // build/app/js/stats.js
+  // app/js/stats.js
   var MAJUU_STAGE_BONUS = [
     { level: 75, hp: 210, atk: 25, def: 25, spd: 0 },
     { level: 77, hp: 170, atk: 18, def: 18, spd: 0 },
@@ -249712,7 +249727,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // build/app/js/explore.js
+  // app/js/explore.js
   var EXPLORE_PARTY_MAX = 3;
   var EXPECTATION3_FACTOR = 1.4;
   var DEFAULT_OUGI_LEVEL = 3;
@@ -250538,7 +250553,7 @@ window.__PREVIEW_DATA__ = {
     return lo;
   }
 
-  // build/app/js/counter.js
+  // app/js/counter.js
   var POLE_ALIASES = {
     "煉獄": "煉獄の炎",
     "ねずみ": "ねずみ化",
@@ -251980,6 +251995,94 @@ window.__PREVIEW_DATA__ = {
     }
     return blocks;
   }
+  var SHEET_LEVEL_RANK = (l) => l === "S" ? 0 : l === "A" ? 1 : l === "B" ? 2 : 3;
+  function mergeSheetAnswerBlocks(entries) {
+    const groups = /* @__PURE__ */ new Map();
+    const order = [];
+    const keyOf = (b) => {
+      if (b.classId === "resist" && /^.+への耐性・無効を持つ$/.test(b.label || "")) return "family:resist";
+      if (b.classId === "stop" && /（フォトン干渉）$/.test(b.label || "")) return "family:stop";
+      if (b.classId === "cure" && /直す/.test(b.label || "")) return "family:cure";
+      if (b.classId === "rush") return "family:rush";
+      if (b.classId) return `class:${b.classId}|${b.label}`;
+      return `tactic:${b.label}`;
+    };
+    entries.forEach((entry, idx) => {
+      const key = keyOf(entry);
+      let g = groups.get(key);
+      if (!g) {
+        g = {
+          base: entry,
+          contributors: 0,
+          threatLabels: [],
+          tacticLabels: [],
+          megido: [],
+          orbs: [],
+          level: null,
+          rank: 3,
+          bestPos: idx,
+          firstPos: idx,
+          ailmentNames: [],
+          authoredOr: false
+        };
+        groups.set(key, g);
+        order.push(g);
+      }
+      g.contributors += 1;
+      g.authoredOr = g.authoredOr || Boolean(entry.authored);
+      if (entry.threatLabel && !g.threatLabels.includes(entry.threatLabel)) {
+        g.threatLabels.push(entry.threatLabel);
+      }
+      for (const l of entry.tacticLabels || (entry.tacticLabel ? [entry.tacticLabel] : [])) {
+        if (!g.tacticLabels.includes(l)) g.tacticLabels.push(l);
+      }
+      const seenM = new Set(g.megido.map((c) => c.id || c.name));
+      for (const c of entry.megido || []) if (!seenM.has(c.id || c.name)) g.megido.push(c);
+      const seenO = new Set(g.orbs.map((c) => c.orbId || c.name));
+      for (const c of entry.orbs || []) if (!seenO.has(c.orbId || c.name)) g.orbs.push(c);
+      const r = SHEET_LEVEL_RANK(entry.level);
+      if (r < g.rank) {
+        g.rank = r;
+        g.level = entry.level;
+        g.bestPos = idx;
+      }
+      if (key === "family:resist") {
+        const m = /^(.+)への耐性・無効を持つ$/.exec(entry.label || "");
+        if (m && !g.ailmentNames.includes(m[1])) g.ailmentNames.push(m[1]);
+      }
+    });
+    const merged = order.map((g) => {
+      const out = {
+        ...g.base,
+        megido: g.megido,
+        orbs: g.orbs,
+        tacticLabels: g.tacticLabels,
+        threatLabels: g.threatLabels,
+        level: g.level,
+        // 著述由来が1つでも混ざれば authored として扱う
+        // （threatAnswerBlocks 内の寄せ方と同じ）。
+        authored: g.authoredOr
+      };
+      delete out.threatLabel;
+      if (g.contributors > 1) {
+        if (g.ailmentNames.length >= 2) out.label = "状態異常への耐性・無効を持つ";
+        else if (g.ailmentNames.length === 1) out.label = `${g.ailmentNames[0]}への耐性・無効を持つ`;
+        else if (out.classId === "stop") out.label = "付与される前に止める（フォトン干渉）";
+        else if (out.classId === "cure") out.label = "付与されたら直す";
+      }
+      out._rank = g.rank;
+      out._bestPos = g.bestPos;
+      out._firstPos = g.firstPos;
+      return out;
+    });
+    merged.sort((a, b) => a._rank - b._rank || a._bestPos - b._bestPos || a._firstPos - b._firstPos);
+    for (const m of merged) {
+      delete m._rank;
+      delete m._bestPos;
+      delete m._firstPos;
+    }
+    return merged;
+  }
   function authoredSummaryText(authored) {
     if (!authored || !authored.entry) return "";
     if (authored.kind === "enemy") {
@@ -252165,7 +252268,7 @@ window.__PREVIEW_DATA__ = {
     return first;
   }
 
-  // build/app/js/mechanics.js
+  // app/js/mechanics.js
   var MEGIDO_MECHANIC_NOTES = {
     ereki: [
       "エレキ: 雷ダメージが当たるたびにエレキレベルが上がり、解除でレベル分の固定ダメージ（防御無視）",
@@ -252907,7 +253010,7 @@ window.__PREVIEW_DATA__ = {
     return { attacksRead: attacks.length > 0, falls };
   }
 
-  // build/app/js/speed.js
+  // app/js/speed.js
   function meSpeedPct(me, member, slotIndex) {
     if (!me || !member) return null;
     const slotKey = ME_SLOT_KEYS[slotIndex];
@@ -252987,7 +253090,7 @@ window.__PREVIEW_DATA__ = {
     return { value, lines, parts, pctSum };
   }
 
-  // build/app/js/chain.js
+  // app/js/chain.js
   var CHAIN_PHOTON_MAX = 5;
   var MAX_ACTIONS_PER_MEMBER = 3;
   function chainWayKey(way) {
@@ -253431,7 +253534,7 @@ window.__PREVIEW_DATA__ = {
     return { actions, stopReason, stopId, photonBudget };
   }
 
-  // build/app/js/worth.js
+  // app/js/worth.js
   var BUFF_REWARD_LABEL = {
     attack_buff: "攻撃力上昇",
     defense_buff: "防御力上昇",
@@ -253536,7 +253639,7 @@ window.__PREVIEW_DATA__ = {
     return { lines, verdict };
   }
 
-  // build/app/js/hbomb.js
+  // app/js/hbomb.js
   var PLACER_LEVEL = 70;
   var MAX_BOMBS_PER_ENEMY = 3;
   var REN_MULT_CAP = 50;
@@ -254660,7 +254763,7 @@ window.__PREVIEW_DATA__ = {
     return map ? [...map.values()] : [];
   }
 
-  // build/app/js/kyoen.js
+  // app/js/kyoen.js
   var CONVERTER_LEVEL = 70;
   var COUNT_CAP = 50;
   var EXTEND_PER_TURN = 3;
@@ -255374,7 +255477,7 @@ window.__PREVIEW_DATA__ = {
     return "今の伸び方では倒し切れない";
   }
 
-  // build/app/js/swipe.js
+  // app/js/swipe.js
   var SWIPE_THRESHOLD = 72;
   var LOCK_DISTANCE = 10;
   var CLICK_SUPPRESS_MS = 400;
@@ -255475,7 +255578,7 @@ window.__PREVIEW_DATA__ = {
     setClass(row, "swipe-row", true);
   }
 
-  // build/app/js/builder.js
+  // app/js/builder.js
   function el3(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -256785,7 +256888,7 @@ window.__PREVIEW_DATA__ = {
     return { top, content, searchInput: search, bottom };
   }
 
-  // build/app/js/sheet.js
+  // app/js/sheet.js
   var CANDIDATE_SOURCE_NOTE = "候補は本体の能力・専用霊宝・オーブ・マスエフェクトから出したものです（マスエフェクト由来はリーダーに置いた場合）。";
   var FORMATION_MANAGE_NOTE = "ここで編成を管理・保存できます。";
   function el4(tag, className, text) {
@@ -258036,7 +258139,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // build/app/js/main.js
+  // app/js/main.js
   var DATA_BASE = "../data/";
   function monthKeyOf(date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -259215,41 +259318,7 @@ window.__PREVIEW_DATA__ = {
         return !orb && h.id && essentialIds.has(h.id) ? `${text}（需要あり）` : text;
       };
       const levelRank = (l) => l === "S" ? 0 : l === "A" ? 1 : l === "B" ? 2 : 3;
-      const rawBlocks = [];
-      const byClass = /* @__PURE__ */ new Map();
-      const addBlock = (b, threatKey, threatLabel, level, enemySpd) => {
-        const key = b.classId ? `${threatKey}|${b.classId}` : null;
-        if (key && byClass.has(key)) {
-          const base = byClass.get(key);
-          const seenM = new Set(base.megidoList.map((c) => c.id || c.name));
-          for (const c of b.megido) if (!seenM.has(c.id || c.name)) base.megidoList.push(c);
-          const seenO = new Set(base.orbsList.map((c) => c.orbId || c.name));
-          for (const c of b.orbs) if (!seenO.has(c.orbId || c.name)) base.orbsList.push(c);
-          for (const l of b.tacticLabels || (b.tacticLabel ? [b.tacticLabel] : [])) {
-            if (!base.tacticLabels.includes(l)) base.tacticLabels.push(l);
-          }
-          base.maxRank = Math.min(base.maxRank, levelRank(level));
-          return;
-        }
-        const nb = {
-          kind: b.authored ? "authored" : "class",
-          classId: b.classId || null,
-          label: b.label,
-          how: b.how || "",
-          methodNote: b.methodNote || "",
-          noteOnly: Boolean(b.noteOnly),
-          threatLabels: threatLabel ? [threatLabel] : [],
-          tacticLabels: [...b.tacticLabels || (b.tacticLabel ? [b.tacticLabel] : [])],
-          maxRank: levelRank(level),
-          megidoList: [...b.megido],
-          orbsList: [...b.orbs],
-          detail: "",
-          startersText: "",
-          enemySpd
-        };
-        rawBlocks.push(nb);
-        if (key) byClass.set(key, nb);
-      };
+      const sheetEntries = [];
       for (const t of unified) {
         const tSpd = restricted ? null : enemySpdForThreat(name, floorEnemies, def.rules, t.derived);
         for (const b of threatAnswerBlocks({
@@ -259262,7 +259331,7 @@ window.__PREVIEW_DATA__ = {
           levelOf,
           restricted
         })) {
-          addBlock(b, t.key, t.label, t.level, tSpd);
+          sheetEntries.push({ ...b, threatLabel: t.label, level: t.level, enemySpd: tSpd });
         }
       }
       if (raw && raw.kind === "enemy") {
@@ -259274,9 +259343,25 @@ window.__PREVIEW_DATA__ = {
           levelOf,
           restricted
         })) {
-          addBlock(b, `overall:${b.tacticLabel}`, null, null, null);
+          sheetEntries.push({ ...b, threatLabel: null, level: null, enemySpd: null });
         }
       }
+      const rawBlocks = mergeSheetAnswerBlocks(sheetEntries).map((b) => ({
+        kind: b.authored ? "authored" : "class",
+        classId: b.classId || null,
+        label: b.label,
+        how: b.how || "",
+        methodNote: b.methodNote || "",
+        noteOnly: Boolean(b.noteOnly),
+        threatLabels: b.threatLabels || [],
+        tacticLabels: b.tacticLabels || [],
+        maxRank: levelRank(b.level),
+        megidoList: b.megido,
+        orbsList: b.orbs,
+        detail: "",
+        startersText: "",
+        enemySpd: b.enemySpd
+      }));
       if (raw && raw.kind === "enemy") {
         const notes = counterData.mechanicNotes;
         for (const tac of raw.entry.effectiveTactics || []) {
