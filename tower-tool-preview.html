@@ -22,24 +22,41 @@
   --text: #e8eaf0;
   --muted: #9aa1b1;
   --border: #414757;
-  --accent: #e7cd9c;
-  --accent-text: #14161c;
+  /* 金（旧 --accent #e7cd9c）は 2026-11-25 の色の移行で廃止
+     （決定シート §D: リッチゴールドは使わない）。参照は全て
+     役割トークン（菫／良い赤／悪い青／危険な黄／形）へ振り分けた。 */
+  --on-fill: #14161c;
   /* メイン色（2026-11-23 ユーザー決定）: 画面の主役と主要な操作の
      主題色。メギドのテーマカラーが紫であることから菫を置く。
      ダークモードの色設計の調査（research/color-system-draft-
      2026-11-23.md）に基づき、暗背景向けに明度を上げ彩度を落とした
      値で、面（--surface）に対して 4.65:1 を確保する。塗りの上の
-     文字は白では 3.50:1 で不足するため、--accent-text と同じ暗色を
+     文字は白では 3.50:1 で不足するため、--on-fill と同じ暗色を
      使う（5.17:1）。浮き面（--surface-raise）の上では 2.97:1 と
      3:1 にわずかに届かないため、メインの文字色は浮き面に置かない。 */
   --main: #987cc1;
   --main-text: #14161c;
-  --danger: #e53e3e;
-  --ok: #48bb78;
-  /* 警告の色（パレット較正の #ecc94b）。従来は注意の文面が
-     コンディション段階のアンカー色（--stage-2）を借りていたため、
-     段階色が装飾に漏れていた。注意はこの色に統一する。 */
-  --warn: #ecc94b;
+  /* 評価軸と危険（2026-11-25 色の移行、決定シート §D・詰めシート）:
+     良い = 赤（--good）／悪い = 青（--bad）／危険 = 黄（--danger-warn）。
+     メギドの軸（赤 good／青 bad）で統一し、西洋式の緑=良い／赤=悪いは
+     使わない。旧 --danger（赤）は「悪い・危険・識別」の混在だったため
+     解体し、旧 --ok（緑）は廃止した。値はダーク地（--bg／--surface）
+     で読めるよう明度で調整した（色相は維持）:
+     --good #f07070 は面に対して 5.62:1、--bad #6ea8ff は青が沈むため
+     明度を上げて 6.75:1、--danger-warn #ecc94b は従来の警告色
+     （旧 --warn）の値をそのまま役割名へ移し 10.09:1。
+     --main-bright は菫の文字色用の派生（面に対して 6.12:1。
+     塗りの --main 4.64:1 では小さい文字が弱いため）。 */
+  --good: #f07070;
+  --bad: #6ea8ff;
+  --danger-warn: #ecc94b;
+  --danger-warn-text: #14161c;
+  --main-bright: #ac93d6;
+  /* スタイルチップの文字色（J14）: 正本色（--style-*）をダーク地向けに
+     明度だけ上げた派生値。直書きせずトークンで持つ。 */
+  --style-rush-text: #d7d7d9;
+  --style-counter-text: #f68b4b;
+  --style-burst-text: #7fd0e8;
   /* 回数チェイン付与の色（2026-11-21 ユーザー決定）: チェイン
      テーブルで、付与由来の手（矢印・枠・注記）だけを通常の
      チェイン（金）と見分けるための紫。選択・危険・警告の
@@ -57,6 +74,13 @@
      数pxは、知らせ表示で状態行が伸びた時にシートの下端へ被る
      余地として持つ。 */
   --footer-h: calc(var(--statebar-h) + var(--tabbar-h));
+  /* 形のトークン（便2、決定シート A4・A5）: 影は1種類だけを持ち、
+     主アクションと副アクションにだけ付ける。高さは操作の格で固定する
+     （主 52px / 副・開閉行・入力欄 48px / 選ぶ行・チップ 44px）。 */
+  --shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+  --h-main: 52px;
+  --h-sub: 48px;
+  --h-pick: 44px;
 }
 
 * { box-sizing: border-box; }
@@ -82,9 +106,10 @@ button {
   color: var(--text);
   background: var(--surface-muted);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 8px 10px;
   cursor: pointer;
+  box-shadow: var(--shadow);
 }
 button:disabled { opacity: 0.4; cursor: default; }
 
@@ -196,13 +221,14 @@ input, textarea, select { font-size: 16px; }
   border: 1.5px solid var(--border);
   border-radius: 8px;
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: 11px;
   white-space: nowrap;
 }
 .tab-btn.tab-on {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--accent-text);
+  background: var(--surface-raise);
+  border-color: var(--border);
+  box-shadow: inset 0 3px 0 var(--main);
+  color: var(--text);
   font-weight: 700;
 }
 .tabbar-menu-btn {
@@ -215,11 +241,11 @@ input, textarea, select { font-size: 16px; }
   border: 1.5px solid var(--border);
   border-radius: 8px;
   color: var(--muted);
-  font-size: 11.5px;
+  font-size: 11px;
   white-space: nowrap;
 }
-.tabbar-menu-btn[aria-expanded="true"] { color: var(--text); border-color: var(--accent); }
-.statebar-notice { color: var(--accent); font-weight: 700; margin-bottom: 4px; font-size: 12.5px; }
+.tabbar-menu-btn[aria-expanded="true"] { color: var(--text); border-color: var(--main); }
+.statebar-notice { color: var(--danger-warn); font-weight: 700; margin-bottom: 4px; font-size: 13px; }
 .statebar-main {
   display: flex; align-items: center; gap: 10px;
   width: 100%; background: none; border: none; border-radius: 0;
@@ -227,19 +253,19 @@ input, textarea, select { font-size: 16px; }
 }
 .sb-power { display: flex; align-items: baseline; gap: 5px; }
 .sb-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
-.sb-power-num { font-size: 21px; font-weight: 800; line-height: 1.1; }
+.sb-power-num { font-size: 20px; font-weight: 800; line-height: 1.1; }
 .sb-item { display: flex; align-items: baseline; gap: 4px; min-width: 0; }
-.sb-value { font-size: 14.5px; font-weight: 700; white-space: nowrap; }
+.sb-value { font-size: 15px; font-weight: 700; white-space: nowrap; }
 .sb-usage { display: flex; gap: 5px; margin-left: auto; }
 .sb-usage-chip {
   display: flex; align-items: baseline; gap: 3px;
   border: 1px solid var(--border); border-radius: 999px; padding: 1px 7px;
 }
-.sb-usage-style { font-weight: 800; font-size: 11.5px; }
-.sb-usage-chip.su-r .sb-usage-style { color: #d7d7d9; }
-.sb-usage-chip.su-c .sb-usage-style { color: #f68b4b; }
-.sb-usage-chip.su-b .sb-usage-style { color: #7fd0e8; }
-.sb-usage-num { font-size: 12.5px; font-weight: 700; }
+.sb-usage-style { font-weight: 800; font-size: 11px; }
+.sb-usage-chip.su-r .sb-usage-style { color: var(--style-rush-text); }
+.sb-usage-chip.su-c .sb-usage-style { color: var(--style-counter-text); }
+.sb-usage-chip.su-b .sb-usage-style { color: var(--style-burst-text); }
+.sb-usage-num { font-size: 13px; font-weight: 700; }
 .sb-chevron { color: var(--muted); font-size: 11px; }
 .statebar-detail {
   border-bottom: 1px solid var(--border);
@@ -248,15 +274,15 @@ input, textarea, select { font-size: 16px; }
 }
 .sb-detail-line { font-size: 13px; padding: 1px 0; }
 .sb-power-line { font-weight: 700; }
-.sb-verdict { color: var(--accent); font-weight: 600; }
+.sb-verdict { color: var(--main-bright); font-weight: 600; }
 .sb-cards { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; }
-.sb-card { text-align: left; width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; }
+.sb-card { text-align: left; width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; box-shadow: none; }
 .sb-card-head { display: flex; align-items: center; gap: 8px; }
-.sb-card-next { font-size: 12.5px; color: var(--muted); padding-top: 2px; }
+.sb-card-next { font-size: 13px; color: var(--muted); padding-top: 2px; }
 .sb-card-row { display: flex; justify-content: space-between; gap: 8px; padding: 1px 0 0 4px; font-size: 13px; }
 .sb-card-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .sb-card-stage { font-weight: 700; white-space: nowrap; }
-.sb-card-none { color: var(--muted); font-size: 12.5px; padding-top: 2px; }
+.sb-card-none { color: var(--muted); font-size: 13px; padding-top: 2px; }
 
 /* マップペイン（広い画面の左ペイン）: 狭い画面では使わない */
 .map-pane { display: none; }
@@ -283,7 +309,7 @@ input, textarea, select { font-size: 16px; }
   padding: 10px 8px 0; max-width: 640px; margin: 0 auto;
 }
 .floor-switch-btn { padding: 8px 10px; white-space: nowrap; }
-.floor-switch-title { flex: 1; font-size: 17px; font-weight: 800; }
+.floor-switch-title { flex: 1; font-size: 20px; font-weight: 800; }
 .map-notes {
   max-width: 640px; margin: 6px auto 0; padding: 0 12px;
   color: var(--muted); font-size: 13px;
@@ -328,16 +354,17 @@ input, textarea, select { font-size: 16px; }
   min-width: 0;
   padding: 2px;
   gap: 1px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--surface-muted);
+  box-shadow: none;
   border: 1px solid var(--border);
   position: relative;
   text-align: center;
 }
 /* ノード形: アイコン（主）＋種類ラベル＋収まる場合だけのサブ（従） */
 .sq-icon { width: 20px; height: 20px; flex: none; fill: currentColor; display: block; }
-.sq-label { font-weight: 700; font-size: 10.5px; line-height: 1.15; }
-.sq-sub { font-size: 8.5px; line-height: 1.15; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.sq-label { font-weight: 700; font-size: 11px; line-height: 1.15; }
+.sq-sub { font-size: 10px; line-height: 1.15; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
 .square.state-locked { opacity: 0.45; border-style: dashed; }
 .square.sq-boss { border-color: var(--sq-boss); }
 .square.sq-battle { border-color: #5a627a; }
@@ -387,7 +414,7 @@ input, textarea, select { font-size: 16px; }
   padding: 10px 14px 24px;
   flex: 1;
 }
-.sheet-title { font-size: 17px; margin: 4px 0 10px; color: var(--main); }
+.sheet-title { font-size: 15px; margin: 4px 0 10px; color: var(--main); }
 .sheet-note { color: var(--muted); font-size: 13px; }
 
 /* 階一覧（定義 #17）: 行は 階番号／現在階・閲覧中の印／王冠＋ボス名／
@@ -401,8 +428,9 @@ input, textarea, select { font-size: 16px; }
   text-align: left;
 }
 .floor-row.here {
-  border-color: var(--accent);
-  background: rgba(231, 205, 156, 0.12);
+  border-color: var(--border);
+  background: var(--surface-raise);
+  box-shadow: inset 3px 0 0 var(--main);
 }
 .floor-row-num { flex: none; min-width: 34px; font-weight: 700; }
 .floor-row-marks { display: flex; gap: 2px; flex: none; }
@@ -414,7 +442,7 @@ input, textarea, select { font-size: 16px; }
   align-items: center;
   justify-content: center;
 }
-.floor-mark-here { color: var(--accent); }
+.floor-mark-here { color: var(--main-bright); }
 .floor-mark-view { color: #b9c8de; }
 .floor-row-boss {
   display: flex;
@@ -439,9 +467,9 @@ input, textarea, select { font-size: 16px; }
 .fl-sym-count { font-size: 10px; margin-left: 1px; }
 /* 記号の色はマップのマスのアイコン色に揃える（css の sqr-* /
    sqx-recovery / sqx-tower_power のアイコン色と同値）。 */
-.fl-sym-r { color: #d7d7d9; }
-.fl-sym-c { color: #f68b4b; }
-.fl-sym-b { color: #7fd0e8; }
+.fl-sym-r { color: var(--style-rush-text); }
+.fl-sym-c { color: var(--style-counter-text); }
+.fl-sym-b { color: var(--style-burst-text); }
 .fl-sym-random { color: #f0f0f0; }
 .fl-sym-power { color: #8fd0a8; }
 
@@ -459,9 +487,7 @@ input, textarea, select { font-size: 16px; }
 }
 .sheet-past-text { flex: 1; font-weight: 700; }
 .sheet-head {
-  background: var(--surface-muted);
-  border-radius: 8px;
-  padding: 8px 10px;
+  padding: 4px 0;
   margin-bottom: 10px;
 }
 .sheet-head-row { display: flex; gap: 8px; padding: 2px 0; }
@@ -471,7 +497,7 @@ input, textarea, select { font-size: 16px; }
 /* 節の見出しはメイン色＋太さで立てる（2026-11-23 色システム導入。
    2026-11-20 の「本文色＋太さ」から変更。金は選択の印と次の動作の
    合図の色であり、見出しには使わない）。 */
-.sheet-section-title { font-size: 15px; margin: 0 0 8px; color: var(--main); font-weight: 800; }
+.sheet-section-title { font-size: 15px; margin: 0 0 8px; color: var(--main); font-weight: 800; border-left: 3px solid var(--main); padding-left: 8px; }
 .sheet-actionbar {
   display: flex;
   gap: 8px;
@@ -480,7 +506,7 @@ input, textarea, select { font-size: 16px; }
   background: var(--surface);
 }
 .sheet-action-btn { flex: 1; padding: 12px 10px; font-weight: 700; }
-.sheet-action-btn.act-result-win { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.sheet-action-btn.act-result-win { background: var(--main); color: var(--main-text); border-color: var(--main); }
 /* 「編成を選ぶ」は敵シートの主アクション: メインの塗り＋暗文字
    （2026-11-23 色システム導入。従来は通常面で埋もれていた）。 */
 .sheet-action-btn.act-open-formations { background: var(--main); color: var(--main-text); border-color: var(--main); }
@@ -513,10 +539,10 @@ input, textarea, select { font-size: 16px; }
   text-align: center;
   min-height: 74px;
 }
-.slot-cell.leader { border-color: var(--accent); }
+.slot-cell.leader { border-color: var(--border); border-width: 2px; }
 .slot-pos { font-size: 10px; color: var(--muted); }
-.slot-cell.leader .slot-pos { color: var(--accent); font-weight: 700; }
-.slot-name { font-weight: 700; font-size: 12px; white-space: nowrap; }
+.slot-cell.leader .slot-pos { color: var(--text); font-weight: 700; }
+.slot-name { font-weight: 700; font-size: 13px; white-space: nowrap; }
 .slot-grid .fit-x { display: block; transform-origin: center; white-space: nowrap; }
 .slot-style { font-size: 10px; color: var(--muted); }
 .slot-cell .style-chip { font-size: 10px; padding: 0 5px; }
@@ -526,7 +552,7 @@ input, textarea, select { font-size: 16px; }
 .slot-style-meta { display: block; }
 .slot-style-class { display: block; }
 .slot-style-stage { display: block; }
-.slot-orb { font-size: 10.5px; margin-top: 2px; white-space: nowrap; }
+.slot-orb { font-size: 10px; margin-top: 2px; white-space: nowrap; }
 
 /* 探索（M7）と回復（M9） */
 .plan-member { margin: 2px 0; }
@@ -534,16 +560,16 @@ input, textarea, select { font-size: 16px; }
 .box-row { display: flex; gap: 8px; flex-wrap: wrap; }
 .box-btn, .style-btn { flex: 1; padding: 12px 6px; font-weight: 700; }
 .pick-list { display: flex; flex-wrap: wrap; gap: 8px; }
-.pick-btn.picked { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.pick-btn.picked { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 .recovered-row { margin: 2px 0; }
 
 /* 履歴 */
 .history-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
 .history-row {
-  background: var(--surface);
   border-left: 3px solid transparent;
-  border-radius: 8px;
+  border-bottom: 1px solid var(--border);
   padding: 8px 10px;
+  box-shadow: none;
 }
 
 /* 編成を選ぶ（M5） */
@@ -570,9 +596,9 @@ input, textarea, select { font-size: 16px; }
 /* 値が多い絞り込み行は1行の横スクロール列にする（一覧を押し出さない） */
 .formation-filters.scroll-row { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 4px; }
 .formation-filters.scroll-row .filter-chip { flex: 0 0 auto; white-space: nowrap; }
-.filter-chip { font-size: 13px; padding: 6px 10px; }
-.filter-chip.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
-.formation-count { margin-top: 6px; font-size: 12px; color: var(--muted); }
+.filter-chip { font-size: 13px; padding: 6px 10px; border-radius: 999px; }
+.filter-chip.active { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
+.formation-count { margin-top: 6px; font-size: 11px; color: var(--muted); }
 .formation-list { display: flex; flex-direction: column; gap: 8px; }
 .formation-row {
   display: block;
@@ -581,24 +607,24 @@ input, textarea, select { font-size: 16px; }
   padding: 10px 12px;
 }
 .formation-row.unusable { opacity: 0.55; }
-.formation-row.flash { border-color: var(--danger); opacity: 1; }
+.formation-row.flash { border-color: var(--danger-warn); opacity: 1; }
 .formation-row-head { display: flex; gap: 8px; align-items: baseline; margin-bottom: 4px; }
 .formation-name { font-weight: 700; }
-.formation-composition { color: var(--muted); font-size: 12px; }
+.formation-composition { color: var(--muted); font-size: 11px; }
 .formation-member { font-size: 13px; }
 .formation-worst { font-size: 13px; font-weight: 700; margin-top: 4px; }
-.formation-reason { color: var(--danger); font-size: 13px; margin-top: 4px; }
+.formation-reason { color: var(--bad); font-size: 13px; margin-top: 4px; }
 /* SW94: 階ごとの見出し区切り・対象の行・その編成自身の勝敗 */
-.formation-floor-head { margin: 8px 0 0; font-size: 14px; font-weight: 700; }
-.formation-target { color: var(--muted); font-size: 12px; margin-bottom: 2px; }
-.formation-record { text-align: right; color: var(--muted); font-size: 12px; margin-top: 6px; }
+.formation-floor-head { margin: 8px 0 0; font-size: 15px; font-weight: 700; }
+.formation-target { color: var(--muted); font-size: 11px; margin-bottom: 2px; }
+.formation-record { text-align: right; color: var(--muted); font-size: 11px; margin-top: 6px; }
 
 /* コンディション画面 */
-.condition-style { margin: 14px 0 6px; font-size: 14px; color: var(--text); font-weight: 800; }
+.condition-style { margin: 14px 0 6px; font-size: 15px; color: var(--text); font-weight: 800; }
 .condition-head { color: var(--muted); font-size: 13px; margin: 0 0 6px; }
 .condition-stage { font-weight: 700; }
-.condition-stage.stage-4 { color: var(--danger); }
-.condition-stage.stage-5 { color: var(--danger); }
+.condition-stage.stage-4 { color: var(--stage-4); }
+.condition-stage.stage-5 { color: var(--stage-5); }
 .cond-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
@@ -610,20 +636,20 @@ input, textarea, select { font-size: 16px; }
   align-items: center;
   gap: 2px;
   padding: 8px 4px;
-  font-size: 12px;
+  font-size: 13px;
 }
-.cond-cell.picking { border-color: var(--accent); }
+.cond-cell.picking { border-color: var(--main); }
 .cond-name { font-weight: 700; word-break: break-all; text-align: center; }
 .stage-picker {
   margin-top: 10px;
   background: var(--surface);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--main);
   border-radius: 8px;
   padding: 10px;
 }
 .stage-picker-title { font-weight: 700; margin-bottom: 8px; }
 .stage-btn { flex: 1; padding: 10px 4px; font-size: 13px; }
-.stage-btn.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.stage-btn.on { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 
 /* 結果を直す（H2） */
 .btn-fix { margin-bottom: 10px; }
@@ -633,10 +659,10 @@ input, textarea, select { font-size: 16px; }
   text-align: left;
   margin-top: 6px;
 }
-.sheet-note.warn { color: var(--danger); }
+.sheet-note.warn { color: var(--bad); }
 
 /* 記録画面 */
-.records-floor { margin: 12px 0 6px; font-size: 14px; }
+.records-floor { margin: 12px 0 6px; font-size: 15px; }
 .past-run { margin-bottom: 14px; }
 /* 読み込みの入口はブラウザ標準のファイル選択ボタンを出さず、
    他のボタンと同じ作法のラベルにする（見た目の段、2026-11-20）。
@@ -660,7 +686,7 @@ input, textarea, select { font-size: 16px; }
 .megido-row.unowned { opacity: 0.55; }
 .megido-row-head { display: flex; align-items: center; gap: 8px; }
 .megido-toggle { flex: 0 1 auto; font-weight: 700; text-align: left; }
-.megido-meta { flex: 1; color: var(--muted); font-size: 12px; }
+.megido-meta { flex: 1; color: var(--muted); font-size: 11px; }
 .megido-detail { margin-top: 12px; padding-top: 2px; }
 .megido-field { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .megido-field-label { flex: 0 0 8.5em; font-size: 13px; color: var(--muted); }
@@ -682,12 +708,12 @@ input, textarea, select { font-size: 16px; }
    原則8: 次の判断に要るもの（現在の合計と期待度、編成の成立に関わる注意）を
    大きく前に出し、候補の細目は候補行の中に収める。 */
 /* M7: 現在の組み合わせの合計と期待度は、この節で最も大きく出す */
-.plan-total-big { font-size: 19px; font-weight: 800; margin: 4px 0 8px; }
-.plan-outlook { font-size: 16px; font-weight: 700; margin: 2px 0 8px; }
+.plan-total-big { font-size: 20px; font-weight: 800; margin: 4px 0 8px; }
+.plan-outlook { font-size: 15px; font-weight: 700; margin: 2px 0 8px; }
 /* 値打ちの判定（M3・拡張1）: 見込みは材料として大きく、判定文は
    警告色で出す。判定文が無いシートでは節自体が材料だけになる */
 .worth-outlook { font-size: 15px; font-weight: 700; margin: 2px 0; }
-.worth-verdict { font-size: 14px; font-weight: 700; color: var(--warn); margin: 6px 0 2px; }
+.worth-verdict { font-size: 13px; font-weight: 700; color: var(--danger-warn); margin: 6px 0 2px; }
 /* メンバー行は「入れ替えを開くボタン」だと見た目で分かる体裁にする */
 .plan-member-btn {
   display: flex; align-items: center; gap: 8px; width: 100%;
@@ -695,21 +721,23 @@ input, textarea, select { font-size: 16px; }
 }
 .plan-member-line { flex: 1; }
 .plan-member-hint {
-  flex: 0 0 auto; font-size: 12px; font-weight: 700; color: var(--accent);
-  border: 1px solid var(--accent); border-radius: 999px; padding: 3px 10px;
+  flex: 0 0 auto; font-size: 11px; font-weight: 700; color: var(--main-bright);
+  border: 1px solid var(--main); border-radius: 999px; padding: 3px 10px;
 }
 /* 「枠を空にする」等、枠まわりの操作ボタンは中央寄せ（2026-11-19 ユーザー指定） */
 .plan-change-row { display: flex; gap: 8px; margin-top: 8px; justify-content: center; }
 .btn-explore-add, .btn-explore-reset { font-size: 13px; padding: 8px 10px; }
 
 /* 候補ビュー（M7 の組み替え、M6 の枠候補とオーブ） */
-.cand-summary { font-size: 17px; font-weight: 700; margin: 6px 0 10px; }
+.cand-summary { font-size: 15px; font-weight: 700; margin: 6px 0 10px; }
 .cand-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
 .cand-row { display: block; width: 100%; text-align: left; padding: 10px 12px; }
 .cand-name { font-weight: 700; }
-.cand-meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
-.cand-reason { color: var(--danger); font-size: 12px; margin-top: 2px; }
-.btn-remove-member, .btn-clear-slot { margin: 4px 0 8px; color: var(--danger); border-color: var(--danger); }
+/* 敵ピッカーの敵名は J4 の統一（菫文字＋太字）に合わせる（便1の漏れ。監査 重大V1） */
+.enemy-row .cand-name { color: var(--main-bright); }
+.cand-meta { color: var(--muted); font-size: 11px; margin-top: 2px; }
+.cand-reason { color: var(--bad); font-size: 11px; margin-top: 2px; }
+.btn-remove-member, .btn-clear-slot { margin: 4px 0 8px; color: var(--text); border-color: var(--border); }
 /* 「この枠を空にする」も中央寄せで統一（2026-11-19 ユーザー指定） */
 .btn-clear-slot { display: block; width: fit-content; margin: 4px auto 8px; }
 
@@ -717,21 +745,21 @@ input, textarea, select { font-size: 16px; }
 .formation-empty { text-align: center; padding: 32px 12px; }
 .formation-empty .sheet-note { max-width: 30em; margin: 8px auto 20px; }
 .btn-create-big {
-  font-size: 18px; font-weight: 700; padding: 16px 36px;
+  font-size: 20px; font-weight: 700; padding: 16px 36px;
   background: var(--main); color: var(--main-text); border-color: var(--main);
 }
 
 /* M5 の管理（編集・削除） */
 .formation-entry { display: flex; flex-direction: column; gap: 4px; }
 .formation-actions { display: flex; gap: 6px; justify-content: flex-end; }
-.formation-actions button { font-size: 12px; padding: 5px 12px; }
+.formation-actions button { font-size: 13px; padding: 5px 12px; }
 
 
 /* M6 のエディタ */
-.build-warn { font-size: 15px; font-weight: 700; color: var(--danger); margin: 8px 0; }
+.build-warn { font-size: 15px; font-weight: 700; color: var(--bad); margin: 8px 0; }
 /* 編成エディタの思考順の並び（2026-11-19）: 節の見出し、ターゲット節の
    ギミック、保存ボタンの直上の警告箱 */
-.build-section-title { font-size: 15px; font-weight: 700; margin: 10px 0 6px; }
+.build-section-title { font-size: 15px; font-weight: 800; margin: 10px 0 6px; color: var(--main); border-left: 3px solid var(--main); padding-left: 8px; }
 /* 節見出しの注記の規則（SW92、全節共通のユーザー確定）: 注記が
    1行に収まるなら見出しと同じ行に置く（右寄せの小さい字）。改行が
    入る文字数なら、最初から見出しの下の行に置く（途中で折り返す
@@ -752,9 +780,9 @@ input, textarea, select { font-size: 16px; }
    枠のそばに置く。マスから入った編成では帯全体がボタンになる。 */
 .build-target-chiprow { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
 .target-chip { font-size: 13px; font-weight: 700; background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 4px 10px; }
-.btn-target-change { flex: none; font-size: 12px; padding: 5px 10px; }
+.btn-target-change { flex: none; font-size: 13px; padding: 5px 10px; }
 .enemy-band { display: block; width: 100%; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; color: inherit; }
-.enemy-band-name { font-size: 15px; font-weight: 700; }
+.enemy-band-name { font-size: 15px; font-weight: 700; color: var(--main-bright); }
 .enemy-band-desc { font-size: 13px; margin-top: 2px; }
 .enemy-band-points { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 4px; }
 .enemy-band-point { font-size: 11px; color: var(--muted); }
@@ -764,10 +792,10 @@ input, textarea, select { font-size: 16px; }
 .build-bottom .sheet-actionbar { padding: 6px 14px calc(6px + env(safe-area-inset-bottom)); }
 .build-bottom .sheet-action-btn { padding: 10px; }
 .build-warnings {
-  border: 1px solid #b7791f; background: rgba(231, 205, 156, 0.12);
+  border: 1px solid var(--danger-warn); background: rgba(236, 201, 75, 0.10);
   border-radius: 8px; padding: 8px 10px;
 }
-.build-warn-line { font-size: 13px; font-weight: 700; color: var(--warn); margin: 3px 0; }
+.build-warn-line { font-size: 13px; font-weight: 700; color: var(--danger-warn); margin: 3px 0; }
 .build-slot-main {
   width: 100%; background: none; border: none; border-radius: 0;
   padding: 0; color: inherit; text-align: center;
@@ -785,26 +813,26 @@ input, textarea, select { font-size: 16px; }
 .tabbar-menu {
   position: absolute; bottom: calc(100% + 4px); right: 6px;
   min-width: 220px; background: var(--surface-raise); border: 1px solid var(--border);
-  border-radius: 8px; box-shadow: var(--shadow, 0 4px 16px rgba(0, 0, 0, 0.35));
+  border-radius: 8px; box-shadow: var(--shadow);
   padding: 4px;
 }
 .tabbar-menu-row {
   display: block; width: 100%; text-align: left; padding: 12px 14px;
-  background: none; border: none; color: inherit; font-size: 14px; cursor: pointer;
+  background: none; border: none; color: inherit; font-size: 13px; cursor: pointer;
 }
 .tabbar-menu-row:disabled { opacity: 0.4; }
 .tabbar-menu-sep { border-top: 1px solid var(--border); margin: 4px 2px; }
 
 /* マップの階層化: 未解放のマスはラベルを小さく落とす */
 .square.state-locked .sq-label { font-size: 10px; }
-.square.state-locked .sq-sub { font-size: 8px; }
+.square.state-locked .sq-sub { font-size: 10px; }
 /* 階一覧の済印 */
-.floor-row-done { color: var(--ok); font-weight: 700; margin-left: 8px; }
+.floor-row-done { color: var(--good); font-weight: 700; margin-left: 8px; }
 
 /* 未解放マスの案内（M2）: 事実より先に出す解放の道筋 */
 .unlock-guide {
   background: var(--surface);
-  border: 1px solid var(--accent); border-radius: 8px;
+  border: 1px solid var(--main); border-radius: 8px;
   padding: 10px 12px; margin: 10px 0;
 }
 .unlock-guide-title { font-weight: 700; margin-bottom: 8px; }
@@ -817,19 +845,19 @@ input, textarea, select { font-size: 16px; }
    形で並び、行の中の数が候補チップになる。色は選ばせない。記録ボタン
    は主役の扱い。 */
 .style-btn.selected {
-  background: var(--accent); color: var(--accent-text); border-color: var(--accent);
+  background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700;
 }
 .result-lines { display: flex; flex-direction: column; gap: 10px; }
 .result-line { background: var(--surface-muted); border-radius: 8px; padding: 10px 12px; }
-.result-sentence { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 16px; }
+.result-sentence { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 0; font-size: 15px; }
 .result-bullet { color: var(--muted); }
 .result-value { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px; }
 .result-chips { display: inline-flex; flex-wrap: wrap; gap: 6px; }
 .result-chip {
-  min-width: 44px; padding: 8px 10px; font-weight: 700; font-size: 16px;
-  border: 1px solid var(--border); border-radius: 8px; background: var(--surface-raise);
+  min-width: 44px; padding: 8px 10px; font-weight: 700; font-size: 15px;
+  border: 1px solid var(--border); border-radius: 999px; background: var(--surface-raise);
 }
-.result-chip.selected { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.result-chip.selected { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 .result-num-input {
   width: 84px; padding: 8px; font-size: 16px; text-align: center;
   border: 1px solid var(--border); border-radius: 8px;
@@ -852,7 +880,7 @@ input, textarea, select { font-size: 16px; }
 }
 .btn-fix-apply { display: block; width: 100%; padding: 12px; font-weight: 700; margin: 10px 0; }
 .btn-fix-apply:disabled { opacity: 0.4; }
-.sheet-action-btn.act-explore-record { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.sheet-action-btn.act-explore-record { background: var(--main); color: var(--main-text); border-color: var(--main); }
 .sheet-action-btn.act-explore-record:disabled { background: var(--surface-muted); color: var(--muted); border-color: var(--border); }
 
 /* 破壊的な操作の確認（原則9） */
@@ -866,7 +894,7 @@ input, textarea, select { font-size: 16px; }
 }
 .btn-import-confirm, .btn-delete-confirm, .btn-close-month-confirm {
   display: block; width: 100%; padding: 12px; font-weight: 700; margin: 8px 0;
-  color: var(--danger); border-color: var(--danger);
+  color: var(--text); border-color: var(--danger-warn);
 }
 .btn-import-confirm:disabled { opacity: 0.4; color: inherit; border-color: var(--border); }
 .btn-import-cancel, .btn-delete-cancel, .btn-close-month-cancel, .btn-export-first {
@@ -876,7 +904,7 @@ input, textarea, select { font-size: 16px; }
 /* 段階ピッカーの固定パネル（コンディションの直し・途中開始で共通） */
 .stage-panel {
   position: fixed; left: 0; right: 0; bottom: var(--footer-h); z-index: 45;
-  background: var(--surface-raise); border-top: 2px solid var(--accent);
+  background: var(--surface-raise); border-top: 2px solid var(--main);
   padding: 10px 12px;
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
 }
@@ -884,7 +912,7 @@ input, textarea, select { font-size: 16px; }
 .stage-panel-row { flex-wrap: wrap; }
 .stage-panel-close { margin-top: 8px; font-size: 13px; padding: 6px 14px; }
 .has-panel { padding-bottom: 150px; }
-.cond-cell.picking { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cond-cell.picking { outline: 2px solid var(--main); outline-offset: 1px; }
 
 /* コンディション画面の要約表示 */
 .cond-counts { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
@@ -899,8 +927,8 @@ input, textarea, select { font-size: 16px; }
   text-align: left; padding: 9px 12px; margin: 3px 0;
 }
 .cond-row-name { font-weight: 700; }
-.cond-row-style { color: var(--muted); font-size: 12px; flex: 1; }
-.cond-row.picking { border-color: var(--accent); }
+.cond-row-style { color: var(--muted); font-size: 11px; flex: 1; }
+.cond-row.picking { border-color: var(--main); }
 .btn-open-grid, .btn-close-grid { margin: 10px 0; }
 
 /* 記録画面: 出せるものの無い節は1行に縮め、操作は最下部の行に引っ込める */
@@ -911,7 +939,7 @@ input, textarea, select { font-size: 16px; }
 .records-kv-label { color: var(--muted); }
 .records-kv-value { font-weight: 700; }
 .records-kv-note { color: var(--muted); font-size: 11px; }
-.records-subhead { margin: 12px 0 4px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.records-subhead { margin: 12px 0 4px; font-size: 11px; font-weight: 700; color: var(--muted); }
 .records-fact { font-size: 13px; padding: 2px 0; }
 .rate-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; font-size: 13px; }
 .rate-result { font-weight: 700; white-space: nowrap; }
@@ -925,17 +953,17 @@ input, textarea, select { font-size: 16px; }
 /* メギド画面: スタイル区切り・一括・畳み */
 .megido-style-head { display: flex; align-items: center; gap: 8px; margin: 14px 0 6px; }
 .megido-style-title { font-size: 15px; margin: 0; flex: 1; }
-.btn-style-bulk { font-size: 12px; padding: 6px 10px; }
-.btn-style-bulk.armed { color: var(--danger); border-color: var(--danger); font-weight: 700; }
+.btn-style-bulk { font-size: 13px; padding: 6px 10px; }
+.btn-style-bulk.armed { color: var(--danger-warn); border-color: var(--danger-warn); font-weight: 700; }
 .btn-fold { margin: 4px 0 10px; font-size: 13px; }
 .megido-select { flex: 0 0 auto; padding: 6px 8px; }
 /* 一括選択のピル: 所持のチェック（☑/☐）と見た目を分け、言葉で役割を示す */
 .megido-select-pick {
-  flex: 0 0 auto; padding: 5px 10px; font-size: 12px; border-radius: 999px;
+  flex: 0 0 auto; padding: 5px 10px; font-size: 13px; border-radius: 999px;
   border: 1px solid var(--border); color: var(--muted); background: transparent;
 }
 .megido-select-pick.on {
-  border-color: var(--accent); color: var(--accent-text); background: var(--accent); font-weight: 700;
+  background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700;
 }
 /* メギド詳細の霊宝行 */
 .megido-reishou-text { flex: 1; font-size: 13px; }
@@ -947,13 +975,13 @@ input, textarea, select { font-size: 16px; }
 .bulk-bar {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   background: var(--surface);
-  border: 1px solid var(--accent); border-radius: 8px; padding: 8px 10px; margin-top: 8px;
+  border: 1px solid var(--main); border-radius: 8px; padding: 8px 10px; margin-top: 8px;
 }
 .bulk-count { font-weight: 700; }
 
 /* 途中開始: 「指定しない人の扱い」の選択 */
 .default-mode-btn { padding: 8px 12px; font-size: 13px; }
-.default-mode-btn.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 700; }
+.default-mode-btn.active { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 
 /* ==== 色の意味づけ ====
    割り当ての正は build/app/README.md の「色の割り当て」。
@@ -977,9 +1005,9 @@ input, textarea, select { font-size: 16px; }
      必ずスタイル名の文字を入れる
    - コンディション段階【アンカー】: 現行 Tailwind config の定義を土台に
      する（絶好調 #F07070 / 好調 #F0A070 / 普通 #F0E070 / 不調 #70F0E0 /
-     気絶 #6c6c6c）。絶不調だけは config 定義の #010066（暗紺）でなく、
-     実地のフッター表示で観測された赤 #e53e3e を採る（#010066 は暗い
-     背景でほぼ読めず、ゲームの警告の色感からも外れるため）
+     気絶 #6c6c6c）。絶不調はゲーム指定の青（2026-11-25 予約色の確定で
+     修正。従来の赤 #e53e3e は誤り）。config 定義の #010066（暗紺）は
+     暗背景で読めないため、色相（青）を保ち明度を上げた #6a8dff を採る
    - マスの種類【アンカー】: 戦闘=#e53e3e / ボス=#83477c（スタート色
      #9a7fcc との誤認を避ける現行定義）/ 塔破力=#00793D。回復マスは
      対象スタイルのスタイル色、ランダム回復は #f0f0f0。バフマスも
@@ -992,7 +1020,14 @@ input, textarea, select { font-size: 16px; }
    - 操作アクセント【地】: 金 #E7CD9C（現行 --rich-gold-color）。
      現行の操作色ティール #70F0E0 は段階色（不調）と重なるため使わず、
      Figmaモック（濃紺＋金の選択枠、マスター承認済み）の方向に合わせる。
-     背景・カード・文字はツールの地として静かな色に保つ */
+     背景・カード・文字はツールの地として静かな色に保つ
+   ※ この割り当て表は導入時（2026-11-18）の記録。2026-11-25 の色の
+     移行（便1）で、金は廃止し、ツール側の評価色は冒頭 :root の
+     --good（良い=赤）／--bad（悪い=青）／--danger-warn（危険=黄）／
+     --main・--main-bright（菫=答え・主役）へ再編した。ゲームの
+     アンカー色（スタイル／段階／マスの種類／期待度=箱の格）は
+     この表のまま不変。段階では絶不調だけ予約色の確定に合わせて
+     青へ修正した（下の --stage-4 の注記参照）。 */
 :root {
   --exp-3: #e53e3e;
   --exp-2: #4c8de5;
@@ -1001,7 +1036,7 @@ input, textarea, select { font-size: 16px; }
   --stage-1: #f0a070;
   --stage-2: #f0e070;
   --stage-3: #70f0e0;
-  --stage-4: #e53e3e;
+  --stage-4: #6a8dff;
   --stage-5: #6c6c6c;
   --style-rush: #b3b3b5;
   --style-counter: #f36c21;
@@ -1043,12 +1078,12 @@ input, textarea, select { font-size: 16px; }
   padding: 0 7px; border-radius: 999px; border: 1px solid var(--border);
   color: var(--muted); white-space: nowrap; vertical-align: 1px;
 }
-.style-chip.st-rush { color: #d7d7d9; border-color: var(--style-rush); background: rgba(179, 179, 181, 0.14); }
-.style-chip.st-counter { color: #f68b4b; border-color: var(--style-counter); background: rgba(243, 108, 33, 0.14); }
-.style-chip.st-burst { color: #7fd0e8; border-color: var(--style-burst); background: rgba(91, 192, 222, 0.14); }
-.megido-style-title.st-rush { color: #d7d7d9; }
-.megido-style-title.st-counter { color: #f68b4b; }
-.megido-style-title.st-burst { color: #7fd0e8; }
+.style-chip.st-rush { color: var(--style-rush-text); border-color: var(--style-rush); background: rgba(179, 179, 181, 0.14); }
+.style-chip.st-counter { color: var(--style-counter-text); border-color: var(--style-counter); background: rgba(243, 108, 33, 0.14); }
+.style-chip.st-burst { color: var(--style-burst-text); border-color: var(--style-burst); background: rgba(91, 192, 222, 0.14); }
+.megido-style-title.st-rush { color: var(--style-rush-text); }
+.megido-style-title.st-counter { color: var(--style-counter-text); }
+.megido-style-title.st-burst { color: var(--style-burst-text); }
 
 /* マップのマス: 種類の色（地・枠・アイコン・ラベル）と状態の見分け
    解放済み=種類の色が full / 未解放=灰色の破線（種類の色は出さない） /
@@ -1067,11 +1102,11 @@ input, textarea, select { font-size: 16px; }
 /* 固定スタイルの探索マス（回復・バフ共通）: マスに付いたスタイルの色で
    描く（現行ツールの流儀。バフ専用色は置かない） */
 .square.sqr-rush { border-color: rgba(179, 179, 181, 0.55); background: rgba(179, 179, 181, 0.13); }
-.square.sqr-rush .sq-label, .square.sqr-rush .sq-icon { color: #d7d7d9; }
+.square.sqr-rush .sq-label, .square.sqr-rush .sq-icon { color: var(--style-rush-text); }
 .square.sqr-counter { border-color: rgba(243, 108, 33, 0.55); background: rgba(243, 108, 33, 0.13); }
-.square.sqr-counter .sq-label, .square.sqr-counter .sq-icon { color: #f68b4b; }
+.square.sqr-counter .sq-label, .square.sqr-counter .sq-icon { color: var(--style-counter-text); }
 .square.sqr-burst { border-color: rgba(91, 192, 222, 0.55); background: rgba(91, 192, 222, 0.13); }
-.square.sqr-burst .sq-label, .square.sqr-burst .sq-icon { color: #7fd0e8; }
+.square.sqr-burst .sq-label, .square.sqr-burst .sq-icon { color: var(--style-burst-text); }
 .square.sqx-tower_power { border-color: rgba(0, 121, 61, 0.75); background: rgba(0, 121, 61, 0.18); }
 .square.sqx-tower_power .sq-label, .square.sqx-tower_power .sq-icon { color: #8fd0a8; }
 .square.state-locked { border-color: var(--border); background: var(--surface-muted); }
@@ -1079,36 +1114,36 @@ input, textarea, select { font-size: 16px; }
 .square.state-done { background: #101218; border-color: #262a36; opacity: 0.8; }
 .square.state-done .sq-label, .square.state-done .sq-icon, .square.state-done .sq-sub { color: #596070; }
 .square.sq-next {
-  border-color: var(--accent);
+  border-color: var(--main);
   z-index: 1;
   animation: sq-pulse 1.15s ease-in-out infinite alternate;
 }
 @keyframes sq-pulse {
-  from { box-shadow: 0 0 0 1px rgba(231, 205, 156, 0.35); }
-  to { box-shadow: 0 0 0 3px rgba(231, 205, 156, 0.85); }
+  from { box-shadow: 0 0 0 1px rgba(152, 124, 193, 0.35); }
+  to { box-shadow: 0 0 0 3px rgba(152, 124, 193, 0.85); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .square.sq-next { animation: none; box-shadow: 0 0 0 3px rgba(231, 205, 156, 0.85); }
+  .square.sq-next { animation: none; box-shadow: 0 0 0 3px rgba(152, 124, 193, 0.85); }
 }
 
 /* 探索の見込み: 合計のヒーローと期待度ストリップ（色付き大数字） */
 .plan-hero { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
 .plan-hero-label { font-size: 13px; color: var(--muted); font-weight: 600; }
 .plan-hero-num { font-size: 34px; font-weight: 800; line-height: 1.05; }
-.plan-hero-exp { font-size: 16px; font-weight: 800; }
-.plan-hero-need { font-size: 12px; color: var(--muted); }
+.plan-hero-exp { font-size: 15px; font-weight: 800; }
+.plan-hero-need { font-size: 11px; color: var(--muted); }
 .expc-3 { color: var(--exp-3); }
 .expc-2 { color: var(--exp-2); }
 .expc-1 { color: var(--exp-1); }
 .plan-strip { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin: 4px 0 10px; }
-.plan-exp { border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px; background: var(--surface-muted); }
+.plan-exp { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; background: var(--surface-muted); }
 .plan-exp:not(.current) { opacity: 0.8; }
 .plan-exp.current { border-width: 2px; background: var(--surface-raise); }
 .plan-exp.exp-3.current { border-color: var(--exp-3); }
 .plan-exp.exp-2.current { border-color: var(--exp-2); }
 .plan-exp.exp-1.current { border-color: var(--exp-1); }
 .plan-exp-label { font-size: 11px; color: var(--muted); font-weight: 700; }
-.plan-exp-num { font-size: 19px; font-weight: 800; line-height: 1.3; }
+.plan-exp-num { font-size: 20px; font-weight: 800; line-height: 1.3; }
 .plan-exp.exp-3 .plan-exp-num { color: var(--exp-3); }
 .plan-exp.exp-2 .plan-exp-num { color: var(--exp-2); }
 .plan-exp.exp-1 .plan-exp-num { color: var(--exp-1); }
@@ -1116,24 +1151,24 @@ input, textarea, select { font-size: 16px; }
 /* 目安の注記（バフのボーナスの目）: 主行の下に字下げで出す */
 .plan-exp-reward-note { font-size: 11px; color: var(--muted); margin-top: 2px; padding-left: 1em; }
 /* 見込みの注記: 見込み行の下に字下げで出す */
-.plan-outlook-note { font-size: 12px; color: var(--muted); margin: -4px 0 8px; padding-left: 1em; }
+.plan-outlook-note { font-size: 11px; color: var(--muted); margin: -4px 0 8px; padding-left: 1em; }
 
 /* 探索の別案（同じ期待度・1タップで切り替え） */
 .plan-alt-title { font-size: 13px; margin: 12px 0 6px; }
 .plan-alt-btn { display: block; width: 100%; text-align: left; padding: 8px 10px; margin-bottom: 6px; }
-.plan-alt-members { display: block; font-weight: 700; font-size: 14px; }
-.plan-alt-meta { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.plan-alt-members { display: block; font-weight: 700; font-size: 13px; }
+.plan-alt-meta { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; }
 
 /* 探索メンバー行の構造化（チップ＋名前＋探索力と段階） */
 .plan-member-name { font-weight: 700; }
-.plan-member-meta { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
+.plan-member-meta { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
 
 /* 編成のメンバー行の構造化 */
 .formation-member { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .formation-member-orb { color: var(--muted); }
 
 /* 記録の行: 結果の色を左端に（文字が常に正） */
-.history-row.tone-win { border-left: 3px solid var(--ok); }
+.history-row.tone-win { border-left: 3px solid var(--good); }
 .history-row.tone-lose { border-left: 3px solid var(--exp-3); }
 .history-row.tone-retreat { border-left: 3px solid var(--stage-2); }
 .history-row.tone-explore { border-left: 3px solid var(--tone-explore); }
@@ -1151,77 +1186,78 @@ input, textarea, select { font-size: 16px; }
 .plan-cand-btn { display: block; width: 100%; text-align: left; padding: 10px 12px; margin-bottom: 8px; }
 .plan-cand-members { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 4px; font-weight: 700; font-size: 15px; }
 .plan-cand-name { margin-right: 6px; }
-.plan-cand-meta { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; }
+.plan-cand-meta { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
 
 /* 敵を読む（M4） */
 .threat-block { padding: 10px 0 16px; }
 .threat-name { font-weight: 700; font-size: 15px; }
-.threat-evidence { font-size: 12px; color: var(--muted); margin: 2px 0; }
+.threat-evidence { font-size: 11px; color: var(--muted); margin: 2px 0; }
 .counter-class { margin: 8px 0 8px 12px; }
-.counter-class-label { font-weight: 700; font-size: 14px; }
+.counter-class-label { font-weight: 700; font-size: 15px; }
 .counter-candidates { font-size: 13px; margin: 2px 0; }
 
 /* 候補の列挙（見た目の段、2026-11-20）: 段落の壁をやめ、ラベル行の
    下に1候補1行。名前は本文色の太字で立て、注記（媒体・方法・耐性・
    素早さ）は小さい字で続ける。 */
 .cand-lines { margin: 6px 0 2px; }
-.cand-lines-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 2px; }
+.cand-lines-label { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 2px; }
 .cand-line { display: flex; align-items: baseline; gap: 6px; padding: 2px 0; }
 .cand-line-name { font-weight: 700; flex: none; }
-.cand-line-rest { font-size: 12px; color: var(--muted); }
-.cand-line-more { font-size: 12px; color: var(--muted); padding: 2px 0; }
+.cand-line-rest { font-size: 11px; color: var(--muted); }
+.cand-line-more { font-size: 11px; color: var(--muted); padding: 2px 0; }
 
-/* 脅威レベルの色バッジ（見た目の段、2026-11-20）: S は危険、A は
-   注意、B は控えめ。色相は既存の意味色（危険の赤・警告の黄）から
-   取り、新しい色は作らない。 */
+/* 脅威レベルの色バッジ（見た目の段、2026-11-20。色は 2026-11-25
+   移行）: 脅威は危険 = 黄で統一する。S は黄の塗り（強い使い方）、
+   A は黄の座布団＋黄文字、B は控えめ（通常色）。 */
 .threat-name { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .threat-level-badge {
   font-size: 11px; font-weight: 700; border-radius: 999px; padding: 1px 8px;
   background: var(--surface-raise); color: var(--muted); white-space: nowrap;
 }
-.threat-level-badge.lv-s { background: rgba(229, 62, 62, 0.22); color: #ff9d9d; }
-.threat-level-badge.lv-a { background: rgba(236, 201, 75, 0.18); color: var(--warn); }
+.threat-level-badge.lv-s { background: var(--danger-warn); color: var(--danger-warn-text); }
+.threat-level-badge.lv-a { background: rgba(236, 201, 75, 0.18); color: var(--danger-warn); }
 .counter-weak { font-size: 13px; color: var(--exp-1); margin: 2px 0; }
 .counter-immune { font-size: 13px; color: var(--muted); margin: 2px 0; }
-.resist-key { font-size: 12px; color: var(--muted); margin: 2px 0; }
-.demand-warn { font-size: 13px; color: var(--warn); margin: 6px 0; }
+.resist-key { font-size: 11px; color: var(--muted); margin: 2px 0; }
+.demand-warn { font-size: 13px; color: var(--danger-warn); margin: 6px 0; }
 
 /* 編成のカバー表示（M5） */
-.formation-coverage { font-size: 12px; margin-top: 3px; }
-.formation-coverage.covered { color: var(--ok); }
-.formation-coverage.uncovered { color: var(--danger); }
+.formation-coverage { font-size: 11px; margin-top: 3px; }
+.formation-coverage.covered { color: var(--good); }
+.formation-coverage.uncovered { color: var(--bad); }
 .formation-coverage.note { color: var(--muted); }
 
 /* M8 の ME 要約 */
-.confirm-me { font-size: 14px; font-weight: 700; margin: 8px 0 2px; }
+.confirm-me { font-size: 15px; font-weight: 700; margin: 8px 0 2px; }
 
 /* M8 の素早さの敵比較（最終チェック）と、選び直す／編集するの並び */
 .confirm-spd-line { font-size: 13px; margin: 2px 0; }
 .confirm-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
-.btn-edit-formation { font-size: 13px; font-weight: 700; padding: 6px 12px; border-color: var(--accent); color: var(--accent); background: none; }
+.btn-edit-formation { font-size: 13px; font-weight: 700; padding: 6px 12px; border-color: var(--main); color: var(--main-bright); background: none; }
 
 /* オーブ選択の素早さの敵比較（使うステージ選択時） */
-.orb-spd-context { background: var(--surface-muted); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin: 8px 0; }
+.orb-spd-context { padding: 4px 0; margin: 8px 0; }
 .orb-spd-line { font-size: 13px; margin: 2px 0; }
 .orb-spd-detail { font-size: 11px; color: var(--muted); }
 .orb-spd-verdict { font-weight: 700; }
-.orb-spd-after { color: var(--accent); }
-.reishou-spd-after { color: var(--accent); font-size: 12px; margin-top: 4px; }
-/* 素早さの変化の統一表記（2026-11-19）: 上昇は緑、低下は赤。
-   矢印（↑↓）と対で使い、ピッカーのプレビュー行と内訳の各補正に
-   同じ対応で付ける。色は既存パレットの --ok / --danger。 */
+.orb-spd-after { color: var(--main-bright); }
+.reishou-spd-after { color: var(--main-bright); font-size: 11px; margin-top: 4px; }
+/* 素早さの変化の統一表記（2026-11-19、色は 2026-11-25 移行）:
+   矢印が方向（↑↓）、色が評価（味方にとって良い = 赤 --good /
+   悪い = 青 --bad）。ピッカーのプレビュー行と内訳の各補正に
+   同じ対応で付ける。 */
 /* 素早さ内訳の補正は1要素ずつ割らずに、・の境目だけで行を分ける。 */
 .spd-part { white-space: nowrap; }
-.spd-up { color: var(--ok); }
-.spd-down { color: var(--danger); }
+.spd-up { color: var(--good); }
+.spd-down { color: var(--bad); }
 
 /* M6 の ME 適合と候補の注記 */
-.me-fit { background: var(--surface); border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
+.me-fit { padding: 10px 0; margin-top: 12px; }
 .me-fit-title { font-size: 13px; color: var(--muted); font-weight: 700; }
-.me-fit-name { font-size: 16px; font-weight: 700; margin: 2px 0; }
-.me-fit-sub-title { font-size: 14px; font-weight: 700; margin: 10px 0 2px; }
+.me-fit-name { font-size: 15px; font-weight: 700; margin: 2px 0; }
+.me-fit-sub-title { font-size: 15px; font-weight: 700; margin: 10px 0 2px; }
 .me-fit-line { font-size: 13px; margin: 3px 0; }
-.cand-note { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.cand-note { font-size: 11px; color: var(--muted); margin-top: 2px; }
 /* 「この候補が要る理由」の行だけは一段立てる（モック C の判定:
    理由を1行に絞って読ませる）。 */
 .cand-note-key { font-size: 13px; color: var(--text); font-weight: 600; }
@@ -1232,71 +1268,72 @@ input, textarea, select { font-size: 16px; }
 .cand-head .sheet-title { margin: 0; }
 /* ピッカーの案内（SW92）: 対象と、その敵の脅威、◇と優先表示の意味。
    見出しの下に常時出す。 */
-.cand-guide { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin: 4px 0 10px; }
+.cand-guide { padding: 4px 0; margin: 4px 0 10px; }
 .cand-guide-target { font-size: 13px; font-weight: 700; }
 .cand-guide-threats { font-size: 13px; font-weight: 700; margin-top: 2px; }
-.cand-guide-line { font-size: 12px; color: var(--muted); margin: 2px 0 0; }
+.cand-guide-line { font-size: 11px; color: var(--muted); margin: 2px 0 0; }
 /* ◇の印（SW92）: 対策の手段を持っている候補に短い言葉だけを並べる */
 .cand-marks { display: flex; flex-wrap: wrap; gap: 2px 8px; margin-top: 2px; }
-.cand-mark { font-size: 12px; color: var(--ok); font-weight: 700; }
+.cand-mark { font-size: 11px; color: var(--main-bright); font-weight: 700; }
 /* ME の枠条件のヒント（空き枠の条件表示と、枠・候補の適合の印） */
 .slot-me-cond { font-size: 10px; color: var(--muted); margin-top: 2px; word-break: break-all; }
-.slot-me-match { font-size: 10px; color: var(--accent); font-weight: 700; margin-top: 2px; }
-.slot-reishou4 { font-size: 10px; color: var(--accent); font-weight: 700; margin-top: 2px; }
+.slot-me-match { font-size: 10px; color: var(--main-bright); font-weight: 700; margin-top: 2px; }
+.slot-reishou4 { font-size: 10px; color: var(--main-bright); font-weight: 700; margin-top: 2px; }
 .slot-reishou4-line { display: block; }
 .slot-reishou4-name { display: block; white-space: nowrap; }
-.cand-me-match { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 2px; }
+.cand-me-match { font-size: 11px; color: var(--main-bright); font-weight: 700; margin-top: 2px; }
 /* 戦旗の条件チェック（2026-11-20）: ME 要約と同じ枠の見た目で、
    保持者ごとに付与先・条件の成否・効果を小さく出す */
-.flag-fit { background: var(--surface); border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
+.flag-fit { padding: 10px 0; margin-top: 12px; }
 .flag-fit-title { font-size: 13px; color: var(--muted); font-weight: 700; }
 .flag-fit-item { margin-top: 8px; }
-.flag-fit-head { font-size: 14px; font-weight: 700; }
+.flag-fit-head { font-size: 15px; font-weight: 700; }
 .flag-fit-line { font-size: 13px; margin: 2px 0; }
-.flag-fit-effect { font-size: 12px; color: var(--muted); margin: 2px 0; }
-.flag-fit-item .flag-fit-note { font-size: 12px; color: var(--muted); margin: 2px 0; }
+.flag-fit-effect { font-size: 11px; color: var(--muted); margin: 2px 0; }
+.flag-fit-item .flag-fit-note { font-size: 11px; color: var(--muted); margin: 2px 0; }
 /* ME の枠条件の各枠表示（ピッカー、2026-11-19）: 満たす枠を1枠1行で
    出すため、cand-me-match と同じ見た目（金の太字）にする */
-.cand-me-fit { font-size: 12px; color: var(--accent); font-weight: 700; margin-top: 2px; }
+.cand-me-fit { font-size: 11px; color: var(--main-bright); font-weight: 700; margin-top: 2px; }
 /* ターゲットに有効な候補の印（編成ピッカー、2026-11-19）: 対策済みの
    緑（--ok）で ME の印（金）と区別する */
-.cand-target-match { font-size: 12px; color: var(--ok); font-weight: 700; margin-top: 2px; }
+.cand-target-match { font-size: 11px; color: var(--main-bright); font-weight: 700; margin-top: 2px; }
 /* オーラ対応の印（オーブピッカー、2026-11-20）: 装備するメギドの
    オーラの対象に合うオーブ。有効印（緑）・ME の印（金）とは別の
    文脈（編成側の仕組みへの適合）なので、色は本文寄りのまま太字で
    示し、印同士の混同を避ける */
-.cand-aura-match { font-size: 12px; font-weight: 700; margin-top: 2px; }
+.cand-aura-match { font-size: 11px; font-weight: 700; margin-top: 2px; }
 /* 音符発生の注記（両ピッカー、2026-11-20）: アイコン（Material
    Symbols の music_note_add をインライン SVG で描く。色は
    currentColor でこの行の色に追随）と文言を横に並べる */
-.cand-note-mark { font-size: 12px; font-weight: 700; margin-top: 2px; display: flex; align-items: center; gap: 3px; }
+.cand-note-mark { font-size: 11px; font-weight: 700; margin-top: 2px; display: flex; align-items: center; gap: 3px; }
 .note-mark-icon { width: 15px; height: 15px; flex: none; }
 /* 対策の行（SW92、問題E）: 脅威ごとに、色の点（状態）＋脅威名＋
-   範囲をそのまま書いた文章。点の色が状態を担う（対策あり=緑、
-   一部だけ=黄、対策なし=赤）。危険は色で伝える原則に従う。 */
+   範囲をそのまま書いた文章。点の色が状態を担う（対策あり=菫
+   （ツールの答え）、一部だけ=黄（危険）、対策なし=青（悪い結論）。
+   2026-11-25 色の移行で対応を差し替え）。 */
 .counters { margin: 12px 0 4px; }
 .counter-row { display: flex; align-items: baseline; gap: 8px; padding: 5px 0; font-size: 13px; }
 .counter-dot { flex: none; width: 9px; height: 9px; border-radius: 50%; position: relative; top: -1px; }
-.counter-dot.dot-covered { background: var(--ok); }
-.counter-dot.dot-partial { background: var(--warn); }
-.counter-dot.dot-none { background: var(--danger); }
+.counter-dot.dot-covered { background: var(--main); }
+.counter-dot.dot-partial { background: var(--danger-warn); }
+.counter-dot.dot-none { background: var(--bad); }
 .counter-label { font-weight: 700; }
 /* 非直観的な仕組みの1行注記（M4 の敵ブロック・M6 のエディタ） */
-.mech-note { font-size: 12px; color: var(--muted); margin: 4px 0; padding-left: 8px; border-left: 3px solid var(--accent); }
+.mech-note { font-size: 11px; color: var(--muted); margin: 4px 0; padding-left: 8px; border-left: 3px solid var(--main); }
 
 /* ==== M7 の転換（入口は空の枠）・おすすめ転記・並走の警告 ==== */
 /* おすすめの転記: ゲーム画面の表示を写す機械的な入力。流れの頭に置く */
-.osusume-block { border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; margin-bottom: 10px; background: var(--surface-muted); }
+.osusume-block { border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; margin-bottom: 10px; background: var(--surface-muted); }
 .osusume-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
-.osusume-value { font-size: 13px; font-weight: 700; color: var(--accent); }
+.osusume-value { font-size: 13px; font-weight: 700; color: var(--main-bright); }
 /* 転記の状態行: 状態の表示（未選択／値の文）と解除の操作（キャンセル） */
 .osusume-state { display: flex; align-items: center; gap: 10px; margin-top: 6px; min-height: 30px; }
 .osusume-unselected { color: var(--muted); font-weight: 400; }
-.osu-cancel { font-size: 12px; padding: 4px 12px; }
+.osu-cancel { font-size: 13px; padding: 4px 12px; }
 .osusume-row { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-.osusume-row-label { flex: 0 0 4.5em; font-size: 12px; color: var(--muted); }
+.osusume-row-label { flex: 0 0 4.5em; font-size: 11px; color: var(--muted); }
 .osu-chip { font-size: 13px; padding: 6px 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; }
-.osu-chip.active { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 700; }
+.osu-chip.active { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 /* ファン素材アイコンの添え（試し入れ）: 絵は文字の置き換えではなく添え。
    寸法は表示箇所ごとに固定し、レイアウトを動かさない */
 .ui-icon { flex: none; }
@@ -1304,7 +1341,7 @@ input, textarea, select { font-size: 16px; }
 /* （旧 .slot-sc-icon は枠の行内アイコン用だった。2026-11-20 に
    顔のバッジ（.slot-sc-badge）へ移したため削除。） */
 .cand-sc-icon { width: 22px; height: 22px; margin-right: 2px; vertical-align: middle; }
-.osu-mark { font-size: 11px; font-weight: 700; color: var(--accent); border: 1px solid var(--accent); border-radius: 999px; padding: 1px 7px; margin-left: 6px; white-space: nowrap; }
+.osu-mark { font-size: 11px; font-weight: 700; color: var(--main-bright); border: 1px solid var(--main); border-radius: 999px; padding: 1px 7px; margin-left: 6px; white-space: nowrap; }
 
 /* 数字の前提: 数字の近くに置く本文（脚注ではない） */
 .plan-premise { font-size: 13px; margin: 2px 0 10px; }
@@ -1313,31 +1350,31 @@ input, textarea, select { font-size: 16px; }
 .plan-slots { display: flex; flex-direction: column; gap: 6px; margin: 6px 0; }
 .plan-slot-btn { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 10px 12px; }
 .plan-slot-btn.empty { border-style: dashed; justify-content: center; color: var(--muted); min-height: 52px; }
-.plan-slot-empty-text { font-weight: 700; font-size: 14px; }
-.plan-member-facts { display: block; font-size: 12px; color: var(--muted); margin-top: 1px; }
-/* 需要の印（SW94）: 人ごとのバッジ。！=その階で使う予定（赤）／△=後の階のギミックに有効（黄）。 */
+.plan-slot-empty-text { font-weight: 700; font-size: 13px; }
+.plan-member-facts { display: block; font-size: 11px; color: var(--muted); margin-top: 1px; }
+/* 需要の印（SW94）: 人ごとのバッジ。！=その階で使う予定（赤）／△=後の階で出番がある可能性あり（黄）。 */
 .demand-mark { display: inline-flex; align-items: center; font-size: 10px; font-weight: 900; line-height: 1; padding: 2px 4px; border-radius: 4px; margin-left: 4px; white-space: nowrap; vertical-align: 1px; }
-.demand-mark-plan { background: rgba(229, 62, 62, .16); color: var(--danger); border: 1px solid rgba(229, 62, 62, .6); }
-.demand-mark-gimmick { background: rgba(236, 201, 75, .13); color: var(--warn); border: 1px solid rgba(236, 201, 75, .55); }
+.demand-mark-plan { background: rgba(236, 201, 75, .13); color: var(--danger-warn); border: 1px solid rgba(236, 201, 75, .55); }
+.demand-mark-gimmick { background: rgba(152, 124, 193, .16); color: var(--main-bright); border: 1px solid rgba(152, 124, 193, .6); }
 .plan-demand-legend { font-size: 11px; color: var(--muted); margin: 8px 2px 0; }
 
 /* 並走の警告: 入れたメンバーがこの先で必要になる時に、その場で出す */
-.plan-warn { font-size: 13px; font-weight: 700; color: var(--warn); border: 1px solid var(--warn); border-radius: 8px; padding: 8px 10px; margin: 6px 0; }
+.plan-warn { font-size: 13px; font-weight: 700; color: var(--danger-warn); border: 1px solid var(--danger-warn); border-radius: 8px; padding: 8px 10px; margin: 6px 0; }
 
 /* 前回の探索メンバー（枠のすぐ上に返す手渡し） */
-.plan-past { margin: 8px 0 2px; background: var(--surface); border-radius: 8px; padding: 8px 10px; }
-.plan-past-label { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+.plan-past { margin: 8px 0 2px; padding: 8px 0; }
+.plan-past-label { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
 .plan-past-row { display: flex; flex-wrap: wrap; gap: 4px 10px; }
-.plan-past-member { display: inline-flex; align-items: center; gap: 3px; font-weight: 700; font-size: 14px; }
+.plan-past-member { display: inline-flex; align-items: center; gap: 3px; font-weight: 700; font-size: 13px; }
 
 /* 候補で埋める（補助）: 開いた時だけ候補が並ぶ */
 .plan-fill { margin-top: 18px; }
-.plan-cand-head { display: block; font-weight: 800; font-size: 14px; margin-bottom: 4px; }
-.plan-cand-member { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 4px; font-weight: 700; font-size: 14px; margin-top: 2px; }
+.plan-cand-head { display: block; font-weight: 800; font-size: 15px; margin-bottom: 4px; }
+.plan-cand-member { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 4px; font-weight: 700; font-size: 13px; margin-top: 2px; }
 .btn-explore-fill, .btn-explore-fill-close { font-size: 13px; padding: 8px 10px; }
 
 /* メンバー候補ビュー: 需要・予定の事情 */
-.cand-sub { font-size: 12px; color: var(--warn); margin-top: 2px; }
+.cand-sub { font-size: 11px; color: var(--danger-warn); margin-top: 2px; }
 
 /* 探索シートの第一画面: 結果の言葉を1文大きく（ラベル表は頭に置かない） */
 .sheet-head-result { font-size: 20px; font-weight: 800; line-height: 1.4; margin: 6px 0 10px; }
@@ -1350,7 +1387,7 @@ input, textarea, select { font-size: 16px; }
    と重なるため使わない） */
 .btn-omakase {
   display: block; width: 100%; padding: 16px 12px; margin: 10px 0;
-  font-size: 17px; font-weight: 800; border-radius: 12px;
+  font-size: 15px; font-weight: 800; border-radius: 12px;
   background: var(--main); color: var(--main-text); border-color: var(--main);
 }
 
@@ -1387,84 +1424,88 @@ input, textarea, select { font-size: 16px; }
    やめ、危険はフッター全体の色の状態で伝える。数値だけでは危険に
    気づけない人のための非テキスト信号。気絶ありは濃い赤、絶不調ありは
    淡い赤、回復が推奨される状態は淡い緑。アニメーションは持たない。 */
-.statebar[data-state="risk-high"] .statebar-main { background: rgba(229, 62, 62, 0.30); border-top: 2px solid var(--danger); }
-.statebar[data-state="risk"] .statebar-main { background: rgba(229, 62, 62, 0.14); border-top: 2px solid var(--danger); }
-.statebar[data-state="recovery"] .statebar-main { background: rgba(72, 187, 120, 0.14); border-top: 2px solid var(--ok); }
+.statebar[data-state="risk-high"] .statebar-main { background: rgba(236, 201, 75, 0.30); border-top: 2px solid var(--danger-warn); }
+.statebar[data-state="risk"] .statebar-main { background: rgba(236, 201, 75, 0.14); border-top: 2px solid var(--danger-warn); }
+.statebar[data-state="recovery"] .statebar-main { background: rgba(152, 124, 193, 0.14); border-top: 2px solid var(--main); }
 .statebar[data-state="risk-high"] .statebar-detail,
-.statebar[data-state="risk"] .statebar-detail { background: rgba(229, 62, 62, 0.08); }
-.statebar[data-state="recovery"] .statebar-detail { background: rgba(72, 187, 120, 0.06); }
+.statebar[data-state="risk"] .statebar-detail { background: rgba(236, 201, 75, 0.08); }
+.statebar[data-state="recovery"] .statebar-detail { background: rgba(152, 124, 193, 0.06); }
 
 /* M4 のピル（現行ツールの形: 要注意ギミック=赤ピル、有効な戦術=淡色ピル、
-   効きにくいもの=灰ピル）。ピルは塊として読ませる要約で、根拠の文章は
+   非効率的な手段=灰ピル）。ピルは塊として読ませる要約で、根拠の文章は
    著述の置き場（下）に分ける。 */
 .pill-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
-.pill-label { font-size: 12px; font-weight: 700; color: var(--muted); width: 100%; }
+.pill-label { font-size: 11px; font-weight: 700; color: var(--muted); width: 100%; }
 .pill { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); }
-.pill-threat { background: rgba(229, 62, 62, 0.2); border-color: var(--danger); color: #f6b8b3; }
+.pill-threat { background: rgba(236, 201, 75, 0.16); border-color: var(--danger-warn); color: var(--danger-warn); }
 .pill-tactic { background: rgba(91, 192, 222, 0.14); border-color: #3d7ea6; color: #a9dcef; }
 .pill-ineffective { background: var(--surface-muted); color: var(--muted); }
 
 /* 著述の置き場: 手順・タイミング・的の使い分けなど、ピルにできない
    文章をそのまま載せる場所（追記14）。導出の節とは背景で切り分ける。 */
-.authored-block { background: var(--surface-muted); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+.authored-block { background: var(--surface-muted); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin: 8px 0; }
 .authored-title { font-size: 13px; font-weight: 800; margin-bottom: 6px; }
 .authored-item { margin: 8px 0; }
-.authored-item-label { font-weight: 700; font-size: 14px; }
+.authored-item-label { font-weight: 700; font-size: 15px; }
 .authored-item-detail { font-size: 13px; color: var(--text); margin-top: 2px; white-space: pre-line; }
-.authored-note { font-size: 12px; color: var(--muted); margin-top: 6px; white-space: pre-line; }
+.authored-note { font-size: 11px; color: var(--muted); margin-top: 6px; white-space: pre-line; }
 /* 脅威と対策の対（2026-11-19）: 対策は脅威の下に一段下げてぶら下げ、
    対と対の間は余白と罫で区切る（切り分け）。 */
 .authored-pair { margin: 16px 0; }
 .authored-pair:last-child { margin-bottom: 4px; }
 .authored-pair-threat { margin: 0 0 4px; }
-/* 原資料の脅威は痛い所として赤字で出す（敵シート作り直し、2026-11-20）。 */
+/* 原資料の脅威は危険の所在として黄字で出す（敵シート作り直し、
+   2026-11-20。色は 2026-11-25 移行で赤から危険の黄へ）。 */
 .authored-threat-text .authored-item-label,
-.authored-threat-text .authored-item-detail { color: #f6b8b3; }
-.authored-threat-text .authored-item-label { color: var(--danger); }
+.authored-threat-text .authored-item-detail { color: var(--danger-warn); }
 
 /* 敵シートの種タブ（1マス複数種の切り替え、2026-11-20）。 */
 .enemy-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
 .enemy-tab { font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text); }
-.enemy-tab.selected { border-color: var(--accent); color: var(--accent); box-shadow: inset 0 -3px 0 var(--accent); }
+.enemy-tab.selected { border-color: var(--main); color: var(--main-bright); box-shadow: inset 0 -3px 0 var(--main); }
 
 /* 種族チップ: 飛行だけを強調色にする（相談 5-9、シート側のみ）。 */
 .race-chips { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; margin: 4px 0; }
 .race-chips-label { font-size: 13px; color: var(--muted); }
-.race-chip { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--text); }
-.race-chip-fly { border-color: var(--accent); color: var(--accent); }
+.race-chip { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--text); }
+.race-chip-fly { border-color: var(--main); color: var(--main-bright); }
 
 /* 脅威の発生源の見出し（本体／取り巻き別、2026-11-20）。 */
 .threat-source-label { font-size: 13px; font-weight: 800; margin: 12px 0 4px; }
 
 /* 答えカルーセル: 戦略タイプ別のブロックを横スクロールで並べる。 */
 .answer-carousel { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 8px; }
-.carousel-block { flex: 0 0 auto; width: 240px; max-width: 78vw; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
-.carousel-threats { font-size: 12px; color: var(--muted); margin: 2px 0; }
+.carousel-block { flex: 0 0 auto; width: 240px; max-width: 78vw; background: var(--surface-muted); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+.carousel-threats { font-size: 11px; color: var(--muted); margin: 2px 0; }
 
 /* 耐性アコーディオン（シート側。既定は閉、2026-11-20）。 */
-.resist-toggle { font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text); margin: 8px 0 4px; }
+.resist-toggle { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; text-align: left; font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text); margin: 8px 0 4px; min-height: var(--h-sub); box-shadow: none; }
+.resist-toggle::after { content: "⌄"; flex: none; color: var(--muted); font-size: 15px; }
+.resist-toggle.open::after { content: "⌃"; }
 .resist-list { margin: 4px 0 8px; }
 .resist-row { font-size: 13px; margin: 2px 0; }
 
 /* マスシート再構成（SW91）: 敵の名前は主役（20px）。簡単な説明は
    本文（13px）で名前とステータスの直下に置く。 */
 .sheet-enemy-name { font-size: 20px; margin: 2px 0 4px; }
-.enemy-member-name { font-weight: 700; margin: 8px 0 0; }
+.enemy-member-name { font-weight: 700; margin: 8px 0 0; color: var(--main-bright); }
 .sheet-enemy-summary { font-size: 13px; margin: 6px 0; }
 
 /* 攻略のポイント（SW91）: ◇＋小タイトルを行ラベルにした
    アコーディオン。既定は閉。 */
 .point-row { margin: 4px 0; }
-.point-toggle { display: block; width: 100%; text-align: left; font-size: 13px; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1px solid var(--border); background: none; color: var(--text); }
-.point-toggle.open { border-color: var(--accent); }
-.point-body { padding: 4px 2px 8px 12px; }
-.point-threat { font-size: 12px; color: var(--muted); margin: 2px 0; }
+.point-toggle { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; text-align: left; font-size: 13px; font-weight: 700; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--border); background: var(--surface-muted); color: var(--text); min-height: var(--h-sub); box-shadow: none; }
+.point-toggle::after { content: "⌄"; flex: none; color: var(--muted); font-size: 15px; }
+.point-toggle.open::after { content: "⌃"; }
+.point-toggle.open { border-color: var(--main); box-shadow: inset 3px 0 0 var(--main); }
+.point-body { padding: 4px 2px 8px 12px; border-left: 3px solid var(--main); margin-left: 2px; }
+.point-threat { font-size: 11px; color: var(--muted); margin: 2px 0; }
 
 /* タイムライン（SW91）: 味方と敵を実効速度順に並べた帯（表示だけ）。 */
 .sheet-timeline { display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 8px; }
 .tl-chip { flex: 0 0 auto; display: flex; flex-direction: column; gap: 1px; border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px; background: var(--surface-muted); }
-.tl-chip.tl-enemy { border-color: var(--danger); }
-.tl-chip-name { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.tl-chip.tl-enemy .tl-chip-name { color: var(--main-bright); }
+.tl-chip-name { font-size: 11px; font-weight: 700; white-space: nowrap; }
 .tl-chip-spd { font-size: 11px; color: var(--muted); white-space: nowrap; }
 
 /* シミュレーターのチップ（SW91、SW95で本体化）: 押すとその場で
@@ -1472,50 +1513,50 @@ input, textarea, select { font-size: 16px; }
    エディタ側の hbomb-section / kyoen-section / flag-fit を使う。 */
 .sim-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
 .sim-chip { font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: none; color: var(--text); }
-.sim-chip.open { border-color: var(--accent); color: var(--accent); }
-.authored-response { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--accent); }
-.authored-response .authored-item-label::before { content: "対策: "; color: var(--accent); }
+.sim-chip.open { border-color: var(--main); color: var(--text); box-shadow: inset 0 -3px 0 var(--main); }
+.authored-response { margin: 6px 0 0; padding-left: 12px; border-left: 3px solid var(--main); }
+.authored-response .authored-item-label::before { content: "対策: "; color: var(--main-bright); }
 .enemy-stats { font-size: 13px; font-weight: 700; margin: 2px 0; }
 
 /* タグのチップ（棚卸し 5-6・5-10: カテゴリ別の色。文字が常に正） */
 .tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 2px; }
 .tag-chip { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
 .tag-chip.tag-megido { border-color: #6b7280; color: #c9ced8; }
-.tag-chip.tag-enemy { border-color: var(--danger); color: #f6b8b3; }
+.tag-chip.tag-enemy { border-color: var(--main); color: var(--main-bright); }
 .tag-chip.tag-floor { border-color: #3b82f6; color: #a9c8f8; }
 .tag-chip.tag-rule { border-color: #8b5cf6; color: #cdb2f8; }
 .tag-chip.tag-custom { border-color: #10b981; color: #9fe8cd; }
 
 /* 編成一覧の文脈バナー（開いているマスで先に絞って手渡す） */
-.list-context { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--surface-muted); border: 1px solid var(--accent); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
-.list-context button { font-size: 12px; padding: 4px 10px; }
+.list-context { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--surface-muted); border: 1px solid var(--main); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 13px; font-weight: 700; }
+.list-context button { font-size: 13px; padding: 4px 10px; }
 
 /* 編成カードのメモと操作（メモ・編集・コピー・削除） */
-.formation-notes { font-size: 13px; color: var(--text); background: var(--surface-muted); border-radius: 6px; padding: 6px 8px; margin-top: 6px; white-space: pre-line; }
+.formation-notes { font-size: 13px; color: var(--text); background: var(--surface-muted); border-radius: 8px; padding: 6px 8px; margin-top: 6px; white-space: pre-line; }
 .formation-actions .btn-formation-copy, .formation-actions .btn-formation-memo { font-size: 13px; padding: 6px 10px; }
-.slot-reishou { font-size: 12px; color: var(--muted); }
-.slot-buff { font-size: 10px; color: var(--accent); white-space: nowrap; }
+.slot-reishou { font-size: 11px; color: var(--muted); }
+.slot-buff { font-size: 10px; color: var(--main-bright); white-space: nowrap; }
 /* 実効素早さの数値（編成エディタの枠・開始前の確認）: 値が主、
    内訳は下に小さく */
-.slot-spd { font-size: 12px; margin-top: 2px; }
-.slot-spd-detail { display: block; font-size: 9.5px; color: var(--muted); }
-.formation-member-reishou { color: var(--muted); font-size: 12px; }
+.slot-spd { font-size: 11px; margin-top: 2px; }
+.slot-spd-detail { display: block; font-size: 10px; color: var(--muted); }
+.formation-member-reishou { color: var(--muted); font-size: 11px; }
 
 /* 過去編成の再選択（シート先頭の手渡しから） */
-.btn-past-reselect { font-size: 13px; font-weight: 700; padding: 6px 12px; border-color: var(--accent); color: var(--accent); background: none; margin-left: 8px; }
+.btn-past-reselect { font-size: 13px; font-weight: 700; padding: 6px 12px; border-color: var(--main); color: var(--main-bright); background: none; margin-left: 8px; }
 
 /* 探索の結果（記録後の名指しコールアウト＋上振れの追加記入） */
-.post-explore-lines { font-size: 14px; }
+.post-explore-lines { font-size: 13px; }
 .post-explore-line { margin: 3px 0; }
 
 
 /* 構築画面: ターゲット選択・カスタムタグ・メモ */
-.build-target { background: var(--surface-muted); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+.build-target { background: var(--surface-muted); border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin: 10px 0; }
 .build-target-title { font-size: 13px; font-weight: 800; margin-bottom: 8px; }
 .btn-target-enemy { width: 100%; text-align: left; font-weight: 700; padding: 10px 12px; }
 .floor-checks { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .floor-check { font-size: 13px; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
-.floor-check.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.floor-check.on { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 .build-field { margin: 10px 0; }
 .build-field-label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
 .build-text-input, .build-memo-input { width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 9px 10px; font: inherit; font-size: 16px; /* iOS の自動拡大対策（旧 14px） */ }
@@ -1527,14 +1568,14 @@ input, textarea, select { font-size: 16px; }
 .reishou-summary { display: block; }
 .reishou-summary-head { white-space: nowrap; }
 .reishou-mark {
-  display: inline-block; font-size: 9px; line-height: 1.5; margin-left: 3px;
-  padding: 0 2px; color: var(--accent); border: 1px solid var(--accent);
+  display: inline-block; font-size: 10px; line-height: 1.5; margin-left: 3px;
+  padding: 0 2px; color: var(--main-bright); border: 1px solid var(--main);
   border-radius: 4px; vertical-align: 1px;
 }
 .reishou-spd-note { display: block; font-size: 10px; color: var(--muted); margin-top: 2px; }
 /* 霊宝名は単語の途中で割らない（入りきらない時は名前ごと次の行へ）。 */
 .reishou-spd-note-name { white-space: nowrap; }
-.reishou-spd-note.inline { display: inline; font-size: 12px; margin-top: 0; }
+.reishou-spd-note.inline { display: inline; font-size: 11px; margin-top: 0; }
 
 /* 霊宝ピッカー */
 .reishou-slots { margin: 8px 0; }
@@ -1543,42 +1584,43 @@ input, textarea, select { font-size: 16px; }
   font-size: 13px; padding: 7px 10px; border-radius: 999px;
   border: 1px solid var(--border); background: var(--surface); color: var(--text);
 }
-.reishou-slot-chip.active { border-color: var(--accent); color: var(--accent); font-weight: 800; }
+.reishou-slot-chip.active { border-color: var(--main); color: var(--text); box-shadow: inset 0 -3px 0 var(--main); font-weight: 800; }
 .reishou-slot-clear { font-size: 13px; padding: 6px 12px; }
 .reishou-slot-clear:disabled { opacity: 0.45; }
-.reishou-row.picked { border-color: var(--accent); }
-.reishou-row-state { font-size: 12px; font-weight: 800; color: var(--accent); }
+.reishou-row.picked { border-color: var(--main); box-shadow: inset 3px 0 0 var(--main); }
+.reishou-row-state { font-size: 11px; font-weight: 800; color: var(--main-bright); }
 
 /* 横断検索（棚卸し 2-10） */
 .search-presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; }
 .search-preset { font-size: 13px; font-weight: 700; padding: 7px 12px; border-radius: 999px; }
-.search-preset.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.search-preset.on { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 .search-group-title { font-size: 13px; font-weight: 800; color: var(--muted); margin: 14px 0 6px; }
 .search-row { display: block; width: 100%; text-align: left; padding: 10px 12px; margin-bottom: 6px; }
 .search-row-main { font-weight: 700; display: block; }
-.search-row-sub { font-size: 12px; color: var(--muted); display: block; margin-top: 2px; }
+.search-row-sub { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
 
 /* 顔見せカード（SW90。旧・階頭の後継） */
 .face-card-floor { font-size: 30px; font-weight: 800; margin: 4px 0; }
 .face-card-theme-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 6px; }
 .face-card-theme { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
 .face-card-rule { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-muted); }
-.face-card-boss { font-size: 16px; font-weight: 700; }
-.face-card-notable { font-size: 14px; font-weight: 700; color: var(--danger); margin: 4px 0; }
+.face-card-boss { font-size: 15px; font-weight: 700; color: var(--main-bright); }
+.face-card-notable { font-size: 13px; font-weight: 700; color: var(--danger-warn); margin: 4px 0; }
 .face-card-hint { font-size: 13px; margin: 4px 0; }
-.guide-line { font-size: 14px; margin: 4px 0; white-space: pre-line; }
+.guide-line { font-size: 13px; margin: 4px 0; white-space: pre-line; }
 
 /* 階見出し帯（SW90）: 階番号＋？＋テーマチップ＋注記＋先月のまとめ */
 .map-floor-band { max-width: 640px; margin: 0 auto; padding: 0 12px; }
 .map-floor-head { display: flex; align-items: center; gap: 8px; margin-top: 8px; border-bottom: 2px solid var(--main); padding-bottom: 6px; }
 .map-floor-num { font-size: 20px; font-weight: 800; color: var(--main); }
-.btn-floor-help { width: 26px; height: 26px; border-radius: 50%; padding: 0; font-size: 13px; font-weight: 700; line-height: 1; }
+.btn-floor-help { position: relative; width: 26px; height: 26px; border-radius: 50%; padding: 0; font-size: 13px; font-weight: 700; line-height: 1; }
+.btn-floor-help::after { content: ""; position: absolute; inset: -9px; }
 .map-floor-theme { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
 .map-floor-rule { font-size: 11px; padding: 3px 8px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface-muted); }
 .map-floor-band .map-notes { max-width: none; margin: 6px 0 0; padding: 0; }
 .map-prev-summary { opacity: 0.75; }
 
-.btn-reset-open { color: #f6b8b3; border-color: var(--danger); }
+.btn-reset-open { color: var(--text); border-color: var(--border); }
 
 /* メモ編集シート */
 .memo-input { width: 100%; min-height: 96px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 8px; padding: 10px; font: inherit; font-size: 16px; resize: vertical; /* iOS の自動拡大対策（旧 14px） */ }
@@ -1603,7 +1645,7 @@ input, textarea, select { font-size: 16px; }
    チェインで後ろの手が帯から届かなくならないように）。上下の
    padding は、チップからはみ出す×印・？印の分。 */
 .chain-route { display: flex; flex-wrap: nowrap; align-items: flex-start; gap: 4px; margin: 8px 0; overflow-x: auto; padding: 8px 0; }
-.chain-action-photon { width: 52px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 2px 6px; border: 1px solid var(--accent); border-radius: 8px; background: none; font: inherit; color: inherit; position: relative; cursor: pointer; }
+.chain-action-photon { width: 52px; flex: none; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 5px 2px 6px; border: 1px solid var(--main); border-radius: 12px; background: none; font: inherit; color: inherit; position: relative; cursor: pointer; }
 .chain-action-photon.is-fixed { border-style: dashed; }
 .chain-action-icon { width: 34px; height: 34px; }
 .chain-action-name { font-size: 11px; line-height: 1.25; text-align: center; word-break: break-all; }
@@ -1613,23 +1655,23 @@ input, textarea, select { font-size: 16px; }
 .chain-action-photon .chain-tap-hint { text-align: center; }
 .chain-route .chain-arrow { align-self: center; }
 .chain-member-chip { display: inline-flex; align-items: center; gap: 6px; flex: none; }
-.chain-member-chip.enemy { padding: 8px 10px; border: 1px dashed var(--danger); border-radius: 8px; color: var(--danger); font-size: 13px; }
-.chain-member-chip.is-origin { padding: 8px 10px; border: 1px solid var(--accent); border-radius: 8px; font-size: 13px; }
-.chain-member-chip.in-route { border-color: var(--accent); }
+.chain-member-chip.enemy { padding: 8px 10px; border: 1px dashed var(--border); border-radius: 8px; color: var(--main-bright); font-weight: 700; font-size: 13px; }
+.chain-member-chip.is-origin { padding: 8px 10px; border: 1px solid var(--main); border-radius: 8px; font-size: 13px; }
+.chain-member-chip.in-route { border-color: var(--main); }
 .chain-member-chip.is-fixed { border-style: dashed; }
-.chain-member-spd { font-size: 12px; color: var(--muted); }
-.chain-member-supply { font-size: 11px; color: var(--accent); }
-.chain-origin-badge { font-size: 11px; font-weight: 700; color: var(--accent); }
+.chain-member-spd { font-size: 11px; color: var(--muted); }
+.chain-member-supply { font-size: 11px; color: var(--main-bright); }
+.chain-origin-badge { font-size: 11px; font-weight: 700; color: var(--main-bright); }
 .chain-order-badge { font-size: 11px; font-weight: 700; color: var(--muted); }
-.chain-occ-badge { font-size: 11px; font-weight: 700; color: var(--accent); }
-.chain-fixed-mark { color: var(--accent); font-weight: 700; }
+.chain-occ-badge { font-size: 11px; font-weight: 700; color: var(--main-bright); }
+.chain-fixed-mark { color: var(--main-bright); font-weight: 700; }
 .chain-tap-hint { font-size: 11px; color: var(--muted); }
-.chain-wedge { display: inline-flex; flex-direction: column; align-items: center; flex: none; color: var(--accent); line-height: 1.1; }
+.chain-wedge { display: inline-flex; flex-direction: column; align-items: center; flex: none; color: var(--main-bright); line-height: 1.1; }
 .chain-wedge-mark { font-weight: 700; font-size: 16px; }
 .chain-wedge-label { font-size: 10px; text-align: center; }
-.chain-photon-info { margin-left: 8px; font-size: 12px; font-weight: 400; color: var(--muted); }
-.chain-photon-info.full { color: var(--accent); font-weight: 700; }
-.chain-error { font-size: 13px; color: var(--danger); margin: 2px 0 0; }
+.chain-photon-info { margin-left: 8px; font-size: 11px; font-weight: 400; color: var(--muted); }
+.chain-photon-info.full { color: var(--main-bright); font-weight: 700; }
+.chain-error { font-size: 13px; color: var(--bad); margin: 2px 0 0; }
 .chain-arrow { font-weight: 700; }
 .chain-link-note { font-size: 13px; color: var(--muted); margin: 2px 0 0; }
 /* 回数チェイン付与由来の手（2026-11-21）: 矢印・行動の枠・
@@ -1637,18 +1679,19 @@ input, textarea, select { font-size: 16px; }
 .chain-arrow.is-grant { color: var(--grant); }
 .chain-action.is-grant .chain-action-photon { border-color: var(--grant); }
 .chain-link-note.is-grant { color: var(--grant); }
-.chain-result-line { font-size: 14px; margin: 6px 0 0; }
+.chain-result-line { font-size: 13px; margin: 6px 0 0; }
 .chain-photon-icon { vertical-align: -3px; }
 .chain-clear-btn { margin-top: 8px; }
 .chain-action { position: relative; flex: none; width: 52px; }
 .chain-action .chain-action-photon { width: 100%; }
 .chain-action.is-fixed .chain-action-photon { border-style: dashed; }
-.chain-action-x { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid var(--border); background: var(--surface, #fff); color: var(--danger); font-size: 13px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 1; }
-.chain-prob-badge { position: absolute; bottom: -7px; right: -7px; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid var(--accent); background: var(--surface, #fff); color: var(--accent); font-size: 12px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 1; }
-.chain-prob-restore { margin-left: 8px; font-size: 12px; }
+.chain-action-x::after, .chain-prob-badge::after { content: ""; position: absolute; inset: -12px; }
+.chain-action-x { position: absolute; top: -7px; right: -7px; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid var(--border); background: var(--surface, #fff); color: var(--text); font-size: 13px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 1; }
+.chain-prob-badge { position: absolute; bottom: -7px; right: -7px; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid var(--main); background: var(--surface, #fff); color: var(--main-bright); font-size: 11px; font-weight: 700; line-height: 1; cursor: pointer; z-index: 1; }
+.chain-prob-restore { margin-left: 8px; font-size: 13px; }
 .chain-photon-popup { display: flex; flex-direction: column; gap: 6px; }
-.chain-photon-popup .hbomb-popup-item.is-current { border-color: var(--accent); }
-.chain-photon-option-note { font-size: 12px; color: var(--muted); }
+.chain-photon-popup .hbomb-popup-item.is-current { border-color: var(--main); }
+.chain-photon-option-note { font-size: 11px; color: var(--muted); }
 
 /* ---- Hボムプランナー（2026-11-19 実装フライト） ---- */
 /* 戦場（上）と操作エリア（下）を1区画に収める。スクロールなしで
@@ -1656,59 +1699,59 @@ input, textarea, select { font-size: 16px; }
 .hbomb-section { background: var(--surface); border-radius: 8px; padding: 10px 12px; margin-top: 12px; }
 .hbomb-head { display: flex; align-items: center; gap: 8px; }
 .hbomb-head .build-section-title { margin: 0; flex: 1; }
-.hbomb-omakase-btn { background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 700; }
-.hbomb-reset-btn { font-size: 12px; }
+.hbomb-omakase-btn { background: var(--main); color: var(--main-text); border-color: var(--main); font-weight: 700; }
+.hbomb-reset-btn { font-size: 11px; }
 .hbomb-tabs { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
-.hbomb-tab.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.hbomb-tab.on { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 .hbomb-turnbox { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; }
 .hbomb-control-label { font-size: 13px; color: var(--muted); }
-.hbomb-chip.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.hbomb-chip.on { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); font-weight: 700; }
 .hbomb-field { display: flex; flex-direction: column; gap: 6px; }
 .hbomb-row { display: flex; gap: 6px; }
 .hbomb-enemy { flex: 1 1 0; min-width: 0; background: var(--surface-muted); border-radius: 8px; padding: 4px 6px; }
-.hbomb-enemy.is-target { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.hbomb-enemy.is-target { border-color: var(--main); box-shadow: 0 0 0 1px var(--main); }
 .hbomb-enemy-main { display: flex; flex-direction: column; align-items: stretch; gap: 2px; width: 100%; background: none; border: none; padding: 0; text-align: left; }
-.hbomb-enemy-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hbomb-enemy-name { font-size: 13px; font-weight: 700; color: var(--main-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .hbomb-enemy-hp { font-size: 11px; color: var(--muted); }
-.hbomb-hpbar { display: block; height: 5px; border-radius: 3px; background: var(--border); overflow: hidden; }
-.hbomb-hpfill { display: block; height: 100%; background: var(--danger); }
-.hbomb-hpfill.kills { background: #48bb78; }
-.hbomb-enemy-result { font-size: 12px; font-weight: 700; color: var(--danger); }
-.hbomb-enemy-result.kills { color: #48bb78; }
+.hbomb-hpbar { display: block; height: 5px; border-radius: 4px; background: var(--border); overflow: hidden; }
+.hbomb-hpfill { display: block; height: 100%; background: var(--main); }
+.hbomb-hpfill.kills { background: var(--good); }
+.hbomb-enemy-result { font-size: 13px; font-weight: 700; color: var(--bad); }
+.hbomb-enemy-result.kills { color: var(--good); }
 .hbomb-bombs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .hbomb-bomb { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 999px; border: 1px solid var(--border); }
 .hbomb-bomb.kind-fast { border-color: #4c8de5; color: #4c8de5; }
-.hbomb-bomb.kind-heavy { border-color: var(--danger); color: var(--danger); }
-.hbomb-bomb.kind-ren { border-color: var(--accent); color: var(--accent); }
-.hbomb-bomb.boosted { background: rgba(231, 205, 156, 0.18); }
+.hbomb-bomb.kind-heavy { border-color: var(--border); color: var(--text); }
+.hbomb-bomb.kind-ren { border-color: var(--main); color: var(--main-bright); }
+.hbomb-bomb.boosted { background: rgba(240, 112, 112, 0.16); }
 .hbomb-debuffs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
 .hbomb-debuff { font-size: 11px; font-weight: 700; padding: 2px 6px; border-radius: 999px; border: 1px solid #83477c; color: #83477c; background: transparent; }
 .hbomb-debuff-popup { display: flex; flex-direction: column; gap: 6px; }
 .hbomb-popup-title { font-size: 15px; font-weight: 700; }
-.hbomb-popup-note { font-size: 12px; color: var(--muted); margin: 0; }
+.hbomb-popup-note { font-size: 11px; color: var(--muted); margin: 0; }
 .hbomb-popup-empty { font-size: 13px; color: var(--muted); margin: 0; }
 .hbomb-popup-item { display: flex; flex-direction: column; align-items: stretch; gap: 2px; text-align: left; padding: 8px 10px; }
 .hbomb-popup-item-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
-.hbomb-popup-item-label { font-size: 14px; font-weight: 700; }
+.hbomb-popup-item-label { font-size: 15px; font-weight: 700; }
 .hbomb-popup-item-meta { font-size: 11px; color: var(--muted); }
-.hbomb-popup-item-source { font-size: 12px; color: var(--muted); }
-.hbomb-popup-item-remove { font-size: 12px; font-weight: 700; color: var(--danger); flex: 0 0 auto; }
+.hbomb-popup-item-source { font-size: 11px; color: var(--muted); }
+.hbomb-popup-item-remove { font-size: 13px; font-weight: 700; color: var(--text); flex: 0 0 auto; }
 .hbomb-factor { font-size: 13px; font-weight: 600; margin: 6px 0 0; }
 .hbomb-steps { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
-.hbomb-step-turn { font-size: 12px; font-weight: 700; color: var(--muted); margin-top: 4px; }
+.hbomb-step-turn { font-size: 11px; font-weight: 700; color: var(--muted); margin-top: 4px; }
 .hbomb-step { display: flex; align-items: center; gap: 8px; text-align: left; font-size: 13px; }
-.hbomb-step.ng { border-color: var(--danger); }
-.hbomb-step-note { font-size: 11px; color: var(--accent); }
-.hbomb-step-ng { font-size: 11px; color: var(--danger); }
+.hbomb-step.ng { border-color: var(--bad); }
+.hbomb-step-note { font-size: 11px; color: var(--main-bright); }
+.hbomb-step-ng { font-size: 11px; color: var(--bad); }
 .hbomb-clock { font-size: 13px; font-weight: 600; margin: 6px 0 0; }
-.hbomb-clock.ng { color: var(--danger); }
+.hbomb-clock.ng { color: var(--bad); }
 .hbomb-palette { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .hbomb-action { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 6px 8px; flex: 1 1 44%; min-width: 0; }
 .hbomb-action.disabled { opacity: 0.45; }
 .hbomb-action-label { font-size: 13px; font-weight: 700; }
 .hbomb-action-sub { font-size: 11px; color: var(--muted); }
-.hbomb-action-reason { font-size: 11px; color: var(--danger); }
-.hbomb-note { font-size: 12px; color: var(--muted); margin: 6px 0 0; }
+.hbomb-action-reason { font-size: 11px; color: var(--bad); }
+.hbomb-note { font-size: 11px; color: var(--muted); margin: 6px 0 0; }
 
 /* 狂炎シミュレーター（2026-11-19）: 圧縮形。敵一覧・地形の状態・
    行動チップ・ターン移動・結論が一画面に収まる寸法にする。 */
@@ -1716,28 +1759,28 @@ input, textarea, select { font-size: 16px; }
 .kyoen-head { display: flex; align-items: center; gap: 8px; }
 .kyoen-head .build-section-title { margin: 0; flex: 1; }
 .kyoen-turn { font-size: 13px; font-weight: 700; }
-.kyoen-reset-btn { font-size: 12px; }
+.kyoen-reset-btn { font-size: 11px; }
 .kyoen-enemies { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
 .kyoen-enemy { display: block; width: 100%; text-align: left; border: 1px solid transparent; border-radius: 8px; padding: 4px 8px 6px; background: var(--surface-muted); }
-.kyoen-enemy.is-target { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.kyoen-enemy.is-target { border-color: var(--main); box-shadow: 0 0 0 1px var(--main); }
 .kyoen-enemy.dead { opacity: 0.55; }
 .kyoen-enemy-top { display: flex; align-items: baseline; gap: 8px; }
-.kyoen-enemy-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.kyoen-enemy-name { font-size: 13px; font-weight: 700; color: var(--main-bright); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .kyoen-enemy-hp { font-size: 11px; color: var(--muted); margin-left: auto; white-space: nowrap; }
-.kyoen-gauge { position: relative; height: 6px; border-radius: 3px; background: var(--border); margin-top: 3px; }
-.kyoen-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 3px; background: var(--danger); }
+.kyoen-gauge { position: relative; height: 6px; border-radius: 4px; background: var(--border); margin-top: 3px; }
+.kyoen-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 4px; background: var(--main); }
 .kyoen-band { position: absolute; top: 0; height: 100%; opacity: 0.85; }
 .kyoen-enemy-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .kyoen-setup-row { display: flex; gap: 8px; margin-top: 8px; align-items: flex-start; }
-.kyoen-setup-label { font-size: 12px; font-weight: 700; white-space: nowrap; padding-top: 6px; min-width: 3em; }
+.kyoen-setup-label { font-size: 13px; font-weight: 700; white-space: nowrap; padding-top: 6px; min-width: 3em; }
 .kyoen-chips { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; min-width: 0; }
 .kyoen-chip { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 5px 8px; max-width: 100%; }
-.kyoen-chip.on { background: var(--accent); color: var(--accent-text); border-color: var(--accent); }
+.kyoen-chip.on { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); }
 .kyoen-chip.on .kyoen-chip-sub { color: inherit; }
-.kyoen-chip-label { font-size: 12px; font-weight: 700; white-space: nowrap; }
+.kyoen-chip-label { font-size: 11px; font-weight: 700; white-space: nowrap; }
 .kyoen-chip-sub { font-size: 11px; color: var(--muted); white-space: nowrap; }
-.kyoen-terrain { font-size: 12px; font-weight: 600; margin: 8px 0 0; }
-.kyoen-event { font-size: 12px; font-weight: 600; margin: 6px 0 0; }
+.kyoen-terrain { font-size: 13px; font-weight: 600; margin: 8px 0 0; }
+.kyoen-event { font-size: 13px; font-weight: 600; margin: 6px 0 0; }
 .kyoen-reserve { font-size: 11px; color: var(--muted); margin: 4px 0 0; }
 /* 敷き直しの選択肢は折り返さず1行の横スクロールにして、区画の
    高さ（一画面・約660px）を守る（オーブ絞り込み行と同じ作法）。 */
@@ -1745,9 +1788,9 @@ input, textarea, select { font-size: 16px; }
 .kyoen-relay-chips .kyoen-chip { flex: 0 0 auto; }
 .kyoen-section > .kyoen-chips { margin-top: 8px; }
 .kyoen-ops { display: flex; gap: 8px; margin-top: 8px; }
-.kyoen-end-btn { flex: 1; background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 700; }
+.kyoen-end-btn { flex: 1; background: var(--main); color: var(--main-text); border-color: var(--main); font-weight: 700; }
 .kyoen-undo-btn { flex: 1; }
-.kyoen-conclusion { font-size: 14px; font-weight: 700; margin: 8px 0 0; }
+.kyoen-conclusion { font-size: 13px; font-weight: 700; margin: 8px 0 0; }
 .kyoen-note { font-size: 11px; color: var(--muted); margin: 4px 0 0; }
 .kyoen-chip:disabled { opacity: 0.55; }
 /* 狂炎の割り振り・反撃ポップアップ（2026-11-20）: シート内の
@@ -1755,21 +1798,21 @@ input, textarea, select { font-size: 16px; }
 .kyoen-alloc-popup { display: flex; flex-direction: column; gap: 6px; }
 .kyoen-alloc-total { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
 .kyoen-alloc-total-label { font-size: 13px; font-weight: 700; }
-.kyoen-alloc-total-num { font-size: 14px; font-weight: 700; min-width: 3em; text-align: center; }
-.kyoen-alloc-sum { font-size: 12px; color: var(--muted); margin-left: auto; }
+.kyoen-alloc-total-num { font-size: 13px; font-weight: 700; min-width: 3em; text-align: center; }
+.kyoen-alloc-sum { font-size: 11px; color: var(--muted); margin-left: auto; }
 .kyoen-alloc-row { background: var(--surface-muted); border-radius: 8px; padding: 6px 8px; }
 .kyoen-alloc-row.dead { opacity: 0.55; }
 .kyoen-alloc-row-head { display: flex; align-items: baseline; gap: 8px; }
-.kyoen-alloc-name { font-size: 13px; font-weight: 600; }
+.kyoen-alloc-name { font-size: 13px; font-weight: 700; color: var(--main-bright); }
 .kyoen-alloc-hp { font-size: 11px; color: var(--muted); margin-left: auto; white-space: nowrap; }
 .kyoen-alloc-ctl { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
-.kyoen-alloc-step { width: 34px; height: 30px; font-size: 15px; font-weight: 700; padding: 0; }
+.kyoen-alloc-step { width: 44px; height: 44px; font-size: 15px; font-weight: 700; padding: 0; }
 .kyoen-alloc-step:disabled { opacity: 0.4; }
-.kyoen-alloc-count { font-size: 14px; font-weight: 700; min-width: 2.6em; text-align: center; }
+.kyoen-alloc-count { font-size: 13px; font-weight: 700; min-width: 2.6em; text-align: center; }
 .kyoen-alloc-dmg { font-size: 11px; color: var(--muted); }
 .kyoen-alloc-foot { display: flex; gap: 8px; margin-top: 6px; }
 .kyoen-alloc-cancel { flex: 1; }
-.kyoen-alloc-confirm { flex: 1; background: var(--accent); color: var(--accent-text); border-color: var(--accent); font-weight: 700; }
+.kyoen-alloc-confirm { flex: 1; background: var(--main); color: var(--main-text); border-color: var(--main); font-weight: 700; }
 .kyoen-alloc-confirm:disabled { opacity: 0.45; }
 
 @media (min-width: 1024px) {
@@ -1907,9 +1950,10 @@ button, select, input, a { touch-action: manipulation; }
 .meg-accordion-head {
   display: flex; align-items: center; width: 100%;
   padding: 12px 10px; font-weight: 700; text-align: left;
+  min-height: var(--h-sub); box-shadow: none;
 }
 .meg-accordion-title { flex: 1; }
-.meg-accordion-state { color: var(--accent); font-size: 13px; }
+.meg-accordion-state { color: var(--main-bright); font-size: 13px; }
 .meg-acc-tools {
   position: sticky; top: 0; z-index: 2;
   background: var(--surface); padding: 8px 0;
@@ -1921,16 +1965,16 @@ button, select, input, a { touch-action: manipulation; }
 .meg-bulk-bar {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   background: var(--surface);
-  border: 1px solid var(--accent); border-radius: 8px;
+  border: 1px solid var(--main); border-radius: 8px;
   padding: 8px 10px; margin: 8px 0;
 }
 .bulk-count { font-weight: 700; font-size: 13px; }
 .bulk-slots { display: inline-flex; gap: 4px; }
-.btn-bulk-slot.on { background: var(--accent); color: var(--accent-text); }
+.btn-bulk-slot.on { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); }
 .megido-select-pick { display: none; flex: 0 0 auto; }
 .meg-candidate-list.bulk-mode .megido-select-pick { display: block; }
-.megido-select-pick.on { background: var(--accent); color: var(--accent-text); }
-.meg-hide-btn { color: var(--danger); border-color: var(--danger); margin-top: 4px; }
+.megido-select-pick.on { background: var(--surface-raise); color: var(--text); border-color: var(--border); box-shadow: inset 0 -3px 0 var(--main); }
+.meg-hide-btn { color: var(--text); border-color: var(--border); margin-top: 4px; }
 
 /* ピッカーのスワイプ（タイプA） */
 .cand-wrap { position: relative; overflow: hidden; border-radius: 8px; }
@@ -1939,8 +1983,8 @@ button, select, input, a { touch-action: manipulation; }
   display: flex; align-items: center; padding: 0 12px;
   font-weight: 700; font-size: 13px; opacity: 0; pointer-events: none;
 }
-.swipe-reveal-l { left: 0; justify-content: flex-start; background: var(--accent); color: var(--accent-text); }
-.swipe-reveal-r { right: 0; justify-content: flex-end; background: var(--danger); color: #fff; }
+.swipe-reveal-l { left: 0; justify-content: flex-start; background: var(--main); color: var(--main-text); }
+.swipe-reveal-r { right: 0; justify-content: flex-end; background: var(--danger-warn); color: var(--danger-warn-text); }
 .cand-wrap .cand-row {
   position: relative; z-index: 1; background: var(--surface);
   touch-action: pan-y;
@@ -1960,14 +2004,83 @@ button, select, input, a { touch-action: manipulation; }
   position: fixed; left: 12px; right: 12px; bottom: calc(var(--footer-h) + 12px);
   z-index: 90; display: flex; align-items: center; gap: 10px;
   background: var(--text); color: var(--surface);
-  border-radius: 10px; padding: 12px 14px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 8px; padding: 12px 14px;
+  box-shadow: var(--shadow);
 }
-.undo-toast-msg { flex: 1; font-size: 14px; }
+.undo-toast-msg { flex: 1; font-size: 13px; }
 .undo-toast-btn { flex: 0 0 auto; font-weight: 700; }
 
 /* ピッカーの詳細シート */
 .megido-detail-sheet .btn-detail-sheet-close { margin-top: 12px; width: 100%; }
+
+/* ================================================================
+   便2（2026-11-25）: 形と寸法の統一（決定シート A4・A5、B2）
+   高さの格と影の付け外しはここに集約する。個別の規則より後ろに置き、
+   同じ詳細度ではこちらを勝たせる。影は主・副アクションだけに付け、
+   行・チップ・開閉・固定家具からは外す（A5）。選択中の形の表現として
+   の inset の影（左端・下端の菫バー等）は形の表現なので対象外。
+   ================================================================ */
+.tab-btn, .tabbar-menu-btn, .tabbar-menu-row, .statebar-main,
+.square, .formation-row, .cand-row, .search-row, .fix-row, .cond-row,
+.cond-cell, .floor-row, .unlock-guide-row, .history-row,
+.plan-member-btn, .plan-slot-btn, .plan-alt-btn, .plan-cand-btn,
+.btn-target-enemy, .enemy-band, .build-slot-main, .meg-accordion-head,
+.filter-chip, .osu-chip, .sim-chip, .enemy-tab, .floor-check,
+.search-preset, .reishou-slot-chip, .result-chip, .stage-btn,
+.box-btn, .style-btn, .btn-bulk-slot, .default-mode-btn,
+.point-toggle, .resist-toggle, .result-custom-toggle, .result-line-remove,
+.chain-action-x, .chain-prob-badge, .chain-action-photon, .chain-member-chip,
+.hbomb-bomb, .hbomb-debuff, .hbomb-tab, .hbomb-chip, .hbomb-step,
+.kyoen-chip, .kyoen-enemy, .megido-toggle, .megido-expand,
+.build-slot-orb, .build-slot-reishou, .pick-btn, .hbomb-popup-item,
+.megido-select-pick {
+  box-shadow: none;
+}
+
+/* 主アクション: 52px（B1） */
+.sheet-action-btn, .btn-create-big, .btn-omakase, .btn-fix-apply,
+.btn-import-confirm, .btn-delete-confirm, .btn-close-month-confirm {
+  min-height: var(--h-main);
+}
+/* 副アクション: 48px（B2）。overlay-close は見出し行の中の部品なので
+   44px に留める（行そのものが膨らむのを避ける）。 */
+.btn-import-cancel, .btn-delete-cancel, .btn-close-month-cancel,
+.btn-export-first, .btn-open-grid, .btn-close-grid, .bonus-add-btn,
+.btn-detail-sheet-close, .kyoen-alloc-cancel, .kyoen-alloc-confirm,
+.btn-open-conditions {
+  min-height: var(--h-sub);
+}
+/* 入力欄: 48px（B7） */
+.formation-search, .megido-select, .megido-number,
+.build-text-input, .result-num-input, .import-code-input {
+  min-height: var(--h-sub);
+}
+/* 選ぶ行: 44px（B4） */
+.formation-row, .cand-row, .search-row, .fix-row, .cond-row,
+.plan-member-btn, .plan-slot-btn, .plan-alt-btn, .plan-cand-btn,
+.btn-target-enemy, .unlock-guide-row, .floor-row, .hbomb-popup-item,
+.hbomb-step, .sb-card, .btn-rates-all {
+  min-height: var(--h-pick);
+}
+/* 選ぶチップ: 44px（B4）。中身を上下中央にそろえる。 */
+.filter-chip, .osu-chip, .sim-chip, .enemy-tab, .floor-check,
+.search-preset, .reishou-slot-chip, .result-chip, .stage-btn,
+.box-btn, .style-btn, .btn-bulk-slot, .default-mode-btn {
+  min-height: var(--h-pick);
+  display: inline-flex; align-items: center; justify-content: center;
+}
+/* 行の中の小ボタン: 格は小ボタンでも高さは 44px を下限にする（A4）。 */
+.formation-actions button, .btn-target-change, .btn-style-bulk,
+.btn-explore-add, .btn-explore-reset, .btn-explore-fill,
+.btn-explore-fill-close, .btn-past-reselect, .btn-edit-formation,
+.megido-reishou-edit, .megido-reishou-remove, .reishou-slot-clear,
+.stage-panel-close, .osu-cancel, .list-context button,
+.meg-restore-btn, .swipe-hint-close, .chain-clear-btn,
+.undo-toast-btn, .btn-remove-member, .btn-clear-slot,
+.overlay-close, .floor-switch-btn, .megido-expand, .btn-fold,
+.chain-prob-restore, .hbomb-popup-item-remove, .btn-enemy-detail {
+  min-height: var(--h-pick);
+}
 
 </style>
 <style>
@@ -2100,7 +2213,7 @@ window.__PREVIEW_DATA__ = {
           "styleKind": null,
           "recommendedPower": 3500,
           "notes": [
-            "塔破力回復マスは忘れずに解放しましょう！"
+            "塔破力回復マスは、解放すると塔破力が増えます。"
           ]
         },
         "f1-o": {
@@ -2113,7 +2226,7 @@ window.__PREVIEW_DATA__ = {
           ]
         }
       },
-      "floorHint": "塔破力回復は期待度3で。35階まで届く想定"
+      "floorHint": "塔破力回復は期待度3で。35階まで届きます"
     },
     {
       "floor": 2,
@@ -2233,7 +2346,7 @@ window.__PREVIEW_DATA__ = {
           "styleKind": null,
           "recommendedPower": 3500,
           "notes": [
-            "塔破力回復マスは必ず解放しておきましょう。"
+            "塔破力回復マスは、解放すると塔破力が増えます。"
           ]
         },
         "f3-s": {
@@ -2452,7 +2565,7 @@ window.__PREVIEW_DATA__ = {
             "なし"
           ],
           "notes": [
-            "奥義によるネズミ化とゾンビ化と特性によるダメージ99%軽減が特徴的なエネミーです。注意して戦闘に挑みましょう。"
+            "奥義によるネズミ化とゾンビ化と特性によるダメージ99%軽減が特徴的なエネミーです。"
           ]
         }
       },
@@ -2676,7 +2789,7 @@ window.__PREVIEW_DATA__ = {
         }
       },
       "notableEnemy": "次元獣アナーケン",
-      "floorHint": "ランダム回復マスは、行けそうなら開放すると後が楽"
+      "floorHint": "ランダム回復マスは、行けそうなら解放すると後が楽"
     },
     {
       "floor": 8,
@@ -2739,7 +2852,7 @@ window.__PREVIEW_DATA__ = {
           "styleKind": null,
           "recommendedPower": 3500,
           "notes": [
-            "積極的に開放しましょう。"
+            "塔破力回復マスは、解放すると塔破力が増えます。"
           ]
         },
         "f8-s": {
@@ -2998,7 +3111,7 @@ window.__PREVIEW_DATA__ = {
           "styleKind": null,
           "recommendedPower": 3500,
           "notes": [
-            "塔破力回復マスは解放しておくと、塔破力（≒リトライ許容回数）が増えるので積極的に開放しましょう。"
+            "塔破力回復マスは、解放すると塔破力が増えます。"
           ]
         },
         "f10-s": {
@@ -3364,7 +3477,7 @@ window.__PREVIEW_DATA__ = {
           "styleKind": null,
           "recommendedPower": 4500,
           "notes": [
-            "塔破力回復マスは必ず解放しておきましょう。"
+            "塔破力回復マスは、解放すると塔破力が増えます。"
           ]
         },
         "f13-s": {
@@ -3509,7 +3622,7 @@ window.__PREVIEW_DATA__ = {
           "styleKind": null,
           "recommendedPower": 4500,
           "notes": [
-            "塔破力回復マスは必ず解放しておきましょう。"
+            "塔破力回復マスは、解放すると塔破力が増えます。"
           ]
         },
         "f14-s": {
@@ -3721,7 +3834,7 @@ window.__PREVIEW_DATA__ = {
             "なし"
           ],
           "notes": [
-            "それぞれが役割分担を行っている強力なエネミーです。しっかりと対策を練って、一気に倒してしまいましょう。"
+            "それぞれが役割分担を行っている強力なエネミーです。"
           ]
         }
       },
@@ -4178,7 +4291,7 @@ window.__PREVIEW_DATA__ = {
           "styleKind": null,
           "recommendedPower": 4500,
           "notes": [
-            "塔破力回復マスは必ず解放しておきましょう。"
+            "塔破力回復マスは、解放すると塔破力が増えます。"
           ]
         },
         "f18-s": {
@@ -4596,7 +4709,7 @@ window.__PREVIEW_DATA__ = {
           "styleKind": null,
           "recommendedPower": 4500,
           "notes": [
-            "塔破力回復マスは必ず解放しておきましょう。"
+            "塔破力回復マスは、解放すると塔破力が増えます。"
           ]
         },
         "f20-er1": {
@@ -10259,7 +10372,7 @@ window.__PREVIEW_DATA__ = {
   "explorationPower": {
     "base": "攻撃力×素早さ/1000 + HP×防御力/10000",
     "factors": {
-      "ougiLevel": "1 + 奥義レベル×0.05（効くのは現在の奥義レベル。最大奥義レベルを上げただけでは上がらない）",
+      "ougiLevel": "1 + 奥義レベル×0.05（対象は現在の奥義レベル。最大奥義レベルを上げただけでは上がらない）",
       "condition": {
         "絶好調": 1.3,
         "好調": 1.1,
@@ -11815,7 +11928,7 @@ window.__PREVIEW_DATA__ = {
         "def": 494,
         "spd": 687
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -12031,7 +12144,7 @@ window.__PREVIEW_DATA__ = {
         "def": 575,
         "spd": 504
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": false,
       "singularity": false,
       "trait": null
@@ -12733,7 +12846,7 @@ window.__PREVIEW_DATA__ = {
         "def": 477,
         "spd": 716
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14497,7 +14610,7 @@ window.__PREVIEW_DATA__ = {
         "def": 278,
         "spd": 711
       },
-      "specialReishou": false,
+      "specialReishou": true,
       "bondReishou": false,
       "singularity": false,
       "trait": "飛行"
@@ -14515,7 +14628,7 @@ window.__PREVIEW_DATA__ = {
         "def": 610,
         "spd": 502
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": "飛行"
@@ -14533,7 +14646,7 @@ window.__PREVIEW_DATA__ = {
         "def": 409,
         "spd": 490
       },
-      "specialReishou": true,
+      "specialReishou": false,
       "bondReishou": true,
       "singularity": false,
       "trait": null
@@ -14551,7 +14664,7 @@ window.__PREVIEW_DATA__ = {
         "def": 624,
         "spd": 381
       },
-      "specialReishou": false,
+      "specialReishou": true,
       "bondReishou": false,
       "singularity": false,
       "trait": null
@@ -25348,7 +25461,7 @@ window.__PREVIEW_DATA__ = {
     "meIncluded": true,
     "meFilesAcquired": 272,
     "meFilesTotal": 272,
-    "note": "ME（マスエフェクト）由来の手段は megidoMe に分けて収録している。ME 由来の候補は、持ち主を編成に入れることで枠の条件に合う味方に効く（リーダー枠の効果は持ち主がリーダーのときだけ）"
+    "note": "ME（マスエフェクト）由来の手段は megidoMe に分けて収録している。ME 由来の候補は、持ち主を編成に入れることで枠の条件に合う味方に届く（リーダー枠の効果は持ち主がリーダーのときだけ）"
   },
   "verification": {
     "verifiedEffects": [
@@ -50324,7 +50437,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50385,7 +50498,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50436,7 +50549,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50487,7 +50600,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50538,7 +50651,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50589,7 +50702,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50640,7 +50753,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50701,7 +50814,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50752,7 +50865,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50803,7 +50916,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50854,7 +50967,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50905,7 +51018,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -50956,7 +51069,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51007,7 +51120,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51058,7 +51171,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51109,7 +51222,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51160,7 +51273,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51221,7 +51334,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51272,7 +51385,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51331,7 +51444,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51392,7 +51505,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51443,7 +51556,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51504,7 +51617,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51555,7 +51668,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51606,7 +51719,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51657,7 +51770,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く。特性・自動発動による付与は止められない"
+          "methodNote": "フォトンで発動する技にだけ有効。特性・自動発動による付与は止められない"
         },
         {
           "id": "cure",
@@ -51831,7 +51944,7 @@ window.__PREVIEW_DATA__ = {
             "awakened",
             "ougi"
           ],
-          "methodNote": "フォトンで発動する技にだけ効く"
+          "methodNote": "フォトンで発動する技にだけ有効"
         }
       ]
     },
@@ -90909,7 +91022,7 @@ window.__PREVIEW_DATA__ = {
  "kind": "boss-tactics",
  "version": 1,
  "date": "2026-11-19",
- "about": "星間の塔35階のボスについて、実際に有効な戦術を著述で確定させた正本。M4（敵を読む）のボス材料。脅威は特性・スキル・奥義の文、種族、耐性、マスルールからのみ書き、推測は脅威として書いていない。戦術は megido72wiki.com の攻略記事と照合済み（照合状態は各ボスの crossCheck に明記）。耐性記号表の凡例: ◎=マイナス耐性〜0%（弱点）、○=1〜30%、△=31〜99%、×=100%以上、無効=完全無効。脅威と戦術は「この脅威には、これで受ける」の対（pairs）で結び、どの対にも入らない戦術は overallTactics（全体の進め方）に分ける（2026-11-19 構造変更。脅威の羅列・対策の羅列では、どれがどれに効くかの照合が読み手の作業になるため）。",
+ "about": "星間の塔35階のボスについて、実際に有効な戦術を著述で確定させた正本。M4（敵を読む）のボス材料。脅威は特性・スキル・奥義の文、種族、耐性、マスルールからのみ書き、推測は脅威として書いていない。戦術は megido72wiki.com の攻略記事と照合済み（照合状態は各ボスの crossCheck に明記）。耐性記号表の凡例: ◎=マイナス耐性〜0%（弱点）、○=1〜30%、△=31〜99%、×=100%以上、無効=完全無効。脅威と戦術は「この脅威には、これで受ける」の対（pairs）で結び、どの対にも入らない戦術は overallTactics（全体の進め方）に分ける（2026-11-19 構造変更。脅威の羅列・対策の羅列では、どれがどれに対応するかの照合が読み手の作業になるため）。",
  "coverage": {
   "total": 35,
   "authoredAndChecked": 32,
@@ -91257,7 +91370,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "ハイドロボム錬",
-     "detail": "倍率20前後まで練った錬ボムに速ボムを足せばメイン版ベリーハードのHPを一度に出し切れる。塔版では倍率の上積みが要る。"
+     "detail": "倍率20前後まで練った錬ボムに速ボムを足せばメイン版ベリーハードのHPを一度に出し切れる。塔版では倍率の上積みが必要。"
     },
     {
      "label": "準備中の防御（バリア＋地形対策）",
@@ -91287,7 +91400,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "item": "ちまちました削り",
-     "reason": "特性の段階（80%/60%/40%）を1つずつ踏むと、全体化したスキルと奥義で立て直しが効かなくなる。"
+     "reason": "特性の段階（80%/60%/40%）を1つずつ踏むと、全体化したスキルと奥義で立て直しができなくなる。"
     }
    ],
    "resistancePoles": {
@@ -91398,11 +91511,11 @@ window.__PREVIEW_DATA__ = {
    "effectiveTactics": [
     {
      "label": "開幕奥義をHPで耐える",
-     "detail": "心深圏では絶好調で最大HP+15%が付くため、前列9000弱・後列7000程度のHPがあれば耐久可能。HP増加のマスエフェクト・オーブ・霊宝、ロノウェ／ボティスのマスエフェクト（序盤のダメージ軽減）も効く。手持ちに左右されにくい正攻法。"
+     "detail": "心深圏では絶好調で最大HP+15%が付くため、前列9000弱・後列7000程度のHPがあれば耐久可能。HP増加のマスエフェクト・オーブ・霊宝、ロノウェ／ボティスのマスエフェクト（序盤のダメージ軽減）も有効。手持ちに左右されにくい正攻法。"
     },
     {
      "label": "回数バリア（剛堅ほか）",
-     "detail": "カウンターの霊宝系譜「剛堅」は戦闘開始時に1回分の回数バリアが付くため、開幕奥義を安全にやり過ごせる。先行できるフリアエ／アムドゥスキアスのバリアも有効（素早さ1036を抜く調整が要る）。"
+     "detail": "カウンターの霊宝系譜「剛堅」は戦闘開始時に1回分の回数バリアが付くため、開幕奥義を安全にやり過ごせる。先行できるフリアエ／アムドゥスキアスのバリアも有効（素早さ1036を抜く調整が必要）。"
     },
     {
      "label": "蘇生で立て直す",
@@ -91626,7 +91739,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "3連撃への受け方",
-     "detail": "全攻撃が3連撃のため、防御力上昇・攻撃力低下・氷結・ダメージブロックが効く。"
+     "detail": "全攻撃が3連撃のため、防御力上昇・攻撃力低下・氷結・ダメージブロックが有効。"
     },
     {
      "label": "獣特効で速攻",
@@ -92157,7 +92270,7 @@ window.__PREVIEW_DATA__ = {
    "effectiveTactics": [
     {
      "label": "本体にゾンビを入れる（想定解）",
-     "detail": "本体はゾンビが効く。取り巻きが戦闘不能になった際の回復系の特性がダメージに反転し、本体の高HPを削れる。"
+     "detail": "本体はゾンビが通る。取り巻きが戦闘不能になった際の回復系の特性がダメージに反転し、本体の高HPを削れる。"
     },
     {
      "label": "コロッセオで全体蘇生の奥義を防ぐ",
@@ -92700,7 +92813,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "item": "アーマーの強化解除",
-     "reason": "アーマーは特殊状態で、強化解除が効かない。削って割るしかない。"
+     "reason": "アーマーは特殊状態で、強化解除では消せない。削って割るしかない。"
     },
     {
      "item": "ボスへのゾンビ・束縛",
@@ -93122,7 +93235,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "item": "取り巻きを1体ずつ倒す進め方",
-     "reason": "タフで残りの敵が累積強化され、立て直しが効かなくなる。"
+     "reason": "タフで残りの敵が累積強化され、立て直しができなくなる。"
     }
    ],
    "resistancePoles": null,
@@ -93184,7 +93297,7 @@ window.__PREVIEW_DATA__ = {
    "threats": [
     {
      "label": "特性による自動蘇生（複数回）",
-     "detail": "戦闘不能時にHP100%で自動蘇生する（メイン版 ノーマルは残り2回＝計3回撃破、ハード4回、ベリーハード5回）。蘇生ごとに全状態異常耐性が上昇し、容量+1、異常の継続ターン-1。完殺も強化解除も効かない。"
+     "detail": "戦闘不能時にHP100%で自動蘇生する（メイン版 ノーマルは残り2回＝計3回撃破、ハード4回、ベリーハード5回）。蘇生ごとに全状態異常耐性が上昇し、容量+1、異常の継続ターン-1。完殺も強化解除も無効。"
     },
     {
      "label": "デスギフトとレイズギフト",
@@ -93216,7 +93329,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "item": "完殺による蘇生封じ・強化解除によるギフト解除",
-     "reason": "どちらも効かない。複数回の撃破は必須という前提で組む。"
+     "reason": "どちらも無効。複数回の撃破は必須という前提で組む。"
     },
     {
      "item": "覚醒減少・フォトン奪取・フォトン転換",
@@ -93340,7 +93453,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "暗闇への対処",
-     "detail": "スキル主体の編成なら治療／予防が要る。奥義・オーブ攻撃とハイドロボムは暗闇の影響を受けない。"
+     "detail": "スキル主体の編成なら治療／予防が必要。奥義・オーブ攻撃とハイドロボムは暗闇の影響を受けない。"
     },
     {
      "label": "妨害の通り",
@@ -93718,7 +93831,7 @@ window.__PREVIEW_DATA__ = {
      "detail": "ウトゥックのスキルバレット（獣特効）を溜めてシフト3で消費する。オリエンスの10連覚醒スキル、ニスロクの高倍率奥義が担い手。獣特効はレラジェの専用霊宝（100%）、パイモンマスエフェクト（女性+40%）も有効。シフト3はバレットの被ダメージ+50%が付く。"
     },
     {
-     "label": "点穴（シフト用の補助が要る）",
+     "label": "点穴（シフト用の補助が必要）",
      "detail": "点穴は軽減を無視できる（ベリアル一心で5発）。ただしシフトを進めるためのサブアタッカーが別途必要。"
     },
     {
@@ -93821,7 +93934,7 @@ window.__PREVIEW_DATA__ = {
     }
    ],
    "overallTactics": [
-    "点穴（シフト用の補助が要る）"
+    "点穴（シフト用の補助が必要）"
    ]
   },
   "ベイグラント": {
@@ -93870,7 +93983,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "item": "全体攻撃で取り巻きを一掃する",
-     "reason": "範囲ダメージ軽減（最大100%）で通らない。単体か軽減無視の手段が要る。"
+     "reason": "範囲ダメージ軽減（最大100%）で通らない。単体か軽減無視の手段が必要。"
     },
     {
      "item": "状態異常の付与ほぼ全て",
@@ -94109,7 +94222,7 @@ window.__PREVIEW_DATA__ = {
    "effectiveTactics": [
     {
      "label": "ハイドロボムか狂炎で同時撃破（最適）",
-     "detail": "同時撃破なら死亡時効果を無視でき、回復やかばうも無視できる。通常攻撃で戦う場合は、マジジジジの回復対策に常時の病気、高防御のフォレストキングには貫通／固定ダメージが別途要る。"
+     "detail": "同時撃破なら死亡時効果を無視でき、回復やかばうも無視できる。通常攻撃で戦う場合は、マジジジジの回復対策に常時の病気、高防御のフォレストキングには貫通／固定ダメージが別途必要。"
     },
     {
      "label": "死亡時効果への個別の備え",
@@ -94125,7 +94238,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "妨害の通り",
-     "detail": "全員に感電が効く（グリードベアは耐性60%）。睡眠はグリードベア（60%）とマジジジジ（無耐性）に通り、フォレストキングは無効。フォレストキングには即死・完殺が通る。ノックバック／引き寄せも有効。"
+     "detail": "全員に感電が通る（グリードベアは耐性60%）。睡眠はグリードベア（60%）とマジジジジ（無耐性）に通り、フォレストキングは無効。フォレストキングには即死・完殺が通る。ノックバック／引き寄せも有効。"
     }
    ],
    "ineffective": [
@@ -94139,7 +94252,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "item": "1体ずつ無計画に倒す進め方",
-     "reason": "死亡時効果（攻撃力400%上昇、全体睡眠、即蘇生）が次々に発動し、立て直しが効かなくなる。"
+     "reason": "死亡時効果（攻撃力400%上昇、全体睡眠、即蘇生）が次々に発動し、立て直しができなくなる。"
     }
    ],
    "resistancePoles": {
@@ -94351,7 +94464,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "スコムの奥義＝強化解除つき大ダメージ",
-     "detail": "強化解除付きで10000超のダメージ。攻撃力低下・覚醒減少による妨害はこの奥義に効かない。"
+     "detail": "強化解除付きで10000超のダメージ。攻撃力低下・覚醒減少による妨害はこの奥義に通らない。"
     }
    ],
    "effectiveTactics": [
@@ -94496,7 +94609,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "覚醒減少が有効",
-     "detail": "ブルザックの奥義連打を防ぐために妨害が要る。ウァプラRは前列の覚醒を根こそぎ奪え、ハイドロボムと好相性。ラミアン本体にも覚醒減少が通る（表外抜粋）。"
+     "detail": "ブルザックの奥義連打を防ぐために妨害が必要。ウァプラRは前列の覚醒を根こそぎ奪え、ハイドロボムと好相性。ラミアン本体にも覚醒減少が通る（表外抜粋）。"
     },
     {
      "label": "睡眠は全員に通る（命中率を上げれば）",
@@ -94506,7 +94619,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "item": "ラミアン単体への集中（無計画）",
-     "reason": "かばうと回復で守られ、取り巻きが減るほどラミアンの技が全体化するため、順序と範囲手段の設計が要る。"
+     "reason": "かばうと回復で守られ、取り巻きが減るほどラミアンの技が全体化するため、順序と範囲手段の設計が必要。"
     }
    ],
    "resistancePoles": {
@@ -95426,7 +95539,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "トロワの海魔の加護には病気を入れる",
-     "detail": "トロワ（シフト2）に海魔の加護を発動されないように注意する。一撃で倒せないなら病気の付与手段を用意する（耐性は△だが、ゾンビも効く）。"
+     "detail": "トロワ（シフト2）に海魔の加護を発動されないように注意する。一撃で倒せないなら病気の付与手段を用意する（耐性は△だが、ゾンビも通る）。"
     },
     {
      "label": "覚醒減少はドゥーエ以外に入れる",
@@ -95464,7 +95577,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "item": "シフト1への地形ダメージ",
-     "reason": "3体とも特性で地形効果を無効化する。狂炎はシフト2で効かせるために維持するもので、シフト1の削りにはならない。"
+     "reason": "3体とも特性で地形効果を無効化する。狂炎はシフト2で効果を出すために維持するもので、シフト1の削りにはならない。"
     },
     {
      "item": "自前のトランスの併用",
@@ -95704,7 +95817,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "フォトン干渉・覚醒操作で奥義を遅らせる",
-     "basis": "フォトン奪取・フォトン変換・フォトン容量低下・覚醒ゲージ低下が◎。HP50%以下では毎ターン覚醒+2されるため、覚醒減少とフォトン奪取/転換がとくに効く",
+     "basis": "フォトン奪取・フォトン変換・フォトン容量低下・覚醒ゲージ低下が◎。HP50%以下では毎ターン覚醒+2されるため、覚醒減少とフォトン奪取/転換がとくに有効",
      "classRef": "tactic:photon-destroy",
      "meansEffects": [
       "photon:steal",
@@ -96082,7 +96195,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "label": "フォトン容量低下",
-     "basis": "耐性表でフォトン容量低下は×（100%以上）。相手は容量を操作してくるが、こちらからの容量低下は効かない"
+     "basis": "耐性表でフォトン容量低下は×（100%以上）。相手は容量を操作してくるが、こちらからの容量低下は通らない"
     },
     {
      "label": "即死",
@@ -97169,7 +97282,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "label": "感電での妨害・即死・ねずみ化",
-     "basis": "耐性表で感電・即死・ねずみは無効。感電は敵自身の主力だが、こちらから返しても効かない"
+     "basis": "耐性表で感電・即死・ねずみは無効。感電は敵自身の主力だが、こちらから返しても通らない"
     }
    ],
    "sources": {
@@ -97552,7 +97665,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "label": "状態異常の大半",
-     "basis": "耐性表で即死・毒・病気・暗闇・睡眠・凍結・位置・めまい・感電・呪い・混乱・煉獄・ねずみ・ゾンビ・悪夢が無効。自身が使うめまい・呪い・即死も、こちらから返しても効かない"
+     "basis": "耐性表で即死・毒・病気・暗闇・睡眠・凍結・位置・めまい・感電・呪い・混乱・煉獄・ねずみ・ゾンビ・悪夢が無効。自身が使うめまい・呪い・即死も、こちらから返しても通らない"
     }
    ],
    "sources": {
@@ -98988,7 +99101,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "label": "地形による対策",
-     "basis": "特性で地形の影響を受けない。地形ダメージや地形弱体は効かない"
+     "basis": "特性で地形の影響を受けない。地形ダメージや地形弱体も受けない"
     },
     {
      "label": "状態異常の大半と覚醒・フォトン操作",
@@ -99121,7 +99234,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "凍結への備え（ステージ構成による）",
-     "basis": "Wiki攻略（メインクエスト版ステージ）: 取り巻きの凍結＋本体の特効が軸で、凍結無効のマスエフェクトや凍結耐性オーブが対策として挙げられている。塔で共出現する敵とは構成が異なるため、マスごとに確認が要る",
+     "basis": "Wiki攻略（メインクエスト版ステージ）: 取り巻きの凍結＋本体の特効が軸で、凍結無効のマスエフェクトや凍結耐性オーブが対策として挙げられている。塔で共出現する敵とは構成が異なるため、マスごとに確認が必要",
      "classRef": "ailment:凍結",
      "meansEffects": [
       "resist:凍結",
@@ -100143,7 +100256,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "label": "凍結・即死",
-     "basis": "耐性表で凍結・即死が無効。凍結は敵自身の主力だが、こちらから返しても効かない"
+     "basis": "耐性表で凍結・即死が無効。凍結は敵自身の主力だが、こちらから返しても通らない"
     }
    ],
    "sources": {
@@ -100629,7 +100742,7 @@ window.__PREVIEW_DATA__ = {
    "effectiveTactics": [
     {
      "label": "倒す順番と蘇生への備え",
-     "basis": "取り巻きを倒すほど本体が軽減・無敵化し、奥義のリザーブで味方全体が蘇生する。まとめて倒す火力か、本体を先に落とす判断が要る",
+     "basis": "取り巻きを倒すほど本体が軽減・無敵化し、奥義のリザーブで味方全体が蘇生する。まとめて倒す火力か、本体を先に落とす判断が必要",
      "classRef": "tactic:death-buff",
      "meansEffects": [],
      "means": []
@@ -100892,14 +101005,14 @@ window.__PREVIEW_DATA__ = {
    "effectiveTactics": [
     {
      "label": "大協奏でシフトさせて響撃で削る",
-     "basis": "Wiki攻略の正攻法: こちらが大協奏状態になると敵全体がシフトし、受ける響撃ダメージが大幅に増え（4〜5倍）、敵の攻撃能力も下がる。シフト後は無敵状態になるため、無敵をすり抜ける響撃＋防御無視の手段が要る",
+     "basis": "Wiki攻略の正攻法: こちらが大協奏状態になると敵全体がシフトし、受ける響撃ダメージが大幅に増え（4〜5倍）、敵の攻撃能力も下がる。シフト後は無敵状態になるため、無敵をすり抜ける響撃＋防御無視の手段が必要",
      "classRef": null,
      "meansEffects": [],
      "means": []
     },
     {
      "label": "執心を入れる",
-     "basis": "妨害の中で執心だけが◎。覚醒ゲージ低下・フォトン破壊・フォトン奪取・フォトン変換・フォトン容量低下は無効で、フォトン干渉と覚醒操作は効かない",
+     "basis": "妨害の中で執心だけが◎。覚醒ゲージ低下・フォトン破壊・フォトン奪取・フォトン変換・フォトン容量低下は無効で、フォトン干渉と覚醒操作は通らない",
      "classRef": "ailment:執心",
      "meansEffects": [
       "inflict:執心"
@@ -101397,7 +101510,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "束縛への耐性・治療",
-     "basis": "全体束縛はスキル由来。フォトン干渉はF系が全て無効なため効かず、耐性か治療で処理する",
+     "basis": "全体束縛はスキル由来。フォトン干渉はF系が全て無効なため通らず、耐性か治療で処理する",
      "classRef": "ailment:束縛",
      "meansEffects": [
       "resist:束縛",
@@ -102057,7 +102170,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "即死・睡眠・凍結・ねずみ化・ゾンビ・悪夢",
-     "basis": "シフト2の耐性表でもこの6つは無効。ゾンビは敵自身の主力だが、こちらから返しても効かない"
+     "basis": "シフト2の耐性表でもこの6つは無効。ゾンビは敵自身の主力だが、こちらから返しても通らない"
     }
    ],
    "sources": {
@@ -102983,7 +103096,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "label": "感電・即死",
-     "basis": "耐性表で感電・即死が無効。感電は敵自身の主力だが、こちらから返しても効かない"
+     "basis": "耐性表で感電・即死が無効。感電は敵自身の主力だが、こちらから返しても通らない"
     }
    ],
    "sources": {
@@ -103949,7 +104062,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "状態異常の大半と覚醒操作",
-     "basis": "耐性表で即死・毒・病気・睡眠・弱体・位置・束縛・煉獄・ねずみ・ゾンビ・悪夢・覚醒ゲージ低下・フォトン劣化・覚醒ゲージ上昇量低下が無効。即死は敵自身の主力だが、こちらから返しても効かない"
+     "basis": "耐性表で即死・毒・病気・睡眠・弱体・位置・束縛・煉獄・ねずみ・ゾンビ・悪夢・覚醒ゲージ低下・フォトン劣化・覚醒ゲージ上昇量低下が無効。即死は敵自身の主力だが、こちらから返しても通らない"
     }
    ],
    "sources": {
@@ -105597,7 +105710,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "label": "状態異常の大半とフォトン干渉",
-     "basis": "耐性表で即死・毒・病気・暗闇・睡眠・凍結・位置・めまい・呪い・束縛・混乱・煉獄・ねずみ・ゾンビ・悪夢・フォトン破壊・フォトン奪取・フォトン容量低下が無効。ノックバックは敵自身にも効かない（位置が無効）"
+     "basis": "耐性表で即死・毒・病気・暗闇・睡眠・凍結・位置・めまい・呪い・束縛・混乱・煉獄・ねずみ・ゾンビ・悪夢・フォトン破壊・フォトン奪取・フォトン容量低下が無効。ノックバックは敵自身にも通らない（位置が無効）"
     }
    ],
    "sources": {
@@ -106362,7 +106475,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "悪魔特効で削る",
-     "basis": "種族は悪魔。シフト2に移行した後に効く",
+     "basis": "種族は悪魔。シフト2に移行した後から有効",
      "classRef": "race:悪魔",
      "meansEffects": [
       "bonus:race:悪魔"
@@ -106417,7 +106530,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "状態異常の大半とフォトン干渉・覚醒操作",
-     "basis": "耐性表で即死・暗闇・睡眠・凍結・位置・感電・呪い・束縛・混乱・ねずみ・悪夢・完殺・覚醒ゲージ低下・フォトン破壊・フォトン奪取・フォトン変換・フォトン容量低下が無効。めまいは×、毒と煉獄はベリーハードで×、フォトン劣化も×。感電は敵自身の雷属性の主力だが、こちらから返しても効かない"
+     "basis": "耐性表で即死・暗闇・睡眠・凍結・位置・感電・呪い・束縛・混乱・ねずみ・悪夢・完殺・覚醒ゲージ低下・フォトン破壊・フォトン奪取・フォトン変換・フォトン容量低下が無効。めまいは×、毒と煉獄はベリーハードで×、フォトン劣化も×。感電は敵自身の雷属性の主力だが、こちらから返しても通らない"
     }
    ],
    "sources": {
@@ -106964,7 +107077,7 @@ window.__PREVIEW_DATA__ = {
    "ineffective": [
     {
      "label": "覚醒ゲージ減少",
-     "basis": "耐性表で覚醒ゲージ低下は×（100%以上）。覚醒を削る手は効かず、リセットは被弾回数で起こす"
+     "basis": "耐性表で覚醒ゲージ低下は×（100%以上）。覚醒を削る手は通らず、リセットは被弾回数で起こす"
     },
     {
      "label": "即死",
@@ -107272,7 +107385,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "防御力を下げる／地割れを使う",
-     "basis": "Wiki攻略: 防御貫通は無効化されるが、防御力低下は有効で、地形効果も効く。高い防御力を下げる手段が火力の前提になる",
+     "basis": "Wiki攻略: 防御貫通は無効化されるが、防御力低下は有効で、地形効果も有効。高い防御力を下げる手段が火力の前提になる",
      "classRef": null,
      "meansEffects": [
       "debuff:def"
@@ -107539,7 +107652,7 @@ window.__PREVIEW_DATA__ = {
    "effectiveTactics": [
     {
      "label": "本体から先に倒して蘇生を断つ",
-     "basis": "取り巻きを倒しても本体が蘇生させる。本体を先に落とすか、蘇生の暇を与えない火力集中が要る",
+     "basis": "取り巻きを倒しても本体が蘇生させる。本体を先に落とすか、蘇生の暇を与えない火力集中が必要",
      "classRef": null,
      "meansEffects": [],
      "means": []
@@ -108964,7 +109077,7 @@ window.__PREVIEW_DATA__ = {
    "effectiveTactics": [
     {
      "label": "睡眠無効・状態異常予防で即死の起点を断つ",
-     "basis": "Wiki攻略の中心: クロケルのマスエフェクトによる睡眠無効（バーストのみの編成で睡眠にならなくなる）、またはユフィール／サキュバス（バースト）の状態異常予防スキルで、睡眠と即死の両方を防ぐ。敵の素早さが非常に高いため、先手の予防には素早さの補助が要る",
+     "basis": "Wiki攻略の中心: クロケルのマスエフェクトによる睡眠無効（バーストのみの編成で睡眠にならなくなる）、またはユフィール／サキュバス（バースト）の状態異常予防スキルで、睡眠と即死の両方を防ぐ。敵の素早さが非常に高いため、先手の予防には素早さの補助が必要",
      "classRef": "ailment:睡眠",
      "meansEffects": [
       "resist:睡眠",
@@ -109064,7 +109177,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "完殺・執心を入れる",
-     "basis": "完殺・執心が◎。ただし覚醒スキルで状態異常を自己治癒するため、付け直しが要る",
+     "basis": "完殺・執心が◎。ただし覚醒スキルで状態異常を自己治癒するため、付け直しが必要",
      "classRef": null,
      "meansEffects": [
       "inflict:完殺",
@@ -109897,7 +110010,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "感電でスキルを封じる（高難易度）",
-     "basis": "Wiki攻略: 本体の感電耐性は難易度が上がるほど下がり、EXではほぼ皆無になる。感電を入れれば全体滞水を防止できる。ただし素早さが非常に高いため、素早さの補助が要る",
+     "basis": "Wiki攻略: 本体の感電耐性は難易度が上がるほど下がり、EXではほぼ皆無になる。感電を入れれば全体滞水を防止できる。ただし素早さが非常に高いため、素早さの補助が必要",
      "classRef": "ailment:感電",
      "meansEffects": [
       "inflict:感電"
@@ -111358,7 +111471,7 @@ window.__PREVIEW_DATA__ = {
     },
     {
      "label": "倒す順番を考える",
-     "basis": "取り巻きを倒すたびに本体の攻撃力が100%ずつ上がる。本体から先に処理するか、強化された本体を受け切れる備えが要る",
+     "basis": "取り巻きを倒すたびに本体の攻撃力が100%ずつ上がる。本体から先に処理するか、強化された本体を受け切れる備えが必要",
      "classRef": null,
      "meansEffects": [],
      "means": []
@@ -112319,7 +112432,7 @@ window.__PREVIEW_DATA__ = {
    ],
    "ineffective": [
     {
-     "label": "面に関わらず効かない妨害",
+     "label": "面に関わらず通らない妨害",
      "basis": "耐性表で即死・病気・暗闇・睡眠・凍結・位置・めまい・感電・呪い・混乱・煉獄・ねずみ・ゾンビ・悪夢・覚醒ゲージ低下・フォトン奪取が無効。ただしめまいは角鬼の面の弱点であり、面限定で有効（攻略参照）"
     }
    ],
@@ -246114,7 +246227,7 @@ window.__PREVIEW_DATA__ = {
 </script>
 <script>
 (() => {
-  // app/js/data.js
+  // build/app/js/data.js
   var DATA_VERSION = 1;
   function createDataLoader(baseUrl, fetchFn) {
     const doFetch = fetchFn || ((url) => fetch(url));
@@ -246235,7 +246348,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // app/js/shortnames.js
+  // build/app/js/shortnames.js
   var SHORT_SLOT_NAMES = {
     "アガリアレプト": "アガリ",
     "アスモデウス": "アスモ",
@@ -246283,7 +246396,7 @@ window.__PREVIEW_DATA__ = {
     return name;
   }
 
-  // app/js/store.js
+  // build/app/js/store.js
   var DB_NAME = "tower-tool";
   var DB_VERSION = 1;
   var STORE_NAMES = ["state", "formations", "records", "settings"];
@@ -246454,7 +246567,7 @@ window.__PREVIEW_DATA__ = {
     return false;
   }
 
-  // app/js/model.js
+  // build/app/js/model.js
   function createHistory(ops = [], cursor = ops.length) {
     return { ops: [...ops], cursor: Math.max(0, Math.min(cursor, ops.length)) };
   }
@@ -246481,7 +246594,7 @@ window.__PREVIEW_DATA__ = {
     return { ops: history.ops, cursor: history.cursor + 1 };
   }
 
-  // app/js/derive.js
+  // build/app/js/derive.js
   var CONDITION_STAGES = ["絶好調", "好調", "普通", "不調", "絶不調", "気絶"];
   var STAGE_GREAT = 0;
   var STAGE_VERY_BAD = 4;
@@ -246835,7 +246948,7 @@ window.__PREVIEW_DATA__ = {
           squareId: op.squareId,
           floor: op.floor,
           kind: "locked",
-          message: `${op.floor}F のマスは、その時点では解放されていません（結果の付け忘れの疑い）`
+          message: `${op.floor}F のマスは、その時点では解放されていません（先の結果が付いていません）`
         });
       }
       const isBoss = def.type === "boss";
@@ -246857,7 +246970,7 @@ window.__PREVIEW_DATA__ = {
         squareId: null,
         floor: null,
         kind: "negative",
-        message: "塔破力がマイナスになっています（結果の付け間違いの疑い）"
+        message: "塔破力がマイナスになっています（結果の付け間違い）"
       });
     }
     return anomalies;
@@ -247104,7 +247217,7 @@ window.__PREVIEW_DATA__ = {
     return onPath || sorted[0];
   }
 
-  // app/js/records.js
+  // build/app/js/records.js
   var TENDENCY_MIN_BATTLES = 3;
   var FORMATION_RATE_MIN_BATTLES = 3;
   function runEntries(structure, ops) {
@@ -247155,7 +247268,7 @@ window.__PREVIEW_DATA__ = {
       }
     }
     if (clearedSquares.size === 0 && !bossAttempted) return null;
-    const parts = [`${clearedSquares.size}マス処理`];
+    const parts = [`${clearedSquares.size}マス解放`];
     if (bossText) parts.push(bossText);
     else if (bossAttempted) parts.push("ボスは未勝利");
     return parts.join("、");
@@ -247301,7 +247414,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // app/js/views.js
+  // build/app/js/views.js
   var STYLE_CHIP_CLASS = { ラッシュ: "st-rush", カウンター: "st-counter", バースト: "st-burst" };
   function styleChip(styleName) {
     const cls = STYLE_CHIP_CLASS[styleName];
@@ -248056,12 +248169,12 @@ window.__PREVIEW_DATA__ = {
         }
       }
       if (cb && typeof cb.onOpenGrid === "function") {
-        const gridBtn = el("button", "btn-open-grid", "全員の顔グリッドを開く（ズレの直し）");
+        const gridBtn = el("button", "btn-open-grid", "全員の顔一覧を開く（ズレの直し）");
         gridBtn.addEventListener("click", cb.onOpenGrid);
         wrap.append(gridBtn);
       }
     } else {
-      wrap.append(el("p", "sheet-note", "顔をタップすると、実物に合わせて段階を直せます（ズレの直し）。"));
+      wrap.append(el("p", "sheet-note", "顔をタップすると、実際の段階に直せます（ズレの直し）。"));
       if (cb && typeof cb.onCloseGrid === "function") {
         const backBtn = el("button", "btn-close-grid", "一覧に戻る");
         backBtn.addEventListener("click", cb.onCloseGrid);
@@ -248102,7 +248215,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // app/js/panels.js
+  // build/app/js/panels.js
   function el2(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -248235,25 +248348,25 @@ window.__PREVIEW_DATA__ = {
       return frag;
     };
     if (vm.driftAnomalies.length === 0) {
-      wrap.append(compactLine("ズレの直し: 記録と計算の間に、説明できないズレは見つかっていません。"));
+      wrap.append(compactLine("ズレの直し: 記録と計算のズレはありません。"));
       if (vm.fixTargets.length > 0) {
         const fixSec = section("結果の付け直し");
         fixSec.append(el2(
           "p",
           "sheet-note",
-          "結果のあるマスを選ぶと、そのマスのシートで付け直せます。コンディションの直接の直し（緊急回復を含む）はコンディション画面から行います。"
+          "結果のあるマスは、そのマスのシートで付け直せます。コンディションの直し（緊急回復を含む）はコンディション画面から行います。"
         ));
         fixSec.append(fixTargetsBlock());
         wrap.append(fixSec);
       }
     } else {
       const fixSec = section("ズレの直し");
-      fixSec.append(el2("p", "sheet-note", "次の記録は、計算では説明できません。付け忘れや付け間違いの可能性があります。"));
+      fixSec.append(el2("p", "sheet-note", "次の記録は計算と合いません。付け忘れか付け間違いの記録です。"));
       for (const text of vm.driftAnomalies) fixSec.append(el2("div", "history-row", text));
       fixSec.append(el2(
         "p",
         "sheet-note",
-        "結果のあるマスを選ぶと、そのマスのシートで付け直せます。コンディションの直接の直し（緊急回復を含む）はコンディション画面から行います。"
+        "結果のあるマスは、そのマスのシートで付け直せます。コンディションの直し（緊急回復を含む）はコンディション画面から行います。"
       ));
       fixSec.append(fixTargetsBlock());
       wrap.append(fixSec);
@@ -248481,7 +248594,7 @@ window.__PREVIEW_DATA__ = {
     const groups = vm.groups || [];
     const totalRows = groups.reduce((n, g) => n + g.rows.length, 0);
     if (totalRows === 0) {
-      listWrap.append(el2("p", "sheet-note", "条件に合うメギドがいません。"));
+      listWrap.append(el2("p", "sheet-note", "条件に合うメギドはいません。"));
     }
     for (const group of groups) {
       const head = el2("div", "megido-style-head");
@@ -248779,9 +248892,9 @@ window.__PREVIEW_DATA__ = {
     wrap.append(el2(
       "p",
       "sheet-note",
-      "心配な場合は、先に今のデータを書き出して退避してください。"
+      "先に今のデータを書き出しておいてください。"
     ));
-    const exportBtn = el2("button", "btn-export-first", "書き出し（JSON）で退避する");
+    const exportBtn = el2("button", "btn-export-first", "今のデータを書き出す（JSON）");
     exportBtn.addEventListener("click", cb.onExportFirst);
     wrap.append(exportBtn);
     wrap.append(el2("p", "sheet-note", "実行するには、次の数字をそのまま入力してください。"));
@@ -248839,9 +248952,9 @@ window.__PREVIEW_DATA__ = {
     wrap.append(el2(
       "p",
       "sheet-note",
-      "心配な場合は、先に今のデータを書き出して退避してください。"
+      "先に今のデータを書き出しておいてください。"
     ));
-    const exportBtn = el2("button", "btn-export-first", "書き出し（JSON）で退避する");
+    const exportBtn = el2("button", "btn-export-first", "今のデータを書き出す（JSON）");
     exportBtn.addEventListener("click", cb.onExportFirst);
     wrap.append(exportBtn);
     wrap.append(el2("p", "sheet-note", "実行するには、次の数字をそのまま入力してください。"));
@@ -248952,7 +249065,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // app/js/formations.js
+  // build/app/js/formations.js
   var SLOT_LABELS = ["1", "2", "リーダー", "4", "5"];
   var LEADER_INDEX = 2;
   function basicsById(megidoBasics) {
@@ -249015,7 +249128,7 @@ window.__PREVIEW_DATA__ = {
       if (!owned.has(slot.megidoId)) notOwned.push(m.name);
       if (conditionOf(slot.megidoId) >= STAGE_FAINTED) fainted.push(m.name);
     }
-    if (unknown.length > 0) reasons.push("データに無いメンバーがいる");
+    if (unknown.length > 0) reasons.push("データにないメンバーがいる");
     if (notOwned.length > 0) reasons.push(`未所持のメンバーがいる: ${notOwned.join("、")}`);
     if (fainted.length > 0) reasons.push(`気絶しているメンバーがいる: ${fainted.join("、")}`);
     return { usable: reasons.length === 0, reasons };
@@ -249273,7 +249386,7 @@ window.__PREVIEW_DATA__ = {
     return a.formation.name < b.formation.name ? -1 : a.formation.name > b.formation.name ? 1 : 0;
   }
 
-  // app/js/search.js
+  // build/app/js/search.js
   var SEARCH_GROUP_LIMIT = 20;
   function prepareSearchIndex(index) {
     if (!index) return null;
@@ -249388,7 +249501,7 @@ window.__PREVIEW_DATA__ = {
     return rows;
   }
 
-  // app/js/migrate.js
+  // build/app/js/migrate.js
   var OLD_KEY_FORMATIONS = "formations";
   var OLD_KEY_MEGIDO_DETAILS = "megidoDetails";
   var SLOT_COUNT = 5;
@@ -249691,7 +249804,7 @@ window.__PREVIEW_DATA__ = {
     }
   }
 
-  // app/js/stats.js
+  // build/app/js/stats.js
   var MAJUU_STAGE_BONUS = [
     { level: 75, hp: 210, atk: 25, def: 25, spd: 0 },
     { level: 77, hp: 170, atk: 18, def: 18, spd: 0 },
@@ -249727,7 +249840,7 @@ window.__PREVIEW_DATA__ = {
     };
   }
 
-  // app/js/explore.js
+  // build/app/js/explore.js
   var EXPLORE_PARTY_MAX = 3;
   var EXPECTATION3_FACTOR = 1.4;
   var DEFAULT_OUGI_LEVEL = 3;
@@ -250150,7 +250263,7 @@ window.__PREVIEW_DATA__ = {
       const needStyle = def.styleKind === "random";
       let missingText = null;
       if (!eff) {
-        missingText = useCustom ? "回復した体数と段階を入れてください" : "どれくらい回復したか選んでください";
+        missingText = useCustom ? "回復した体数と段階を入れてください" : "どれだけ回復したか選んでください";
       } else if (needStyle && !form.style) {
         missingText = "回復したスタイルを選んでください";
       }
@@ -250553,7 +250666,7 @@ window.__PREVIEW_DATA__ = {
     return lo;
   }
 
-  // app/js/counter.js
+  // build/app/js/counter.js
   var POLE_ALIASES = {
     "煉獄": "煉獄の炎",
     "ねずみ": "ねずみ化",
@@ -250885,9 +250998,9 @@ window.__PREVIEW_DATA__ = {
     subme: "マスエフェクト"
   };
   var MEDIUM_CONDITION = {
-    awakened_skill: "ゲージが要る",
-    ougi: "ゲージが要る",
-    secret_ougi: "ゲージが要る",
+    awakened_skill: "ゲージが必要",
+    ougi: "ゲージが必要",
+    secret_ougi: "ゲージが必要",
     reishou: "付けた時",
     me: "リーダー必須",
     subme: "リーダー必須"
@@ -252268,7 +252381,7 @@ window.__PREVIEW_DATA__ = {
     return first;
   }
 
-  // app/js/mechanics.js
+  // build/app/js/mechanics.js
   var MEGIDO_MECHANIC_NOTES = {
     ereki: [
       "エレキ: 雷ダメージが当たるたびにエレキレベルが上がり、解除でレベル分の固定ダメージ（防御無視）",
@@ -252300,7 +252413,7 @@ window.__PREVIEW_DATA__ = {
     ],
     necro: [
       "ネクロ: ダメージ軽減はソウル10（戦闘不能 約4回）で頭打ち、能力上昇はソウル15（約5回）まで伸びる",
-      "準備は、始動役・蘇生役・生き死にを繰り返す役の3点セット"
+      "準備は、始動できる人・蘇生できる人・生き死にを繰り返す人の3点セット"
     ],
     fimpulse: [
       "Fインパルス: エネルギーはダメージの回数で、編成合計で溜まる（上限999）",
@@ -252310,17 +252423,17 @@ window.__PREVIEW_DATA__ = {
       "ハルファスR: リリースが単体化し、与えた人のダメージが増える。強化版ではエネルギーが全て戻る"
     ],
     grimalkinR: [
-      "グリマルキンR: 始動役。リリースで、与えたダメージの一部を味方全体が吸収する"
+      "グリマルキンR: 始動できる。リリースで、与えたダメージの一部を味方全体が吸収する"
     ],
     lucifer: [
-      "ルシファー: 始動役。ターン開始時にエネルギーが増え、マスエフェクトで消耗にならない",
-      "覚醒スキルの解放で、他の全員の強化を解除して自分の攻撃力を上げ、リリース役を自分に変える"
+      "ルシファー: 始動できる。ターン開始時にエネルギーが増え、マスエフェクトで消耗にならない",
+      "覚醒スキルの解放で、他の全員の強化を解除して自分の攻撃力を上げ、リリースする人を自分に変える"
     ],
     furiaeR: [
       "フリアエR: 奥義で回復とアーマーのリリース効果を付け、エネルギーを足す"
     ],
     hadan: [
-      "破断は地割れ中なら更に大ダメージ。地割れを付与できる役を一緒に編成すると使える",
+      "破断は地割れ中なら更に大ダメージ。地割れを付与できる人と一緒に編成すると使える",
       "使う前に、地形が地割れかどうかを確認する。防御無視と併用できる"
     ],
     jiware: [
@@ -252331,12 +252444,12 @@ window.__PREVIEW_DATA__ = {
       "剛剣中の攻撃は1回だけ、ダメージが200%上がり、防御を貫通して、ダメージ軽減も無効化する"
     ],
     kyousen: [
-      "モレク: 浸食を強染に変える唯一の役。味方は強染で回復し、敵は行動するほど地形ダメージが伸びる",
+      "モレク: 浸食を強染に変えられる唯一の人。味方は強染で回復し、敵は行動するほど地形ダメージが伸びる",
       "地形ダメージがフォトン充填になり、奥義の燃料になる"
     ],
     toudo: [
       "凍土: 氷結を凍土に変える。単体ならガギゾン1人で完結する（単体への氷結も置ける）",
-      "全体を変えるなら、全体に氷結を置ける役と組む"
+      "全体を変えるなら、全体に氷結を置ける人と組む"
     ],
     amazeroB: [
       "氷結・凍土の地形にいる敵へ、1.5倍のダメージ"
@@ -252401,7 +252514,7 @@ window.__PREVIEW_DATA__ = {
     return lines;
   }
   function kabauPartyNotes(kabauCount) {
-    return kabauCount >= 2 ? ["かばう役が複数いる時、実際にかばうのはランダムで決まります"] : [];
+    return kabauCount >= 2 ? ["かばう持ちが複数いる時、実際にかばうのはランダムで決まります"] : [];
   }
   var TRANCE_CONFLICT_TEXT = "複数のトランスを始動する行動が編成に含まれています。トランスを上書きする可能性があるので注意してください";
   function tranceFamiliesInFormation(notesData, memberIds, leaderId) {
@@ -252449,8 +252562,8 @@ window.__PREVIEW_DATA__ = {
     const req = tenanaRequiredPoints(enemyHp, lv);
     if (req === null) return [];
     const shots100 = Math.ceil(enemyHp / tenanaDamage(100, lv));
-    let line = `点穴: この敵を1発で倒すには${req}点要る（Lv${lv}で計算）。100点の射撃なら${shots100}発`;
-    if (req > 100 && req <= 140) line += "。100点を超える分は、系譜「一心」の霊宝が要る";
+    let line = `点穴: この敵を1発で倒すには${req}点必要（Lv${lv}で計算）。100点の射撃なら${shots100}発`;
+    if (req > 100 && req <= 140) line += "。100点を超える分は、系譜「一心」の霊宝が必要";
     else if (req > 140 && req <= 240) line += "。届くのはコルソンRのおかえし（上限200、一心で240）だけ";
     else if (req > 240) line += "。1発では届かないため、分けて用意する";
     return [line];
@@ -252503,7 +252616,7 @@ window.__PREVIEW_DATA__ = {
     const hasRandom = actions.some((a) => a.range === "random");
     const hasSingle = actions.some((a) => a.range === "single");
     if (hasRandom) {
-      lines.push(`ランダムに狙う単体攻撃は、かばうでは受けられない。執心で狙いを固定する手がある（付ける役: ${SHISHIN_APPLIERS}）`);
+      lines.push(`ランダムに狙う単体攻撃は、かばうでは受けられない。執心で狙いを固定する手がある（付ける人: ${SHISHIN_APPLIERS}）`);
     }
     if (actions.length > 0 && !hasSingle && !hasRandom) {
       lines.push("攻撃の中心は列・全体で、かばうが受けられるのは通常攻撃だけ。巨大化したネフィリムの全域かばうなら、列・全体も受けられる");
@@ -252519,10 +252632,10 @@ window.__PREVIEW_DATA__ = {
     }
     const classes = party.map((m) => m.class);
     if (actions.length > 0 && classes.length > 0 && classes.every((c) => c === "ファイター" || c === "スナイパー") && !actions.some((a) => a.backRow) && !actions.some((a) => a.range === "all")) {
-      lines.push("攻撃は前列にしか届かない。前に出る人数を1体に絞る形（1トップ）が使え、その1体には攻撃が集中するほど得をする特性（アスモデウスRの第2特性など）が合う");
+      lines.push("攻撃は前列にしか届かない。前に出る人数を1体に絞る形（ワントップ）が使え、その1体には攻撃が集中するほど得をする特性（アスモデウスRの第2特性など）が合う");
     }
     if (actions.length > 0 && classes.length > 0 && classes.every((c) => c === "トルーパー") && !actions.some((a) => a.frontRow) && !actions.some((a) => a.range === "all")) {
-      lines.push("攻撃は後列にしか届かない。後ろに置く人数を1体に絞る形（1ボトム）が使え、その1体には攻撃が集中するほど得をする特性が合う");
+      lines.push("攻撃は後列にしか届かない。後ろに置く人数を1体に絞る形（ワンボトム）が使え、その1体には攻撃が集中するほど得をする特性が合う");
     }
     return lines.slice(0, 3);
   }
@@ -252559,7 +252672,7 @@ window.__PREVIEW_DATA__ = {
       turnText: "3ターン（基本形）",
       cycles: [[6, 4, 3.25], [6, 4], [6, 3.25], [6, 4], [6, 3.25]],
       simulBombs: 2,
-      note: "錬成役はリヴァイアサン、アイムR、ジニマルR、ウァプラR（専用霊宝）。攻略情報では最大50倍で基礎約26万とされる"
+      note: "錬成できるのはリヴァイアサン、アイムR、ジニマルR、ウァプラR（専用霊宝）。攻略情報では最大50倍で基礎約26万とされる"
     },
     マモン: {
       turnText: "3ターン（基本形）",
@@ -253010,7 +253123,7 @@ window.__PREVIEW_DATA__ = {
     return { attacksRead: attacks.length > 0, falls };
   }
 
-  // app/js/speed.js
+  // build/app/js/speed.js
   function meSpeedPct(me, member, slotIndex) {
     if (!me || !member) return null;
     const slotKey = ME_SLOT_KEYS[slotIndex];
@@ -253090,7 +253203,7 @@ window.__PREVIEW_DATA__ = {
     return { value, lines, parts, pctSum };
   }
 
-  // app/js/chain.js
+  // build/app/js/chain.js
   var CHAIN_PHOTON_MAX = 5;
   var MAX_ACTIONS_PER_MEMBER = 3;
   function chainWayKey(way) {
@@ -253156,7 +253269,7 @@ window.__PREVIEW_DATA__ = {
   function conditionNotes(way, photonOf) {
     const notes = [];
     for (const c of way.conditions || []) {
-      if (c.type === "gauge") notes.push(`覚醒ゲージ${c.min}%以上が要る`);
+      if (c.type === "gauge") notes.push(`覚醒ゲージ${c.min}%以上が必要`);
       else if (c.type === "photon") {
         if (typeof photonOf === "function") {
           const g = photonOf(c.photon);
@@ -253534,7 +253647,7 @@ window.__PREVIEW_DATA__ = {
     return { actions, stopReason, stopId, photonBudget };
   }
 
-  // app/js/worth.js
+  // build/app/js/worth.js
   var BUFF_REWARD_LABEL = {
     attack_buff: "攻撃力上昇",
     defense_buff: "防御力上昇",
@@ -253605,16 +253718,16 @@ window.__PREVIEW_DATA__ = {
     }
     let verdict = null;
     if (allCapped) {
-      verdict = fixedStat ? `踏む価値は低いです: ${BUFF_STAT_LABEL[fixedStat]}は上限（${BUFF_CAPS[fixedStat]}%）に達していて、ここで得ても増えません` : "踏む価値は低いです: どのステータスも上限に達していて、ここで得ても増えません";
+      verdict = fixedStat ? `${BUFF_STAT_LABEL[fixedStat]}は上限（${BUFF_CAPS[fixedStat]}%）に達していて、ここで得ても増えません` : "どのステータスも上限に達していて、ここで得ても増えません";
     } else if (route && route.total === 0) {
-      verdict = "踏む価値は低いです: この先に戦うマスが残っていないため、このバフを使う場面がありません";
+      verdict = "この先に戦うマスが残っていないため、このバフを使う場面がありません";
     }
     return { outlookLines, noteLines, verdict };
   }
   function battleWorth({ structure, explorationModel, cleared, squareId, buffRaw }) {
     const newly = newlyUnlockedSquares(structure, cleared, squareId);
     if (newly.length === 0) {
-      return { lines: [], verdict: "踏む価値は低いです: この戦闘で新しく開くマスはありません" };
+      return { lines: [], verdict: "この戦闘で新しく開くマスはありません" };
     }
     const buffSquares = newly.filter(
       (n) => n.def.type === "explore" && BUFF_SUBTYPES.has(n.def.subType)
@@ -253633,13 +253746,13 @@ window.__PREVIEW_DATA__ = {
         return capStateOf(n.def, raw).allCapped;
       });
       if (allCapped) {
-        verdict = "踏む価値は低いです: 開くのは、上限に達していて得ても増えない能力上昇マスだけです";
+        verdict = "開くのは、上限に達していて得ても増えない能力上昇マスだけです";
       }
     }
     return { lines, verdict };
   }
 
-  // app/js/hbomb.js
+  // build/app/js/hbomb.js
   var PLACER_LEVEL = 70;
   var MAX_BOMBS_PER_ENEMY = 3;
   var REN_MULT_CAP = 50;
@@ -254763,7 +254876,7 @@ window.__PREVIEW_DATA__ = {
     return map ? [...map.values()] : [];
   }
 
-  // app/js/kyoen.js
+  // build/app/js/kyoen.js
   var CONVERTER_LEVEL = 70;
   var COUNT_CAP = 50;
   var EXTEND_PER_TURN = 3;
@@ -255477,7 +255590,7 @@ window.__PREVIEW_DATA__ = {
     return "今の伸び方では倒し切れない";
   }
 
-  // app/js/swipe.js
+  // build/app/js/swipe.js
   var SWIPE_THRESHOLD = 72;
   var LOCK_DISTANCE = 10;
   var CLICK_SUPPRESS_MS = 400;
@@ -255578,7 +255691,7 @@ window.__PREVIEW_DATA__ = {
     setClass(row, "swipe-row", true);
   }
 
-  // app/js/builder.js
+  // build/app/js/builder.js
   function el3(tag, className, text) {
     const node = document.createElement(tag);
     if (className) node.className = className;
@@ -255711,7 +255824,7 @@ window.__PREVIEW_DATA__ = {
     sec.append(el3(
       "p",
       "sheet-note",
-      "起点にしたい味方をタップすると、素早さ順に次の味方が自動で割り込んでいきます。起点はタイムラインに残り、割り込む位置に∧の印が付きます。チェインテーブルの行動は、タップで使う行動（フォトン）を変えられ、×で外せます。"
+      "起点にしたい味方をタップすると、素早さ順に次の味方が割り込みます。チェインテーブルの行動は、タップでフォトンを変えられ、×で外せます。"
     ));
     if (chain.errorText) sec.append(el3("p", "chain-error", chain.errorText));
     const zoneHead = el3("p", "chain-zone-label", "チェインテーブル");
@@ -255774,7 +255887,7 @@ window.__PREVIEW_DATA__ = {
         sec.append(el3(
           "p",
           "sheet-note",
-          "フォトンを使い切りました。候補はこれ以上出ません。途中の行動を×で外すと、空いたフォトンで次の候補（2回目の行動を含む）が入ります。"
+          "フォトンを使い切りました。途中の行動を×で外すと、空いたフォトンで次の候補（2回目の行動を含む）が入ります。"
         ));
       }
       if (chain.hasGrantLink) {
@@ -256162,7 +256275,7 @@ window.__PREVIEW_DATA__ = {
     box.append(el3(
       "p",
       "sheet-note",
-      "戦旗はバトル中に覚醒スキルで付与します。付与先のメンバーが発揮条件をみたしているかを示します。"
+      "戦旗はバトル中に覚醒スキルで付与します。各メンバーが発揮条件をみたしているかを示します。"
     ));
     for (const row of rows) {
       const item = el3("div", "flag-fit-item");
@@ -256334,7 +256447,7 @@ window.__PREVIEW_DATA__ = {
         if (lines.length > 0) {
           for (const line of lines) fit.append(meSummaryLine(line));
         } else {
-          fit.append(el3("p", "sheet-note", "今のメンバーで効いている効果はありません。"));
+          fit.append(el3("p", "sheet-note", "今のメンバーが受ける効果はありません。"));
         }
         if (vm.meFit.sub) {
           fit.append(el3(
@@ -256351,7 +256464,7 @@ window.__PREVIEW_DATA__ = {
           if (subLines.length > 0) {
             for (const line of subLines) fit.append(meSummaryLine(line));
           } else {
-            fit.append(el3("p", "sheet-note", "今のメンバーで効いている効果はありません。"));
+            fit.append(el3("p", "sheet-note", "今のメンバーが受ける効果はありません。"));
           }
         }
         if (vm.meFit.subNote) {
@@ -256545,7 +256658,7 @@ window.__PREVIEW_DATA__ = {
         guide.append(el3(
           "p",
           "cand-guide-line",
-          "◇は、その脅威への対策の手段を持っている印です。持っている候補を上に並べています。"
+          "◇は対策の手段を持っている印で、持っている候補を上に並べています。"
         ));
       } else {
         guide.append(el3("p", "cand-guide-line", "並びはコンディション順です。"));
@@ -256571,7 +256684,7 @@ window.__PREVIEW_DATA__ = {
       list.append(hint);
     }
     if (vm.rows.length === 0) {
-      list.append(el3("p", "sheet-note", "絞り込みに合う候補がいません。"));
+      list.append(el3("p", "sheet-note", "絞り込みに合う候補はいません。"));
     }
     for (const row of vm.rows) {
       const btn = el3("button", "cand-row");
@@ -256607,7 +256720,7 @@ window.__PREVIEW_DATA__ = {
         btn.append(noteMarkEl());
       }
       for (const note of row.noteLines || []) {
-        const isKey = note.startsWith("需要:");
+        const isKey = note.startsWith("後の階で出番がある可能性あり:");
         btn.append(el3("div", isKey ? "cand-note cand-note-key" : "cand-note", note));
       }
       btn.addEventListener("click", () => {
@@ -256785,7 +256898,7 @@ window.__PREVIEW_DATA__ = {
     content.append(clearBtn);
     const list = el3("div", "cand-list");
     if (vm.rows.length === 0) {
-      list.append(el3("p", "sheet-note", "条件に合う敵がいません。"));
+      list.append(el3("p", "sheet-note", "条件に合う敵がありません。"));
     }
     for (const row of vm.rows) {
       const btn = el3("button", "cand-row enemy-row");
@@ -256888,8 +257001,8 @@ window.__PREVIEW_DATA__ = {
     return { top, content, searchInput: search, bottom };
   }
 
-  // app/js/sheet.js
-  var CANDIDATE_SOURCE_NOTE = "候補は本体の能力・専用霊宝・オーブ・マスエフェクトから出したものです（マスエフェクト由来はリーダーに置いた場合）。";
+  // build/app/js/sheet.js
+  var CANDIDATE_SOURCE_NOTE = "候補は本体の能力・専用霊宝・オーブ・マスエフェクト由来です（マスエフェクトはリーダーに置いた場合）。";
   var FORMATION_MANAGE_NOTE = "ここで編成を管理・保存できます。";
   function el4(tag, className, text) {
     const node = document.createElement(tag);
@@ -257015,10 +257128,10 @@ window.__PREVIEW_DATA__ = {
     const body = el4("div", "point-body");
     if (p.threatText) body.append(el4("p", "point-threat", `対象: ${p.threatText}`));
     if (p.how) body.append(el4("p", "sheet-note", p.how));
-    if (p.methodNote) body.append(el4("p", "sheet-note", `効く条件: ${p.methodNote}`));
+    if (p.methodNote) body.append(el4("p", "sheet-note", `条件: ${p.methodNote}`));
     if (p.detail) body.append(el4("p", "sheet-note", p.detail));
     if (p.detailText) appendDetailLines(body, p.detailText);
-    if (p.startersText) body.append(candidateListNode("始動役", p.startersText));
+    if (p.startersText) body.append(candidateListNode("始動できる人", p.startersText));
     if (p.candidatesText) body.append(candidateListNode("候補", p.candidatesText));
     if (p.orbsText) body.append(candidateListNode("オーブ", p.orbsText));
     if (!p.candidatesText && !p.orbsText && !p.startersText && !p.noteOnly) {
@@ -257069,7 +257182,7 @@ window.__PREVIEW_DATA__ = {
     if (m.matchedStyle) line.append(el4("span", "osu-mark", `${p}オススメスタイルが合致`));
     if (m.matchedClass) line.append(el4("span", "osu-mark", `${p}オススメクラスが合致`));
   }
-  var DEMAND_MARK_LEGEND = "！: その階で使う予定　△: 後の階のギミックに有効";
+  var DEMAND_MARK_LEGEND = "！: その階で使う予定　△: 後の階で出番がある可能性あり";
   function demandMarkBadge(mark) {
     const badge = el4("span", `demand-mark demand-mark-${mark.kind}`, mark.text);
     badge.title = mark.label;
@@ -257263,7 +257376,7 @@ window.__PREVIEW_DATA__ = {
     }
     if (vm.unlockGuide) {
       const guide = el4("div", "unlock-guide");
-      guide.append(el4("div", "unlock-guide-title", "解放するには、このマスを処理する"));
+      guide.append(el4("div", "unlock-guide-title", "解放するには、下のマスを解放する"));
       for (const step of vm.unlockGuide.steps) {
         const btn = el4("button", "unlock-guide-row", step.text);
         btn.dataset.squareId = step.squareId;
@@ -257385,7 +257498,7 @@ window.__PREVIEW_DATA__ = {
           block.append(el4("p", "mech-note", note));
         }
         if (!e.hasTexts) {
-          block.append(el4("p", "sheet-note", "この敵の能力はデータに無いため、種族と耐性から分かる範囲だけを表示しています。"));
+          block.append(el4("p", "sheet-note", "この敵の能力はデータにないため、種族と耐性から分かる範囲だけを表示しています。"));
         }
         if ((e.points || []).length > 0) {
           block.append(el4("div", "authored-title", "攻略のポイント"));
@@ -257396,7 +257509,7 @@ window.__PREVIEW_DATA__ = {
             const toggle = el4(
               "button",
               `point-toggle${open ? " open" : ""}`,
-              `${open ? "−" : "＋"} ◇${p.title}`
+              `◇${p.title}`
             );
             toggle.addEventListener("click", () => {
               if (cb.onPointToggle) cb.onPointToggle(e.name, i);
@@ -257415,8 +257528,8 @@ window.__PREVIEW_DATA__ = {
         if (e.resistances && e.resistances.length > 0) {
           const toggle = el4(
             "button",
-            "resist-toggle",
-            `${e.resistOpen ? "−" : "＋"} 耐性（ベリーハードの段階）`
+            `resist-toggle${e.resistOpen ? " open" : ""}`,
+            "耐性（ベリーハードの段階）"
           );
           toggle.addEventListener("click", () => {
             if (cb.onResistToggle) cb.onResistToggle(e.name);
@@ -257801,7 +257914,7 @@ window.__PREVIEW_DATA__ = {
         sec.append(el4(
           "p",
           "sheet-note",
-          `${pending.stageText}の並びから、あと ${pending.need} 人が回復します。実際に回復した ${pending.need} 人を選んでください（選択中 ${pending.pickedCount} 人）。`
+          `${pending.stageText}の並びから、あと ${pending.need} 人が回復します。回復した ${pending.need} 人を選んでください（選択中 ${pending.pickedCount} 人）。`
         ));
         const list = el4("div", "pick-list");
         for (const cand of pending.candidates) {
@@ -258139,7 +258252,7 @@ window.__PREVIEW_DATA__ = {
     return wrap;
   }
 
-  // app/js/main.js
+  // build/app/js/main.js
   var DATA_BASE = "../data/";
   function monthKeyOf(date) {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
@@ -258291,7 +258404,7 @@ window.__PREVIEW_DATA__ = {
       }
     };
     const orbNameText = (orbId) => {
-      if (!orbsById) return "オーブあり（名称は未読込）";
+      if (!orbsById) return "オーブあり（名称不明）";
       const orb = orbsById.get(orbId);
       return orb ? orb.name : "オーブあり（名称不明）";
     };
@@ -258378,7 +258491,7 @@ window.__PREVIEW_DATA__ = {
     };
     const reishouNameText = (ids) => {
       const names = (ids || []).map((id) => {
-        if (!reishouById) return "名称は未読込";
+        if (!reishouById) return "名称不明";
         const r = reishouById.get(id);
         return r ? r.name : "名称不明";
       });
@@ -258583,7 +258696,7 @@ window.__PREVIEW_DATA__ = {
         }, 5e3);
       }
     }
-    const exploreEffectLabel = (e) => e.box === "虹" ? "多めに効いた" : "標準の効果";
+    const exploreEffectLabel = (e) => e.box === "虹" ? "効果大" : "標準の効果";
     function historyLine(e) {
       if (e.kind === "battle") {
         return `${e.formationName ? `${e.formationName}で` : "編成の記録なしで"}${RESULT_TEXT[e.result]}`;
@@ -259315,7 +259428,7 @@ window.__PREVIEW_DATA__ = {
           resistTotal: typeof h.resistTotal === "number" ? h.resistTotal : null,
           resistBonus: !orb && h.id && derived.conditionOf(h.id) === 0 ? 50 : 0
         });
-        return !orb && h.id && essentialIds.has(h.id) ? `${text}（需要あり）` : text;
+        return !orb && h.id && essentialIds.has(h.id) ? `${text}（後の階で出番がある可能性あり）` : text;
       };
       const levelRank = (l) => l === "S" ? 0 : l === "A" ? 1 : l === "B" ? 2 : 3;
       const sheetEntries = [];
@@ -259396,7 +259509,7 @@ window.__PREVIEW_DATA__ = {
               rawBlocks.push({
                 kind: "trance",
                 classId: null,
-                label: `${cls.family}の始動役を入れる`,
+                label: `${cls.family}を始動できる人を入れる`,
                 how: "",
                 methodNote: "",
                 noteOnly: false,
@@ -259424,7 +259537,7 @@ window.__PREVIEW_DATA__ = {
           }
         }
         if (removed) {
-          rushNote = "この敵は速攻で倒し切る相手ではないため、速攻の答えは出していません。";
+          rushNote = "速攻で倒し切る相手ではありません。";
         }
       }
       rawBlocks.sort((a, b) => a.maxRank - b.maxRank);
@@ -259658,7 +259771,7 @@ window.__PREVIEW_DATA__ = {
           }
           if (ids.size > 0 && ids.size <= 2) {
             demandWarnings.push(
-              `需要の警告: ${g.label}（${e.name}）の対策候補は ${[...ids].map(nameOf).join("、")} だけです。使いどころに気をつけてください。`
+              `後の階で出番がある可能性あり: ${g.label}（${e.name}）の対策候補は ${[...ids].map(nameOf).join("、")} だけです。`
             );
           }
         }
@@ -259931,7 +260044,7 @@ window.__PREVIEW_DATA__ = {
       } else {
         const floor = demandEarliestFloor(demand, m.id, sheetCtx.floor);
         if (floor !== null) {
-          demandMark = { kind: "gimmick", floor, text: `△${floor}F`, label: `${floor}Fのギミックに有効` };
+          demandMark = { kind: "gimmick", floor, text: `△${floor}F`, label: `${floor}Fで出番がある可能性あり` };
         }
       }
       return {
@@ -260003,7 +260116,7 @@ window.__PREVIEW_DATA__ = {
       for (const m of members) {
         const reasons = [];
         if (m.demandMark && m.demandMark.kind === "gimmick") {
-          reasons.push(`${m.demandMark.floor}Fのギミックに有効な手段を持っている`);
+          reasons.push(`${m.demandMark.floor}Fで出番がある可能性のある手段を持っている`);
         }
         if (m.planText) reasons.push(m.planText);
         if (reasons.length > 0) {
@@ -260050,7 +260163,7 @@ window.__PREVIEW_DATA__ = {
         candidates: plan.candidates.map((cand) => {
           const parts = [];
           for (const id of cand.spared) parts.push(`${nameOf(id)}を使わない`);
-          if (cand.demandTotal > 0) parts.push("この先で需要のある者を含む");
+          if (cand.demandTotal > 0) parts.push("後の階で出番がある可能性のある者を含む");
           return {
             ids: cand.ids,
             members: cand.members.map((m) => exploreMemberFacts(m, demand, plans)),
@@ -260450,7 +260563,7 @@ window.__PREVIEW_DATA__ = {
         };
         unlockGuide = {
           steps: g.steps.map((s) => ({ squareId: s.id, text: stepText(s) })),
-          bossPathText: g.isBoss ? "このマスはこの階のボスです。" : g.onBossPath === true ? "このマスはボスへの道の途中です。" : g.onBossPath === false ? "このマスはボスへの道から外れた、寄り道側のマスです。" : null
+          bossPathText: g.isBoss ? "この階のボスです。" : g.onBossPath === true ? "ボスへの道の途中です。" : g.onBossPath === false ? "ボスへの道から外れたマスです。" : null
         };
       }
       const notes = [];
@@ -261953,7 +262066,7 @@ window.__PREVIEW_DATA__ = {
         const names = sim.actions.map((a) => nameOf2(a.id) + (a.occ >= 2 ? `（${a.occ}回目）` : "")).join(" → ");
         const cut = chainCutInTarget(timeline, test.originId);
         if (cut.before && typeof cut.before.spd === "number") {
-          resultLines.push(`割り込み成立: ${names} の順に、敵の${cut.before.name}（素早さ${cut.before.spd}）より先に ${sim.actions.length} 回の行動が入ります。タイムラインの∧の位置が、その割り込み箇所です。`);
+          resultLines.push(`割り込み成立: ${names} の順に、敵の${cut.before.name}（素早さ${cut.before.spd}）より先に ${sim.actions.length} 回の行動が入ります。`);
         } else if (cut.after && typeof cut.after.spd === "number" && !cut.before) {
           const origin = allies.find((a) => a.id === test.originId);
           resultLines.push(`起点の${nameOf2(test.originId)}（素早さ${origin ? origin.spd : ""}）は敵の${cut.after.name}（素早さ${cut.after.spd}）より遅いため、この割り込みは${cut.after.name}の行動の後に入ります。敵より先に動かしたい場合は、その敵より速い味方を起点にしてください。`);
@@ -262850,7 +262963,7 @@ window.__PREVIEW_DATA__ = {
             barPct: 100,
             bands: [],
             subText: [
-              e.flying ? "飛行: 地形が効かない" : e.terrainNull ? "地形効果を無効化: 地形が効かない" : "",
+              e.flying ? "飛行: 地形は無効" : e.terrainNull ? "地形効果を無効化: 地形は無効" : "",
               e.revive ? `戦闘不能時に蘇生（HP${e.revive.hpPct}%・${e.revive.times}回）` : ""
             ].filter(Boolean).join("・"),
             isTarget: st.target === i,
@@ -262876,8 +262989,8 @@ window.__PREVIEW_DATA__ = {
         if (se.dead) subText = `倒した（ターン${se.killTurn}）`;
         else if (e.flying && se.shot > 0 && se.covered) subText = `撃墜中（あと${se.shot}ターン）・火${se.count}回・地形 あと${se.remaining}ターン・次 ${fmt(nextTerrainDamage(sim, i))}`;
         else if (e.flying && se.shot > 0) subText = `撃墜中（あと${se.shot}ターン）・地形の範囲外`;
-        else if (e.flying) subText = "飛行: 地形が効かない";
-        else if (se.terrainNull) subText = "地形効果を無効化: 地形が効かない";
+        else if (e.flying) subText = "飛行: 地形は無効";
+        else if (se.terrainNull) subText = "地形効果を無効化: 地形は無効";
         else if (se.covered) subText = `火${se.count}回・地形 あと${se.remaining}ターン・次 ${fmt(nextTerrainDamage(sim, i))}`;
         else subText = "地形の範囲外";
         if (!se.dead && se.reviveSpec) {
@@ -262905,7 +263018,7 @@ window.__PREVIEW_DATA__ = {
         // かばう持ちがいる場合だけ出す。再現はしない（回数の
         // 伸びは元の対象に数える前提のため本題はズレず、直接
         // ダメージの行き先だけが実ゲームと異なる）。
-        kabauNote: enemies.some((e) => e.kabau) ? "敵にかばう持ちがいます。かばうは再現していないため、直接ダメージの行き先は実ゲームと異なる場合があります。" : "",
+        kabauNote: enemies.some((e) => e.kabau) ? "敵にかばう持ちがいます。かばうは再現しておらず、直接ダメージの行き先は実ゲームと異なる場合があります。" : "",
         setupSummary: sim ? st.setupSummary : "",
         enjouChoices,
         convertChoices,
@@ -263617,9 +263730,9 @@ window.__PREVIEW_DATA__ = {
         const posLabel = (list) => list.map((p) => `枠${p}`).join("・");
         let line;
         if ((h.tokens || []).length === 0) {
-          line = filled.length === 0 ? `条件はありません。${h.targetLabel}にメンバーがいません。` : `条件はありません。${h.targetLabel}の全員（${posLabel(met)}）が受けます。`;
+          line = filled.length === 0 ? `条件はありません。${h.targetLabel}にメンバーはいません。` : `条件はありません。${h.targetLabel}の全員（${posLabel(met)}）が受けます。`;
         } else if (filled.length === 0) {
-          line = `条件は${h.conditionLabel}。${h.targetLabel}にメンバーがいません。`;
+          line = `条件は${h.conditionLabel}。${h.targetLabel}にメンバーはいません。`;
         } else if (met.length === 0) {
           line = `条件は${h.conditionLabel}。条件をみたしているメンバーはいません。`;
         } else {
@@ -263735,7 +263848,7 @@ window.__PREVIEW_DATA__ = {
           const n = equipmentOf(id).length;
           const lines = [];
           if (n < 4) {
-            lines.push(`第2特性の発動には、専用霊宝以外の霊宝が4つ要る（今は${n}つ）。揃った場合の目安:`);
+            lines.push(`第2特性の発動には、専用霊宝以外の霊宝が4つ必要（今は${n}つ）。揃った場合の目安:`);
           }
           const ests = enemyAttackEstimates(stage.fact, stage.mult, stats.def);
           for (const e of ests) {
@@ -263972,7 +264085,7 @@ window.__PREVIEW_DATA__ = {
           lines.push(`手段: ${meansText}${means.length > 4 ? `、ほか${means.length - 4}件` : ""}`);
         }
         const w = demandWeight(demand, r.id, sheetCtx ? sheetCtx.floor : derived.currentFloor);
-        if (w > 0) lines.push("需要: 次の回復マスまでのマスでも対策の候補になります");
+        if (w > 0) lines.push("後の階で出番がある可能性あり: 次の回復マスまでのマスでも対策の候補になります");
         lines.push(...mechanicNoteLines(counterData.mechanicNotes, r.id));
         const keys = (counterData.mechanicNotes.notes || {})[r.id] || [];
         if (typeof targetHp === "number") {
@@ -264004,7 +264117,7 @@ window.__PREVIEW_DATA__ = {
           const stats = memberStatsOf(r.id);
           if (stats) {
             const n = equipmentOf(r.id).length;
-            const cond = n >= 4 ? "" : `（発動には専用霊宝以外の霊宝が4つ要る。今は${n}つ）`;
+            const cond = n >= 4 ? "" : `（発動には専用霊宝以外の霊宝が4つ必要。今は${n}つ）`;
             lines.push(`第2特性: 最大HPの20%（${asmodeusThreshold(stats.hp)}点）以下のダメージを無効化できる${cond}`);
           }
         }
@@ -264503,7 +264616,7 @@ window.__PREVIEW_DATA__ = {
             atk: ch.member.atk,
             attackerClass: ch.member.className
           }, st.target);
-          st.lastEvent = res.grounded ? `撃墜: ${targetName}は地形の対象になった（${ch.action.turns}ターン）` : res.targetFlying ? `撃墜: ${targetName}は地形の範囲外（または地形が切れている）ため地形は効かない` : `撃墜: ${targetName}は飛行していない`;
+          st.lastEvent = res.grounded ? `撃墜: ${targetName}は地形の対象になった（${ch.action.turns}ターン）` : res.targetFlying ? `撃墜: ${targetName}は地形の範囲外（または地形が切れている）ため地形の対象にならない` : `撃墜: ${targetName}は飛行していない`;
           env.rerender();
         },
         // 遅延行動（ナベリウスBの覚醒スキル）: ボタンでそのターンの
@@ -265073,7 +265186,7 @@ window.__PREVIEW_DATA__ = {
         const helpBtn = document.createElement("button");
         helpBtn.className = "btn-floor-help";
         helpBtn.textContent = "？";
-        helpBtn.setAttribute("aria-label", `${viewFloor}Fの顔見せカードをもう一度見る`);
+        helpBtn.setAttribute("aria-label", `${viewFloor}Fの案内をもう一度見る`);
         helpBtn.addEventListener("click", () => openFaceCard(viewFloor));
         headRow.append(helpBtn);
         const bandFd = floorData(structure, viewFloor);
@@ -265164,7 +265277,7 @@ window.__PREVIEW_DATA__ = {
         const randomRec2 = nextRec.find((r) => r.style === "RANDOM");
         const falling = entries.filter((e) => e.stage >= 4).length;
         const headParts = [];
-        headParts.push(rec ? `次の回復（${STYLE_NAME[code]}固定）: ${rec.nextFloor}F${recoveryRemainingText(rec.remaining, rec.isLast)}` : `次の回復（${STYLE_NAME[code]}固定）: この先なし`);
+        headParts.push(rec ? `次の回復（${STYLE_NAME[code]}固定）: ${rec.nextFloor}F${recoveryRemainingText(rec.remaining, rec.isLast)}` : `次の回復（${STYLE_NAME[code]}固定）: この先にない`);
         if (randomRec2) headParts.push(`ランダム回復: ${randomRec2.nextFloor}F`);
         headParts.push(`絶不調・気絶: ${falling}体`);
         return { styleLabel: STYLE_NAME[code], headerText: headParts.join(" ／ "), entries };
@@ -265179,7 +265292,7 @@ window.__PREVIEW_DATA__ = {
           paceLines.push("消費ペース: まだ階を踏破していないため、判定は出していません");
         }
         paceLines.push(pace.upcomingTowerFloors.length > 0 ? `この先の塔破力マス: ${pace.upcomingTowerFloors.map((t) => `${t.floor}F`).join("、")}` : "この先の塔破力マス: なし");
-        paceLines.push("方針: 解放できる塔破力マスを踏んでいけば、塔破力はまず余る（回復は踏破の必須条件）");
+        paceLines.push("方針: 解放できる塔破力マスを踏んでいけば、塔破力は余る（回復は踏破の必須条件）");
       }
       const counts = CONDITION_STAGES.map((label, stage) => ({ stage, label, count: 0 }));
       const belowRows = [];
@@ -265194,7 +265307,7 @@ window.__PREVIEW_DATA__ = {
       const nextRecoveryLines = [];
       for (const code of STYLE_ORDER) {
         const rec = nextRec.find((r) => r.style === code);
-        nextRecoveryLines.push(rec ? `${STYLE_NAME[code]}の次の回復: ${rec.nextFloor}F${recoveryRemainingText(rec.remaining, rec.isLast)}` : `${STYLE_NAME[code]}の次の回復: この先なし`);
+        nextRecoveryLines.push(rec ? `${STYLE_NAME[code]}の次の回復: ${rec.nextFloor}F${recoveryRemainingText(rec.remaining, rec.isLast)}` : `${STYLE_NAME[code]}の次の回復: この先にない`);
       }
       const randomRec = nextRec.find((r) => r.style === "RANDOM");
       if (randomRec) {
@@ -265353,7 +265466,7 @@ window.__PREVIEW_DATA__ = {
         query: searchCtx.query,
         presets: SEARCH_PRESETS.map((p) => ({ ...p, on: searchCtx.preset === p.key })),
         groups,
-        emptyText: searchCtx.preset ? "この先に、該当するマスはありません。" : q ? "条件に合う結果がありません。" : "敵の名前・ルール・メギド・編成名のほか、能力やオーブの効果文でも探せます。下の定型検索も使えます。"
+        emptyText: searchCtx.preset ? "この先に、該当するマスはありません。" : q ? "条件に合う結果がありません。" : "敵の名前・ルール・メギド・編成名のほか、能力やオーブの効果文でも探せます。下のボタンからも探せます。"
       };
       const { top, content, searchInput } = buildSearchView(vm, {
         onQuery: (text) => {
@@ -265471,7 +265584,7 @@ window.__PREVIEW_DATA__ = {
           lines: [
             { label: "残り", value: String(outlook.currentPower) },
             { label: "残り", value: `${remainingFloors}階` },
-            outlook.nextTower ? { label: "次の塔破力マス", value: `${outlook.nextTower.floor}F` } : { label: "次の塔破力マス", value: "この先には無い" },
+            outlook.nextTower ? { label: "次の塔破力マス", value: `${outlook.nextTower.floor}F` } : { label: "次の塔破力マス", value: "この先にない" },
             { label: "回収の見込み", value: recoveryText }
           ],
           note: `見通しは、踏破した階が${PACE_MIN_CLEARED_FLOORS}階になると出ます（現在${outlook.clearedFloors}階）。`
@@ -265771,7 +265884,7 @@ window.__PREVIEW_DATA__ = {
         powerText: midCtx.powerText,
         defaultMode: midCtx.defaultMode,
         query: midCtx.query,
-        note: "まず「指定しない人の扱い」を選び、把握している数人だけ顔をタップして段階を指定してください（例外の指定）。「不明」が残ると見通しの精度が下がります。",
+        note: "「指定しない人の扱い」を選び、分かる人だけ顔をタップして段階を指定してください。「不明」が残ると見通しの精度が下がります。",
         replaceWarning: currentOps(history).length > 0 ? "今のランに記録があります。この開始で今の履歴は置き換わります（残す場合は、先に記録画面で月の締めをしてください）。" : null,
         groups,
         picker: pickerMember ? {
@@ -265935,7 +266048,7 @@ window.__PREVIEW_DATA__ = {
         if (!demand) return null;
         const d = demand.get(id);
         if (!d || d.total === 0) return ["今の範囲では候補になるマスはありません"];
-        const lines = [`候補: 未処理の戦闘マス ${d.total} 件（必須級 ${d.essential} 件）`];
+        const lines = [`候補: この先の戦闘マス ${d.total} 件（候補が2人以下のマス ${d.essential} 件）`];
         const seen = /* @__PURE__ */ new Set();
         const examples = [];
         for (const sp of d.spots) {
@@ -266254,7 +266367,7 @@ window.__PREVIEW_DATA__ = {
       wrap.append(title);
       const p = document.createElement("p");
       const failed = migrationSummary.failed.length > 0 ? `（読み取れなかったもの: ${migrationSummary.failed.join("、")}）` : "";
-      const seeded = migrationSummary.reishouSeeded > 0 ? `霊宝の装備は、編成に付いていたものを ${migrationSummary.reishouSeeded}体分、そのメギドの装備として引き継ぎました。` : "";
+      const seeded = migrationSummary.reishouSeeded > 0 ? `霊宝は、編成に付いていたものを ${migrationSummary.reishouSeeded}体分引き継ぎました。` : "";
       p.textContent = `編成 ${migrationSummary.formations}件、所持・育成 ${migrationSummary.megidoEntries}件（所持 ${migrationSummary.owned}体）を引き継ぎました${failed}。${seeded}進行中のラン状態（コンディション・塔破力・解放）は引き継ぎません。`;
       wrap.append(p);
       overlay.openSheet(wrap);
