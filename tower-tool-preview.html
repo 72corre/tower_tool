@@ -220,7 +220,7 @@ input, textarea, select { font-size: 16px; }
 .statebar {
   background: var(--surface);
   border-top: 1px solid var(--border);
-  padding: 6px 10px;
+  padding: 6px 4px;
   font-size: 16px;
 }
 
@@ -271,22 +271,35 @@ input, textarea, select { font-size: 16px; }
 .tabbar-menu-btn[aria-expanded="true"] { color: var(--text); border-color: var(--main); }
 .statebar-notice { color: var(--danger-warn); font-weight: 700; margin-bottom: 4px; font-size: 16px; }
 .statebar-main {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 6px;
   width: 100%;
+  cursor: pointer;
+}
+/* 展開中の覆い（問題15A）: 黒20%でフッター以外をグレーアウトする。
+   .footbar（position: fixed + z-index 35）のスタッキングコンテキスト
+   の中に z-index -1 で置くため、フッターの地より下・本文やシート
+   （z-index 30〜32）より上に描かれる。タップでアコーディオンを
+   閉じる。 */
+.statebar-scrim {
+  position: fixed; inset: 0; z-index: -1;
+  background: rgba(0, 0, 0, 0.2);
 }
 .sb-expand {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 6px;
   flex: 1; min-width: 0;
   background: none; border: none; border-radius: 0;
-  padding: 2px 0; text-align: left; color: inherit;
+  padding: 0; text-align: left; color: inherit;
 }
-.sb-power { display: flex; align-items: baseline; gap: 5px; }
-.sb-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+/* 塔破力はラベルを数字の上に積む（問題15Cの幅のやりくり: 主行は
+   390px で満杯のため、ラベル横置きの幅をコンディション確認ボタン
+   に回した。高さは従来の主行54pxに収める）。 */
+.sb-power { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+.sb-label { font-size: 12px; color: var(--muted); white-space: nowrap; line-height: 1; }
 .sb-power-num { font-size: 40px; font-weight: 800; line-height: 1; }
-.sb-usage { display: flex; gap: 4px; margin-left: auto; }
+.sb-usage { display: flex; gap: 3px; margin-left: auto; }
 .sb-usage-chip {
   display: flex; align-items: baseline; gap: 3px;
-  border: 1px solid var(--border); border-radius: 999px; padding: 1px 5px;
+  border: 1px solid var(--border); border-radius: 999px; padding: 1px 4px;
 }
 .sb-usage-style { font-weight: 800; font-size: 12px; }
 .sb-usage-chip.su-r .sb-usage-style { color: var(--style-rush-text); }
@@ -294,24 +307,29 @@ input, textarea, select { font-size: 16px; }
 .sb-usage-chip.su-b .sb-usage-style { color: var(--style-burst-text); }
 .sb-usage-num { font-size: 16px; font-weight: 700; }
 .sb-chevron { color: var(--muted); font-size: 12px; }
-/* コンディション表へのボタン（問題4）: 悪い状態の人数を段階色の
-   塗りチップで先見せする。チップの地色は .cond-4/.cond-5（段階色の
-   塗り、コンディション表・候補行と同じ物差し）が担う。チップは
-   縦積み（横に並べると主行の幅に収まらないため）。0の側は塗りを
-   外して枠だけにし、寸法は塗りの時と揃える。 */
+/* コンディション確認ボタン（問題15Cで独立したボタンに置き換え。
+   問題4の1タップ到達は維持）: 面と枠を持たせてボタンとして読める
+   形にし、ラベル「コンディション確認」の下に、悪い状態の人数を
+   段階色の塗りチップで小さく添える。チップの地色は .cond-4/.cond-5
+   （段階色の塗り、コンディション表・候補行と同じ物差し）が担う。
+   0の側は塗りを外して枠だけにし、寸法は塗りの時と揃える。ラベルは
+   2行（コンディション／確認）: 390px の主行に1行分の幅が無いため。 */
 .sb-cond {
-  display: flex; flex-direction: column; align-items: stretch; gap: 3px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
   flex: none;
-  background: none; border: none; border-radius: 0;
-  padding: 2px 0; color: inherit;
+  background: none; border: 1.5px solid var(--border); border-radius: 8px;
+  padding: 3px 4px; color: inherit;
 }
+.sb-cond-label { font-size: 12px; font-weight: 700; line-height: 1.15; text-align: center; }
+.sb-cond-label-line { display: block; }
+.sb-cond-counts { display: flex; gap: 3px; }
 .sb-cond-chip {
-  font-size: 12px; font-weight: 700; border-radius: 999px;
-  padding: 3px 7px; white-space: nowrap; text-align: center;
+  font-size: 12px; font-weight: 700; border-radius: 999px; line-height: 1.15;
+  padding: 1px 4px; white-space: nowrap; text-align: center;
 }
 .sb-cond-chip.is-zero {
   background: none; color: var(--muted);
-  border: 1px solid var(--border); padding: 2px 6px;
+  border: 1px solid var(--border); padding: 0 3px;
 }
 .statebar-detail {
   border-bottom: 1px solid var(--border);
@@ -614,7 +632,9 @@ input, textarea, select { font-size: 16px; }
 .slot-pos { font-size: 12px; color: var(--muted); }
 .slot-cell.leader .slot-pos { color: var(--text); font-weight: 700; }
 .slot-name { font-weight: 700; font-size: 16px; white-space: nowrap; }
-.slot-grid .fit-x { display: block; transform-origin: center; white-space: nowrap; }
+/* transform の起点とずらしは views.js の fitSlotText が実測で決める
+   （問題17の修理: CSS 側で center 固定にすると縮めた文字列が右へずれる）。 */
+.slot-grid .fit-x { display: block; white-space: nowrap; }
 .slot-style { font-size: 12px; color: var(--muted); }
 .slot-cell .style-chip { font-size: 12px; padding: 0 5px; }
 /* クラス／段階はチップの行に食い込ませず、必ず自分の行に置く
@@ -1009,11 +1029,10 @@ input, textarea, select { font-size: 16px; }
 .cond-count.zero { opacity: 0.45; font-weight: 400; }
 .cond-allgreat { font-size: 16px; font-weight: 700; margin: 10px 0; }
 .cond-row {
-  display: flex; align-items: center; gap: 8px; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
   text-align: left; padding: 9px 12px; margin: 3px 0;
 }
 .cond-row-name { font-weight: 700; }
-.cond-row-style { color: var(--muted); font-size: 12px; flex: 1; }
 .cond-row.picking { border-color: var(--main); }
 .btn-open-grid, .btn-close-grid { margin: 10px 0; }
 
@@ -1648,6 +1667,23 @@ input, textarea, select { font-size: 16px; }
 .outgoing-chip { font-size: 16px; font-weight: 700; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--border); background: none; color: var(--text); }
 .outgoing-chip.selected { background: rgba(152, 124, 193, 0.28); color: #e9e2fa; border-color: rgba(152, 124, 193, 0.55); }
 
+/* 見積もりの見た目（全体構成 問題14の残り・見た目分、2026-11-27）:
+   節見出しは帯（問題8の作法）、結論行は太く大きく、ダメージの
+   数字は強調して大きく、攻撃の見積もりは行の並び、前提は末尾に
+   小さく（注記の格）。文字の段は単一ルール（見出し24／ラベル12／
+   本文16＋結論数字40）の内側で決める: 結論の「文」と文中の数字は
+   見出し段24（40は単独で立つ結論数字だけの段のため使わない）。 */
+.est-heading { font-size: 24px; font-weight: 800; margin: 14px 0 8px; color: var(--main); background: var(--main-band); border-radius: 8px; padding: 8px 12px; }
+.est-conclusion { font-size: 24px; font-weight: 800; margin: 4px 0; line-height: 1.35; }
+.est-num { font-size: 24px; font-weight: 800; color: var(--text); }
+.est-material { color: var(--muted); }
+.est-target { font-size: 16px; font-weight: 700; margin: 8px 0 2px; }
+.est-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 2px 0; font-size: 16px; }
+.est-row-main { flex: 1 1 auto; }
+.est-row-dmg { flex: 0 1 auto; margin-left: auto; text-align: right; }
+.est-row-dmg-core { white-space: nowrap; }
+.est-premise { font-size: 12px; }
+
 /* タグのチップ（棚卸し 5-6・5-10: カテゴリ別の色。文字が常に正） */
 .tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 2px; }
 .tag-chip { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
@@ -2138,6 +2174,18 @@ button, select, input, a { touch-action: manipulation; }
   touch-action: pan-y;
   -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
 }
+/* メギド画面の行スワイプ（ピッカーと同じ文法、2026-11-27）: 頭の行
+   だけを滑らせる。土台は .cand-wrap と色面をピッカーと共用する。 */
+.cand-wrap .megido-row-head {
+  position: relative; z-index: 1; background: var(--surface);
+  touch-action: pan-y;
+  -webkit-touch-callout: none; user-select: none; -webkit-user-select: none;
+}
+/* メギド詳細の「このメギドを使っている編成」: 行の形は編成一覧の
+   2段組（.formation-row 系のクラス）をそのまま使う。 */
+.meg-detail-formations { margin-top: 14px; }
+.meg-detail-formations-title { font-size: 16px; font-weight: 700; margin: 0; }
+.meg-formation-row { margin-top: 8px; }
 .swipe-hint {
   display: flex; align-items: center; gap: 8px;
   background: var(--surface);
@@ -271062,6 +271110,11 @@ window.__PREVIEW_DATA__ = {
     clear(root);
     if (vm.state) root.dataset.state = vm.state;
     else delete root.dataset.state;
+    if (vm.expanded) {
+      const scrim = el("div", "statebar-scrim");
+      scrim.addEventListener("click", onToggleExpand);
+      root.append(scrim);
+    }
     if (vm.notice) {
       root.append(el("div", "statebar-notice", vm.notice));
     }
@@ -271077,6 +271130,11 @@ window.__PREVIEW_DATA__ = {
     }
     statebarDetailWasOpen = Boolean(vm.expanded);
     const main = el("div", "statebar-main");
+    main.addEventListener("click", onToggleExpand);
+    const stop = (fn) => (ev) => {
+      if (ev && typeof ev.stopPropagation === "function") ev.stopPropagation();
+      fn();
+    };
     const expand = el("button", "sb-expand");
     expand.setAttribute("aria-expanded", vm.expanded ? "true" : "false");
     expand.setAttribute("aria-label", "塔の状態（タップで詳細を開閉）");
@@ -271097,23 +271155,29 @@ window.__PREVIEW_DATA__ = {
     }
     expand.append(usage);
     expand.append(el("span", "sb-chevron", vm.expanded ? "▼" : "▲"));
-    expand.addEventListener("click", onToggleExpand);
+    expand.addEventListener("click", stop(onToggleExpand));
     main.append(expand);
     const fatigue = vm.fatigue || { fainted: 0, veryBad: 0 };
     const cond = el("button", "sb-cond");
     cond.setAttribute("aria-label", "コンディション表を開く");
-    cond.append(el(
+    const condLabel = el("span", "sb-cond-label");
+    condLabel.append(el("span", "sb-cond-label-line", "コンディション"));
+    condLabel.append(el("span", "sb-cond-label-line", "確認"));
+    cond.append(condLabel);
+    const condCounts = el("span", "sb-cond-counts");
+    condCounts.append(el(
       "span",
       `sb-cond-chip cond-5${fatigue.fainted > 0 ? "" : " is-zero"}`,
       `気絶 ${fatigue.fainted}`
     ));
-    cond.append(el(
+    condCounts.append(el(
       "span",
       `sb-cond-chip cond-4${fatigue.veryBad > 0 ? "" : " is-zero"}`,
       `絶不調 ${fatigue.veryBad}`
     ));
+    cond.append(condCounts);
     if (typeof onOpenConditions === "function") {
-      cond.addEventListener("click", onOpenConditions);
+      cond.addEventListener("click", stop(onOpenConditions));
     }
     main.append(cond);
     root.append(main);
@@ -271410,11 +271474,28 @@ window.__PREVIEW_DATA__ = {
     nodes.forEach((node) => {
       if (!node.style) return;
       node.style.transform = "";
+      node.style.transformOrigin = "";
       const w = node.clientWidth || 0;
-      const sw = node.scrollWidth || 0;
-      if (w > 0 && sw > w) {
-        node.style.transform = `scaleX(${(w / sw).toFixed(3)})`;
+      let sw = node.scrollWidth || 0;
+      if (!(w > 0 && sw > w)) return;
+      let shift = 0;
+      if (typeof document !== "undefined" && typeof document.createRange === "function") {
+        try {
+          const range = document.createRange();
+          range.selectNodeContents(node);
+          const tr = range.getBoundingClientRect();
+          const nr = node.getBoundingClientRect();
+          if (tr && nr && tr.width > 0) {
+            sw = tr.width;
+            shift = tr.left - nr.left;
+          }
+        } catch (e) {
+        }
       }
+      if (!(sw > w)) return;
+      const k = w / sw;
+      node.style.transformOrigin = "left center";
+      node.style.transform = `translateX(${(-shift * k).toFixed(2)}px) scaleX(${k.toFixed(4)})`;
     });
   }
   function createOverlay(root, { onClose } = {}) {
@@ -271684,9 +271765,6 @@ window.__PREVIEW_DATA__ = {
           row.dataset.megidoId = e.id;
           row.append(faceWithStyle(e.name, e.styleLabel));
           row.append(el("span", "cond-row-name", e.name));
-          const styleCell = el("span", "cond-row-style");
-          styleCell.append(styleChip(e.styleLabel));
-          row.append(styleCell);
           row.append(el("span", `condition-stage stage-${e.stage}`, CONDITION_STAGES[e.stage]));
           if (cb) row.addEventListener("click", () => cb.onPick(e.id));
           wrap.append(row);
@@ -271737,6 +271815,111 @@ window.__PREVIEW_DATA__ = {
       }));
     }
     return wrap;
+  }
+
+  // build/app/js/swipe.js
+  var SWIPE_THRESHOLD = 72;
+  var LOCK_DISTANCE = 10;
+  var CLICK_SUPPRESS_MS = 400;
+  function setClass(el5, name, on) {
+    const parts = String(el5.className || "").split(" ").filter(Boolean);
+    const has = parts.includes(name);
+    if (on && !has) el5.className = [...parts, name].join(" ");
+    else if (!on && has) el5.className = parts.filter((p) => p !== name).join(" ");
+  }
+  function isSwipeSuppressed(row) {
+    return Boolean(row && typeof row.__swipeSuppressUntil === "number" && Date.now() < row.__swipeSuppressUntil);
+  }
+  function attachCandidateSwipe(row, handlers) {
+    if (!row || typeof row.addEventListener !== "function") return;
+    const wrap = row.parentElement || null;
+    const revL = wrap && typeof wrap.querySelector === "function" ? wrap.querySelector(".swipe-reveal-l") : null;
+    const revR = wrap && typeof wrap.querySelector === "function" ? wrap.querySelector(".swipe-reveal-r") : null;
+    let sx = 0;
+    let sy = 0;
+    let dx = 0;
+    let locked = false;
+    let active = false;
+    let suppressUntil = 0;
+    const paint = () => {
+      row.style.transform = `translateX(${dx}px)`;
+      if (revL) revL.style.opacity = dx > 8 ? String(Math.min(1, dx / SWIPE_THRESHOLD)) : "0";
+      if (revR) revR.style.opacity = dx < -8 ? String(Math.min(1, -dx / SWIPE_THRESHOLD)) : "0";
+    };
+    const reset = (anim) => {
+      row.style.transition = anim ? "transform .2s ease" : "none";
+      dx = 0;
+      row.style.transform = "translateX(0px)";
+      if (revL) revL.style.opacity = "0";
+      if (revR) revR.style.opacity = "0";
+      if (anim) {
+        setTimeout(() => {
+          row.style.transition = "none";
+        }, 210);
+      }
+    };
+    row.addEventListener("pointerdown", (e) => {
+      if (handlers && typeof handlers.shouldIgnoreStart === "function" && handlers.shouldIgnoreStart(e)) {
+        active = false;
+        return;
+      }
+      sx = e.clientX;
+      sy = e.clientY;
+      dx = 0;
+      locked = false;
+      active = true;
+      if (typeof row.setPointerCapture === "function" && e.pointerId != null) {
+        try {
+          row.setPointerCapture(e.pointerId);
+        } catch {
+        }
+      }
+    });
+    row.addEventListener("pointermove", (e) => {
+      if (!active) return;
+      const mx = e.clientX - sx;
+      const my = e.clientY - sy;
+      if (!locked) {
+        if (Math.abs(mx) > LOCK_DISTANCE && Math.abs(mx) > Math.abs(my)) locked = true;
+        else return;
+      }
+      dx = Math.max(-140, Math.min(140, mx));
+      row.style.transition = "none";
+      paint();
+    });
+    const finish = (commit) => {
+      if (!active) return;
+      active = false;
+      if (locked && commit && dx <= -SWIPE_THRESHOLD) {
+        suppressUntil = Date.now() + CLICK_SUPPRESS_MS;
+        row.__swipeSuppressUntil = suppressUntil;
+        reset(false);
+        if (handlers && typeof handlers.onSwipeLeft === "function") handlers.onSwipeLeft();
+        return;
+      }
+      if (locked && commit && dx >= SWIPE_THRESHOLD) {
+        suppressUntil = Date.now() + CLICK_SUPPRESS_MS;
+        row.__swipeSuppressUntil = suppressUntil;
+        reset(true);
+        if (handlers && typeof handlers.onSwipeRight === "function") handlers.onSwipeRight();
+        return;
+      }
+      if (locked) {
+        suppressUntil = Date.now() + CLICK_SUPPRESS_MS;
+        row.__swipeSuppressUntil = suppressUntil;
+      }
+      reset(true);
+    };
+    row.addEventListener("pointerup", () => finish(true));
+    row.addEventListener("pointercancel", () => finish(false));
+    row.addEventListener("click", (e) => {
+      if (!e || typeof e.stopPropagation !== "function") return;
+      if (Date.now() < suppressUntil) {
+        e.stopPropagation();
+        if (typeof e.preventDefault === "function") e.preventDefault();
+      }
+    }, true);
+    setClass(row, "swipe-row", true);
   }
 
   // build/app/js/panels.js
@@ -272181,6 +272364,18 @@ window.__PREVIEW_DATA__ = {
     if (totalRows === 0) {
       listWrap.append(el2("p", "sheet-note", "条件に合うメギドはいません。"));
     }
+    if (vm.swipeHint && typeof cb.onDismissSwipeHint === "function" && totalRows > 0) {
+      const hint = el2("div", "swipe-hint");
+      hint.append(el2(
+        "span",
+        "swipe-hint-text",
+        "左スワイプで候補から外す／右スワイプで詳細"
+      ));
+      const hintClose = el2("button", "swipe-hint-close", "閉じる");
+      hintClose.addEventListener("click", () => cb.onDismissSwipeHint());
+      hint.append(hintClose);
+      listWrap.append(hint);
+    }
     for (const group of groups) {
       const head = el2("div", "megido-style-head");
       head.append(el2("h3", `megido-style-title ${STYLE_CHIP_CLASS[group.label] || ""}`, group.label));
@@ -272243,7 +272438,16 @@ window.__PREVIEW_DATA__ = {
     }
     const expBtn = el2("button", "megido-expand", vm.expandedId === row.id ? "閉じる" : "詳細");
     head.append(expBtn);
-    block.append(head);
+    const swipeOn = typeof cb.onSwipeHide === "function";
+    if (swipeOn) {
+      const wrap = el2("div", "cand-wrap meg-head-wrap");
+      const revL = el2("div", "swipe-reveal swipe-reveal-l", "詳細");
+      const revR = el2("div", "swipe-reveal swipe-reveal-r", "候補から外す");
+      wrap.append(revL, revR, head);
+      block.append(wrap);
+    } else {
+      block.append(head);
+    }
     let detailEl = null;
     const ensureDetail = () => {
       if (detailEl || !row.detail) return;
@@ -272257,7 +272461,7 @@ window.__PREVIEW_DATA__ = {
       ensureDetail();
       if (detailEl) detailEl.hidden = false;
     }
-    expBtn.addEventListener("click", () => {
+    const toggleDetail = () => {
       ensureDetail();
       if (!detailEl) return;
       detailEl.hidden = !detailEl.hidden;
@@ -272265,8 +272469,51 @@ window.__PREVIEW_DATA__ = {
       if (typeof cb.onExpandChange === "function") {
         cb.onExpandChange(detailEl.hidden ? null : row.id);
       }
-    });
+    };
+    expBtn.addEventListener("click", toggleDetail);
+    if (swipeOn) {
+      attachCandidateSwipe(head, {
+        shouldIgnoreStart: (e) => {
+          if (bulkState && bulkState.kind) return true;
+          const t = e && e.target;
+          return Boolean(t && typeof t.closest === "function" && t.closest("select, input, button, a"));
+        },
+        onSwipeLeft: () => {
+          if (bulkState && bulkState.kind) return;
+          cb.onSwipeHide(row.id);
+        },
+        onSwipeRight: () => {
+          if (bulkState && bulkState.kind) return;
+          toggleDetail();
+        }
+      });
+    }
     return block;
+  }
+  function detailSpdDirText(text, dir) {
+    if (dir !== "up" && dir !== "down") return text;
+    const arrow = dir === "up" ? "↑" : "↓";
+    const note = /（[^）]*）$/.exec(text);
+    if (note) return `${text.slice(0, note.index)}${arrow}${note[0]}`;
+    return `${text}${arrow}`;
+  }
+  function detailReishouInline(summary) {
+    const s = summary || { count: 0, max: 4, special: false, bond: false, spdNotes: [] };
+    const wrap = el2("span", "formation-member-reishou", `／霊宝 ${s.count}/${s.max || 4}`);
+    if (s.special) wrap.append(el2("span", "reishou-mark", "専"));
+    if (s.bond) wrap.append(el2("span", "reishou-mark", "絆"));
+    (s.spdNotes || []).forEach((note, i) => {
+      const line = el2("span", "reishou-spd-note inline");
+      line.append(el2("span", "", i === 0 && !s.special && !s.bond ? " " : "・"));
+      line.append(el2("span", "reishou-spd-note-name", note.name));
+      for (const seg of note.segments || []) {
+        line.append(el2("span", "", " "));
+        const cls = seg.dir === "up" ? "spd-part spd-up" : seg.dir === "down" ? "spd-part spd-down" : "";
+        line.append(el2("span", cls, detailSpdDirText(seg.text, seg.dir)));
+      }
+      wrap.append(line);
+    });
+    return wrap;
   }
   function buildMegidoDetailFields(row, cb, opts = {}) {
     const d = row.detail;
@@ -272357,6 +272604,38 @@ window.__PREVIEW_DATA__ = {
     }
     if (d.trait) {
       wrap.append(el2("p", "sheet-note", `汎用特性: ${d.trait}`));
+    }
+    if (Array.isArray(d.formations) && d.formations.length > 0 && typeof cb.onOpenFormation === "function") {
+      const sec = el2("div", "meg-detail-formations");
+      sec.append(el2("h4", "meg-detail-formations-title", "このメギドを使っている編成"));
+      for (const f of d.formations) {
+        const btn = el2("button", "formation-row meg-formation-row");
+        btn.dataset.formationId = f.id;
+        if (f.targetText || f.recordText) {
+          const top = el2("div", "formation-row-top");
+          if (f.targetText) top.append(el2("span", "formation-target", f.targetText));
+          if (f.recordText) top.append(el2("span", "formation-record", f.recordText));
+          btn.append(top);
+        }
+        const head = el2("div", "formation-row-head");
+        head.append(el2("span", "formation-name", f.name || "（名前なし）"));
+        head.append(el2("span", "formation-composition", f.composition || ""));
+        btn.append(head);
+        for (const m of f.members || []) {
+          const line = el2("div", "formation-member");
+          line.append(el2("span", "formation-member-label", `${m.label}: `));
+          line.append(faceIconImg(m.name));
+          if (m.style) line.append(styleChip(m.style));
+          line.append(el2("span", "formation-member-name", ` ${m.name}`));
+          line.append(el2("span", `formation-member-stage sc-${m.stage}`, `（${m.stageLabel}）`));
+          line.append(el2("span", "formation-member-orb", `／オーブ${m.orbText}`));
+          if (m.reishouSummary) line.append(detailReishouInline(m.reishouSummary));
+          btn.append(line);
+        }
+        btn.addEventListener("click", () => cb.onOpenFormation(f.id));
+        sec.append(btn);
+      }
+      wrap.append(sec);
     }
     if (opts.withDemand) {
       if (Array.isArray(d.demandLines) && d.demandLines.length > 0) {
@@ -280338,107 +280617,6 @@ window.__PREVIEW_DATA__ = {
     return "今の伸び方では倒し切れない";
   }
 
-  // build/app/js/swipe.js
-  var SWIPE_THRESHOLD = 72;
-  var LOCK_DISTANCE = 10;
-  var CLICK_SUPPRESS_MS = 400;
-  function setClass(el5, name, on) {
-    const parts = String(el5.className || "").split(" ").filter(Boolean);
-    const has = parts.includes(name);
-    if (on && !has) el5.className = [...parts, name].join(" ");
-    else if (!on && has) el5.className = parts.filter((p) => p !== name).join(" ");
-  }
-  function isSwipeSuppressed(row) {
-    return Boolean(row && typeof row.__swipeSuppressUntil === "number" && Date.now() < row.__swipeSuppressUntil);
-  }
-  function attachCandidateSwipe(row, handlers) {
-    if (!row || typeof row.addEventListener !== "function") return;
-    const wrap = row.parentElement || null;
-    const revL = wrap && typeof wrap.querySelector === "function" ? wrap.querySelector(".swipe-reveal-l") : null;
-    const revR = wrap && typeof wrap.querySelector === "function" ? wrap.querySelector(".swipe-reveal-r") : null;
-    let sx = 0;
-    let sy = 0;
-    let dx = 0;
-    let locked = false;
-    let active = false;
-    let suppressUntil = 0;
-    const paint = () => {
-      row.style.transform = `translateX(${dx}px)`;
-      if (revL) revL.style.opacity = dx > 8 ? String(Math.min(1, dx / SWIPE_THRESHOLD)) : "0";
-      if (revR) revR.style.opacity = dx < -8 ? String(Math.min(1, -dx / SWIPE_THRESHOLD)) : "0";
-    };
-    const reset = (anim) => {
-      row.style.transition = anim ? "transform .2s ease" : "none";
-      dx = 0;
-      row.style.transform = "translateX(0px)";
-      if (revL) revL.style.opacity = "0";
-      if (revR) revR.style.opacity = "0";
-      if (anim) {
-        setTimeout(() => {
-          row.style.transition = "none";
-        }, 210);
-      }
-    };
-    row.addEventListener("pointerdown", (e) => {
-      sx = e.clientX;
-      sy = e.clientY;
-      dx = 0;
-      locked = false;
-      active = true;
-      if (typeof row.setPointerCapture === "function" && e.pointerId != null) {
-        try {
-          row.setPointerCapture(e.pointerId);
-        } catch {
-        }
-      }
-    });
-    row.addEventListener("pointermove", (e) => {
-      if (!active) return;
-      const mx = e.clientX - sx;
-      const my = e.clientY - sy;
-      if (!locked) {
-        if (Math.abs(mx) > LOCK_DISTANCE && Math.abs(mx) > Math.abs(my)) locked = true;
-        else return;
-      }
-      dx = Math.max(-140, Math.min(140, mx));
-      row.style.transition = "none";
-      paint();
-    });
-    const finish = (commit) => {
-      if (!active) return;
-      active = false;
-      if (locked && commit && dx <= -SWIPE_THRESHOLD) {
-        suppressUntil = Date.now() + CLICK_SUPPRESS_MS;
-        row.__swipeSuppressUntil = suppressUntil;
-        reset(false);
-        if (handlers && typeof handlers.onSwipeLeft === "function") handlers.onSwipeLeft();
-        return;
-      }
-      if (locked && commit && dx >= SWIPE_THRESHOLD) {
-        suppressUntil = Date.now() + CLICK_SUPPRESS_MS;
-        row.__swipeSuppressUntil = suppressUntil;
-        reset(true);
-        if (handlers && typeof handlers.onSwipeRight === "function") handlers.onSwipeRight();
-        return;
-      }
-      if (locked) {
-        suppressUntil = Date.now() + CLICK_SUPPRESS_MS;
-        row.__swipeSuppressUntil = suppressUntil;
-      }
-      reset(true);
-    };
-    row.addEventListener("pointerup", () => finish(true));
-    row.addEventListener("pointercancel", () => finish(false));
-    row.addEventListener("click", (e) => {
-      if (!e || typeof e.stopPropagation !== "function") return;
-      if (Date.now() < suppressUntil) {
-        e.stopPropagation();
-        if (typeof e.preventDefault === "function") e.preventDefault();
-      }
-    }, true);
-    setClass(row, "swipe-row", true);
-  }
-
   // build/app/js/builder.js
   function el3(tag, className, text) {
     const node = document.createElement(tag);
@@ -281938,6 +282116,45 @@ window.__PREVIEW_DATA__ = {
     const owner = ownerName ? `${ownerName}の` : "";
     return `${owner}${line.kindLabel}${name}で約${line.total}点${hits}${lv}${cond}${kill}`;
   }
+  function estimateMaterialNode(text) {
+    const node = el4("p", "sheet-note");
+    const re = /(\d[\d,]*)(?=点)/g;
+    let last = 0;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      if (m.index > last) node.append(el4("span", "", text.slice(last, m.index)));
+      node.append(el4("span", "est-num", m[1]));
+      last = m.index + m[1].length;
+    }
+    if (last < text.length) node.append(el4("span", "", text.slice(last)));
+    return node;
+  }
+  function outgoingEstimateRowNode(line, targetHp, ownerName) {
+    const text = outgoingEstimateLineText(line, targetHp, ownerName);
+    const row = el4("div", "est-row");
+    const idx = text.indexOf("で約");
+    if (idx < 0) {
+      row.append(el4("span", "est-row-main", text));
+      return row;
+    }
+    row.append(el4("span", "est-row-main", text.slice(0, idx + 1)));
+    const rest = text.slice(idx + 1);
+    const dmg = el4("span", "est-row-dmg");
+    const m = /^約(\d[\d,]*)(点)/.exec(rest);
+    if (m) {
+      const core = el4("span", "est-row-dmg-core");
+      core.append(el4("span", "", "約"));
+      core.append(el4("span", "est-num", m[1]));
+      core.append(el4("span", "", "点"));
+      dmg.append(core);
+      const notes = rest.slice(m[0].length);
+      if (notes) dmg.append(el4("span", "", notes));
+    } else {
+      dmg.append(el4("span", "", rest));
+    }
+    row.append(dmg);
+    return row;
+  }
   function damageEstimateSafeLines2(est) {
     if (!est || !est.closest) return [];
     const c = est.closest;
@@ -282533,15 +282750,16 @@ window.__PREVIEW_DATA__ = {
       }
       if (vm.confirmation.spdSummary) {
         const s = vm.confirmation.spdSummary;
-        sec.append(el4("p", "confirm-spd-line", s.aheadNames.length > 0 ? `先手: ${s.aheadNames.join("・")}（${s.aheadNames.length}人）` : "先手を取れる味方はいない"));
+        sec.append(el4("h4", "est-heading", "素早さ"));
+        sec.append(el4("p", "confirm-spd-line est-conclusion", s.aheadNames.length > 0 ? `先手: ${s.aheadNames.join("・")}（${s.aheadNames.length}人）` : "先手を取れる味方はいない"));
         if (s.tiedNames.length > 0) {
           sec.append(el4("p", "confirm-spd-line", `同速: ${s.tiedNames.join("・")}`));
         }
-        sec.append(el4("p", "confirm-spd-line", enemyFastestText(s)));
+        sec.append(el4("p", "confirm-spd-line est-material", enemyFastestText(s)));
       }
       if (vm.confirmation.damageEstimate) {
         const est = vm.confirmation.damageEstimate;
-        sec.append(el4("p", "confirm-me", "危険行動に対する見積もり"));
+        sec.append(el4("h4", "est-heading", "危険行動に対する見積もり"));
         for (const block of est.blocks) {
           if (est.blocks.length > 1) {
             sec.append(el4("p", "sheet-note", block.enemyName));
@@ -282549,15 +282767,15 @@ window.__PREVIEW_DATA__ = {
           if (!block.attacksRead) {
             sec.append(el4("p", "sheet-note", "敵の攻撃が文面から読めなかったため、この見積もりは出せない"));
           } else if (block.falls.length === 0) {
-            sec.append(el4("p", "confirm-spd-line", "一撃で落ちる味方はいない（見込み）"));
+            sec.append(el4("p", "confirm-spd-line est-conclusion", "一撃で落ちる味方はいない（見込み）"));
             for (const line of damageEstimateSafeLines2(block)) {
-              sec.append(el4("p", "sheet-note", line));
+              sec.append(estimateMaterialNode(line));
             }
           } else {
             for (const fall of block.falls) {
-              sec.append(el4("p", "confirm-spd-line", `${fall.allyName}が落ちる見込み（HP${fall.hp}）`));
+              sec.append(el4("p", "confirm-spd-line est-conclusion", `${fall.allyName}が落ちる見込み（HP${fall.hp}）`));
               for (const hit of fall.hits) {
-                sec.append(el4("p", "sheet-note", damageEstimateHitText2(hit)));
+                sec.append(estimateMaterialNode(damageEstimateHitText2(hit)));
               }
             }
           }
@@ -282565,7 +282783,7 @@ window.__PREVIEW_DATA__ = {
       }
       if (vm.confirmation.outgoingEstimate) {
         const oe = vm.confirmation.outgoingEstimate;
-        sec.append(el4("p", "confirm-me", "攻撃の見積もり"));
+        sec.append(el4("h4", "est-heading", "攻撃の見積もり"));
         const chips = el4("div", "outgoing-chips");
         for (const m of oe.members) {
           const btn = el4("button", `outgoing-chip${oe.selected && m.id === oe.selected.id ? " selected" : ""}`, m.name);
@@ -282584,9 +282802,9 @@ window.__PREVIEW_DATA__ = {
           } else {
             for (const section3 of sel.sections) {
               for (const t of section3.targets) {
-                sec.append(el4("p", "confirm-spd-line", t.enemyName));
+                sec.append(el4("p", "est-target", t.enemyName));
                 for (const line of t.lines) {
-                  sec.append(el4("p", "sheet-note", outgoingEstimateLineText(line, t.hp, sel.name)));
+                  sec.append(outgoingEstimateRowNode(line, t.hp, sel.name));
                 }
               }
             }
@@ -282594,7 +282812,7 @@ window.__PREVIEW_DATA__ = {
         }
       }
       if (vm.confirmation.estimatePremise) {
-        sec.append(el4("p", "sheet-note", vm.confirmation.estimatePremise));
+        sec.append(el4("p", "sheet-note est-premise", vm.confirmation.estimatePremise));
       }
       const actions = el4("div", "confirm-actions");
       const reselect = el4("button", "btn-reselect", "選び直す");
@@ -283318,9 +283536,74 @@ window.__PREVIEW_DATA__ = {
     let faceShownFloors = new Set(
       savedRun && Array.isArray(savedRun.faceShownFloors) ? savedRun.faceShownFloors : []
     );
-    let squareFormations = new Map(Object.entries(
-      savedRun && savedRun.squareFormations ? savedRun.squareFormations : {}
-    ));
+    function normalizeKeptEntry(value) {
+      if (typeof value === "string" && value) return { legacy: value, groups: {} };
+      if (value && typeof value === "object" && !Array.isArray(value)) {
+        const groups = {};
+        if (value.groups && typeof value.groups === "object") {
+          for (const [k, v] of Object.entries(value.groups)) {
+            if (typeof v === "string" && v) groups[k] = v;
+            else if (v === null) groups[k] = null;
+          }
+        }
+        return {
+          legacy: typeof value.legacy === "string" && value.legacy ? value.legacy : null,
+          groups
+        };
+      }
+      return { legacy: null, groups: {} };
+    }
+    function keptMapFrom(saved) {
+      const map = /* @__PURE__ */ new Map();
+      for (const [sq, v] of Object.entries(saved || {})) {
+        map.set(sq, normalizeKeptEntry(v));
+      }
+      return map;
+    }
+    function keptFormationId(squareId, species) {
+      const entry = squareFormations.get(squareId);
+      if (!entry) return null;
+      if (species && Object.prototype.hasOwnProperty.call(entry.groups, species)) {
+        return entry.groups[species];
+      }
+      return entry.legacy;
+    }
+    function setKeptFormation(squareId, species, formationId) {
+      let entry = squareFormations.get(squareId);
+      if (!entry) {
+        entry = { legacy: null, groups: {} };
+        squareFormations.set(squareId, entry);
+      }
+      if (species) entry.groups[species] = formationId || null;
+      else entry.legacy = formationId || null;
+      if (!entry.legacy && Object.keys(entry.groups).length === 0) {
+        squareFormations.delete(squareId);
+      }
+    }
+    function dropKeptFormationRefs(formationId) {
+      let changed = false;
+      for (const [sq, entry] of [...squareFormations]) {
+        let touched = false;
+        if (entry.legacy === formationId) {
+          entry.legacy = null;
+          touched = true;
+        }
+        for (const [sp, fid] of Object.entries(entry.groups)) {
+          if (fid === formationId) {
+            delete entry.groups[sp];
+            touched = true;
+          }
+        }
+        if (touched) {
+          changed = true;
+          if (!entry.legacy && Object.keys(entry.groups).length === 0) {
+            squareFormations.delete(sq);
+          }
+        }
+      }
+      return changed;
+    }
+    let squareFormations = keptMapFrom(savedRun && savedRun.squareFormations);
     const persistRun = async () => {
       await saveRun(backend, history, [...faceShownFloors], Object.fromEntries(squareFormations));
     };
@@ -285713,11 +285996,13 @@ window.__PREVIEW_DATA__ = {
       const fd = floorData(structure, sheetCtx.floor);
       return fd ? fd.squares[sheetCtx.squareId] || null : null;
     }
-    function sheetSimSpecies() {
-      const def = sheetSimDef();
+    function sheetActiveSpecies(def) {
       const names = def && def.enemies || [];
       if (!names.length) return null;
       return sheetCtx && names.includes(sheetCtx.enemyTab) ? sheetCtx.enemyTab : names[0];
+    }
+    function sheetSimSpecies() {
+      return sheetActiveSpecies(sheetSimDef());
     }
     function sheetSimSquares() {
       const def = sheetSimDef();
@@ -285964,14 +286249,11 @@ window.__PREVIEW_DATA__ = {
           powerShortText = `塔破力が足りないため記録できません（現在 ${derived.towerPower}）`;
         }
       }
+      const activeSpecies = isBattle ? sheetActiveSpecies(def) : null;
       let fastestEnemy = null;
-      if (isBattle) {
-        for (const name of def.enemies || []) {
-          const spd = enemySpdOf(name, floorEnemies, def.rules);
-          if (typeof spd === "number" && (!fastestEnemy || spd > fastestEnemy.spd)) {
-            fastestEnemy = { name, spd };
-          }
-        }
+      if (isBattle && activeSpecies) {
+        const spd = enemySpdOf(activeSpecies, floorEnemies, def.rules);
+        if (typeof spd === "number") fastestEnemy = { name: activeSpecies, spd };
       }
       const squareRestricted = isRestrictedDef(def);
       const confirmation = isBattle && formation ? confirmationVm(formation, derived, fastestEnemy, squareRestricted) : null;
@@ -285981,17 +286263,18 @@ window.__PREVIEW_DATA__ = {
           orbId: s.orbId || null
         }));
         const blocks = [];
-        for (const name of def.enemies || []) {
-          const fact = floorEnemies && floorEnemies.enemies ? floorEnemies.enemies[name] : null;
-          if (!fact) continue;
-          const est = damageEstimateFor(fact, squareStatMultipliers(def.rules), slotsLike, derived);
-          if (est) blocks.push({ enemyName: name, ...est });
+        if (activeSpecies) {
+          const fact = floorEnemies && floorEnemies.enemies ? floorEnemies.enemies[activeSpecies] : null;
+          if (fact) {
+            const est = damageEstimateFor(fact, squareStatMultipliers(def.rules), slotsLike, derived);
+            if (est) blocks.push({ enemyName: activeSpecies, ...est });
+          }
         }
         if (blocks.length > 0) {
           confirmation.damageEstimate = { blocks };
         }
         const outByMember = /* @__PURE__ */ new Map();
-        for (const name of def.enemies || []) {
+        for (const name of activeSpecies ? [activeSpecies] : []) {
           const fact = floorEnemies && floorEnemies.enemies ? floorEnemies.enemies[name] : null;
           if (!fact) continue;
           const est = outgoingEstimateFor(fact, squareStatMultipliers(def.rules), slotsLike, derived);
@@ -286108,15 +286391,20 @@ window.__PREVIEW_DATA__ = {
       if (!sheetCtx) return;
       sheetCtx.formationId = formationId;
       sheetCtx.outgoingSel = null;
-      if (formationId) squareFormations.set(sheetCtx.squareId, formationId);
-      else squareFormations.delete(sheetCtx.squareId);
+      const fd = floorData(structure, sheetCtx.floor);
+      const def = fd ? fd.squares[sheetCtx.squareId] : null;
+      const species = def && (def.type === "battle" || def.type === "boss") ? sheetActiveSpecies(def) : null;
+      setKeptFormation(sheetCtx.squareId, species, formationId);
       await persistRun();
     }
     async function openSquare(squareId) {
-      const keptId = squareFormations.get(squareId) || null;
+      const fd0 = floorData(structure, viewFloor);
+      const def0 = fd0 ? fd0.squares[squareId] : null;
+      const species0 = def0 && (def0.type === "battle" || def0.type === "boss") ? (def0.enemies || [])[0] || null : null;
+      const keptId = keptFormationId(squareId, species0);
       const keptFormation = keptId && formationsData ? formationsData.formations.find((f) => f.id === keptId) : null;
       if (keptId && !keptFormation) {
-        squareFormations.delete(squareId);
+        dropKeptFormationRefs(keptId);
         await persistRun();
       }
       sheetCtx = {
@@ -286347,6 +286635,10 @@ window.__PREVIEW_DATA__ = {
       onEnemyTab: (name) => {
         if (!sheetCtx) return;
         sheetCtx.enemyTab = name;
+        const keptId = keptFormationId(sheetCtx.squareId, name);
+        const kept = keptId && formationsData ? formationsData.formations.find((f) => f.id === keptId) : null;
+        sheetCtx.formationId = kept ? keptId : null;
+        sheetCtx.outgoingSel = null;
         renderSquareSheet();
       },
       // 耐性一覧はマス単位で1つの表になったため、開閉はシート単位で
@@ -286619,9 +286911,10 @@ window.__PREVIEW_DATA__ = {
           const fd = floorData(structure, sheetCtx.floor);
           const def = fd ? fd.squares[sheetCtx.squareId] : null;
           if (def && (def.type === "battle" || def.type === "boss")) {
+            const active = sheetActiveSpecies(def);
             listCtx.context = {
               floor: sheetCtx.floor,
-              enemyNames: [...def.enemies || []]
+              enemyNames: active ? [active] : [...def.enemies || []]
             };
           }
         }
@@ -286996,14 +287289,7 @@ window.__PREVIEW_DATA__ = {
             };
             await saveFormationsData(backend, formationsData);
             if (sheetCtx && sheetCtx.formationId === id) sheetCtx.formationId = null;
-            let keptChanged = false;
-            for (const [sq, fid] of [...squareFormations]) {
-              if (fid === id) {
-                squareFormations.delete(sq);
-                keptChanged = true;
-              }
-            }
-            if (keptChanged) await persistRun();
+            if (dropKeptFormationRefs(id)) await persistRun();
             overlay.close();
             renderFormationList();
           },
@@ -291344,7 +291630,7 @@ window.__PREVIEW_DATA__ = {
           const run = await loadRun(backend);
           history = run ? createHistory(run.ops, run.cursor) : createHistory();
           faceShownFloors = new Set(run ? run.faceShownFloors : []);
-          squareFormations = new Map(Object.entries(run && run.squareFormations ? run.squareFormations : {}));
+          squareFormations = keptMapFrom(run && run.squareFormations);
           formationsData = await loadFormationsData(backend) || { formations: [], megidoDetails: null };
           records = await loadRecords(backend);
           meta = { ...meta || {}, runMonth: monthKeyOf(/* @__PURE__ */ new Date()) };
@@ -291632,9 +291918,56 @@ window.__PREVIEW_DATA__ = {
       if (d.singularity !== 0) parts.push(`凸${d.singularity}`);
       return parts.length > 0 ? parts.join("・") : null;
     }
+    const formationRowsByMegido = (derived) => {
+      const battleCounts = formationBattleCounts(structure, [
+        currentOps(history),
+        ...records.runs.map((r) => r.ops)
+      ]);
+      const wrapped = formationsData.formations.map((f) => {
+        const usability = formationUsability(f, {
+          owned: derived.owned,
+          conditionOf: derived.conditionOf,
+          byId
+        });
+        return {
+          formation: f,
+          usable: usability.usable,
+          worstStage: worstStageOf(f, derived.conditionOf),
+          members: membersWithEquipment(formationMembers(f, byId)),
+          targetFloors: formationTargetFloors(f, structure)
+        };
+      });
+      wrapped.sort(compareFormationRows);
+      const byMegido = /* @__PURE__ */ new Map();
+      for (const r of wrapped) {
+        const rowVm = {
+          id: r.formation.id,
+          name: r.formation.name,
+          targetText: formationTargetText(r.formation, r.targetFloors),
+          recordText: formationRecordText(r.formation, battleCounts),
+          composition: styleComposition(r.formation, byId),
+          members: r.members.filter((m) => m.megidoId).map((m) => ({
+            label: m.label,
+            name: m.name,
+            style: m.style,
+            stage: derived.conditionOf(m.megidoId),
+            stageLabel: CONDITION_STAGES[derived.conditionOf(m.megidoId)],
+            orbText: m.orbId ? orbNameText(m.orbId) : "なし",
+            reishouSummary: m.reishouIds.length > 0 ? reishouSlotSummary(m.megidoId) : null
+          }))
+        };
+        for (const m of r.members) {
+          if (!m.megidoId) continue;
+          if (!byMegido.has(m.megidoId)) byMegido.set(m.megidoId, []);
+          byMegido.get(m.megidoId).push(rowVm);
+        }
+      }
+      return byMegido;
+    };
     function renderMegidoView() {
       const derived = derive();
       const details = formationsData.megidoDetails;
+      const formationsByMegido = formationRowsByMegido(derived);
       const q = normalizeSearchText(megidoCtx.query.trim());
       const queryActive = q.length > 0;
       const byName = (a, b) => a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
@@ -291679,7 +292012,11 @@ window.__PREVIEW_DATA__ = {
             className: m.class,
             level: d.level,
             deviationText: deviationTextOf(d),
-            detail: { ...d, demandLines: demandLinesOf(m.id) }
+            detail: {
+              ...d,
+              demandLines: demandLinesOf(m.id),
+              formations: formationsByMegido.get(m.id) || []
+            }
           };
           if (row.deviationText) deviating.push(row);
           else standard.push(row);
@@ -291694,6 +292031,7 @@ window.__PREVIEW_DATA__ = {
       }
       const vm = {
         removedRows,
+        swipeHint: !settings.swipeHintSeen,
         // 検索中は結果が見えるよう、アコーディオンを開いた状態で出す。
         accordionOpen: megidoCtx.accordionOpen || queryActive,
         query: megidoCtx.query,
@@ -291786,6 +292124,34 @@ window.__PREVIEW_DATA__ = {
       },
       onToggleOwned: async (id) => {
         await setCandidateOwned(id, false);
+      },
+      // 左スワイプ（候補から外す）: ピッカーの左スワイプと同じ安全網
+      // （取り消し付きの通知）を付ける。初めて外した時だけ、戻し場所
+      // の案内を添える（この画面では上の「候補から外したメギド」の
+      // リストで戻せる）。
+      onSwipeHide: async (id) => {
+        await setCandidateOwned(id, false);
+        await markSwipeHintSeen();
+        const firstTime = !settings.hideToastGuided;
+        if (firstTime) {
+          settings = { ...settings, hideToastGuided: true };
+          await persistSwipeFlags();
+        }
+        showUndoToast(
+          "候補から外しました",
+          firstTime ? "候補から外したメギドのリストで戻せます" : null,
+          async () => {
+            await setCandidateOwned(id, true);
+          }
+        );
+      },
+      onDismissSwipeHint: async () => {
+        await markSwipeHintSeen();
+        renderMegidoView();
+      },
+      // 詳細の編成行から、その編成を開く（編成を組む画面へ）。
+      onOpenFormation: (id) => {
+        openFormationBuilder(id);
       },
       onSetField: async (id, field, value) => {
         if (await setDetailField(id, field, value)) patchMegidoRow(id);
@@ -291928,10 +292294,19 @@ window.__PREVIEW_DATA__ = {
         name: m.name,
         style: m.style,
         className: m.class,
-        detail: d
+        detail: {
+          ...d,
+          formations: formationRowsByMegido(derive()).get(id) || []
+        }
       }, {
         onSetField: async (fid, field, value) => {
           await setDetailField(fid, field, value);
+        },
+        // 詳細の編成行から編成を開く: シートは閉じ、ピッカーへは
+        // 戻らない（編成側へ移動するのが操作の続き）。
+        onOpenFormation: (fid) => {
+          overlay.close();
+          openFormationBuilder(fid);
         },
         onClose: () => {
           overlay.close();
