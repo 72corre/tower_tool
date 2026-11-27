@@ -648,6 +648,13 @@ input, textarea, select { font-size: 16px; }
   border-bottom: 1px solid var(--border);
   background: var(--bg);
 }
+/* 固定ヘッダー行（問題11・13、2026-11-27）: 「絞り込み」アコーディオン
+   の開閉ボタンと、その横の「有効な編成」の切り替えだけを常時出す。
+   検索・チップは下の .picker-filter（アコーディオン）の中。 */
+.formation-tools-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.formation-tools-head .picker-filter-btn { margin-left: 0; }
+.btn-context-valid { font-size: 16px; padding: 6px 10px; border-radius: 999px; }
+.btn-context-valid.active { background: rgba(152, 124, 193, 0.28); color: #e9e2fa; border-color: rgba(152, 124, 193, 0.55); font-weight: 700; }
 /* （編成名の固定部を痩せさせる .build-tools は、2026-11-20 に
    編成名の入力自体をエディタから撤去したため削除した。編成名は
    保存ボタン→「編成名を決める」段で決める。） */
@@ -1650,10 +1657,6 @@ input, textarea, select { font-size: 16px; }
 .tag-chip.tag-rule { border-color: #8b5cf6; color: #cdb2f8; }
 .tag-chip.tag-custom { border-color: #10b981; color: #9fe8cd; }
 
-/* 編成一覧の文脈バナー（開いているマスで先に絞って手渡す） */
-.list-context { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; background: var(--surface-muted); border: 1px solid var(--main); border-radius: 8px; padding: 8px 10px; margin-bottom: 8px; font-size: 16px; font-weight: 700; }
-.list-context button { font-size: 16px; padding: 4px 10px; }
-
 /* 編成カードのメモと操作（メモ・編集・コピー・削除） */
 .formation-notes { font-size: 16px; color: var(--text); background: var(--surface-muted); border-radius: 8px; padding: 6px 8px; margin-top: 6px; white-space: pre-line; }
 .formation-actions .btn-formation-copy, .formation-actions .btn-formation-memo { font-size: 16px; padding: 6px 10px; }
@@ -1695,6 +1698,11 @@ input, textarea, select { font-size: 16px; }
   padding: 0 2px; color: var(--main-bright); border: 1px solid var(--main);
   border-radius: 4px; vertical-align: 1px;
 }
+/* 枠内の専・絆の印の行（全体構成 問題12、2026-11-27）: 「霊宝
+   n/4」の下に固定し、枠の幅で流れて見切れないようにする。 */
+.reishou-marks { display: block; margin-top: 2px; }
+.reishou-marks .reishou-mark { margin-left: 0; margin-right: 3px; }
+.reishou-marks .reishou-mark:last-child { margin-right: 0; }
 .reishou-spd-note { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
 /* 霊宝名は単語の途中で割らない（入りきらない時は名前ごと次の行へ）。 */
 .reishou-spd-note-name { white-space: nowrap; }
@@ -2209,7 +2217,7 @@ button, select, input, a { touch-action: manipulation; }
 /* 選ぶチップ: 44px（B4）。中身を上下中央にそろえる。 */
 .filter-chip, .osu-chip, .sim-chip, .outgoing-chip, .enemy-tab, .floor-check,
 .search-preset, .reishou-slot-chip, .result-chip, .stage-btn,
-.box-btn, .style-btn, .btn-bulk-slot, .default-mode-btn {
+.box-btn, .style-btn, .btn-bulk-slot, .default-mode-btn, .btn-context-valid {
   min-height: var(--h-pick);
   display: inline-flex; align-items: center; justify-content: center;
 }
@@ -2218,7 +2226,7 @@ button, select, input, a { touch-action: manipulation; }
 .btn-explore-add, .btn-explore-reset, .btn-explore-fill,
 .btn-explore-fill-close, .btn-past-reselect, .btn-edit-formation,
 .megido-reishou-edit, .megido-reishou-remove, .reishou-slot-clear,
-.stage-panel-close, .osu-cancel, .list-context button,
+.stage-panel-close, .osu-cancel,
 .meg-restore-btn, .swipe-hint-close, .chain-clear-btn,
 .undo-toast-btn, .btn-remove-member, .btn-clear-slot,
 .overlay-close, .floor-switch-btn, .megido-expand, .btn-fold,
@@ -2294,9 +2302,13 @@ button, select, input, a { touch-action: manipulation; }
 .cond-3 { background: var(--stage-3); color: #14161c; }
 .cond-4 { background: var(--stage-4-fill); color: #ffffff; }
 .cond-5 { background: var(--stage-5); color: #ffffff; }
-.cand-line2 { display: flex; align-items: center; gap: 10px; margin-top: 5px; font-size: 12px; }
+.cand-line2 { display: flex; align-items: center; gap: 10px; row-gap: 2px; flex-wrap: wrap; margin-top: 5px; font-size: 12px; }
 .cand-spd { color: var(--muted); flex: none; width: 80px; white-space: nowrap; }
-.cand-valid { color: var(--main-bright); font-weight: 700; flex: none; width: 36px; white-space: nowrap; }
+/* ✓の印は具体名入りで長さが変わるため固定幅にしない（2026-11-27）。
+   空の行では従来の36px幅だけ確保し、出番チップの位置を揃える。
+   印とチップが横に収まらない行は line2 の中で折り返す（文字は
+   縮めない。折り返すのは理由のある行＝高さが伸びる行だけ）。 */
+.cand-valid { color: var(--main-bright); font-weight: 700; flex: none; min-width: 36px; white-space: nowrap; }
 .cand-line2 .cand-note-mark { margin-top: 0; }
 /* 後の階の印: 黄の座布団（J7 の需要印と同じ段の使い方） */
 .cand-demand-chip {
@@ -276764,6 +276776,22 @@ window.__PREVIEW_DATA__ = {
     }
     return lines;
   }
+  function answerMarkLabel(reasons) {
+    for (const r of reasons || []) {
+      if (!r) continue;
+      if (r.kind === "state" && r.state) return r.state;
+      if (r.kind === "race" && r.race) return `${r.race}特効`;
+      if (r.kind === "threat" || r.kind === "overall") {
+        for (const m of r.means || []) {
+          if (!m) continue;
+          if (m.effectId === "resist:any") return "全状態異常耐性";
+          const label = methodShortLabel(m.effectId, m.effectName);
+          if (label) return label;
+        }
+      }
+    }
+    return null;
+  }
   function meFitReasonLines(meFits) {
     return (meFits || []).map((f) => `リーダーの${f.label}をみたす（${f.effectText}）`);
   }
@@ -280430,7 +280458,7 @@ window.__PREVIEW_DATA__ = {
     const c = est.closest;
     return [
       `一番危ない攻撃: ${damageEstimateHitText(c)}`,
-      `${c.allyName}が受けてもHPが${c.allyHp - c.total}点残る`
+      `一番脆い${c.allyName}が受けてもHPが${c.allyHp - c.total}点残る`
     ];
   }
   function noteMarkEl() {
@@ -280471,9 +280499,13 @@ window.__PREVIEW_DATA__ = {
     const s = summary || { count: 0, max: 4, special: false, bond: false, spdNotes: [] };
     const wrap = el3("span", "reishou-summary");
     const head = el3("span", "reishou-summary-head", `霊宝 ${s.count}/${s.max || 4}`);
-    if (s.special) head.append(el3("span", "reishou-mark", "専"));
-    if (s.bond) head.append(el3("span", "reishou-mark", "絆"));
     wrap.append(head);
+    if (s.special || s.bond) {
+      const marks = el3("span", "reishou-marks");
+      if (s.special) marks.append(el3("span", "reishou-mark", "専"));
+      if (s.bond) marks.append(el3("span", "reishou-mark", "絆"));
+      wrap.append(marks);
+    }
     for (const note of s.spdNotes || []) {
       const line = el3("span", "reishou-spd-note");
       (note.segments || []).forEach((seg, i) => {
@@ -281282,7 +281314,7 @@ window.__PREVIEW_DATA__ = {
       if (!est.attacksRead) {
         box.append(el3("div", "flag-fit-line", "敵の攻撃が文面から読めなかったため、この見積もりは出せない"));
       } else if (est.falls.length === 0) {
-        box.append(el3("div", "flag-fit-line", "落ちる味方はいない（見込み）"));
+        box.append(el3("div", "flag-fit-line", "一撃で落ちる味方はいない（見込み）"));
         for (const line of damageEstimateSafeLines(est)) {
           box.append(el3("div", "flag-fit-line", line));
         }
@@ -281449,14 +281481,19 @@ window.__PREVIEW_DATA__ = {
       const line2 = el3("div", "cand-line2");
       line2.append(el3("span", "cand-spd", row.spdText || ""));
       const valid = row.meFits && row.meFits.length > 0 || row.marks && row.marks.length > 0;
-      const validEl = el3("span", "cand-valid", valid ? "✓有効" : "");
+      const validEl = el3(
+        "span",
+        "cand-valid",
+        row.validMark ? `✓${row.validMark}が有効` : ""
+      );
       line2.append(validEl);
       if (row.noteMark) {
         line2.append(noteMarkEl());
       }
       const hasDemand = (row.noteLines || []).some((n) => n.startsWith("後の階で出番がある可能性あり"));
       if (hasDemand) {
-        line2.append(el3("span", "cand-demand-chip", "後の階で出番あり"));
+        const demandText = typeof row.demandFloor === "number" ? `${row.demandFloor}階で出番の可能性` : "後の階で出番あり";
+        line2.append(el3("span", "cand-demand-chip", demandText));
       }
       btn.append(line2);
       const reasonLines = [];
@@ -281892,20 +281929,23 @@ window.__PREVIEW_DATA__ = {
     const cond = hit.conditionNote ? `（${hit.conditionNote}）` : "";
     return `${hit.attackerName}の${hit.kindLabel}${name}で約${hit.total}点${hits}${cond}`;
   }
-  function outgoingEstimateLineText(line, targetHp) {
+  function outgoingEstimateLineText(line, targetHp, ownerName) {
     const name = line.skillName ? `『${line.skillName}』` : "";
     const hits = line.hits > 1 ? `（${line.hits}連続の合計）` : "";
     const lv = typeof line.lvStage === "number" ? `（Lv${line.lvStage}）` : "";
     const cond = line.conditionNote ? `（${line.conditionNote}）` : "";
     const kill = typeof targetHp === "number" && line.total >= targetHp ? "。倒せる見込み" : "";
-    return `${line.kindLabel}${name}で約${line.total}点${hits}${lv}${cond}${kill}`;
+    const owner = ownerName ? `${ownerName}の` : "";
+    return `${owner}${line.kindLabel}${name}で約${line.total}点${hits}${lv}${cond}${kill}`;
   }
   function damageEstimateSafeLines2(est) {
     if (!est || !est.closest) return [];
     const c = est.closest;
     return [
       `一番危ない攻撃: ${damageEstimateHitText2(c)}`,
-      `${c.allyName}が受けてもHPが${c.allyHp - c.total}点残る`
+      // 受け手は「一番脆い」（落ちるのに一番近い）味方であることを
+      // 明示する（全体構成 問題14 追記、2026-11-27）。
+      `一番脆い${c.allyName}が受けてもHPが${c.allyHp - c.total}点残る`
     ];
   }
   function spdDirText2(text, dir) {
@@ -281935,9 +281975,13 @@ window.__PREVIEW_DATA__ = {
     const s = summary || { count: 0, max: 4, special: false, bond: false, spdNotes: [] };
     const wrap = el4("div", "slot-reishou");
     const head = el4("span", "reishou-summary-head", `霊宝 ${s.count}/${s.max || 4}`);
-    if (s.special) head.append(el4("span", "reishou-mark", "専"));
-    if (s.bond) head.append(el4("span", "reishou-mark", "絆"));
     wrap.append(head);
+    if (s.special || s.bond) {
+      const marks = el4("span", "reishou-marks");
+      if (s.special) marks.append(el4("span", "reishou-mark", "専"));
+      if (s.bond) marks.append(el4("span", "reishou-mark", "絆"));
+      wrap.append(marks);
+    }
     for (const note of s.spdNotes || []) {
       const line = el4("span", "reishou-spd-note");
       (note.segments || []).forEach((seg, i) => {
@@ -282489,22 +282533,23 @@ window.__PREVIEW_DATA__ = {
       }
       if (vm.confirmation.spdSummary) {
         const s = vm.confirmation.spdSummary;
-        sec.append(el4("p", "confirm-spd-line", enemyFastestText(s)));
-        sec.append(el4("p", "confirm-spd-line", s.aheadNames.length > 0 ? `先手: ${s.aheadNames.join("・")}（${s.aheadNames.length}人）` : "敵最速より速い味方はいません"));
+        sec.append(el4("p", "confirm-spd-line", s.aheadNames.length > 0 ? `先手: ${s.aheadNames.join("・")}（${s.aheadNames.length}人）` : "先手を取れる味方はいない"));
         if (s.tiedNames.length > 0) {
           sec.append(el4("p", "confirm-spd-line", `同速: ${s.tiedNames.join("・")}`));
         }
+        sec.append(el4("p", "confirm-spd-line", enemyFastestText(s)));
       }
       if (vm.confirmation.damageEstimate) {
         const est = vm.confirmation.damageEstimate;
         sec.append(el4("p", "confirm-me", "危険行動に対する見積もり"));
-        sec.append(el4("p", "sheet-note", est.premise));
         for (const block of est.blocks) {
-          sec.append(el4("p", "sheet-note", `対象: ${block.enemyName}`));
+          if (est.blocks.length > 1) {
+            sec.append(el4("p", "sheet-note", block.enemyName));
+          }
           if (!block.attacksRead) {
             sec.append(el4("p", "sheet-note", "敵の攻撃が文面から読めなかったため、この見積もりは出せない"));
           } else if (block.falls.length === 0) {
-            sec.append(el4("p", "sheet-note", "落ちる味方はいない（見込み）"));
+            sec.append(el4("p", "confirm-spd-line", "一撃で落ちる味方はいない（見込み）"));
             for (const line of damageEstimateSafeLines2(block)) {
               sec.append(el4("p", "sheet-note", line));
             }
@@ -282521,7 +282566,6 @@ window.__PREVIEW_DATA__ = {
       if (vm.confirmation.outgoingEstimate) {
         const oe = vm.confirmation.outgoingEstimate;
         sec.append(el4("p", "confirm-me", "攻撃の見積もり"));
-        sec.append(el4("p", "sheet-note", oe.premise));
         const chips = el4("div", "outgoing-chips");
         for (const m of oe.members) {
           const btn = el4("button", `outgoing-chip${oe.selected && m.id === oe.selected.id ? " selected" : ""}`, m.name);
@@ -282539,20 +282583,18 @@ window.__PREVIEW_DATA__ = {
             sec.append(el4("p", "sheet-note", "計算できる攻撃が文面から読めなかったため、この味方の見積もりは出せない"));
           } else {
             for (const section3 of sel.sections) {
-              sec.append(el4("p", "sheet-note", `対象: ${section3.enemyName}`));
               for (const t of section3.targets) {
-                sec.append(el4(
-                  "p",
-                  "confirm-spd-line",
-                  `${t.enemyName}（防御${t.def}${typeof t.hp === "number" ? `・HP${t.hp}` : ""}）`
-                ));
+                sec.append(el4("p", "confirm-spd-line", t.enemyName));
                 for (const line of t.lines) {
-                  sec.append(el4("p", "sheet-note", outgoingEstimateLineText(line, t.hp)));
+                  sec.append(el4("p", "sheet-note", outgoingEstimateLineText(line, t.hp, sel.name)));
                 }
               }
             }
           }
         }
+      }
+      if (vm.confirmation.estimatePremise) {
+        sec.append(el4("p", "sheet-note", vm.confirmation.estimatePremise));
       }
       const actions = el4("div", "confirm-actions");
       const reselect = el4("button", "btn-reselect", "選び直す");
@@ -282946,23 +282988,31 @@ window.__PREVIEW_DATA__ = {
       return { top: null, content: content2, searchInput: null, bottom: null };
     }
     const top = el4("div", "formation-tools");
+    const head = el4("div", "formation-tools-head");
+    const filterActive = Boolean(vm.query || vm.styleFilter || vm.usableOnly || vm.floorFilterFloor != null && vm.floorFilterOn === false);
+    if (typeof cb.onToggleFilter === "function") {
+      const filterBtn = el4("button", `picker-filter-btn${filterActive ? " has-filter" : ""}`);
+      filterBtn.append(el4("span", "", "絞り込み"));
+      if (filterActive) filterBtn.append(el4("span", "picker-filter-dot", "●"));
+      filterBtn.append(el4("span", "picker-filter-chev", vm.filterOpen ? "⌃" : "⌄"));
+      filterBtn.addEventListener("click", () => cb.onToggleFilter());
+      head.append(filterBtn);
+    }
+    if (vm.context && typeof cb.onToggleContextValid === "function") {
+      const validBtn = el4("button", `btn-context-valid${vm.context.validOnly ? " active" : ""}`, "有効な編成");
+      validBtn.addEventListener("click", () => cb.onToggleContextValid());
+      head.append(validBtn);
+    }
+    top.append(head);
+    const filterOpen = vm.filterOpen || typeof cb.onToggleFilter !== "function";
+    const filterBox = el4("div", `picker-filter${filterOpen ? " open" : ""}`);
     const search = document.createElement("input");
     search.className = "formation-search";
     search.type = "text";
     search.value = vm.query;
     search.setAttribute("placeholder", "編成名・タグ・メンバー名で検索");
     bindSearchInput(search, (value) => cb.onQuery(value));
-    top.append(search);
-    if (vm.context) {
-      const banner = el4("div", "list-context");
-      banner.append(el4("span", "list-context-text", vm.context.text));
-      if (vm.context.filtered && typeof cb.onToggleContext === "function") {
-        const btn = el4("button", "btn-context-all", "すべて表示");
-        btn.addEventListener("click", cb.onToggleContext);
-        banner.append(btn);
-      }
-      top.append(banner);
-    }
+    filterBox.append(search);
     const filters = el4("div", "formation-filters");
     const styles = [null, "ラッシュ", "カウンター", "バースト"];
     for (const s of styles) {
@@ -282984,8 +283034,9 @@ window.__PREVIEW_DATA__ = {
       floorBtn.addEventListener("click", cb.onToggleFloorFilter);
       filters.append(floorBtn);
     }
-    top.append(filters);
-    top.append(el4("div", "formation-count", `${vm.shownCount} 件（全 ${vm.totalCount} 件）`));
+    filterBox.append(filters);
+    filterBox.append(el4("div", "formation-count", `${vm.shownCount} 件（全 ${vm.totalCount} 件）`));
+    top.append(filterBox);
     const content = el4("div", "formation-list");
     if (vm.mode === "manage") {
       content.append(el4("h2", "sheet-title", "編成管理画面"));
@@ -283003,10 +283054,10 @@ window.__PREVIEW_DATA__ = {
         if (row.recordText) top2.append(el4("span", "formation-record", row.recordText));
         btn.append(top2);
       }
-      const head = el4("div", "formation-row-head");
-      head.append(el4("span", "formation-name", row.name || "（名前なし）"));
-      head.append(el4("span", "formation-composition", row.composition));
-      btn.append(head);
+      const head2 = el4("div", "formation-row-head");
+      head2.append(el4("span", "formation-name", row.name || "（名前なし）"));
+      head2.append(el4("span", "formation-composition", row.composition));
+      btn.append(head2);
       if (Array.isArray(row.members)) {
         for (const m of row.members) {
           const line = el4("div", "formation-member");
@@ -285937,7 +285988,7 @@ window.__PREVIEW_DATA__ = {
           if (est) blocks.push({ enemyName: name, ...est });
         }
         if (blocks.length > 0) {
-          confirmation.damageEstimate = { premise: DAMAGE_ESTIMATE_PREMISE, blocks };
+          confirmation.damageEstimate = { blocks };
         }
         const outByMember = /* @__PURE__ */ new Map();
         for (const name of def.enemies || []) {
@@ -285975,7 +286026,6 @@ window.__PREVIEW_DATA__ = {
           const pool = withLines.length > 0 ? withLines : outMembers;
           const selected = outMembers.find((m) => m.id === wanted) || pool.reduce((a, b) => b.maxTotal > a.maxTotal ? b : a);
           confirmation.outgoingEstimate = {
-            premise: OUTGOING_ESTIMATE_PREMISE,
             members: outMembers.map((m) => ({ id: m.id, name: m.name })),
             selected: {
               id: selected.id,
@@ -285985,6 +286035,12 @@ window.__PREVIEW_DATA__ = {
               noDamageAbility: selected.noDamageAbility
             }
           };
+        }
+        if (confirmation.damageEstimate || confirmation.outgoingEstimate) {
+          confirmation.estimatePremise = sheetEstimatePremise(
+            Boolean(confirmation.damageEstimate),
+            Boolean(confirmation.outgoingEstimate)
+          );
         }
       }
       const timeline = isBattle && formation && !squareRestricted ? sheetTimelineVm(def, formation, derived) : null;
@@ -286554,6 +286610,8 @@ window.__PREVIEW_DATA__ = {
           deleteConfirmId: null,
           context: null,
           contextFilter: true,
+          // 絞り込みアコーディオンの開閉（問題11、2026-11-27）: 既定は閉。
+          filterOpen: false,
           // 「今いる階」フィルタ（SW94、編成区画のみ）: 既定は ON。
           floorFilter: true
         };
@@ -286800,10 +286858,13 @@ window.__PREVIEW_DATA__ = {
         totalCount: rowsAll.length,
         shownCount: rows.length,
         deleteConfirmId: listCtx.deleteConfirmId,
-        context: context ? {
-          filtered: contextFiltered,
-          text: contextFiltered ? `${context.floor}F（${context.enemyNames.join("・")}）向けの編成で絞り込み中` : `${context.floor}F（${context.enemyNames.join("・")}）向けのタグが付いた編成はありません`
-        } : null
+        filterOpen: Boolean(listCtx.filterOpen),
+        // 「有効な編成」の切り替え（問題13、2026-11-27）: バナー＋
+        // 「すべて表示」は廃止し、切り替えボタンだけを渡す。合う編成が
+        // 1件も無い文脈では、切り替えても何も変わらないため切り替え
+        // 自体を出さない（vm.context を null にする）。照合と、先行
+        // 絞り込みの効き方（合う編成がある時だけ絞る）は従来のまま。
+        context: context && contextHasMatches ? { validOnly: listCtx.contextFilter } : null
       };
       const { top, content, searchInput, bottom } = buildFormationList(vm, listCallbacks);
       if (listCtx.mode === "manage") {
@@ -286843,8 +286904,15 @@ window.__PREVIEW_DATA__ = {
         listCtx.deleteConfirmId = null;
         renderFormationList();
       },
-      onToggleContext: () => {
-        listCtx.contextFilter = false;
+      onToggleFilter: () => {
+        listCtx.filterOpen = !listCtx.filterOpen;
+        renderFormationList();
+      },
+      // 「有効な編成」の切り替え（問題13）: ON の時だけ文脈に合う
+      // 編成だけを出す。照合（matchesContext）は従来のまま。
+      onToggleContextValid: () => {
+        listCtx.contextFilter = !listCtx.contextFilter;
+        listCtx.deleteConfirmId = null;
         renderFormationList();
       },
       // 戦術メモの編集（棚卸し 4-9）: メモだけを更新する経路（現行ツールの
@@ -289221,7 +289289,17 @@ window.__PREVIEW_DATA__ = {
       if (allies.length === 0) return null;
       return estimateFalls({ fact, mults: mult, allies });
     }
-    const OUTGOING_ESTIMATE_PREMISE = "前提: 乱数は平均で固定。攻撃力は基礎と霊宝の固定値までとし、クラス補正と編成時点で決まる特効は入れています（特性やオーブの割合補正、戦闘中の強化・弱体は含みません）。数えないもの: 通常攻撃、専用霊宝装備時の形、オーブの攻撃、装備数が条件を満たさない特効";
+    function sheetEstimatePremise(hasDamage, hasOutgoing) {
+      const parts = ["前提: 乱数は平均で固定し、戦闘中の強化・弱体は含みません"];
+      if (hasDamage) {
+        parts.push("危険行動に対する見積もりは、かばうなしで素で受けた場合の見込みです（通常攻撃は材料が無いため数えていません）");
+      }
+      if (hasOutgoing) {
+        parts.push("攻撃の見積もりは、攻撃力を基礎と霊宝の固定値までとし、クラス補正と編成時点で決まる特効を入れています（特性やオーブの割合補正は含みません）");
+        parts.push("攻撃側で数えないもの: 通常攻撃、専用霊宝装備時の形、オーブの攻撃、装備数が条件を満たさない特効");
+      }
+      return `${parts.join("。")}。`;
+    }
     const abilityCache = /* @__PURE__ */ new Map();
     const abilityPending = /* @__PURE__ */ new Set();
     function kickSheetAbilities() {
@@ -289573,6 +289651,7 @@ window.__PREVIEW_DATA__ = {
           const spd = effSpdStandalone(r.id, r.stage);
           const basics = byId.get(r.id);
           const marks = markLabelsFor(r);
+          const answerReasons = markReasonsFor(r);
           const fits = leaderMe && basics ? meRowFits(
             leaderMe,
             ME_SLOT_KEYS[buildCtx.slotIndex],
@@ -289592,8 +289671,19 @@ window.__PREVIEW_DATA__ = {
             // 出番ありは需要のマス情報から組む（階つきで具体的に）。
             validReasons: [
               ...meFitReasonLines(fits),
-              ...answerReasonLines(markReasonsFor(r))
+              ...answerReasonLines(answerReasons)
             ],
+            // 印の文言の材料（2026-11-27 マスター指示）: ✓の印は
+            // 先頭の根拠の具体名入り「✓○○が有効」にし、出番の
+            // チップは最も近い階入り「{N}階で出番の可能性」にする。
+            // 具体名が取れない候補（ME 適合だけ等）は validMark が
+            // null になり、印自体を出さない（理由行が根拠を担う）。
+            validMark: answerMarkLabel(answerReasons),
+            demandFloor: demand ? demandEarliestFloor(
+              demand,
+              r.id,
+              sheetCtx ? sheetCtx.floor : derived.currentFloor
+            ) : null,
             demandReasons: demand ? demandReasonLines(
               demand,
               r.id,
